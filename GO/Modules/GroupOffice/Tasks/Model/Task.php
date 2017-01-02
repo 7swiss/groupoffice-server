@@ -8,7 +8,6 @@ use GO\Core\Orm\Record;
 use GO\Core\Tags\Model\Tag;
 use GO\Core\Users\Model\User;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The task model

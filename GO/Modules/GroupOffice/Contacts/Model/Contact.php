@@ -14,7 +14,6 @@ use GO\Core\Users\Model\Group;
 use GO\Core\Users\Model\User;
 use GO\Core\Users\Model\UserGroup;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The contact model

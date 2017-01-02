@@ -5,7 +5,6 @@ use GO\Core\Controller;
 use GO\Core\Templates\Model\Message;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The controller for the message model

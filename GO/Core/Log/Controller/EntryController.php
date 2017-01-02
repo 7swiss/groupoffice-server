@@ -7,7 +7,6 @@ use GO\Core\Log\Model\Entry;
 use IFW\Data\Filter\FilterCollection;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The controller for the entry model

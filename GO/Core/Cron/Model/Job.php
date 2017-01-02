@@ -8,7 +8,6 @@ use Exception;
 use GO\Core\Modules\Model\Module;
 use GO\Core\Orm\Record;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The Job model

@@ -4,7 +4,6 @@ namespace GO\Modules\GroupOffice\DevTools\Controller;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\DevTools\Model\RecordTest;
 use GO\Modules\GroupOffice\DevTools\Model\Record;
-use function GO;
 
 /**
  * 10s vs 6s in new record.

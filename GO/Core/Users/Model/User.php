@@ -13,7 +13,6 @@ use IFW;
 use IFW\Auth\UserInterface;
 use IFW\Orm\Query;
 use IFW\Validate\ValidatePassword;
-use function GO;
 
 /**
  * User model
