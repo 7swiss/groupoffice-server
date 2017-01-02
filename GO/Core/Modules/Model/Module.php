@@ -323,12 +323,6 @@ class Module extends Record {
 	
 	protected function internalDelete($hard) {	
 		
-		
-		if(!$this->manager()->uninstall($this)) {
-			$this->setValidationError('deleted', 'Uninstall returned false');
-			return false;
-		}
-	
 		//check dependencies
 		$modules = Module::find();		
 		foreach($modules as $module) {			
@@ -336,6 +330,11 @@ class Module extends Record {
 				$this->setValidationError('depends', $module->name.' depends on '.$this->name);
 				return false;
 			}
+		}
+		
+		if($hard && !$this->manager()->uninstall($this)) {
+			$this->setValidationError('deleted', 'Uninstall returned false');
+			return false;
 		}
 		
 		return parent::internalDelete($hard);
