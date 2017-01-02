@@ -32,6 +32,9 @@ class Tag extends Record{
 	 */							
 	public $color;
 
+	/**
+	 * Colors used for tags
+	 */
 	const COLORS = [
 			"F44336", //Red
 			"E91E63", //pINK
