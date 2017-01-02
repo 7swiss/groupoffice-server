@@ -54,7 +54,9 @@ class ErrorHandler {
 		}else
 		{		
 			IFW::app()->debug($e->getMessage());
-			IFW::app()->debug($e->getTraceAsString());
+			foreach(explode("\n", $e->getTraceAsString()) as $line) {
+				IFW::app()->debug($line);
+			}
 			
 			$view = new IFW\View\Web\Exception();
 			\IFW::app()->getResponse()->send($view->render($e));		

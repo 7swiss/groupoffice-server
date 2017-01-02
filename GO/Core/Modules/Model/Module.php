@@ -180,26 +180,18 @@ class Module extends Record {
 		return parent::internalValidate();
 	}
 
-	protected function internalSave() {		
-		
-		if($this->isNew()) {
-			if(!$this->dontInstallDatabase) {
-				$depends = $this->manager()->getRecursiveDependencies();	
-				$this->runModuleUpdates(false, $depends);
-				
-				//structure change might have aborted the transaction.
-				if(!GO()->getDbConnection()->getPDO()->inTransaction()) {
-					GO()->getDbConnection()->getPDO()->beginTransaction();
-				}
-				if(!parent::internalSave()){
-					return false;
-				}
-				if(!$this->manager()->install($this)) {
-					return false;
-				}
-			}			
-		}elseif(!parent::internalSave()) {
+	protected function internalSave() {				
+		if(!parent::internalSave()){
 			return false;
+		}
+		
+		if($this->isNew() && !$this->dontInstallDatabase) {			
+			$depends = $this->manager()->getRecursiveDependencies();				
+			$this->runModuleUpdates(false, $depends);
+			
+			if(!$this->manager()->install($this)) {
+				return false;
+			}
 		}
 		
 		//make sure cache is up to date. router routes are cached for example.
@@ -228,19 +220,23 @@ class Module extends Record {
 
 				$module = Module::find(['name' => $moduleManagerClass])->single();
 				if(!$module) {
+
+					GO()->debug("Installing dependency module '".$moduleManagerClass."'");
+
 					$module = new Module();
 					$module->name = $moduleManagerClass;
-					$module->dontInstallDatabase();					
-				}
+					$module->dontInstallDatabase();	
+					$module->save();
+				}				
+				
+				GO()->debug("Running installation file '".$file->getPath()."'");
 
 				if($file->getExtension() === 'php'){
 					require($file->getPath());
 				}else
 				{					
 					Utils::runSQLFile($file);
-				}
-
-					
+				}	
 
 			}catch (\Exception $e){
 

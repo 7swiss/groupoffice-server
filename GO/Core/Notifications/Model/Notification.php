@@ -203,7 +203,7 @@ class Notification extends Record {
 	
 	
 	public static function countForCurrentUser() {
-		if(!GO()->getAuth()->user()){
+		if(!\GO\Core\Install\Model\System::isDatabaseInstalled() || !GO()->getAuth()->user()){
 			return null;
 		}
 

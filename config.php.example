@@ -6,33 +6,24 @@ return [
 				//'cacheClass' => "\\IFW\\Cache\\None" //set to none for development
 		],
 		'IFW\Db\Connection' => [
-				'user' => 'root',
+				'user' => 'go7',
 				'port' => 3306,
-				'pass' => '',
+				'pass' => 'secret',
 				'database' => 'go7',
 				'host' => 'localhost',
 		],
 		'IFW\Validate\ValidatePassword' => [
 			'enabled' => true
 		],
-	
-		//@todo XSRFToken is broken
-		'GO\Core\Auth\Browser\Model\Token' => [
-			"checkXSRFToken" => false //Can be convenient to disable in development mode.
-		],
 		
 //		'IFW\Debugger'=> [
 //				//Warning: enabling this causes the browser to consume a lot of memory. Use of CTRL + F7 is adviced.
 //				//always enable debugger. Client can also enable it by sending HTTP header X-Debug=1. Open the launcher and press CTRL+F7 in the client to enable this.
-//				'enabled' => false 
+//				'enabled' => true 
 //		],
 //		
 //		 'IFW\Db\Query' => [
 //				 //enables debug on all queries
 //				 'debug' => true
-//		 ],
-	
-		'GO\Modules\Addressbook\Model\Contact' => [
-			'defaultCountry' => 'NL'
-		]
+//		 ]
 ];
