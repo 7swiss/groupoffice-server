@@ -1,0 +1,102 @@
+<html>
+<head>
+
+<style>
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: Arial;
+	color:#000;
+	vertical-align: baseline;
+}
+
+pre {font-family: Consolas,monospace; padding:20px; margin:10px 0; background-color:#f5f5f5; border:1px dashed #000; font-size: 80%;}
+
+.text {padding:20px; font-size: 80%;}
+.container-main {background-color:#3f51b5;margin:20px;padding:20px; color:#FFF;}
+.container-filter {background-color:#f44336;padding:20px; color:#FFF;}
+.container-list {background-color:#03a9f4;padding:20px;margin-left:400px; color:#FFF;}
+.container-details-tab {background-color:#4caf50;padding:20px; margin-left:400px; color:#FFF;}
+.container-details {background-color:#ff5722;padding:20px; margin-top:50px; color:#FFF;}
+</style>
+</head>
+<body>
+
+<div class="text">
+This is the build schema for a "Default" module view.
+<pre>
+
+$stateProvider
+	.state('users', {
+		templateUrl: 'modules/users/views/main.html',
+		controller: 'UserController'
+	})
+	.state('users.list',{
+		controller: 'UserListController',
+		url: "/users?role",
+		templateUrl: 'modules/users/views/list.html'
+	})
+
+	.state('users.list.user', {
+		url: "/user/{userId:[0-9]*}",
+		templateUrl: 'modules/users/views/user.html'
+	})
+	.state('users.list.user.detail', {
+		url: "/detail",
+		templateUrl: 'modules/users/views/user-detail.html',
+		controller: 'UserDetailController'
+	})
+	.state('users.list.user.permission', {
+		url: "/permissions",
+		templateUrl: 'modules/users/views/user-permission.html',
+		controller: 'UserPermissionController'
+	})
+
+	.state('users.list.edit', {
+		url: "/edit/{userId:[0-9]*}",
+		templateUrl: 'modules/users/views/user-edit.html',
+		controller: 'UserEditController'
+	})
+
+	.state("settings.users", {
+		url: '/users',
+		controller: 'UserController',
+		template: '<div ui-view></div>'
+	});
+</pre>
+
+</div>
+
+<div class="container-main">
+HEADER <br/><br/>
+	<div class="container-filter">
+MODULE / LEFT MENU (main.html) <br/><br/>
+		<div class="container-list">
+LIST (list.html)<br/><br/>
+			<div class="container-details-tab">
+DETAILS TAB (user.html)<br/><br/>
+				<div class="container-details">
+DETAILS (user-detail.html, user-permission.html, user-edit.html)<br/><br/>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

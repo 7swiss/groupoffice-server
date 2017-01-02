@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<author>Intermesh B.V.</author>
+	<email>info@intermesh.nl</email>
+	<version>0.1</version>
+	
+	<languages>
+		
+		 <language type="en">
+				<name>Tasks</name>
+				<shortDescription>
+					Manage your daily tasks with this module.
+				</shortDescription>
+				<longDescription>
+					The task module can handle all your daily tasks.
+					Adding them is easy and simple. Create reminders so you don't miss one.
+				</longDescription>
+				<images>
+					<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="EN"></image>
+					<image src="http://www.smartapps.com.br/a/libs/img/block-apps.png" alt="EN"></image>
+					<image src="https://emdm.dir.unipmn.it/pluginfile.php/5494/mod_label/intro/SImulation.png" alt="EN"></image>
+				</images>
+			</language>
+
+			<language type="nl">
+				<name>Taken</name>
+				<shortDescription>
+					Beheer je dagelijkse bezigheden met deze taken module.
+				</shortDescription>
+				<longDescription>
+					De taken module kan je helpen met het beheren van je dagelijkse bezigheden.
+					Taken aanmaken en afvinken is makkelijk. Ook kun je herinneringen instellen zodat je geen taken meer mist.
+				</longDescription>
+				<images>
+					<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="NL"></image>
+				</images>
+		</language>
+		
+	</languages>
+</module>

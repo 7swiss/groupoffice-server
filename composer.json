@@ -1,0 +1,47 @@
+{
+	"name": "intermesh/groupoffice-server",
+	"description": "Group-Office Server",
+	"license": "LGPL",
+	"authors": [
+		{
+			"name": "Merijn Schering",
+			"email": "mschering@intermesh.nl"
+		}
+	],
+	"minimum-stability": "dev",
+	"require": {
+		"php": ">=5.6.0",
+		"ext-pcre": "*",
+		"ext-mbstring": "*",
+		"ext-mcrypt": "*",
+		"ext-ctype": "*",
+		"ext-date": "*",
+		"ext-iconv": "*",
+		"ext-curl": "*",
+		"ext-pdo": "*",
+		"ext-zip": "*",
+
+		"flowjs/flow-php-server": "@stable",
+		"sabre/dav": "@stable",
+		
+		"bshaffer/oauth2-server-php": "@stable",
+		"swiftmailer/swiftmailer": "@stable",
+		"dropbox/dropbox-sdk": "@stable",
+		"html2text/html2text": "@stable",
+		"mtdowling/cron-expression": "@stable",
+		"ralouphie/mimey": "dev-master",
+		"setasign/fpdi-tcpdf": "*"	,
+		"donatj/phpuseragentparser": "*"
+		
+	},
+	"require-dev": {
+		"phpunit/phpunit": "@stable"
+	},
+	"autoload": {
+		"psr-4": {
+			"GO\\": "GO/",
+			"IFW\\": "lib/IFW/"			
+		},
+    "classmap": ["lib/IFW.php"]    
+	}
+}

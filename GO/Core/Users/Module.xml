@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<author>Intermesh B.V.</author>
+	<email>info@intermesh.nl</email>
+	<version>0.1</version>
+	
+	<languages>
+		
+		 <language type="en">
+				<name>User and group management</name>
+				<shortDescription>
+					Manage users and groups
+				</shortDescription>
+				<longDescription>					
+					Manage users and groups
+				</longDescription>
+				<images>
+					
+				</images>
+			</language>
+		<language type="nl">
+				<name>User and group management</name>
+				<shortDescription>
+					Manage users and groups
+				</shortDescription>
+				<longDescription>					
+					Manage users and groups
+				</longDescription>
+				<images>
+					
+				</images>
+			</language>
+		
+	</languages>
+</module>

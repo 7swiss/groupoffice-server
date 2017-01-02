@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<author>Intermesh B.V.</author>
+	<email>info@intermesh.nl</email>
+	<version>0.1</version>
+
+	<languages>
+
+		<language type="en">
+			<name>Files</name>
+			<shortDescription>
+				File storage manager
+			</shortDescription>
+			<longDescription>
+				Long ipsum bak
+			</longDescription>
+			<images>
+				<image src="" alt="EN"></image>
+			</images>
+		</language>
+
+		<language type="nl">
+			<name>Bestanden</name>
+			<shortDescription>
+				tralalala bestnad
+			</shortDescription>
+			<longDescription>
+				lange bestnad
+			</longDescription>
+			<images>
+				<image src="" alt="NL"></image>
+			</images>
+		</language>
+
+	</languages>
+</module>

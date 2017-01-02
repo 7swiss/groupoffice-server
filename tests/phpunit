@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This executable initializes GroupOffice and then runs phpunit
+ */
+
+$classLoader = require("../vendor/autoload.php");
+
+$configFile = __DIR__.'/../config.php';
+
+$app = new \GO\Core\Web\App($classLoader, require($configFile));
+
+//login as admin
+$adminUser = $app->getAuth()->sudo(function(){
+	return \GO\Core\Users\Model\User::find(['username' => 'admin'])->single();				
+});
+
+$app->getAuth()->setCurrentUser($adminUser);
+//unset app otherwise phpunit will serialize it ?!
+unset($app);
+
+PHPUnit_TextUI_Command::main();

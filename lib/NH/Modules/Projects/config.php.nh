@@ -1,0 +1,43 @@
+<?php
+return [
+		'IFW\Config' => [
+				'productName' => 'LH-API',
+        'defaultTimeZone' => 'Europe/Amsterdam',
+				'dataFolder'=>dirname(__FILE__).'/data'
+		],
+		'IFW\Db\Connection' => [
+				'user' => 'root',
+				'port' => 3306,
+				'pass' => '',
+				'database' => 'nhapi',
+				'host' => 'localhost',
+		],
+		'IFW\Validate\ValidatePassword' => [
+			'enabled' => true
+		],
+	
+		'GO\Core\Auth\Browser\Model\Token' => [
+			"checkXSRFToken" => false //Can be convenient to disable in development mode.
+		],
+		
+//		'IFW\Debugger'=> [
+//				//Warning: enabling this causes a giant memory leak. Use of CTRL + F7 is adviced.
+//				//always enable debugger. Client can also enable it by sending HTTP header X-Debug=1. Press CTRL+F7 in the client to enable this.
+//				'enabled' => true 
+//		],
+		
+//		 'IFW\Orm\Query' => [
+//				 //enables debug on all queries
+//				 'debug' => true
+//		 ],
+	
+//		'GO\Modules\Addressbook\Model\Contact' => [
+//			'defaultCountry' => 'NL'
+//		],
+		'NH\Modules\Projects\ProjectsModule' => [
+			'go5ConfigFile' => '/etc/groupoffice/config.php',
+			'go5RootPath' => '/usr/share/groupoffice'
+		]
+
+
+];

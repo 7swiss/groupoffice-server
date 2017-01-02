@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<author>Intermesh B.V.</author>
+	<email>info@intermesh.nl</email>
+	<version>0.1</version>
+
+	<languages>
+
+		<language type="en">
+			<name>Calendar</name>
+			<shortDescription>
+				short ipsum
+			</shortDescription>
+			<longDescription>
+				Long ipsum bak
+			</longDescription>
+			<images>
+				<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="EN"></image>
+				<image src="http://www.smartapps.com.br/a/libs/img/block-apps.png" alt="EN"></image>
+				<image src="https://emdm.dir.unipmn.it/pluginfile.php/5494/mod_label/intro/SImulation.png" alt="EN"></image>
+			</images>
+		</language>
+
+		<language type="nl">
+			<name>Agenda</name>
+			<shortDescription>
+				tralalala agenda
+			</shortDescription>
+			<longDescription>
+				lange agenda
+			</longDescription>
+			<images>
+				<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="NL"></image>
+			</images>
+		</language>
+
+	</languages>
+</module>

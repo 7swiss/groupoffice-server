@@ -1,0 +1,6 @@
+vendor
+config.php
+data
+nbproject/private
+/docs/apigen/
+composer.lock

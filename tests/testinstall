@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+use IFW\Db\Utils;
+use GO\Core\Install\Controller\SystemController;
+
+$classLoader = require("../vendor/autoload.php");
+
+$configFile = __DIR__.'/../config.php';
+
+$app = new \GO\Core\Web\App($classLoader, require($configFile));
+		
+$testdb = "GO_TEST_".date("YmdGis")."_".uniqid();
+
+
+$dbExists = Utils::databaseExists($testdb);
+
+
+$app->getDbConnection()->query("CREATE DATABASE ".$testdb);
+//Set new database
+$app->getConfig()->classConfig[IFW\Db\Connection::class]['database'] = $testdb;		
+$app->getDbConnection()->disconnect();
+
+$app->getDbConnection()->database = $testdb;
+
+
+
+
+$controller = new SystemController();		
+$response = $controller->actionInstall();
+
+
+$app->getDbConnection()->query("DROP DATABASE ".$testdb);
