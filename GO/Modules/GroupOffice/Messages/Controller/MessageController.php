@@ -155,5 +155,4 @@ class MessageController extends Controller {
 
 		$this->renderModel($message);
 	}
-
 }

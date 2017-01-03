@@ -328,14 +328,7 @@ class Message extends \GO\Core\Orm\Record {
 		
 		$this->body = $body;
 	}
-	
-		protected function internalDelete($hard) {
-		$this->freeBlob($this->photoBlobId);
 		
-		return parent::internalDelete($hard);
-	}
-
-	
 	protected function init() {
 		parent::init();
 		

@@ -50,9 +50,9 @@ class Disk implements CacheInterface {
 	 * Store any value in the cache
 	 * @param string $key
 	 * @param mixed $value Will be serialized
-	 * @param int $ttl Seconds to live
+	 * @param int $secondsToLive Seconds to live
 	 */
-	public function set($key, $value, $ttl = 0) {
+	public function set($key, $value, $secondsToLive = 0) {
 
 		//don't set false values because unserialize returns false on failure.
 		if ($key === false)
@@ -60,8 +60,8 @@ class Disk implements CacheInterface {
 
 		$key = File::stripInvalidChars($key, '-');
 
-		if ($ttl) {
-			$this->ttls[$key] = $this->time + $ttl;
+		if ($secondsToLive) {
+			$this->ttls[$key] = $this->time + $secondsToLive;
 			$this->ttlsDirty = true;
 		}
 

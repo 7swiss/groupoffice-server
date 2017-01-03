@@ -17,6 +17,9 @@ class Controller extends IFWController {
 	 */
 	protected $responseData = [];
 	
+	
+	private $rendered;
+	
 	/**
 	 * Checks if there's a logged in user
 	 * 
@@ -47,23 +50,14 @@ class Controller extends IFWController {
 	 * @param array $data
 	 * @throws Exception
 	 */
-	protected function render(array $data = [], $viewName = null, $returnOutput = false) {
+	protected function render(array $data = [], $viewName = null) {
 		
 		$view = $this->getView($viewName);
 		$view->render(array_merge($this->responseData, $data));	
 		
-		if($returnOutput)
-		{
-			return $view;
-		}else
-		{
-			if(GO() instanceof \IFW\Cli\App) {
-				echo $view."\n";
-			}else
-			{					
-				GO()->getResponse()->send($view);
-			}
-		}
+		$this->rendered[] = $view;
+		
+		return $view;
 	}	
 
 	/**
@@ -92,9 +86,8 @@ class Controller extends IFWController {
 		{		
 			$response['success'] = true;
 		}
-		$output = $this->render($response, null, true);
+		return $this->render($response);
 		
-		GO()->getResponse()->send($output);
 	}
 	
 	/**
@@ -110,13 +103,36 @@ class Controller extends IFWController {
 		
 		$output = $this->render([
 				'data' => $store->toArray()
-						],null, true);
+						]);
 		
 		//generate an ETag for HTTP Caching
 		GO()->getResponse()->setETag(md5($output));
 		GO()->getResponse()->abortIfCached();
 		
+		return $output;
+	}
+	
+	protected function callMethodWithParams($methodName, array $routerParams) {
+		parent::callMethodWithParams($methodName, $routerParams);
 		
-		GO()->getResponse()->send($output);
-	}	
+		if(GO() instanceof \IFW\Cli\App) {
+			foreach($this->rendered as $render) {
+				echo $render;
+			}
+			return $output;
+		}
+		
+		$view = "";
+		if(count($this->rendered) > 1) {
+			$view .= "[\n";
+		}
+		
+		$view .= implode(",\n\t", $this->rendered);		
+		
+		if(count($this->rendered) > 1) {
+			$view .= "\n]";
+		}		
+		
+		GO()->getResponse()->send($view);
+	}
 }

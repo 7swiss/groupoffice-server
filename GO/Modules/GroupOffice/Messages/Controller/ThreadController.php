@@ -210,20 +210,4 @@ class ThreadController extends Controller {
 
 		$this->renderStore($accounts);
 	}
-	
-	
-	protected function actionLinks($recordClassName, $recordId, $returnProperties='*') {
-		$query = (new Query())
-						->orderBy(['lastMessageSentAt' => 'DESC']);						
-		
-		$recordTypeId = $recordClassName::getRecordType()->id;		
-		$query->joinRelation('links');
-		$query->where(['links.toRecordTypeId' => $recordTypeId, 'links.toRecordId' => $recordId]);
-		
-		$threads = Thread::find($query);
-		$threads->setReturnProperties($returnProperties);
-
-		$this->renderStore($threads);
-	}
-
 }

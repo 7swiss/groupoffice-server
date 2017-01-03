@@ -2133,6 +2133,9 @@ abstract class Record extends DataModel {
 			}
 		}
 		
+		//Add className		
+		$array['className'] = self::getClassName();
+		
 		$this->fireEvent(self::EVENT_TO_ARRAY, $this, $array);
 		
 		return $array;

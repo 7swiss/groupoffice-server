@@ -177,6 +177,10 @@ class Module extends BaseModule {
 		
 		$router->addRoutesFor(Comments\Controller\CommentController::class)
 						->crud('comments', 'commentId');
+		
+		
+		$router->addRoutesFor(Selections\Controller\SelectionsController::class)
+						->post('selections', 'create');
 	}
 
 	public static function defineCliRoutes(Router2 $router) {

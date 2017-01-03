@@ -12,7 +12,8 @@ class Module extends InstallableModule {
 		
 		$router->addRoutesFor(ThreadController::class)
 						->get('messages/filters', 'filters')
-						->crud('messages/threads', 'threadId')						
+						->crud('messages/threads', 'threadId')
+						->delete('messages/threads', 'multiDelete')
 						->get('messages/threads/:threadId/messages', 'messages')
 						->get('messages/threads/links/:recordClassName/:recordId', 'links');
 		
