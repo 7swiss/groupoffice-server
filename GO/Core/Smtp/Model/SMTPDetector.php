@@ -33,6 +33,8 @@ use IFW\Data\Model;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class SMTPDetector extends Model {
+	
+	use \IFW\Data\ValidationTrait;
 
 	public $hostname;
 	public $port;
@@ -43,7 +45,7 @@ class SMTPDetector extends Model {
 	public $allowInsecure = false;
 	private $password;
 	private $connection;
-	private $_ports = [587, 25, 465];
+	private $ports = [587, 25, 465];
 
 	public function setPassword($password) {
 		$this->password = $password;
@@ -97,7 +99,7 @@ class SMTPDetector extends Model {
 
 		foreach ($servers as $server) {
 
-			foreach ($this->_ports as $port) {
+			foreach ($this->ports as $port) {
 				$this->connection = new Connection();
 				if (!$response = $this->connection->connect($server, $port, $port === 465, 3)) {
 					continue;

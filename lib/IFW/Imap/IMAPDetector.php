@@ -53,7 +53,7 @@ class IMAPDetector extends Model {
 	
 	public $allowInsecure = false;
 	
-	private $_password;
+	private $password;	
 	
 	public $smtpAccount;
 	
@@ -74,7 +74,7 @@ class IMAPDetector extends Model {
 	}
 	
 	public function setPassword($password) { 
-		$this->_password = $password;
+		$this->password = $password;
 	}
 	
 	private function getDomain() {
@@ -118,12 +118,12 @@ class IMAPDetector extends Model {
 				if(strpos($response, 'STARTTLS') && $connection->startTLS()) {
 					$this->encryption = 'tls';					
 					
-					$success = $this->_tryLogin($connection, $this->_password);					
+					$success = $this->_tryLogin($connection, $this->password);					
 					$connection->disconnect();				
 					
 					return $success;
 				}else if($this->allowInsecure) {
-					$success = $this->_tryLogin($connection, $this->_password);					
+					$success = $this->_tryLogin($connection, $this->password);					
 					$connection->disconnect();
 					
 					return $success;
@@ -138,7 +138,7 @@ class IMAPDetector extends Model {
 				$this->encryption = 'ssl';	
 				$this->hostname = $server;
 				
-				$success = $this->_tryLogin($connection, $this->_password);					
+				$success = $this->_tryLogin($connection, $this->password);					
 				$connection->disconnect();
 
 				return $success;

@@ -22,13 +22,17 @@ class AutoDetectController extends Controller {
 	}
 	
 	protected function actionDetect() {
+		
+		$data = GO()->getRequest()->body['data'];
+		unset($data['validationErrors'], $data['smtpAccount']);
+		
 		$detector = new IMAPDetector();
-		$detector->setValues(GO()->getRequest()->body['data']);
+		$detector->setValues($data);
 		$detector->detect();
 		
 		
 		$detector->smtpAccount = new SMTPDetector();
-		$detector->smtpAccount->setValues(GO()->getRequest()->body['data']);
+		$detector->smtpAccount->setValues($data);
 		$detector->smtpAccount->detect();
 		
 		$this->renderModel($detector);
