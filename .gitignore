@@ -4,4 +4,10 @@ data
 nbproject/private
 /docs/apigen/
 composer.lock
+
+
+# Ignore vendor folders except the standard one
 GO/Modules/*
+!GO/Modules/GroupOffice
+!GO/Modules/Tutorial
+!GO/Modules/README.TXT
