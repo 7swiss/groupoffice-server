@@ -2,8 +2,9 @@
 
 namespace GO\Core\Smtp\Model;
 
+use ErrorException;
 use Exception;
-use IFW\Util\StringUtil;
+use function GO;
 
 /**
  * Socket Connection
@@ -45,8 +46,8 @@ class Connection {
 			
 			try {
 				$this->handle = stream_socket_client($remote, $this->connectErrorNo, $this->connectError, $timeout, STREAM_CLIENT_CONNECT, $streamContext);
-			}catch (\ErrorException $e) {
-				\GO()->debug($e->getMessage());
+			}catch (ErrorException $e) {
+				GO()->debug($e->getMessage());
 			}
 //		}
 
