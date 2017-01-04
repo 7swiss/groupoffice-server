@@ -119,18 +119,14 @@ class Token extends Record {
 	}
 	
 	private static function generateToken(){
-		$randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
-		if ($randomData !== false && strlen($randomData) === 20) {
-			return bin2hex($randomData);
-		}
-        
-//        if (function_exists('openssl_random_pseudo_bytes')) {
-//            $randomData = openssl_random_pseudo_bytes(20);
-//            if ($randomData !== false && strlen($randomData) === 20) {
-//                return bin2hex($randomData);
-//            }
-//        }
 		
+		//openssl has broader support than mcrypt
+		return bin2hex(openssl_random_pseudo_bytes(16));
+//		$randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
+//		if ($randomData !== false && strlen($randomData) === 20) {
+//			return bin2hex($randomData);
+//		}
+    
 		throw new Exception("We need mcrypt support in PHP!");
 	}
 	
