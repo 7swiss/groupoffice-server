@@ -196,7 +196,7 @@ class Attachment extends Record {
 		
 		$account = $this->message->account;	
 
-		$blob = $account->getAccountRecord()->getAttachmentBlob($this);		
+		$blob = $account->getAttachmentBlob($this);		
 		if($blob) {
 			$this->blob = $blob;
 		}
