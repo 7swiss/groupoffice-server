@@ -164,4 +164,8 @@ class AccountController extends Controller {
 		
 		$this->render(['data' => GO()->getProcess()->toArray()]);
 	}
+	
+	public function actionSyncAll() {
+		Account::syncAll();
+	}
 }

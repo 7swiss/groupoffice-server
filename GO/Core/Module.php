@@ -45,6 +45,7 @@ class Module extends BaseModule {
 
 		$router->addRoutesFor(AccountController::class)
 						->crud('accounts', 'accountId')
+						->get('accounts/sync', 'syncAll')
 						->get('accounts/:accountId/sync', 'sync');
 
 		$router->addRoutesFor(FlowController::class)
@@ -190,7 +191,8 @@ class Module extends BaseModule {
 						->set('system/upgrade', 'upgrade');
 		
 		$router->addRoutesFor(AccountController::class)
-						->set('accounts/:accountId/sync', 'sync');
+						->set('accounts/:accountId/sync', 'sync')
+						->set('accounts/sync', 'syncAll');
 		
 		$router->addRoutesFor(JobController::class)->set('cron/run', 'run');
 	}

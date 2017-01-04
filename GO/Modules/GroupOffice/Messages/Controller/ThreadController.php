@@ -236,4 +236,16 @@ class ThreadController extends Controller {
 
 		$this->renderStore($accounts);
 	}
+	
+	protected function actionEmptyTrash($accountId) {
+		
+		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_TRASH])->debug());
+		foreach($messages as $message) {
+			$message->delete();
+		}
+		
+		Thread::syncAll($accountId);
+		
+		$this->render();
+	}
 }

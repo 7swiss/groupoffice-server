@@ -54,7 +54,7 @@ class ErrorHandler {
 		}else
 		{		
 			IFW::app()->debug($e->getMessage());
-			foreach(explode("\n", $e->getTraceAsString()) as $line) {
+			foreach(explode("\n", (string) $e) as $line) {
 				IFW::app()->debug($line);
 			}
 			

@@ -70,21 +70,9 @@ class Debugger extends Object {
 			$mixed = call_user_func($mixed);
 		}elseif (!is_scalar($mixed)) {
 			$mixed = print_r($mixed, true);
-//		}else
-//		{
-//			$lines = explode("\n", $mixed);
-//			if(count($lines) > 1) {
-//				foreach($lines as $line) {
-//					$this->debug($line, $section);
-//				}
-//				return;
-//			}else
-//			{
-//				$mixed = $lines[0];
-//			}
 		}
 		
-		$bt = debug_backtrace(null, 4);
+		$bt = debug_backtrace(null, 4+$traceBackSteps);
 		$caller = $lastCaller = array_shift($bt);		
 		//can be called with IFW::app()->debug(). We need to go one step back
 		while($caller['function'] == 'debug' || $caller['class'] == self::class) {		
@@ -92,7 +80,7 @@ class Debugger extends Object {
 			$caller = array_shift($bt);
 		}
 		
-		while($traceBackSteps > 0) {
+		while($traceBackSteps > 0) {			
 			$lastCaller = $caller;
 			$caller = array_shift($bt);
 			$traceBackSteps--;			
@@ -165,7 +153,7 @@ class Debugger extends Object {
 	 * @param \IFW\Orm\Query $query
 	 * @param array $bindParams
 	 */
-	public function debugSql($sql, $bindParams = []) {
+	public function debugSql($sql, $bindParams = [], $traceBackSteps = 0) {
 
 		//sort so that :param1 does not replace :param11 first.
 		krsort($bindParams);
@@ -192,7 +180,7 @@ class Debugger extends Object {
 			$sql = str_replace($key, $queryValue, $sql);
 		}
 
-		$this->debug($sql, 'sql');
+		$this->debug($sql, 'sql', $traceBackSteps);
 	}
 	
 	/**

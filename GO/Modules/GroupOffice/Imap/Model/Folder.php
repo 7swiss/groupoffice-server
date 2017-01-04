@@ -7,6 +7,7 @@ use IFW;
 use IFW\Imap\Mailbox;
 use IFW\Orm\Record;
 use IFW\Util\ArrayUtil;
+use GO\Modules\GroupOffice\Messages\Model\Message as MessagesMessage;
 /**
  * The Folder model
  *
@@ -114,6 +115,9 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		GO()->debug("Sync updates to imap ".$this->name);
 		$this->syncUpdatesToImap();		
 		
+		GO()->debug("Sync deletes to imap ".$this->name);
+		$this->syncDeletesToImap();		
+		
 		GO()->getProcess()->setProgress(null);
 		//the highest modseq will be updated so we'll only update messages newer since now next sync
 		$status = $this->getImapMailbox()->getStatus(['highestmodseq']);					
@@ -179,26 +183,26 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		$name = str_replace('INBOX'.$this->delimiter, '', $this->name);
 		
 		if(strpos($name, $this->account->sentFolder) === 0) {
-			return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_SENT;
+			return MessagesMessage::TYPE_SENT;
 		}
 			
 		if(strpos($name, $this->account->draftsFolder) === 0) {
-			return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_DRAFT;
+			return MessagesMessage::TYPE_DRAFT;
 		}
 		
 		if(strpos($name, $this->account->spamFolder) === 0 || strpos($name, 'Junk') === 0) {
-			return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_JUNK;
+			return MessagesMessage::TYPE_JUNK;
 		}
 		
 		if(strpos($name, $this->account->trashFolder) === 0) {
-			return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_TRASH;
+			return MessagesMessage::TYPE_TRASH;
 		}
 		
 		if(strpos($name, $this->account->actionedFolder) === 0) {
-			return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_ACTIONED;
+			return MessagesMessage::TYPE_ACTIONED;
 		}
 		
-		return \GO\Modules\GroupOffice\Messages\Model\Message::TYPE_INCOMING;		
+		return MessagesMessage::TYPE_INCOMING;		
 	}	
 	
 
@@ -482,7 +486,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	
 	
 	private function syncUpdatesToImap() {
-		$messages = \GO\Modules\GroupOffice\Messages\Model\Message::find(
+		$messages = MessagesMessage::find(
 						(new IFW\Orm\Query())
 						->joinRelation('imapMessage', true)
 						->where('imapMessage.syncedAt<t.modifiedAt')
@@ -553,14 +557,8 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 //		$conn->debug = false;
 
 	}
-	
-	
-//	private function syncMoveToImap() {
-//		
-//	}
-	
-	
-	private function diffFlags(\IFW\Imap\Message $imapMessage, \GO\Modules\GroupOffice\Messages\Model\Message $message, $findToClear = false) {
+
+	private function diffFlags(\IFW\Imap\Message $imapMessage, MessagesMessage $message, $findToClear = false) {
 		
 		$flags = [];
 		if($imapMessage->flagged != $message->flagged && $message->flagged == !$findToClear) {
@@ -581,6 +579,26 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 
 		
 		return $flags;
+	}
+	
+	private function syncDeletesToImap() {
+		$deletedMessages = Message::find(
+						(new IFW\Orm\Query())
+						->joinRelation('message', false, 'LEFT')
+						->andWhere(['folderId'=>$this->id, 'message.id'=>null])												
+						)->all();
+		
+		$uids = [];
+		foreach($deletedMessages as $message) {
+			$uids[] = $message->imapUid;
+		}
+		
+		
+		if($this->getImapMailbox()->deleteMessages($uids)) {
+			foreach($deletedMessages as $message) {
+				$message->delete();
+			}
+		}
 	}
 
 }

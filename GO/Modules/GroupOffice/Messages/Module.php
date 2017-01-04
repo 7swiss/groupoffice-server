@@ -14,7 +14,8 @@ class Module extends InstallableModule {
 						->crud('messages/threads', 'threadId')
 						->delete('messages/threads', 'multiDelete')
 						->get('messages/threads/:threadId/messages', 'messages')
-						->get('messages/threads/links/:recordClassName/:recordId', 'links');
+						->delete('messages/trash', 'emptyTrash')
+						->delete('messages/junk', 'emptyJunk');
 		
 		$router->addRoutesFor(MessageController::class)
 						->crud('messages', 'messageId');

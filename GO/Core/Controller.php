@@ -18,7 +18,7 @@ class Controller extends IFWController {
 	protected $responseData = [];
 	
 	
-	private $rendered;
+	private $rendered = [];
 	
 	/**
 	 * Checks if there's a logged in user
@@ -119,7 +119,7 @@ class Controller extends IFWController {
 			foreach($this->rendered as $render) {
 				echo $render;
 			}
-			return $output;
+			return;
 		}
 		
 		$view = "";

@@ -1,0 +1,2 @@
+ALTER TABLE `imap_message` CHANGE `messageId` `messageId` INT(11) NULL;
+ALTER TABLE `imap_message` DROP FOREIGN KEY `messages_imap_message_data_ibfk_1`; ALTER TABLE `imap_message` ADD CONSTRAINT `messages_imap_message_data_ibfk_1` FOREIGN KEY (`messageId`) REFERENCES `messages_message`(`id`) ON DELETE SET NULL ON UPDATE RESTRICT;

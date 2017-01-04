@@ -198,7 +198,7 @@ class Router extends IFW\Router{
 //				var_dump($config['methods']['GET']);
 //				throw new HttpException(405, "HTTP ".$method." not allowed. Only ".implode(',', array_keys($config['methods']))." are supported");
 //				throw new Exception("No action defined for this route!");
-			throw new NotFound("No action defined for ".$method." on route ".$this->route." params: ".var_export($this->routeParams, true));
+			throw new NotFound("No action defined for route ".$this->route." params: ".var_export($this->routeParams, true));
 		}
 		
 		return $config['actions'][$paramCount];

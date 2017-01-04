@@ -309,11 +309,8 @@ class QueryBuilder {
 	 */
 	public function getBindParameters() {
 		$ps = $this->query->bindParameters;
-
-//		GO()->debug($this->aliasMap);
-
+		
 		foreach ($this->buildBindParameters as $p) {
-
 			$columnObj = $this->findColumn($p['tableAlias'], $p['column']);
 
 			$p['pdoType'] = $columnObj->pdoType;
@@ -739,12 +736,15 @@ class QueryBuilder {
 			}
 
 			if ($this->query->debug) {
-				IFW::app()->getDebugger()->debugSql($sql, $binds);
+				IFW::app()->getDebugger()->debugSql($sql, $binds, 2);
 			}
 
 			$stmt->execute();
-		} catch (\Exception $e) {
-			throw new \Exception($e->getMessage() . ': FULL SQL: ' . $this->build(true));
+		} catch (\PDOException $e) {
+			
+			GO()->debug("FAILED SQL: ".$this->build(true));
+			
+			throw $e;
 		}
 
 		return $stmt;

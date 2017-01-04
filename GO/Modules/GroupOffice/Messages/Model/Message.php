@@ -64,6 +64,13 @@ class Message extends \GO\Core\Orm\Record {
 	 * @var int
 	 */							
 	public $threadId;
+	
+	/**
+	 * The account this message belongs to.
+	 * 
+	 * @var int 
+	 */
+	public $accountId;
 
 	/**
 	 * 
@@ -199,6 +206,7 @@ class Message extends \GO\Core\Orm\Record {
 	protected static function defineRelations() {		
 		//self::hasOne('message', Message::class, ['messageId' => 'id']);		
 		self::hasOne('thread', Thread::class, ['threadId' => 'id']);		
+		self::hasOne('account', \GO\Modules\GroupOffice\Imap\Model\Account::class, ['accountId' => 'id']);
 		self::hasMany('messages', self::class, ['threadId' => 'threadId']);	
 		
 		self::hasMany('attachments', Attachment::class, ['id' => 'messageId']);

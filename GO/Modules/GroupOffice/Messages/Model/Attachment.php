@@ -165,10 +165,10 @@ class Attachment extends Record {
 		$this->saveBlob('blobId');
 
 		$success = parent::internalSave();
-// TODO: thread not there when new from imap
-//		if($this->isNew() && $this->contentType === 'text/calendar') {
-//			$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
-//		}
+
+		if($this->isNew() && $this->contentType === 'text/calendar') {
+			$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
+		}
 		
 		return $success;
 	}
@@ -194,7 +194,7 @@ class Attachment extends Record {
 			
 		}
 		
-		$account = $this->message->thread->account;	
+		$account = $this->message->account;	
 
 		$blob = $account->getAccountRecord()->getAttachmentBlob($this);		
 		if($blob) {

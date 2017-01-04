@@ -569,7 +569,7 @@ class Account extends AccountRecord implements SyncableInterface{
 			$createDefault = true;
 		}
 		
-		$this->connect()->debug = true;
+//		$this->connect()->debug = true;
 
 		$folders = [];
 		$mailboxes = $parentMailbox->getChildren();
