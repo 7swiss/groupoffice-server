@@ -11,7 +11,6 @@ class Module extends InstallableModule {
 	public static function defineWebRoutes(Router $router) {
 		
 		$router->addRoutesFor(ThreadController::class)
-						->get('messages/filters', 'filters')
 						->crud('messages/threads', 'threadId')
 						->delete('messages/threads', 'multiDelete')
 						->get('messages/threads/:threadId/messages', 'messages')

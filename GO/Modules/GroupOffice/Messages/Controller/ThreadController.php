@@ -20,23 +20,6 @@ use IFW\Orm\Query;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class ThreadController extends Controller {
-	
-	public function actionFilters() {
-		$this->render($this->getFilterCollection()->toArray());
-	}
-
-	private function getFilterCollection() {
-		$filters = new FilterCollection(Thread::class);
-
-		
-		$filters->addFilter(TypeFilter::class);
-		$filters->addFilter(TagFilter::class);
-		$filters->addFilter(AccountFilter::class);
-		
-		
-	
-		return $filters;
-	}
 
 	/**
 	 * Fetch threads
@@ -49,7 +32,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	protected function actionStore($type='incoming', $orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -66,12 +49,55 @@ class ThreadController extends Controller {
 						->search($searchQuery, ['messages.subject','messages.body']);
 		}
 
-		$this->getFilterCollection()->apply($query);		
+		$this->applyType($query, $type);		
 		
 		$threads = Thread::find($query);
 		$threads->setReturnProperties($returnProperties);
 
 		$this->renderStore($threads);
+	}
+	
+	private function applyType(Query $query, $type) {
+		$subquery = (new Query())
+								->select('id')
+								->tableAlias('m')
+								->where('m.threadId=t.id');
+		
+		switch($type) {
+			case 'incoming':
+				$subquery->andWhere(['type'=>  Message::TYPE_INCOMING]);
+				break;
+			
+			case 'unread':
+				$subquery->andWhere(['type'=>  Message::TYPE_INCOMING, 'seen'=>false]);		
+				break;
+			case 'flagged':
+				$subquery->andWhere(['flagged'=>true]);
+				break;
+			
+			case 'actioned':
+				$subquery->andWhere(['type'=>  Message::TYPE_ACTIONED]);				
+				break;
+			case 'sent':
+				$subquery->andWhere(['type'=>  Message::TYPE_SENT]);				
+				break;
+			
+			case 'drafts':
+				$subquery->andWhere(['type'=>  Message::TYPE_DRAFT]);
+				break;
+			case 'trash':
+				$subquery->andWhere(['type'=>  Message::TYPE_TRASH]);				
+				break;
+			case 'junk':
+				$subquery->andWhere(['type'=>  Message::TYPE_JUNK]);				
+				break;
+			
+			case 'outbox':
+				$subquery->andWhere(['type'=>  Message::TYPE_OUTBOX]);				
+				break;
+		}
+		
+		$query->andWhere(['EXISTS', Message::find($subquery)]);
 	}
 
 	/**

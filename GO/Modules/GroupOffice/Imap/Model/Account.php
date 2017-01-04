@@ -115,13 +115,8 @@ class Account extends AccountRecord implements SyncableInterface{
 		parent::defineRelations();
 	}
 	
-	public static function getDefaultApiProperties() {
-		$attr = parent::getDefaultApiProperties();
-		
-		$attr[] = 'smtpAccount';
-		$attr[] = 'signatures';
-		
-		return $attr;
+	public static function getDefaultReturnProperties() {
+		return parent::getDefaultReturnProperties().',smtpAccount,signatures';
 	}
 	
 	public function toArray($properties = null) {
