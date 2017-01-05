@@ -22,7 +22,8 @@ class Module extends InstallableModule{
 				->put('tasks/:taskId', 'update')
 				->post('tasks', 'create')
 				->delete('tasks/:taskId','delete')
-				->get('tasks/comments/:taskId', 'comments');
+				->get('tasks/comments/:taskId', 'comments')
+				->post('tasks/comments/:taskId', 'addComment');
 				
 	}
 	

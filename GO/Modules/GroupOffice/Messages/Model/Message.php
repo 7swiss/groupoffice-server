@@ -472,6 +472,9 @@ class Message extends \GO\Core\Orm\Record {
 	
 	protected function internalValidate() {
 		
+		if(!isset($this->accountId) && $this->isModified("thread")) {
+			$this->accountId = $this->accountId = $this->thread->accountId;							
+		}
 		
 		if($this->isModified('body') && strlen($this->body) > 1024*1024){
 			$this->body = substr($this->getAttribute('body', 0, 1024*1024));
