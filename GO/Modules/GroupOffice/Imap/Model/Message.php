@@ -108,6 +108,7 @@ class Message extends Record {
 		}
 		
 		$this->message = new MessagesMessage();
+		$this->message->accountId = $this->folder->accountId;
 		$this->message->uuid = $uuid;		
 		$this->message->priority = $imapMessage->xPriority;		
 		$this->message->type = $this->folder->getMessageType();					

@@ -245,7 +245,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 				if (!$message) {
 					$message = new Message();
 					$message->imapUid = $imapMessage->uid;
-					$message->folderId = $this->id;					
+					$message->folderId = $this->id;						
 					$message->inReplyToUuid = $imapMessage->inReplyTo;
 					
 					//put in own message ID as well so it's easier for threading later on

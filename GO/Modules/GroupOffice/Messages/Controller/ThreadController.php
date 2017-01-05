@@ -239,7 +239,19 @@ class ThreadController extends Controller {
 	
 	protected function actionEmptyTrash($accountId) {
 		
-		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_TRASH])->debug());
+		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_TRASH]));
+		foreach($messages as $message) {
+			$message->delete();
+		}
+		
+		Thread::syncAll($accountId);
+		
+		$this->render();
+	}
+	
+	protected function actionEmptyJunk($accountId) {
+		
+		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_JUNK]));
 		foreach($messages as $message) {
 			$message->delete();
 		}

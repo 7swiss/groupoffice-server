@@ -1094,7 +1094,7 @@ abstract class Record extends DataModel {
 			return true;
 		}
 		
-		GO()->debug("Save ".$this->getClassName());
+		GO()->debug("Save ".$this->getClassName(), 'general', 1);
 		
 		
 		$this->isSaving = true;

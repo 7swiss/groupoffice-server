@@ -203,6 +203,7 @@ class Thread extends Record {
 	public static function deleteEmptyThreads($accountId) {
 		$threads = Thread::find(
 						(new Query())
+						->withDeleted()
 						->select('t.id,t.accountId')
 						->joinRelation('messages',false, 'LEFT')
 						->where(['accountId'=>$accountId, 'messages.id' => null])

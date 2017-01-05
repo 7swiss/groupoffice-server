@@ -145,7 +145,7 @@ class QueryBuilder extends DbQueryBuilder{
 		}
 		
 		//soft delete
-		if($relatedModelName::getColumn('deleted')) {
+		if(!$this->getQuery()->withDeleted && $relatedModelName::getColumn('deleted')) {
 			$joinSql .= ' AND `'.$relation->getName().'`.`deleted` = false';
 		}
 

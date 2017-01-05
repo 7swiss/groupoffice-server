@@ -42,7 +42,7 @@ class Query extends Criteria {
 	private $skipReadPermission = false;
 	
 	private $isRelational = false;
-	
+
 	
 	protected function getwithDeleted() {
 		return $this->withDeleted;
