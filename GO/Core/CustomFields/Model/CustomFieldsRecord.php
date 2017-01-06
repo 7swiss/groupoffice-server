@@ -43,4 +43,8 @@ abstract class CustomFieldsRecord extends Record {
 	public function __unset($name) {
 		unset($this->attributes[$name]);
 	}
+	
+	public static function getDefaultReturnProperties() {
+		return implode(',', self::getColumns()->getColumnNames());
+	}
 }

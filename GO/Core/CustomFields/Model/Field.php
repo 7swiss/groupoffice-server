@@ -87,7 +87,7 @@ class Field extends Record {
 	 * 
 	 * @var string
 	 */							
-	public $_data;
+	protected $data;
 
 	/**
 	 * 
@@ -116,14 +116,18 @@ class Field extends Record {
 	
 	protected function init() {
 		parent::init();
+		
+		self::getColumn('data')->trimInput = false;
 	
 		if($this->isNew()) {
+			
 			$this->type = self::TYPE_TEXT;
-			$this->data = array(
+			
+			$this->setData(array(
 					'maxLength' => 50,
 					'multiline'=> false,
 					'withTime' => false
-					);
+					));
 		}
 	}
 	
@@ -152,20 +156,12 @@ class Field extends Record {
 		return true;
 	}
 
-//	private function _createTable() {
-//		$sql = "CREATE TABLE IF NOT EXISTS `" . $this->fieldSet->customFieldsTableName() . "` (
-//			`id` int(11) NOT NULL,		
-//			PRIMARY KEY (`id`)
-//		  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
-//
-//		return GO()->dbConnection()->getPdo()->query($sql);
-//	}
 	
-	private function _getTypeSql(){
+	private function getTypeSql(){
 		switch($this->type){
 			
 			case self::TYPE_DATE:
-				if($this->data['withTime']) {
+				if($this->getData()['withTime']) {
 					$sql = "DATE";
 				} else {
 					$sql = "DATE NULL";
@@ -180,21 +176,21 @@ class Field extends Record {
 			
 			case self::TYPE_TEXT:	
 				
-				if($this->data['multiline']){
+				if($this->getData()['multiline']){
 					
 					return "TEXT NULL";
 					
 				} else {
-					$data = $this->data;
+					$data = $this->getData();
 					if(!isset($data['maxLength'])){
 						$data['maxLength'] = 50;
-						$this->data = $data;
+						$this->setData($data);
 					}				
-					return "VARCHAR(".$this->data['maxLength'].") NOT NULL DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
+					return "VARCHAR(".$data['maxLength'].") NOT NULL DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
 				}
 			case self::TYPE_SELECT:
 				
-				return "VARCHAR(".$this->_findLargestSelectOption().") NOT NULL DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
+				return "VARCHAR(".$this->findLargestSelectOption().") NOT NULL DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
 			case self::TYPE_NUMBER:
 				
 				$sql = "DOUBLE NULL";
@@ -214,9 +210,9 @@ class Field extends Record {
 	 * To determine the size for the varchar() field with select options
 	 * @return int
 	 */
-	private function _findLargestSelectOption(){
+	private function findLargestSelectOption(){
 		$max = 0;
-		foreach($this->data['options'] as $option){
+		foreach($this->getData()['options'] as $option){
 			$l = strlen($option);
 			if($l > $max){
 				$max = $l;
@@ -226,8 +222,8 @@ class Field extends Record {
 		return $max;
 	}
 	
-	private function _hasOption($value){		
-		return in_array($value, $this->data['options']);
+	private function hasOption($value){		
+		return in_array($value, $this->getData()['options']);
 	}
 	
 	public function internalValidate() {
@@ -244,17 +240,17 @@ class Field extends Record {
 		switch($this->type) {
 			case self::TYPE_SELECT:
 		
-				if(!isset($this->data['options'])){
+				if(!isset($this->getData()['options'])){
 					$this->setValidationError('data', 'noSelectOptions');
 				}
-				if(!empty($this->defaultValue) && !$this->_hasOption($this->defaultValue)){
+				if(!empty($this->defaultValue) && !$this->hasOption($this->defaultValue)){
 					$this->setValidationError('defaultValue', 'defaultNotASelectOption');
 				}
 				break;
 				
 			case self::TYPE_TEXT:
 				
-				if($this->data['multiline'] && !empty($this->defaultValue)) {
+				if($this->getData()['multiline'] && !empty($this->defaultValue)) {
 					$this->setValidationError('defaultValue', 'textCantHaveDefaultValue');
 				}
 				
@@ -282,47 +278,12 @@ class Field extends Record {
 		return parent::internalSave();
 	}
 	
-//	public function save() {
-//		
-//		
-//		$startTrans = $this->isModified(['databaseName','defaultValue', '_data','type']) && !GO()->dbConnection()->inTransaction();
-//		
-//		if($startTrans){
-//			GO()->dbConnection()->beginTransaction();
-//		}
-//		
-//		try {
-//			$this->_alterDatabase();
-//			
-//			$success = parent::save();
-//		
-//		} catch (Exception $ex) {
-//			
-//			if($startTrans){
-//				GO()->dbConnection()->rollBack();
-//			}
-//			
-//			$this->setValidationError('databaseName', $ex->getMessage());
-//			
-//			GO()->debug($ex->getMessage());
-//			
-//			return false;
-//		}
-//		
-//		if($startTrans){
-//			GO()->dbConnection()->commit();
-//		}
-//		
-//		
-//		return $success;
-//	}
-	
 	public function getData(){
-		return json_decode($this->_data, true);
+		return json_decode($this->data, true);
 	}
 	
 	public function setData(array $data){
-		$this->_data = json_encode($data);	
+		$this->data = json_encode($data);	
 	}	
 
 	/**
@@ -330,7 +291,7 @@ class Field extends Record {
 	 */
 	private function alterDatabase() {
 		
-		if($this->isModified(['databaseName','defaultValue', '_data','type'])){
+		if($this->isModified(['databaseName','defaultValue', 'data','type'])){
 			
 			
 			GO()->debug("TRANSACTION NO LONGER WORKING BECAUSE OF ALTER STATEMENT");
@@ -338,13 +299,13 @@ class Field extends Record {
 			$table = $this->fieldSet->customFieldsTableName();
 
 			if ($this->isNew()) {
-				$sql = "ALTER TABLE `" . $table . "` ADD `" . $this->databaseName . "` " . $this->_getTypeSql() . ";";
+				$sql = "ALTER TABLE `" . $table . "` ADD `" . $this->databaseName . "` " . $this->getTypeSql() . ";";
 			} else {
 				$tableName = $this->getOldAttributeValue('databaseName');
 				if(!$tableName){
 					$tableName = $this->databaseName;
 				}
-				$sql = "ALTER TABLE `" . $table . "` CHANGE `" . $tableName . "` `" . $this->databaseName . "` " . $this->_getTypeSql();
+				$sql = "ALTER TABLE `" . $table . "` CHANGE `" . $tableName . "` `" . $this->databaseName . "` " . $this->getTypeSql();
 			}
 
 //			echo $sql;
@@ -358,6 +319,10 @@ class Field extends Record {
 
 			//for cached database columns
 			$this->fieldSet->getColumns()->clearCache();
+		}else
+		{
+			var_dump($this->getModifiedAttributes());
+			throw new \Exception("Doesn't work!");
 		}
 	}
 	

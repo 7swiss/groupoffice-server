@@ -167,11 +167,8 @@ class Column {
 				} else {
 					return new DateTime($value);
 				}
+				
 			default:
-				if (!is_scalar($value)) {
-					throw new Exception("Non scalar value given for database column '" . $this->name . "'. Value: " . print_r($value, true));
-				}
-
 				if ($this->trimInput) {
 					$value = trim($value);
 				}

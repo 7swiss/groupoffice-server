@@ -848,13 +848,21 @@ abstract class Record extends DataModel {
 		if (!is_array($attributeOrRelationName)) {
 			$attributeOrRelationName = [$attributeOrRelationName];
 		}
-		foreach ($attributeOrRelationName as $a) {			
-			if(isset($this->oldAttributes[$a]) && $this->oldAttributes[$a] !== $this->$a) {
-				return true;
-			}
+		foreach ($attributeOrRelationName as $a) {						
 			
-			if(isset($this->relations[$a]) && $this->relations[$a]->isModified()) {
+			if($this->getColumn($a)) {				
+				if(!isset($this->oldAttributes[$a]) && isset($a)) {
+					return true;
+				}
+				
+				if($this->oldAttributes[$a] !== $this->$a) {
+					return true;
+				}
+			}elseif(isset($this->relations[$a]) && $this->relations[$a]->isModified()) {
 				return true;
+			} else
+			{
+				throw new \Exception("Not an attribute or relation '$a'");
 			}
 		}
 		return false;
@@ -1244,7 +1252,7 @@ abstract class Record extends DataModel {
 	}
 	
 	/**
-	 * Relations that are saved after this model
+	 * Relations that are saved after this record
 	 * 
 	 * @return boolean
 	 */
@@ -1278,11 +1286,11 @@ abstract class Record extends DataModel {
 	}	
 	
 	/**
-	 * Belongs to relations that have been set must be saved before saving this model.
+	 * Belongs to relations that have been set must be saved before saving this record.
 	 * 
 	 * @return boolean
 	 */
-	private function saveBelongsToRelations() {
+	protected function saveBelongsToRelations() {
 		
 		foreach($this->relations as $relationName => $relationStore) {
 			
@@ -1366,7 +1374,7 @@ abstract class Record extends DataModel {
 		//Build an array of fields that are set in the object. Unset columns will
 		//not be in the SQL query so default values from the database are respected.
 		$i = 0;
-		foreach ($this->columns as $colName => $col) {
+		foreach ($this->getColumns() as $colName => $col) {
 			$i++;
 			$colNames[':attr'.$i] = $colName;				
 			$bindParams[':attr'.$i] = $col->recordToDb($this->$colName);
