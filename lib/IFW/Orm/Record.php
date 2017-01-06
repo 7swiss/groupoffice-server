@@ -673,6 +673,7 @@ abstract class Record extends DataModel {
 	/**
 	 *
 	 * {@inheritdoc}
+	 * 
 	 */
 	public function __isset($name) {
 		return ($this->getRelation($name) && $this->getRelated($name)) ||
@@ -880,7 +881,7 @@ abstract class Record extends DataModel {
 	
 
 	/**
-	 * Reset record or specific attribute(s) to it's original value and 
+	 * Reset record or specific attribute(s) or relation to it's original value and 
 	 * clear the modified attribute(s).
 	 *
 	 * @param string|array|null $attributeName
@@ -897,7 +898,14 @@ abstract class Record extends DataModel {
 		}
 		
 		foreach($attributeName as $a) {
-			$this->$a = $this->oldAttributes[$a];
+			if(isset($this->oldAttributes[$a])) {
+				$this->$a = $this->oldAttributes[$a];
+			} else if (isset($this->relations[$a])) {
+				unset($this->relations[$a]);
+			} else
+			{
+				throw new Exception("Attribute or relation '$name' not found!");
+			}
 		}
 	}
 

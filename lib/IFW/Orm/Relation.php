@@ -380,7 +380,16 @@ class Relation {
 	 * @return RelationStore
 	 */
 	public function get(Record $record) {
-
+		//When the keys are all null we don't pass the query so we can just contain new records
+		$store = new RelationStore($this, $record, $this->getQuery($record));		
+		return $store;
+	}
+	
+	/**
+	 * 
+	 * @return Query
+	 */
+	private function getQuery(Record $record) {
 		$query = isset($this->query) ? clone $this->query : new Query();	
 		$query->_isRelational();
 		
@@ -416,8 +425,6 @@ class Relation {
 			}
 		}
 		
-		//When the keys are all null we don't pass the query so we can just contain new records
-		$store = new RelationStore($this, $record, !$isNull ? $query : null);		
-		return $store;
+		return $isNull ? null : $query;
 	}
 }

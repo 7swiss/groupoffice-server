@@ -63,7 +63,7 @@ class RelationStore extends Store implements ArrayAccess {
 	 *
 	 * @var Record 
 	 */
-	private $model;
+	private $record;
 
 	/**
 	 * 
@@ -72,7 +72,7 @@ class RelationStore extends Store implements ArrayAccess {
 	 * @param \IFW\Orm\Query $query When query is null we should not query the results but just hold modified records
 	 */
 	public function __construct(Relation $relation, Record $model, Query $query = null) {
-		$this->model = $model;
+		$this->record = $model;
 		$this->relation = $relation;
 		parent::__construct($relation->getToRecordName(), isset($query) ? $query : new Query() );
 		
@@ -194,13 +194,13 @@ class RelationStore extends Store implements ArrayAccess {
 			if($this->relation->isBelongsTo()) {				
 				if(isset($newToRecord->$toField)) {					
 //					GO()->debug($this->model->getClassName().'->'.$fromField .'='.$newToRecord->$toField);					
-					$this->model->$fromField = $newToRecord->$toField;
+					$this->record->$fromField = $newToRecord->$toField;
 				}									
 			}else
 			{
-				if(isset($this->model->$fromField)) {					
+				if(isset($this->record->$fromField)) {					
 //					GO()->debug($newToRecord->getClassName().'->'.$toField.'='.$this->model->$fromField);					
-					$newToRecord->$toField = $this->model->$fromField;
+					$newToRecord->$toField = $this->record->$fromField;
 				}
 			}				
 		}
@@ -259,11 +259,11 @@ class RelationStore extends Store implements ArrayAccess {
 			foreach($this->relation->getKeys() as $fromField => $toField) {					
 				if($this->relation->isBelongsTo()){							
 					if(isset($propArray[$toField])) {
-						$this->model->$fromField = $propArray[$toField];
+						$this->record->$fromField = $propArray[$toField];
 					}
 				}else
 				{
-					$propArray[$toField] = $this->model->$fromField;
+					$propArray[$toField] = $this->record->$fromField;
 				}				
 			}
 		}
@@ -322,6 +322,11 @@ class RelationStore extends Store implements ArrayAccess {
 	public function isModified() {		
 		if(!isset($this->modified)) {
 			return false;
+		}
+		
+		//in case of a single belongs to it's not important that it's modified
+		if($this->getRelation()->isBelongsTo()) {
+			return true;
 		}
 		
 		foreach($this->modified as $record) {
@@ -414,7 +419,7 @@ class RelationStore extends Store implements ArrayAccess {
 		
 		//contact.id => contactTag.contactId
 		foreach($this->relation->getKeys() as $fromField => $toField) {
-			$primaryKey[$toField] = $this->model->$fromField;
+			$primaryKey[$toField] = $this->record->$fromField;
 		}
 		
 		//contactTag.tagId => tag.id
@@ -456,7 +461,7 @@ class RelationStore extends Store implements ArrayAccess {
 		
 		//contact.id => contactTag.contactId
 		foreach($this->relation->getKeys() as $fromField => $toField) {
-			$primaryKey[$toField] = $this->model->$fromField;
+			$primaryKey[$toField] = $this->record->$fromField;
 		}
 		
 		//contactTag.tagId => tag.id
