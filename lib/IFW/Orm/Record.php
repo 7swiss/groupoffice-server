@@ -858,8 +858,10 @@ abstract class Record extends DataModel {
 				if($this->oldAttributes[$a] !== $this->$a) {
 					return true;
 				}
-			}elseif(isset($this->relations[$a]) && $this->relations[$a]->isModified()) {
-				return true;
+			}elseif($this->getRelation($a)) {
+				if(isset($this->relations[$a]) && $this->relations[$a]->isModified()) {
+					return true;
+				}
 			} else
 			{
 				throw new \Exception("Not an attribute or relation '$a'");

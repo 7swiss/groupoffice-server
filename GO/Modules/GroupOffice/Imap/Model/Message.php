@@ -124,6 +124,8 @@ class Message extends Record {
 		}				
 		
 		$this->message->subject = $imapMessage->subject;
+		
+		\IFW\Db\Utils::cutAttributesToColumnLength($this->message);
 
 		if(isset($imapMessage->from)) {
 			$this->message->addresses[] = (new Address())->setValues(['personal'=>$imapMessage->from->personal, 'address'=>$imapMessage->from->email, 'type'=>Address::TYPE_FROM]);
@@ -162,7 +164,7 @@ class Message extends Record {
 			}
 			
 			$a->contentType = $attachment->getContentType();
-
+			
 			$this->message->attachments[] = $a;			
 			
 			$imapAttachment = new Attachment();
@@ -171,6 +173,8 @@ class Message extends Record {
 			$imapAttachment->attachment = $a;
 			
 			$this->attachments[] = $imapAttachment;
+			
+			
 		}
 		
 		//find contact image as account owner

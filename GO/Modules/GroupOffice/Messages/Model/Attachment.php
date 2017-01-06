@@ -166,8 +166,12 @@ class Attachment extends Record {
 
 		$success = parent::internalSave();
 
-		if($this->isNew() && $this->contentType === 'text/calendar') {
-			$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
+		if($success && $this->isNew() && $this->contentType === 'text/calendar') {
+			
+			//delay fire event until complete message has been saved. Otherwise
+			$this->message->attach(\GO\Modules\GroupOffice\DevTools\Model\Record::EVENT_AFTER_SAVE, function() {
+				$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
+			});			
 		}
 		
 		return $success;

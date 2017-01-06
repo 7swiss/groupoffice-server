@@ -291,7 +291,7 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	
-	protected function internalSave() {
+	protected function internalSave() {	
 		
 		$this->saveBlob('photoBlobId');	
 					
