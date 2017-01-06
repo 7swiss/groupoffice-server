@@ -28,17 +28,25 @@ class Module extends InstallableModule {
 	}
 
 	public static function importICS($blob) {
-		$vobject = ICalendarHelper::read($blob);
-		$event = Event::findByUUID((string)$vobject->VEVENT->UID);
-		if(empty($event)) {
+		try {
+			$vobject = ICalendarHelper::read($blob);
+		
+			$event = Event::findByUUID((string)$vobject->VEVENT->UID);
+			if(empty($event)) {
 
-			\GO()->debug('EVENT IS SAVING: '.(string)$vobject->VEVENT->UID);
-			$events = ICalendarHelper::fromVObject($vobject);
-			foreach($events as $event) { // might include exception events
-				$event->save();
+				\GO()->debug('EVENT IS SAVING: '.(string)$vobject->VEVENT->UID);
+				$events = ICalendarHelper::fromVObject($vobject);
+				foreach($events as $event) { // might include exception events
+					$event->save();
+				}
+			} else {
+				\GO()->debug('EVENT FOUND');
 			}
-		} else {
-			\GO()->debug('EVENT FOUND');
+		} catch(\Exception $e) {
+
+			\GO()->debug('Failed to read icalendar data. '.$e);
+
+
 		}
 	}
 

@@ -202,7 +202,7 @@ class ICalendarHelper {
 		if($data instanceof \GO\Core\Blob\Model\Blob && $data->contentType === 'text/calendar') {
 			$data = file_get_contents($data->getPath());
 		}
-		return VObject\Reader::read(\IFW\Util\StringUtil::cleanUtf8($data), VObject\Reader::OPTION_FORGIVING);
+		return VObject\Reader::read(\IFW\Util\StringUtil::cleanUtf8($data), VObject\Reader::OPTION_FORGIVING);		
 	}
 
 	/**
