@@ -95,11 +95,16 @@ abstract class Controller extends Object {
 	 * @return boolean
 	 */
 	protected function checkAccess(){		
+		
+		$this->checkXSRF();
+		
+		return true;
+	}
+	
+	protected function checkXSRF() {
 		if(!IFW::app()->getAuth()->checkXSRF()) {
 			throw new \Exception("Cross Site Request Forgery check failed");
 		}
-		
-		return true;
 	}
 
 	/**

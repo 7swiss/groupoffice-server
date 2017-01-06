@@ -227,7 +227,7 @@ class Account extends AccountRecord implements SyncableInterface{
 		
 //		if($newCount) {
 			//only process threading stuff when new messages have arrived
-			$this->updateReplies();				
+//			$this->updateReplies();				
 			$this->thread();
 			Thread::syncAll($this->id);
 //		}
@@ -246,18 +246,29 @@ class Account extends AccountRecord implements SyncableInterface{
 	private function thread() {
 			
 		$messages = MessagesMessage::find(
-						(new Query())
-						->joinRelation('imapMessage.folder', false)						
-						->where(['folder.accountId'=>$this->id, 'threadId'=>null])
+						(new Query())						
+						->where(['accountId'=>$this->id, 'threadId'=>null])
 						->orderBy(['sentAt' => 'ASC'])
 						);
 		
 		foreach($messages as $message) {
+			
+			GO()->debug("Setting thread on message ID: ".$message->id);
+			
+			if(!isset($message->inReplyToId)) {
+				$imapMessage = Message::find(['messageId' => $message->id, 'accountId' => $this->id]);
+				if(isset($imapMessage->inReplyToUuid)) {
+					$reply = MessagesMessage::find(['uuid' => $imapMessage->inReplyToUuid, 'accountId' => $this->id]);
+					if($reply) {
+						$message->inReplyToId = $reply->id;
+					}
+				}
+			}
+			
 			$related = MessagesMessage::find(
 							(new Query())
 							->joinRelation('imapMessage.references')							
-							->joinRelation('thread')
-							->andWhere(['thread.accountId'=>$this->id])
+							->andWhere(['accountId'=>$this->id])
 							->andWhere('references.uuid in (select uuid from imap_message_reference r where r.messageId=:tmid)')->bind(':tmid',$message->id)
 							
 							)->single();
@@ -281,16 +292,20 @@ class Account extends AccountRecord implements SyncableInterface{
 	/**
 	 * Set's all the right in reply to ID's
 	 */
-	private function updateReplies() {
-		$sql = "update messages_message t
-	inner join imap_message it on it.messageId=t.id
-	inner join imap_folder f on it.folderId = f.id
-    inner join messages_message reply on reply.uuid = it.inReplyToUuid    
-    set t.inReplyToId = reply.id
-    where t.inReplyToId is null and f.accountId=".$this->id;
-		
-		GO()->getDbConnection()->query($sql);
-	}
+//	private function updateReplies() {
+//		
+//		GO()->debug("Updating inReplyToId");
+//		$sql = "update messages_message t
+//	inner join imap_message it on it.messageId=t.id
+//	inner join imap_folder f on it.folderId = f.id
+//    inner join messages_message reply on reply.uuid = it.inReplyToUuid    
+//    set t.inReplyToId = reply.id
+//    where t.inReplyToId is null and f.accountId=".$this->id;
+//		
+//		GO()->getDbConnection()->query($sql);
+//		
+//		GO()->debug("Done updating inReplyToId");
+//	}
 	
 //	private function notify() {
 //		$query = (new Query)

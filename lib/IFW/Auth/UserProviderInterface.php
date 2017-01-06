@@ -40,6 +40,13 @@ interface UserProviderInterface {
 	 */
 	public function checkXSRF();
 	
+	/**
+	 * Get the XSRF token
+	 * 
+	 * @return string
+	 */
+	public function XSRFToken();
+	
 	
 	/**
 	 * Check if the logged in user is admin
