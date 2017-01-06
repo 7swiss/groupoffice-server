@@ -45,6 +45,7 @@ use Sabre\VObject\UUIDUtil;
  * 
  * 
  * @property Thread $thread The message thread
+ * @property \GO\Modules\GroupOffice\Imap\Model\Account $account
  * 
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
@@ -370,7 +371,7 @@ class Message extends \GO\Core\Orm\Record {
 		$html = $this->body;		
 		
 		if(!isset($html)) {				
-			$html = $this->thread->account->getAccountRecord()->getBody($this);			
+			$html = $this->account->getBody($this);			
 		}	
 		
 		if($replaceImages) {

@@ -851,7 +851,7 @@ abstract class Record extends DataModel {
 		foreach ($attributeOrRelationName as $a) {						
 			
 			if($this->getColumn($a)) {				
-				if(!isset($this->oldAttributes[$a]) && isset($a)) {
+				if(!isset($this->oldAttributes[$a]) && isset($this->a)) {
 					return true;
 				}
 				

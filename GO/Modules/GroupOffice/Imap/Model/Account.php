@@ -248,7 +248,7 @@ class Account extends AccountRecord implements SyncableInterface{
 		$messages = MessagesMessage::find(
 						(new Query())						
 						->where(['accountId'=>$this->id, 'threadId'=>null])
-						->orderBy(['sentAt' => 'ASC'])
+						->orderBy(['sentAt' => 'DESC'])
 						);
 		
 		foreach($messages as $message) {
@@ -269,6 +269,7 @@ class Account extends AccountRecord implements SyncableInterface{
 							(new Query())
 							->joinRelation('imapMessage.references')							
 							->andWhere(['accountId'=>$this->id])
+							->andWhere(['!=',['threadId' => null]])
 							->andWhere('references.uuid in (select uuid from imap_message_reference r where r.messageId=:tmid)')->bind(':tmid',$message->id)
 							
 							)->single();
@@ -276,12 +277,24 @@ class Account extends AccountRecord implements SyncableInterface{
 				$message->threadId = $related->threadId;
 			}else
 			{
-				$message->thread = new Thread();				
+				$message->thread = new Thread();			
+				$message->thread->setLatestMessage($message);
 				$message->thread->accountId = $this->id;				
 			}
-			$message->modifiedAt = $message->imapMessage->syncedAt = new \IFW\Util\DateTime();// (new \IFW\Util\DateTime)->format(\IFW\Util\DateTime::FORMAT_API);
 			
-			$message->thread->tags = $message->imapMessage->folder->toTags();	
+			$message->modifiedAt = new \IFW\Util\DateTime();
+			
+			if($message->imapMessage) {
+				$message->imapMessage->syncedAt = $message->modifiedAt; //make sure they exactly match
+				
+//				if(!isset($message->thread)) {
+//					var_dump($message);
+//					exit();
+//				}
+				
+				$message->thread->tags = $message->imapMessage->folder->toTags();	
+			}
+			
 			
 			if (!$message->save()) {
 				throw new Exception("Failed to save message: ".var_export($message->getValidationErrors(), true));

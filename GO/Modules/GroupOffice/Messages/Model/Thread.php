@@ -185,7 +185,7 @@ class Thread extends Record {
 						->select('t.id,t.accountId')
 						->joinRelation('messages')
 						->where(['accountId'=>$accountId])
-						->andWhere('messages.sentAt>t.lastMessageSentAt OR t.lastMessageSentAt IS NUll')
+						->andWhere('messageCount IS NUll')
 						);
 		
 		
@@ -219,17 +219,28 @@ class Thread extends Record {
 		}
 	}
 	
+	public function setLatestMessage(Message $latest) {
+		$this->photoBlobId = $latest->photoBlobId;
+		
+		$this->subject = $latest->subject;			
+		$this->answered = $latest->type == Message::TYPE_SENT || $latest->type == Message::TYPE_OUTBOX;
+		
+		//prevent double fetch of body with this if
+		if($latest->sentAt != $this->lastMessageSentAt) {
+			$this->excerpt = $latest->getExcerpt();
+			$this->lastMessageSentAt = $latest->sentAt;
+		}
+		$this->seen = $latest->seen;
+		$this->answered = $latest->answered;
+		
+		//messageCount must stay null to trigger a resync after import!
+	}
 	
 	public function sync() {
 		
 		$latest = $this->findLatestMessage();		
 		
-		$this->photoBlobId = $latest->photoBlobId;
-		
-		$this->subject = $latest->subject;			
-		$this->answered = $latest->type == Message::TYPE_SENT || $latest->type == Message::TYPE_OUTBOX;
-		$this->lastMessageSentAt = $latest->sentAt;
-		$this->excerpt = $latest->getExcerpt();
+		$this->setLatestMessage($latest);
 		
 		$q = (new Query())
 				->select('count(*) as messageCount, min(seen) AS seen, max(flagged) AS flagged, min(inReplyToId) as minReplyToId')						
