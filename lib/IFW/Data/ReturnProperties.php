@@ -62,7 +62,7 @@ class ReturnProperties implements ArrayAccess, IteratorAggregate {
 
 		if(isset($this->properties['*'])) {
 			unset($this->properties['*']);			
-			$this->properties = array_merge($this->properties, $this->parseString($defaultProperties));
+			$this->properties = array_merge($this->parseString($defaultProperties), $this->properties);
 		}
 		
 	}

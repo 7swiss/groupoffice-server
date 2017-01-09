@@ -126,7 +126,7 @@ abstract class Model extends Object implements ArrayableInterface{
 		if(!($properties instanceof ReturnProperties)) {			
 			$properties = new ReturnProperties($properties, $this->getDefaultReturnProperties());		
 		}
-		
+
 		$arr = [];
 		
 		foreach ($properties as $propName => $subReturnProperties) {
@@ -136,10 +136,7 @@ abstract class Model extends Object implements ArrayableInterface{
 			}
 
 			try {
-				$value = $this->convertValue(ModelHelper::getValue($this, $propName), $subReturnProperties);
-//				if(isset($value)) {
-					$arr[$propName] = $value;
-//				}
+				$arr[$propName] = $this->convertValue(ModelHelper::getValue($this, $propName), $subReturnProperties);				
 			} catch (NotArrayable $e) {
 				IFW::app()->debug("Skipped prop ".$this->getClassName()."::".$propName." because it's not scalar or ArrayConvertable");
 			}

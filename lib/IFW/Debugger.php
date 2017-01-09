@@ -66,7 +66,7 @@ class Debugger extends Object {
 			return;
 		}
 		
-		if(is_callable($mixed)) {
+		if($mixed instanceof \Closure) {
 			$mixed = call_user_func($mixed);
 		}elseif (!is_scalar($mixed)) {
 			$mixed = print_r($mixed, true);

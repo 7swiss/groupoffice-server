@@ -1,5 +1,13 @@
 #!/usr/bin/php
 <?php
+/**
+ * 
+ * Debian wrapper script in /usr/local/bin/groupoffice:
+ * 
+ * #!/bin/bash
+ * sudo -u www-data /var/www/groupoffice-server/bin/groupoffice $@
+ */
+
 //Include the autoloader that composer has generated.
 //We need the classLoader variable so we can find objects in code later.
 $classLoader = require(dirname(__DIR__)."/vendor/autoload.php");

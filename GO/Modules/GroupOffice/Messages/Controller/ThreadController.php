@@ -43,10 +43,10 @@ class ThreadController extends Controller {
 			$query->setFromClient($q);
 		}
 		
-		if(!empty($searchQuery)) {						
-			$query->joinRelation('messages')
+		if(!empty($searchQuery)) {
+			$query->joinRelation('messages.addresses')
 						->groupBy(['id'])
-						->search($searchQuery, ['messages.subject','messages.body']);
+						->search($searchQuery, ['subject','excerpt', 'addresses.personal', 'addresses.address']);
 		}
 
 		$this->applyType($query, $type);		

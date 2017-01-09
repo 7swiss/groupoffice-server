@@ -50,7 +50,8 @@ use IFW\Orm\Query;
  * 
  * You can map the route "contacts/filters" to the actionFilters method for example.
  *
- *
+ * @deprecated Use filtering on the client side!
+ * 
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
