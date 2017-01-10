@@ -102,7 +102,7 @@ class Account extends AccountRecord implements SyncableInterface{
 	 *
 	 * @var Connection 
 	 */
-	private $connection;
+	private static $connections;
 	
 	protected static function defineRelations() {
 		
@@ -170,25 +170,25 @@ class Account extends AccountRecord implements SyncableInterface{
 	 */
 	public function connect() {
 
-		if (!isset($this->connection)) {
-			$this->connection = new Connection();
+		if (!isset(self::$connections[$this->id])) {
+			self::$connections[$this->id] = new Connection();
 			
 //			$this->connection->debug = GO()->getDebugger()->enabled;
 			
-			if(!$this->connection->connect($this->hostname, $this->port, $this->encryption == 'ssl')){
+			if(!self::$connections[$this->id]->connect($this->hostname, $this->port, $this->encryption == 'ssl')){
 				throw new Exception($this->connection->connectError, $this->connection->connectErrorNo);			
 			}
 			
-			if($this->encryption == 'tls' && !$this->connection->startTLS()) {
+			if($this->encryption == 'tls' && !self::$connections[$this->id]->startTLS()) {
 				throw new Exception("Could not enable TLS encryption");
 			}
 		}
 
-		if (!$this->connection->isAuthenticated() && !$this->connection->authenticate($this->username, $this->password)) {
+		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->password)) {
 			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.$this->connection->lastCommandStatus);
 		}
 
-		return $this->connection;
+		return self::$connections[$this->id];
 	}
 
 	public function sync(){
