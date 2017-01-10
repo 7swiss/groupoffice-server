@@ -1044,7 +1044,7 @@ Content-type: multipart/mixed; boundary="Boundary_(ID_OF/cBsTfVK4gbVsbFd1O1Q)"
 	 * 
 	 * @param int $uid
 	 * @param boolean $noFetchProps Don't fetch properties from IMAP server. Only the UID will be known to the Message object
-	 * @return Message|boolean
+	 * @return Message
 	 */
 	public function getMessage($uid, $noFetchProps = false, $returnProperties = "") {
 		$uid = (int) $uid;

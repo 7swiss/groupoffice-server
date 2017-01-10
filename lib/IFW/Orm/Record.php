@@ -1112,8 +1112,7 @@ abstract class Record extends DataModel {
 			return true;
 		}
 		
-		GO()->debug("Save ".$this->getClassName(), 'general', 1);
-		
+//		GO()->debug("Save ".$this->getClassName(), 'general', 1);
 		
 		$this->isSaving = true;
 		$success = false;
@@ -1396,7 +1395,7 @@ abstract class Record extends DataModel {
 				$stmt->bindValue($bindTag, $column->recordToDb($this->$colName), $column->pdoType);
 			}
 
-			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
+//			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
 
 			$ret = $stmt->execute();
 			
@@ -1520,7 +1519,7 @@ abstract class Record extends DataModel {
 				$bindParams[$tag] = $value;				
 				$stmt->bindValue($tag, $value, $column->pdoType);				
 			}
-			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
+//			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
 
 			$ret = $stmt->execute();
 		} catch (Exception $e) {

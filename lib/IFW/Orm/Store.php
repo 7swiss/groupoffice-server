@@ -120,31 +120,31 @@ class Store extends \IFW\Data\Store {
 		$this->query->limit(1);
 
 		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
-//		//Expirimental caching if query is findByPk		
-//		if (($primaryKeyValues = $this->isFindByPk())) {
-//			
-//			$this->query->withDeleted();
-//
-//			$keyStr = implode('-', $primaryKeyValues);
-//
-//			$hash = $this->recordClassName . '-' . $keyStr;
-//			if (!isset(self::$cache[$hash])) {
-//				$model = $this->getIterator()->fetch();
-//
-//				if (!$model) {
-//					return $model;
-//				}
-//
-////				IFW::app()->debug("Caching find by primary key for ".$this->recordClassName.'::('.$keyStr.')');
-//
-//				self::$cache[$hash] = $model;
+		//Expirimental caching if query is findByPk		
+		if (!isset($this->query->fetchMode) && ($primaryKeyValues = $this->isFindByPk())) {
+			
+			$this->query->withDeleted();
+
+			$keyStr = implode('-', $primaryKeyValues);
+
+			$hash = $this->recordClassName . '-' . $keyStr;
+			if (!isset(self::$cache[$hash])) {
+				$model = $this->getIterator()->fetch();
+
+				if (!$model) {
+					return $model;
+				}
+
+//				IFW::app()->debug("Caching find by primary key for ".$this->recordClassName.'::('.$keyStr.')');
+
+				self::$cache[$hash] = $model;
+			}
+//			else {
+//				IFW::app()->debug("Return from findByPk cache for for ".$this->recordClassName.'::('.$keyStr.')');
 //			}
-////			else {
-////				IFW::app()->debug("Return from findByPk cache for for ".$this->recordClassName.'::('.$keyStr.')');
-////			}
-//
-//			return self::$cache[$hash];
-//		}
+
+			return self::$cache[$hash];
+		}
 		
 		$model = $this->getIterator()->fetch();
 		return $model;

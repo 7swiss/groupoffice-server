@@ -311,6 +311,11 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	private function embedPastedDataUris(){
+		
+		if(!isset($this->body)) {
+			return;
+		}
+		
 		$regex = '/src="data:image\/([^;]+);([^,]+),([^"]+)/';
 		$body = $this->body;
 		preg_match_all($regex, $body, $allMatches,PREG_SET_ORDER);
@@ -414,6 +419,11 @@ class Message extends \GO\Core\Orm\Record {
 	 * @todo images on replies
 	 */
 	private function replaceImages() {
+		
+		if(!isset($this->body)) {
+			return;
+		}
+		
 		$body = $this->body;
 		foreach ($this->attachments as $attachment) {
 
@@ -454,7 +464,7 @@ class Message extends \GO\Core\Orm\Record {
 	public function getExcerpt($length = 70){
 		
 //		if(isset($this->_body)){
-			$text = str_replace('>','> ', $this->getBody());		
+			$text = str_replace('>','> ', $this->getBody(false));		
 			
 			$text = strip_tags($text);			
 			$text = html_entity_decode($text);			
@@ -477,9 +487,9 @@ class Message extends \GO\Core\Orm\Record {
 			$this->accountId = $this->accountId = $this->thread->accountId;							
 		}
 		
-		if($this->isModified('body') && strlen($this->body) > 1024*1024){
-			$this->body = substr($this->getAttribute('body', 0, 1024*1024));
-		}
+//		if($this->isModified('body') && strlen($this->body) > 1024*1024){
+//			$this->body = substr($this->getAttribute('body', 0, 1024*1024));
+//		}
 		
 		if($this->isNew() && !isset($this->uuid)) {
 			$this->uuid = UUIDUtil::getUUID().'@'.GO()->getEnvironment()->getHostname();

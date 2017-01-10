@@ -22,7 +22,7 @@ return [
 //				'enabled' => true 
 //		],
 //		
-//		 'IFW\Db\Query' => [
+//		 'IFW\Orm\Query' => [
 //				 //enables debug on all queries
 //				 'debug' => true
 //		 ]

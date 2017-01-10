@@ -158,17 +158,28 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		$tagNames =  explode($this->delimiter, $name);
 		
 		$tags = [];
-		foreach($tagNames as $tagName) {
-			$tag = \GO\Core\Tags\Model\Tag::find(['name'=>$tagName])->single();
-			if(!$tag) {
-				$tag = new \GO\Core\Tags\Model\Tag();
-				$tag->name = $tagName;
-			}
-			
-			$tags[] = $tag;
+		foreach($tagNames as $tagName) {			
+			$tags[] = $this->findTag($tagName);
 		}
 		
 		return $tags;
+	}
+	
+	private static $tags;
+	
+	private function findTag($name) {
+		
+		if(!isset(self::$tags[$name])) {
+			$tag = \GO\Core\Tags\Model\Tag::find(['name'=>$name])->single();
+			if(!$tag) {
+				$tag = new \GO\Core\Tags\Model\Tag();
+				$tag->name = $name;
+			}
+			
+			self::$tags[$name] = $tag;
+		}
+		
+		return self::$tags[$name];
 	}
 	
 	
@@ -250,8 +261,8 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 					
 					//put in own message ID as well so it's easier for threading later on
 					$refs = $imapMessage->references;
-					if(!empty($imapMessage->messageId) && !in_array($imapMessage->messageId, $refs))
-						$refs[] = $imapMessage->messageId;
+//					if(!empty($imapMessage->messageId) && !in_array($imapMessage->messageId, $refs))
+//						$refs[] = $imapMessage->messageId;
 					
 					if(!empty($imapMessage->inReplyTo) && !in_array($imapMessage->inReplyTo, $refs))
 						$refs[] = $imapMessage->inReplyTo;

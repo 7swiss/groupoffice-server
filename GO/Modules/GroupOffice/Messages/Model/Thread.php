@@ -227,7 +227,9 @@ class Thread extends Record {
 		
 		//prevent double fetch of body with this if
 		if($latest->sentAt != $this->lastMessageSentAt) {
+			GO()->debug("Fetching IMAP message body");
 			$this->excerpt = $latest->getExcerpt();
+			GO()->debug("Done fetching IMAP message body");
 			$this->lastMessageSentAt = $latest->sentAt;
 		}
 		$this->seen = $latest->seen;

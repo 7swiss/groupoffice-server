@@ -252,31 +252,43 @@ class Account extends AccountRecord implements SyncableInterface{
 						);
 		
 		foreach($messages as $message) {
+			GO()->debug("Thread for message ID: ".$message->id);
 			
-			GO()->debug("Setting thread on message ID: ".$message->id);
 			
 			if(!isset($message->inReplyToId)) {
+				GO()->debug("Lookup inReplyToId");
 				$imapMessage = Message::find(['messageId' => $message->id, 'accountId' => $this->id]);
 				if(isset($imapMessage->inReplyToUuid)) {
 					$reply = MessagesMessage::find(['uuid' => $imapMessage->inReplyToUuid, 'accountId' => $this->id]);
 					if($reply) {
+						GO()->debug("Found inReplyToId: ".$reply->id);
 						$message->inReplyToId = $reply->id;
 					}
 				}
 			}
 			
-			$related = MessagesMessage::find(
+			GO()->debug("Lookup related message");
+			
+			$relatedStore = MessagesMessage::find(
 							(new Query())
+							->fetchSingleValue('threadId')							
 							->joinRelation('imapMessage.references')							
 							->andWhere(['accountId'=>$this->id])
 							->andWhere(['!=',['threadId' => null]])
-							->andWhere('references.uuid in (select uuid from imap_message_reference r where r.messageId=:tmid)')->bind(':tmid',$message->id)
-							
-							)->single();
-			if($related) {
-				$message->threadId = $related->threadId;
+							->andWhere('references.uuid=:tmid')->bind(':tmid',$message->uuid)
+
+							);
+
+
+			$threadId = $relatedStore->single();
+			
+			if(!empty($threadId)) {
+				GO()->debug("Found existing thread ".$threadId);
+				$message->threadId = $threadId;
 			}else
 			{
+				GO()->debug("Creating new thread");
+				
 				$message->thread = new Thread();			
 				$message->thread->setLatestMessage($message);
 				$message->thread->accountId = $this->id;				
@@ -287,11 +299,7 @@ class Account extends AccountRecord implements SyncableInterface{
 			if($message->imapMessage) {
 				$message->imapMessage->syncedAt = $message->modifiedAt; //make sure they exactly match
 				
-//				if(!isset($message->thread)) {
-//					var_dump($message);
-//					exit();
-//				}
-				
+				GO()->debug("Applying tags from imap folder");
 				$message->thread->tags = $message->imapMessage->folder->toTags();	
 			}
 			
@@ -299,6 +307,8 @@ class Account extends AccountRecord implements SyncableInterface{
 			if (!$message->save()) {
 				throw new Exception("Failed to save message: ".var_export($message->getValidationErrors(), true));
 			}
+			
+			GO()->debug("Done with thread on message ID: ".$message->id);
 		}
 	}
 	

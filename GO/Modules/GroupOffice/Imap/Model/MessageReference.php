@@ -10,7 +10,8 @@ use IFW\Orm\Record;
  * The thread reference model
  * 
  * All references found in the headers from messages are stored with the thread
- * so we can lookup the thread. We store the messageId header and references header.
+ * so we can lookup the thread. We store the messageId, references and inReplyTo 
+ * header.
  *
  * @property int $threadId
  * 
