@@ -18,7 +18,7 @@ class Controller extends IFWController {
 	protected $responseData = [];
 	
 	
-	private $rendered = [];
+	private $rendered;
 	
 	/**
 	 * Checks if there's a logged in user
@@ -55,7 +55,7 @@ class Controller extends IFWController {
 		$view = $this->getView($viewName);
 		$view->render(array_merge($this->responseData, $data));	
 		
-		$this->rendered[] = $view;
+		$this->rendered = $view;
 		
 		return $view;
 	}	
@@ -77,10 +77,7 @@ class Controller extends IFWController {
 		$response = ['data' => $model->toArray($returnProperties)];
 
 		//add validation errors even when not requested		
-		if(method_exists($model, 'hasValidationErrors')){
-			if($model->hasValidationErrors() && !isset($response['data']['validationErrors'])) {
-				$response['data']['validationErrors'] = $model->getValidationErrors();
-			}		
+		if(method_exists($model, 'hasValidationErrors')){			
 			$response['success'] = !$model->hasValidationErrors();
 		}else
 		{		
@@ -116,23 +113,10 @@ class Controller extends IFWController {
 		parent::callMethodWithParams($methodName, $routerParams);
 		
 		if(GO() instanceof \IFW\Cli\App) {
-			foreach($this->rendered as $render) {
-				echo $render;
-			}
-			return;
+			echo $this->rendered;
+		}else
+		{
+			GO()->getResponse()->send($this->rendered);
 		}
-		
-		$view = "";
-		if(count($this->rendered) > 1) {
-			$view .= "[\n";
-		}
-		
-		$view .= implode(",\n\t", $this->rendered);		
-		
-		if(count($this->rendered) > 1) {
-			$view .= "\n]";
-		}		
-		
-		GO()->getResponse()->send($view);
 	}
 }

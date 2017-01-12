@@ -156,4 +156,41 @@ class {modelUcfirst}Controller extends Controller {
 
 		$this->renderModel(${modelLowerCase});
 	}
+	
+	/**
+	 * Update multiple {modelLowerCase}s at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($contactValues['id'])) {
+				${modelLowerCase} = {modelUcfirst}::findByPk($values);
+
+				if (!${modelLowerCase}) {
+					throw new NotFound();
+				}
+			}else
+			{
+				${modelLowerCase} = new {modelUcfirst}();
+			}
+			
+			${modelLowerCase}->setValues($values);
+			${modelLowerCase}->save();
+			
+			$response['data'][] = ${modelLowerCase}->toArray();
+		}
+		
+		$this->render($response);
+	}
 }

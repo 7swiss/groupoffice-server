@@ -1552,13 +1552,17 @@ abstract class Record extends DataModel {
 	 * $user = User::find(['groupId'=>1,'userId'=>2])->single();
 	 * </code>
 	 *
-	 * @param int|array $pk
+	 * @param int|array $values
 	 * @return static
 	 */
-	public static function findByPk($pk) {
-		if (!is_array($pk)) {
-			$pk = [static::getPrimaryKey()[0] => $pk];
+	public static function findByPk($values) {
+		if (!is_array($values)) {
+			$values = [static::getPrimaryKey()[0] => $values];
 		}
+		$pk = [];
+		foreach(static::getPrimaryKey() as $colName) {
+			$pk[$colName] = $values[$colName];
+		}		
 		
 		$query = new Query();
 		$query->where($pk);
@@ -2151,7 +2155,12 @@ abstract class Record extends DataModel {
 		}
 		
 		//Add className		
-		$array['className'] = self::getClassName();
+//		$array['className'] = self::getClassName();
+		
+		//Add validation errors even if not requested
+		if($this->hasValidationErrors() && !isset($array['validationErrors'])) {
+			$array['validationErrors'] = $this->getValidationErrors();
+		}		
 		
 		$this->fireEvent(self::EVENT_TO_ARRAY, $this, $array);
 		

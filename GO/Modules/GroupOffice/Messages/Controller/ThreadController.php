@@ -260,4 +260,42 @@ class ThreadController extends Controller {
 		
 		$this->render();
 	}
+	
+	
+	/**
+	 * Update multiple contacts at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$thread = Thread::findByPk($values);
+
+				if (!$thread) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$thread = new Thread();
+			}
+			
+			$thread->setValues($values);
+			$thread->save();
+			
+			$response['data'][] = $thread->toArray();
+		}
+		
+		$this->render($response);
+	}
 }

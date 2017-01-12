@@ -151,6 +151,7 @@ class RouteCollection {
 				->get($route.'/:'.$paramName,'read')
 				->put($route.'/:'.$paramName, 'update')
 				->post($route, 'create')
+				->put($route, 'multiple')
 				->delete($route.'/:'.$paramName,'delete');
 	}
 	

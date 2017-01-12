@@ -17,14 +17,9 @@ class Module extends InstallableModule{
 	public static function defineWebRoutes(Router $router){
 		
 		$router->addRoutesFor(ContactController::class)
-				->get('contacts', 'store')
-				->get('contacts/0','new')
-				->get('contacts/:contactId','read')
+				->crud('contacts','contactId')
 				->get('contacts/:contactId/vcard','vcard')
 				->get('contacts/import/:blobId','import')
-				->put('contacts/:contactId', 'update')
-				->post('contacts', 'create')
-				->delete('contacts/:contactId','delete')
 				->get('contacts/filters', 'filters')
 				->get('contacts/byuser/:userId','readByUser');
 				

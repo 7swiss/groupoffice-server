@@ -134,7 +134,7 @@ class ContactController extends Controller {
 		$contacts->setReturnProperties($returnProperties);
 
 		$this->renderStore($contacts);
-	}
+	}	
 	
 	protected function actionNew($returnProperties = ""){
 		$contact = new Contact();
@@ -296,5 +296,42 @@ class ContactController extends Controller {
 		$contact->delete();
 
 		$this->renderModel($contact);
+	}
+	
+	/**
+	 * Update multiple contacts at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$contact = Contact::findByPk($values);
+
+				if (!$contact) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$contact = new Contact();
+			}
+			
+			$contact->setValues($values);
+			$contact->save();
+			
+			$response['data'][] = $contact->toArray();
+		}
+		
+		$this->render($response);
 	}
 }
