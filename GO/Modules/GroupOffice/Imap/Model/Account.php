@@ -269,6 +269,8 @@ class Account extends AccountRecord implements SyncableInterface{
 			
 			GO()->debug("Lookup related message");
 			
+			//this will find threads from messsages that were sent later then the 
+			//current message because we're going from new to old messaqes
 			$relatedStore = MessagesMessage::find(
 							(new Query())
 							->fetchSingleValue('threadId')							
@@ -276,13 +278,24 @@ class Account extends AccountRecord implements SyncableInterface{
 							->andWhere(['accountId'=>$this->id])
 							->andWhere(['!=',['threadId' => null]])
 							->andWhere('references.uuid=:tmid')->bind(':tmid',$message->uuid)
-
 							);
-
-
 			$threadId = $relatedStore->single();
 			
-			if(!empty($threadId)) {
+			if(!$threadId) {
+				//try to find an older thread
+				$refs = MessageReference::find((new Query)->fetchSingleValue('uuid')->andWhere(['messageId' => $message->id]))->all();
+				
+				$relatedStore = MessagesMessage::find(
+							(new Query())
+							->fetchSingleValue('threadId')
+							->andWhere(['accountId'=>$this->id])
+							->andWhere(['!=',['threadId' => null]])
+							->andWhere(['uuid' => $refs])
+							);
+				$threadId = $relatedStore->single();
+			}
+			
+			if($threadId) {
 				GO()->debug("Found existing thread ".$threadId);
 				$message->threadId = $threadId;
 			}else

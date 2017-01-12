@@ -182,10 +182,10 @@ class Thread extends Record {
 		$threads = Thread::find(
 						(new Query())
 						->distinct()
-						->select('t.id,t.accountId')
+						->select('t.id')
 						->joinRelation('messages')
 						->where(['accountId'=>$accountId])
-						->andWhere('messageCount IS NUll')
+						->andWhere('t.messageCount IS NUll OR t.lastMessageSentAt < messages.sentAt')						
 						);
 		
 		
@@ -236,6 +236,9 @@ class Thread extends Record {
 		$this->answered = $latest->answered;
 		
 		//messageCount must stay null to trigger a resync after import!
+		$this->messageCount = null;
+		
+		
 	}
 	
 	public function sync() {
