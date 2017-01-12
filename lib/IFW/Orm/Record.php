@@ -1131,7 +1131,7 @@ abstract class Record extends DataModel {
 				throw new Forbidden("You're (user ID: ".IFW::app()->getAuth()->user()->id().") not permitted to ".$action." ".$this->getClassName()." ".var_export($this->pk(), true));
 			}
 			
-			if (!$this->validate()) {				
+			if (!$this->validate()) {
 				$this->isSaving = false;
 				return false;
 			}
@@ -1552,17 +1552,13 @@ abstract class Record extends DataModel {
 	 * $user = User::find(['groupId'=>1,'userId'=>2])->single();
 	 * </code>
 	 *
-	 * @param int|array $values
+	 * @param int|array $pk
 	 * @return static
 	 */
-	public static function findByPk($values) {
-		if (!is_array($values)) {
-			$values = [static::getPrimaryKey()[0] => $values];
+	public static function findByPk($pk) {
+		if (!is_array($pk)) {
+			$pk = [static::getPrimaryKey()[0] => $pk];
 		}
-		$pk = [];
-		foreach(static::getPrimaryKey() as $colName) {
-			$pk[$colName] = $values[$colName];
-		}		
 		
 		$query = new Query();
 		$query->where($pk);
@@ -1729,7 +1725,13 @@ abstract class Record extends DataModel {
 			return false;
 		}
 		
-		return $this->internalValidate();
+		$success = $this->internalValidate();
+		
+		if(!$success) {
+			\IFW::app()->debug(static::class.'::internalValidate returned '.var_export($success, true));
+		}
+		
+		return $success;
 	}	
 	
 	protected function internalValidate() {
@@ -1988,7 +1990,9 @@ abstract class Record extends DataModel {
 		$this->deleteCheckRestrictions();		
 		
 		$success = $this->internalDelete($hard);
-		
+		if(!$success) {
+			\IFW::app()->debug(static::class.'::internalDelete returned '.var_export($success, true));
+		}
 		if(!$this->fireEvent(self::EVENT_AFTER_DELETE, $this, $hard)) {			
 			$success = false;
 		}		

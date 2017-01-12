@@ -186,8 +186,7 @@ class Thread extends Record {
 						->joinRelation('messages')
 						->where(['accountId'=>$accountId])
 						->andWhere('t.messageCount IS NUll OR t.lastMessageSentAt < messages.sentAt')						
-						);
-		
+						);		
 		
 		GO()->debug($threads->getRowCount().' threads out of sync');
 		

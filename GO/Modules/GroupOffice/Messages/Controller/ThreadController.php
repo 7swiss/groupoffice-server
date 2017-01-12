@@ -280,7 +280,7 @@ class ThreadController extends Controller {
 		foreach(GO()->getRequest()->getBody()['data'] as $values) {
 			
 			if(!empty($values['id'])) {
-				$thread = Thread::findByPk($values);
+				$thread = Thread::findByPk($values['id']);
 
 				if (!$thread) {
 					throw new NotFound();

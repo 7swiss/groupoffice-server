@@ -316,7 +316,7 @@ class ContactController extends Controller {
 		foreach(GO()->getRequest()->getBody()['data'] as $values) {
 			
 			if(!empty($values['id'])) {
-				$contact = Contact::findByPk($values);
+				$contact = Contact::findByPk($values['id']);
 
 				if (!$contact) {
 					throw new NotFound();
