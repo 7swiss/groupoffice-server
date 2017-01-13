@@ -6,7 +6,7 @@ use IFW;
 use IFW\Data\ArrayableInterface;
 use IFW\Data\Exception\NotArrayable;
 use IFW\Data\Object;
-use IFW\Util\DateTime;
+use DateTime;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -158,9 +158,9 @@ abstract class Model extends Object implements ArrayableInterface{
 	private function convertValue($value, $subReturnProperties) {
 		if($value instanceof ArrayableInterface){
 			return $value->toArray($subReturnProperties);
-		}else if($value instanceof DateTime) {
+		}else if($value instanceof \DateTime) {
 			
-			return $value->format(DateTime::FORMAT_API);
+			return $value->format(\IFW\Util\DateTime::FORMAT_API);
 		}
 		elseif(is_array($value)){
 			//support an array of models too
