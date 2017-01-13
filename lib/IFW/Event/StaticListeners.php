@@ -62,12 +62,14 @@ class StaticListeners {
 		
 		$this->listeners = IFW::app()->getCache()->get('listeners');
 
-		if($this->listeners)
+		if($this->listeners !== false)
 		{
 			return;
 		}
 		
 		IFW::app()->debug("Initializing event listeners");
+		
+		$this->listeners = [];
 			
 		
 		//disable events to prevent recursion

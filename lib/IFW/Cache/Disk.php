@@ -135,6 +135,8 @@ class Disk implements CacheInterface {
 			$this->flushOnDestruct = true;
 			return true;
 		}
+		
+		\IFW::app()->debug("Flush cache");
 
 
 		$this->ttls = [];
