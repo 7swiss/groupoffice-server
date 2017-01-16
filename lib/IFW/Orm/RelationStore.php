@@ -154,14 +154,41 @@ class RelationStore extends Store implements ArrayAccess {
 		$value = $this->normalize($value);
 		
 		if(!isset($value)) {
-			\IFW::app()->debug("WARNING: Ignoring null value given in relation ".$this->relation->getFromRecordName().'->'.$this->relation->getName()." you should not set a relation to null");
-			return;
+			
+			if($this->getRelation()->hasMany()) {
+				throw new \Exception("Invalid value null for has many relation");
+			}else
+			{
+				$this->clearHasOne();
+				return;
+			}			
 		}
 		
 		if (is_null($offset)) {
 			$this->modified[] = $value;
 		} else {
 			$this->modified[$offset] = $value;
+		}
+	}
+	
+	private function clearHasOne() {
+		
+		\IFW::app()->debug("null given to has one relation. Clearing keys.");
+		
+		$toRecordName = $this->getRelation()->getToRecordName();
+		
+		foreach($this->relation->getKeys() as $fromField => $toField) {		
+			
+			$fromIsPrimary = in_array($fromField, $this->record->getPrimaryKey());
+			$toIsPrimary = in_array($toField, $toRecordName::getPrimaryKey());
+			
+			if(!$fromIsPrimary && $toIsPrimary) {
+				//the foreign key is primary and this one is not so clear.
+				$this->record->$fromField = null;
+			}else if($fromIsPrimary && !$toIsPrimary) {
+				//the foreign key is primary and this one is not so clear.
+				$this->single()->$toField = null;
+			}
 		}
 	}
 	
