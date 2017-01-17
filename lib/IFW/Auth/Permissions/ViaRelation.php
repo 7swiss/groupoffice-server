@@ -23,6 +23,7 @@ class ViaRelation extends Model {
 		$model = $this->record->{$relationName};
 
 		if(!isset($model)) {
+			GO()->debug($this->record);
 			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select the key?");
 		}
 		
