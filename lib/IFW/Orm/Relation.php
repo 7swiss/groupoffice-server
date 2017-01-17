@@ -320,6 +320,8 @@ class Relation {
 	 * It's not a belongs to if the whole primary key is used to connect to 
 	 * another record.
 	 * 
+	 * Or when both keys are primary and the foreign key is auto increment.
+	 * 
 	 * @return boolean
 	 */
 	public function isBelongsTo() {
@@ -340,11 +342,21 @@ class Relation {
 			return true;
 		}	
 		
-		foreach($fromKeys as $fromField) {
-			if(!in_array($fromField, $fromPks)) {
+		foreach($this->keys as $fromField => $toField) {
+			
+			$from = $fromRecord::getColumn($fromField);
+			
+			if(!$from->primary) {
+				return true;
+			}
+			
+			$toRecordName = $this->toRecordName;			
+			$to = $toRecordName::getColumn($toField);			
+			if($from->primary && $to->primary && $to->autoIncrement) {
 				return true;
 			}
 		}
+		
 		
 		return false;
 	}

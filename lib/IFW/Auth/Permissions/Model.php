@@ -249,8 +249,15 @@ abstract class Model extends DataModel {
 			return;
 		}
 
-
+		//Group all existing where criteria. For example WHERE id=1 OR id=2 will become WHERE (id=1 OR id=2)
+		$criteria = $query->getWhereAsCriteria();
+		$query->resetCriteria();
+		
 		$this->internalApplyToQuery($query, $user);
+		
+		if (isset($criteria)) {
+			$query->andWhere($criteria);
+		}
 
 		self::$enablePermissions = true;
 

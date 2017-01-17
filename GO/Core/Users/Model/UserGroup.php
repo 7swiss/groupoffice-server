@@ -46,4 +46,13 @@ class UserGroup extends Record{
 		return new \IFW\Auth\Permissions\ReadOnly();
 	}
 	
+	protected function internalDelete($hard) {
+		
+		if($this->groupId == Group::ID_EVERYONE) {
+			$this->setValidationError('deleted', "CANT_REMOVE_EVERYONE");
+			return false;
+		}
+		return parent::internalDelete($hard);
+	}
+	
 }
