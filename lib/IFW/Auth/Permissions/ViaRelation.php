@@ -30,6 +30,10 @@ class ViaRelation extends Model {
 		return $model->permissions->can($permissionType, $user);
 	}
 	
+	public function toArray($properties = null) {
+		return null;
+	}
+	
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
 		$recordClassName = $this->recordClassName;

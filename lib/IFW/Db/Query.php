@@ -666,7 +666,9 @@ class Query extends Criteria {
 	 * 
 	 * @return \IFW\Db\Criteria
 	 */
-	public function getWhereAsCriteria() {		
+	public function getWhereAsCriteria() {	
+		
+//		GO()->getDebugger()->debugCalledFrom(10);
 		
 		if(empty($this->where)) {
 			return null;

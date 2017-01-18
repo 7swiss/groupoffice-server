@@ -31,7 +31,7 @@ class UserPermissions extends ReadOnly {
 
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
-		$query->joinRelation('userGroup')
+		$query->joinRelation('userGroup.groupUsers')
 						->distinct()
 						->andWhere(['userGroup.groupUsers.userId' => $user->id])
 						->andWhere(['!=',['userGroup.groupUsers.groupId' => Group::ID_EVERYONE]]);

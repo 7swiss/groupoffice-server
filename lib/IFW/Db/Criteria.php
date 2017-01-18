@@ -168,6 +168,9 @@ class Criteria extends Object {
 
 		return $this;
 	}
+	
+	
+	
 
 	protected function normalizeCondition($condition) {
 		

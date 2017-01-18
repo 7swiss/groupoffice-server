@@ -71,6 +71,36 @@ class Query extends DbQuery {
 		return $this;
 	}
 	
+//	protected function getWhere() {
+//		$where = parent::getWhere();
+//		
+//		foreach($where as $w) {
+//			if(is_array($w) && is_array($w[2])) {
+//				
+//			}
+//		}
+//	}
+//	
+//	/**
+//	 * Code for automatic join of relations based on the where table aliases.
+//	 *
+//	 * @todo move to ORM
+//	 * @param string $relationParts
+//	 */
+//	private function joinWhereRelation($relationParts) {
+//
+//		$relationName = implode('.', $relationParts);
+//		$alias = array_pop($relationParts);
+//
+//		if (!isset($this->aliasMap[$alias]) && $this->query->relationIsJoined($relationName) === false) {
+//			$arName = $this->recordClassName;
+//			if ($arName::getRelation($relationName)) {
+//				IFW::app()->debug("Joining relation in from where() param: ".$relationName);
+//				$this->query->joinRelation($relationName, false, 'LEFT');
+//			}
+//		}
+//	}
+//	
 	/**
 	 * Check if a relation was already joined
 	 * @param string $name

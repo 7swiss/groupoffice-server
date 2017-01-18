@@ -212,6 +212,7 @@ class Notification extends Record {
 		$query = (new Query())
 						->select('count(DISTINCT t.id)')
 						->fetchMode(PDO::FETCH_COLUMN, 0)
+						->joinRelation('for.groupUsers')
 						->where(['for.groupUsers.userId' => $currentUserId])
 						->joinRelation('appearances', false, 'LEFT', ['appearances.userId' => $currentUserId])						
 						->andWhere(['>',['expiresAt' => new \DateTime()]])

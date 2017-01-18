@@ -161,7 +161,6 @@ class QueryBuilder {
 	 */
 	public function build($replaceBindParameters = false, $prefix = '') {
 
-//		GO()->debug($this);
 
 		if (!isset($this->sql)) {
 			$this->fireEvent(self::EVENT_BUILD_QUERY, $this);
@@ -176,8 +175,7 @@ class QueryBuilder {
 
 			$select = "\n".$prefix.$this->buildSelect();
 
-			$where = $prefix . $this->buildWhere(null, $prefix);
-
+			
 			$joins = "";
 
 			if (isset($this->query->joins)) {
@@ -189,6 +187,10 @@ class QueryBuilder {
 
 			$select .= $this->joinRelationSelectString;
 			$select .= 'FROM `' . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->query->tableAlias . "`\n";
+			
+			
+			$where = $prefix . $this->buildWhere(null, $prefix);
+
 
 			$group = "\n".$prefix.$this->buildGroupBy();
 			$having = "\n".$prefix.$this->buildHaving();
@@ -199,8 +201,6 @@ class QueryBuilder {
 				$limit .= "\n".$prefix."LIMIT " . intval($this->query->offset) . ',' . intval($this->query->limit);
 			}
 			
-//			$where = preg_replace('/\(\s+\((.*)\)\s+\)/','($1)', $where);
-
 			$this->sql = $prefix . $select . $joins . $where . $group . $having . $orderBy . $limit;
 		}
 		if ($replaceBindParameters) {
@@ -310,18 +310,20 @@ class QueryBuilder {
 	 * @return array [['tableAlias' => 't', 'column' => 'id', 'pdoType' => PDO::PARAM_INT]]
 	 */
 	public function getBindParameters() {
-		$ps = $this->query->bindParameters;
+//		$ps = $this->query->bindParameters;
+//		
+//		foreach ($this->buildBindParameters as $p) {
+//			$columnObj = $this->findColumn($p['tableAlias'], $p['column']);
+//
+//			$p['pdoType'] = $columnObj->pdoType;
+//			$p['value'] = $columnObj->recordToDb($columnObj->normalizeInput($p['value']));
+//
+//			$ps[] = $p;
+//		}
+//
+//		return $ps;
 		
-		foreach ($this->buildBindParameters as $p) {
-			$columnObj = $this->findColumn($p['tableAlias'], $p['column']);
-
-			$p['pdoType'] = $columnObj->pdoType;
-			$p['value'] = $columnObj->recordToDb($columnObj->normalizeInput($p['value']));
-
-			$ps[] = $p;
-		}
-
-		return $ps;
+		return array_merge($this->query->bindParameters, $this->buildBindParameters);
 	}
 
 	private function buildGroupBy() {
@@ -363,7 +365,8 @@ class QueryBuilder {
 		} else {
 			//import new params
 			foreach ($query->bindParameters as $v) {
-				$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+//				$this-query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+				$this->buildBindParameters[] = $v;
 			}
 			$appendWhere = false;
 		}
@@ -442,8 +445,10 @@ class QueryBuilder {
 		$builder->isSubQuery = true;
 
 		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
+		
 		foreach ($builder->getBindParameters() as $v) {
-			$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+//			$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+			$this->buildBindParameters[] = $v;
 		}
 		return $str;
 	}
@@ -521,26 +526,26 @@ class QueryBuilder {
 			return $this->quoteColumnName($parts[1]);
 		}
 	}
-
-	/**
-	 * Code for automatic join of relations based on the where table aliases.
-	 *
-	 * @todo move to ORM
-	 * @param string $relationParts
-	 */
-	private function joinWhereRelation($relationParts) {
-
-		$relationName = implode('.', $relationParts);
-		$alias = array_pop($relationParts);
-
-		if (!isset($this->aliasMap[$alias]) && $this->query->relationIsJoined($relationName) === false) {
-			$arName = $this->recordClassName;
-			if ($arName::getRelation($relationName)) {
+//
+//	/**
+//	 * Code for automatic join of relations based on the where table aliases.
+//	 *
+//	 * @todo move to ORM
+//	 * @param string $relationParts
+//	 */
+//	private function joinWhereRelation($relationParts) {
+//
+//		$relationName = implode('.', $relationParts);
+//		$alias = array_pop($relationParts);
+//
+//		if (!isset($this->aliasMap[$alias]) && $this->query->relationIsJoined($relationName) === false) {
+//			$arName = $this->recordClassName;
+//			if ($arName::getRelation($relationName)) {
 //				IFW::app()->debug("Joining relation in from where() param: ".$relationName);
-				$this->query->joinRelation($relationName, false, 'LEFT');
-			}
-		}
-	}
+//				$this->query->joinRelation($relationName, false, 'LEFT');
+//			}
+//		}
+//	}
 
 	/**
 	 * Builds "`t`.`id` = :ifw1 AND `t`.`name` = :ifw2"
@@ -564,11 +569,11 @@ class QueryBuilder {
 			$columnParts = $this->splitTableAndColumn($column);
 			$col = $this->quoteTableName($columnParts[0]) . '.' . $this->quoteColumnName($columnParts[1]);
 
-			$relationParts = explode('.', $column);
+//			$relationParts = explode('.', $column);
 			//remove column name
-			array_pop($relationParts);
+//			array_pop($relationParts);
 
-			$this->joinWhereRelation($relationParts);
+//			$this->joinWhereRelation($relationParts);
 
 			if (!isset($value)) {
 				if ($comparator == '=' || $comparator == 'IS') {
@@ -594,7 +599,8 @@ class QueryBuilder {
 				$builder->isSubQuery = true;
 				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
 				foreach ($builder->getBindParameters() as $v) {
-					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+//					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+					$this->buildBindParameters[] = $v;
 				}
 			} else {
 				$paramTag = $this->getParamTag();
@@ -669,12 +675,17 @@ class QueryBuilder {
 	}
 
 	private function addBuildBindParameter($paramTag, $value, $tableAlias, $column) {
+		
+//		GO()->debug("Added bind param $paramTag ".$this->recordClassName);
+		
+		$columnObj = $this->findColumn($tableAlias, $column);
+
 		$this->buildBindParameters[] = [
 			 'paramTag' => $paramTag,
-			 'value' => $value,
-			 'tableAlias' => $tableAlias,
-			 'column' => $column
-//				'pdoType' => $columnObj->pdoType
+			 'value' => $columnObj->recordToDb($columnObj->normalizeInput($value)),
+//			 'tableAlias' => $tableAlias,
+//			 'column' => $column
+				'pdoType' => $columnObj->pdoType
 		];
 	}
 
@@ -749,7 +760,8 @@ class QueryBuilder {
 			$stmt->execute();
 		} catch (\PDOException $e) {
 			
-			GO()->debug("FAILED SQL: ".$this->build(true));
+//			GO()->debug("FAILED SQL: ".$this->build(false));
+//			GO()->debug($binds);
 			
 			throw $e;
 		}

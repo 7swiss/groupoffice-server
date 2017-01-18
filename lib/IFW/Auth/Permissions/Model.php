@@ -239,7 +239,7 @@ abstract class Model extends DataModel {
 				}
 			}
 		} finally {
-			IFW::app()->debug($this->record->getClassName().'::finally can('.$permissionType.': '.var_export($oldIsChecking, true).')');
+//			IFW::app()->debug($this->record->getClassName().'::finally can('.$permissionType.': '.var_export($oldIsChecking, true).')');
 			self::$isCheckingPermissions = $oldIsChecking;
 		}		
 		
