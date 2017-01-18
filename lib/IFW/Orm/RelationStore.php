@@ -350,8 +350,8 @@ class RelationStore extends Store implements ArrayAccess {
 		if(!isset($this->modified)) {
 			return false;
 		}
-		
-		//in case of a single belongs to it's not important that it's modified
+//		Why????
+//		//in case of a single belongs to it's not important that it's modified
 		if($this->getRelation()->isBelongsTo()) {
 			return true;
 		}

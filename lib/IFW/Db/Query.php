@@ -41,7 +41,9 @@ class Query extends Criteria {
 	
 	private $skipReadPermission = false;
 	
-	private $isRelational = false;
+	
+	private $relation;
+	private $relationFromRecord;
 
 	
 	protected function getwithDeleted() {
@@ -86,9 +88,51 @@ class Query extends Criteria {
 	}
 	
 	protected function getIsRelational(){
-		return $this->isRelational;
+		return isset($this->relation);
+	}
+	
+	/**
+	 * When this query is made by a relation this holds the relation object.
+	 * 
+	 * @return \IFW\Orm\Relation
+	 */
+	public function getRelation() {
+		return $this->relation;
+	}
+	
+	/**
+	 * When this query is created through a relation this holds the from record of the relation.
+	 * 
+	 * @example
+	 * 
+	 * ``````````````````````````````
+	 * $contact->emailAddresses
+	 * ``````````````````````````````
+	 * The store returned will hold a query and this function returns $contact.
+	 * 
+	 * @return \IFW\Orm\Record
+	 */
+	public function getRelationFromRecord() {
+		return $this->relationFromRecord;
 	}
 
+		
+	/**
+	 * for internal use only
+	 * 
+	 * Set when doing relational queries an extra property "_isRelational" is set
+	 * so the record can do an extra permission check when fetching relations.
+	 * 
+	 * @access private
+	 * @return static
+	 */
+	public function setRelation(\IFW\Orm\Relation $relation, \IFW\Orm\Record $record) {
+		$this->relation = $relation;
+		$this->relationFromRecord = $record;
+		
+		return $this;
+	}
+	
 
 
 
@@ -464,21 +508,6 @@ class Query extends Criteria {
 	 */
 	public function skipReadPermission() {
 		$this->skipReadPermission = true;
-		
-		return $this;
-	}
-	
-	/**
-	 * for internal use only
-	 * 
-	 * Set when doing relational queries an extra property "_isRelational" is set
-	 * so the record can do an extra permission check when fetching relations.
-	 * 
-	 * @access private
-	 * @return static
-	 */
-	public function _isRelational($relation = true) {
-		$this->isRelational = $relation;
 		
 		return $this;
 	}

@@ -87,15 +87,36 @@ abstract class Model extends DataModel {
 
 	/**
 	 * The record that these permissions are for.
+	 
 	 * 
 	 * @var Record
 	 */
 	protected $record;
 	private $cache = [];
 	
+	/**
+	 * The record class name that this permissions object is instantiated from
+	 * 
+	 * @var string $recordClassName
+	 */
+	protected $recordClassName;
+	
+	/**
+	 * @param DataModel $record
+	 */
 	public function setRecord(DataModel $record) {
 		$this->record = $record;
 		$this->cache = [];
+		
+		$this->setRecordClassName($record->getClassName());
+	}
+	/**
+	 * The record class name that this permissions object is instantiated from
+	 * 
+	 * @param string $recordClassName
+	 */
+	public function setRecordClassName($recordClassName) {
+		$this->recordClassName = $recordClassName;
 	}
 	
 	
@@ -210,17 +231,15 @@ abstract class Model extends DataModel {
 					
 					$can = $this->internalCan($permissionType, $user);
 					
-					if(!$can) {
-						IFW::app()->debug("User ".$user->id." has no permission for ".$this->record->getClassName().' '.var_export($this->record->pk(), true));
-					}
+//					if(!$can) {
+//						IFW::app()->debug("User ".$user->id." has no permission for ".$this->record->getClassName().' permissionType:'.var_export($permissionType, true).' '.var_export($this->record->pk(), true));
+//					}
 					
 					$this->cache[$permissionType.'-'.$user->id()] = $can;
 				}
 			}
-		} catch(Exception $e) {
-			throw $e;
 		} finally {
-//			IFW::app()->debug($this->record->getClassName().'::finally can('.$permissionType.')');
+			IFW::app()->debug($this->record->getClassName().'::finally can('.$permissionType.': '.var_export($oldIsChecking, true).')');
 			self::$isCheckingPermissions = $oldIsChecking;
 		}		
 		
@@ -229,9 +248,9 @@ abstract class Model extends DataModel {
 	}
 	
 	public final function applyToQuery($query = null) {
-//		GO()->getDebugger()->debugCalledFrom();
-//		GO()->debug(self::$isCheckingPermissions);
-		if(!self::$enablePermissions || self::$isCheckingPermissions) {
+
+		if(!self::$enablePermissions || self::$isCheckingPermissions) {			
+//			GO()->debug("SKIPPED: ".$this->recordClassName.' '.var_export(self::$isCheckingPermissions, true).' '.var_export(self::$enablePermissions, true));
 			return;
 		}
 			
@@ -243,8 +262,8 @@ abstract class Model extends DataModel {
 		if(!$user) {
 			throw new IFW\Exception\NotAuthenticated();
 		}
-		
-		if($user->isAdmin()) {
+				
+		if($user->isAdmin()) {		
 			self::$enablePermissions = true;
 			return;
 		}

@@ -121,30 +121,30 @@ class Store extends \IFW\Data\Store {
 
 		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
 		//Expirimental caching if query is findByPk		
-		if (!isset($this->query->fetchMode) && ($primaryKeyValues = $this->isFindByPk())) {
-			
-			$this->query->withDeleted();
-
-			$keyStr = implode('-', $primaryKeyValues);
-
-			$hash = $this->recordClassName . '-' . $keyStr;
-			if (!isset(self::$cache[$hash])) {
-				$model = $this->getIterator()->fetch();
-
-				if (!$model) {
-					return $model;
-				}
-
-//				IFW::app()->debug("Caching find by primary key for ".$this->recordClassName.'::('.$keyStr.')');
-
-				self::$cache[$hash] = $model;
-			}
-//			else {
-//				IFW::app()->debug("Return from findByPk cache for for ".$this->recordClassName.'::('.$keyStr.')');
+//		if (!isset($this->query->fetchMode) && ($primaryKeyValues = $this->isFindByPk())) {
+//			
+//			$this->query->withDeleted();
+//
+//			$keyStr = implode('-', $primaryKeyValues);
+//
+//			$hash = $this->recordClassName . '-' . $keyStr;
+//			if (!isset(self::$cache[$hash])) {
+//				$model = $this->getIterator()->fetch();
+//
+//				if (!$model) {
+//					return $model;
+//				}
+//
+////				IFW::app()->debug("Caching find by primary key for ".$this->recordClassName.'::('.$keyStr.')');
+//
+//				self::$cache[$hash] = $model;
 //			}
-
-			return self::$cache[$hash];
-		}
+////			else {
+////				IFW::app()->debug("Return from findByPk cache for for ".$this->recordClassName.'::('.$keyStr.')');
+////			}
+//
+//			return self::$cache[$hash];
+//		}
 		
 		$model = $this->getIterator()->fetch();
 		return $model;
@@ -309,12 +309,12 @@ class Store extends \IFW\Data\Store {
 		}		
 	}
 	
-	/**
-	 * @todo _isRelation gives problem when using the query as sub query
-	 * See /var/www/groupoffice-server/GO/Modules/Elearning/Model/ElearningPermissions.php line 67
-	 */
-	public function __clone() {
-		$this->query = clone $this->query;
-		$this->query->_isRelational(false);
-	}
+//	/**
+//	 * @todo _isRelation gives problem when using the query as sub query
+//	 * See /var/www/groupoffice-server/GO/Modules/Elearning/Model/ElearningPermissions.php line 67
+//	 */
+//	public function __clone() {
+//		$this->query = clone $this->query;
+//		$this->query->_isRelational(false);
+//	}
 }

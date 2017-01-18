@@ -174,32 +174,34 @@ class QueryBuilder {
 			$this->tableAlias = $this->query->tableAlias;
 			$this->aliasMap[$this->query->tableAlias] = $this->recordClassName;
 
-			$select = $this->buildSelect();
+			$select = "\n".$prefix.$this->buildSelect();
 
 			$where = $prefix . $this->buildWhere(null, $prefix);
 
-			$joins = '';
+			$joins = "";
 
 			if (isset($this->query->joins)) {
 				foreach ($this->query->joins as $join) {
 					$method = 'join' . $join[0];
-					$joins .= $this->$method($join[1]);
+					$joins .= "\n".$prefix.$this->$method($join[1]);
 				}
 			}
 
 			$select .= $this->joinRelationSelectString;
 			$select .= 'FROM `' . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->query->tableAlias . "`\n";
 
-			$group = $this->buildGroupBy();
-			$having = $this->buildHaving();
-			$orderBy = $this->buildOrderBy();
+			$group = "\n".$prefix.$this->buildGroupBy();
+			$having = "\n".$prefix.$this->buildHaving();
+			$orderBy = "\n".$prefix.$this->buildOrderBy();
 
 			$limit = "";
 			if (!empty($this->query->limit)) {
-				$limit .= "\nLIMIT " . intval($this->query->offset) . ',' . intval($this->query->limit);
+				$limit .= "\n".$prefix."LIMIT " . intval($this->query->offset) . ',' . intval($this->query->limit);
 			}
+			
+//			$where = preg_replace('/\(\s+\((.*)\)\s+\)/','($1)', $where);
 
-			$this->sql = $select . $joins . $where . $group . $having . $orderBy . $limit;
+			$this->sql = $prefix . $select . $joins . $where . $group . $having . $orderBy . $limit;
 		}
 		if ($replaceBindParameters) {
 			return $this->replaceBindParameters($this->sql);
@@ -328,7 +330,7 @@ class QueryBuilder {
 			return '';
 		}
 
-		$groupBy = "\nGROUP BY ";
+		$groupBy = "GROUP BY ";
 
 		foreach ($this->query->groupBy as $column) {
 			if($column instanceof Expression){
@@ -406,11 +408,13 @@ class QueryBuilder {
 			throw new Exception("Invalid condition passed\n\n" . var_export($condition, true));
 		}
 
-		$c .= $prefix . ')';
+		$c .= $prefix . "\n".$prefix.")";
 
 		return $c;
 	}
 
+	protected $isSubQuery = false;
+	
 	/**
 	 * Builds the where array syntax to a parameterized SQL string
 	 *
@@ -435,6 +439,7 @@ class QueryBuilder {
 	private function buildSubQuery($comparator, \IFW\Orm\Store $store, $prefix) {
 		$builder = $store->getQuery()->getBuilder($store->getRecordClassName());
 		$builder->mergeAliasMap($this->aliasMap);
+		$builder->isSubQuery = true;
 
 		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
 		foreach ($builder->getBindParameters() as $v) {
@@ -548,12 +553,12 @@ class QueryBuilder {
 	 */
 	private function buildAndOrCondition($type, $comparator, $hashValues, $prefix) {
 
-		$str = '';
+		$str = $prefix;
 
 		foreach ($hashValues as $column => $value) {
 
-			if ($str != '') {
-				$str .= $type . ' ';
+			if ($str != $prefix) {
+				$str .= $prefix.$type . ' ';
 			}
 
 			$columnParts = $this->splitTableAndColumn($column);
@@ -568,9 +573,9 @@ class QueryBuilder {
 			if (!isset($value)) {
 				if ($comparator == '=' || $comparator == 'IS') {
 
-					$str .= $prefix . $col . " IS NULL\n";
+					$str .= $col . " IS NULL";
 				} elseif ($comparator == '!=' || $comparator == 'NOT IS') {
-					$str .= $prefix . $col . " IS NOT NULL\n";
+					$str .= $col . " IS NOT NULL";
 				} else {
 					throw new Exception('Null value not possible with comparator ' . $comparator);
 				}
@@ -586,7 +591,8 @@ class QueryBuilder {
 				//subquery
 				$builder = $value->getQuery()->getBuilder($value->getRecordClassName());
 				$this->mergeAliasMap($builder->aliasMap);
-				$str .= $prefix . $col . ' ' . $comparator . " (\n" . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
+				$builder->isSubQuery = true;
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
 				foreach ($builder->getBindParameters() as $v) {
 					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 				}
@@ -595,7 +601,7 @@ class QueryBuilder {
 
 				$this->addBuildBindParameter($paramTag, $value, $columnParts[0], $columnParts[1]);
 
-				$str .= $prefix . $col . ' ' . $comparator . ' ' . $paramTag . "\n";
+				$str .= $col . ' ' . $comparator . ' ' . $paramTag ;
 			}
 		}
 
@@ -617,7 +623,7 @@ class QueryBuilder {
 			$str .= $paramTag . ', ';
 		}
 
-		$str = $prefix . rtrim($str, ', ') . ")\n";
+		$str = $prefix . rtrim($str, ', ') . ")";
 
 		return $str;
 	}
@@ -628,7 +634,7 @@ class QueryBuilder {
 			return '';
 		}
 
-		$orderBy = "\nORDER BY ";
+		$orderBy = "ORDER BY ";
 
 		foreach ($this->query->orderBy as $column => $direction) {
 			
@@ -641,7 +647,7 @@ class QueryBuilder {
 			}
 		}
 
-		return trim($orderBy, ' ,') . "\n";
+		return trim($orderBy, ' ,');
 	}
 
 	private function buildHaving() {
@@ -659,7 +665,7 @@ class QueryBuilder {
 			$having .= $condition[0] . ' (' . $this->buildCondition($condition[1]) . ")\n";
 		}
 
-		return "HAVING\n" . $having;
+		return "HAVING" . $having;
 	}
 
 	private function addBuildBindParameter($paramTag, $value, $tableAlias, $column) {
@@ -703,7 +709,7 @@ class QueryBuilder {
 			$join .= '`' . $config['joinTableAlias'] . '` ';
 		}
 
-		$join .= 'ON (' . $this->buildWhere($config['on'], "\t") . ")\n";
+		$join .= 'ON (' . $this->buildWhere($config['on'], "\t") . ")";
 
 
 		return $join;
@@ -737,6 +743,7 @@ class QueryBuilder {
 
 			if ($this->query->debug) {
 				IFW::app()->getDebugger()->debugSql($sql, $binds, 2);
+//				IFW::app()->getDebugger()->debugCalledFrom(10);
 			}
 
 			$stmt->execute();

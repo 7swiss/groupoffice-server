@@ -22,12 +22,14 @@ class QueryBuilder extends DbQueryBuilder{
 	protected function buildSelect() {
 		$select = parent::buildSelect();
 		
-		if($this->getQuery()->skipReadPermission) {
-			$select .= ', 1 AS skipReadPermission ';
-		}
-		
-		if($this->getQuery()->isRelational) {
-			$select .= ', 1 AS isRelational ';
+		if(!$this->isSubQuery) {
+			if($this->getQuery()->skipReadPermission) {
+				$select .= ', 1 AS skipReadPermission ';
+			}
+
+			if($this->getQuery()->isRelational) {
+				$select .= ', 1 AS isRelational ';
+			}
 		}
 		
 		return $select;

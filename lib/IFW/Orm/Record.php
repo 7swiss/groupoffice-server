@@ -652,6 +652,15 @@ abstract class Record extends DataModel {
 		
 		if(!isset($this->relations[$name])){			
 			$store = $relation->get($this);
+			
+			
+			//TODO Is this right?
+			$toRecordName = $relation->getToRecordName();
+		
+			$permissions = $toRecordName::internalGetPermissions();
+			$permissions->setRecordClassName($toRecordName);
+			$permissions->applyToQuery($store->getQuery());
+			
 			$this->relations[$name] = $store;		
 		}
 
@@ -830,7 +839,8 @@ abstract class Record extends DataModel {
 		if (!isset($attributeOrRelationName)) {
 			
 			foreach($this->oldAttributes as $colName => $loadedValue) {
-				if($this->$colName !== $loadedValue)
+				//do not check stict here as it leads to date problems.
+				if($this->$colName != $loadedValue)
 				{
 					return true;
 				}
@@ -855,7 +865,7 @@ abstract class Record extends DataModel {
 					return true;
 				}
 				
-				if($this->oldAttributes[$a] !== $this->$a) {
+				if($this->oldAttributes[$a] != $this->$a) {
 					return true;
 				}
 			}elseif($this->getRelation($a)) {
@@ -966,7 +976,7 @@ abstract class Record extends DataModel {
 		$modified = [];
 		
 		foreach($this->oldAttributes as $colName => $loadedValue) {
-			if($this->$colName !== $loadedValue) {
+			if($this->$colName != $loadedValue) {
 				$modified[$colName] = $loadedValue;
 			}
 		}
@@ -1276,6 +1286,8 @@ abstract class Record extends DataModel {
 			foreach($relationStore as $record) {
 				$record->isSavedByRelation = true;
 			}
+			
+//			\IFW::app()->debug("Saving relation $relationName");
 
 			if(!$relationStore->save()) {				
 				$this->setValidationError($relationName, 'relation');				
@@ -1694,17 +1706,16 @@ abstract class Record extends DataModel {
 		$query = Query::normalize($query);
 		
 		
-		static::internalGetPermissions()->applyToQuery($query);
-		
 		$calledClassName = get_called_class();
+		
+		$permissions = static::internalGetPermissions();
+		$permissions->setRecordClassName($calledClassName);
+		$permissions->applyToQuery($query);
+		
 		static::fireStaticEvent(self::EVENT_FIND, $calledClassName, $query);
 		
 		$store = new Store($calledClassName, $query);
-		
-//		if(static::class == \GO\Core\Modules\Users\Model\User::class) {
-//			echo $store;
-//		}
-		
+
 		return $store;
 	}
 

@@ -251,10 +251,6 @@ class Token extends Record {
 		if(isset($_GET['XSRFToken'])) {
 			return $_GET['XSRFToken'];
 		}
-		
-		
-		GO()->debug(GO()->getRequest()->headers);
-		
 		if(isset(GO()->getRequest()->headers['x-xsrftoken'])) {
 			return GO()->getRequest()->headers['x-xsrftoken'];
 		}
@@ -311,9 +307,6 @@ class Token extends Record {
 	 * @return boolean
 	 */
 	public function checkXSRF() {
-		
-		GO()->debug("XSRF: ".self::requestXSRFToken().' = '.$this->XSRFToken);
-		
 		return !$this->checkXSRFToken || self::requestXSRFToken() === $this->XSRFToken;
 	}
 }
