@@ -131,6 +131,22 @@ class RecurrenceRule extends Record {
 		return new ViaRelation('event');
 	}
 
+	protected function internalValidate() {
+
+		if($this->frequency === null && !$this->markDeleted) {
+			return true; // save nothing when there is no frequency
+		}
+		return parent::internalValidate();
+	}
+
+	protected function internalSave() {
+
+		if($this->frequency === null && !$this->markDeleted) {
+			return true; // save nothing when there is no frequency
+		}
+		return parent::internalSave();
+	}
+
 	/**
 	 * When the RRule has no end time
 	 * @return bool true when this recurs forever

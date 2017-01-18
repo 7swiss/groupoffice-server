@@ -8,6 +8,7 @@ use GO\Modules\GroupOffice\Calendar\Model\Event;
 use GO\Modules\GroupOffice\Calendar\Model\User;
 use IFW;
 use IFW\Exception\NotFound;
+use IFW\Util\DateTime;
 use IFW\Orm\Query;
 
 /**
@@ -26,13 +27,13 @@ class EventController extends Controller {
 	 *
 	 * @param string $orderColumn Order by this column
 	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
-	 * @param int $limit Limit the returned records
-	 * @param int $offset Start the select on this offset
+	 * @param string $from Y-m-d end first event show
+	 * @param string $until Y-m-d start last event
 	 * @param string $searchQuery Search on this query.
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.startAt', $orderDirection = 'ASC', $year = null, $month = null, $searchQuery = "", $returnProperties = "*,attendees", $where = null) {
+	public function actionStore($orderColumn = 't.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*,attendees", $where = null) {
 
 		$query = (new Query)
 			->joinRelation('recurrenceRule', false, 'LEFT')
@@ -42,15 +43,12 @@ class EventController extends Controller {
 			$query->search($searchQuery, ['title']);
 			$recurringEvents = new IFW\Data\Store([]); // does not find recurring events
 		} else {
-			$query->where('YEAR(startAt) = :year')->bind([':year' => $year]);
-			$recurringEvents = Event::findRecurring(new \DateTime($year.'-1-1'), new \DateTime(($year+1).'-1-1'));
+			$query->where('startAt <= :until AND endAt > :from')->bind([':until' => $until, ':from' => $from]);
+			$recurringEvents = Event::findRecurring(new \DateTime($from), new \DateTime($until));
 			$recurringEvents->setReturnProperties($returnProperties);
 		}
 
 		$query->andWhere('recurrenceRule.frequency IS NULL');
-		if ($month !== null) {
-			$query->andWhere('MONTH(startAt) = :month')->bind([':month' => $month]);
-		}
 
 		if (!empty($where)) {
 
@@ -67,12 +65,16 @@ class EventController extends Controller {
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	protected function actionRead($eventId,$userId, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	protected function actionRead($eventId,$userId,$occurrenceTime = null, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$attendee = Attendee::findByPk(['eventId'=>$eventId,'userId'=>$userId]);
 
 		if (!$attendee) {
 			throw new NotFound();
+		}
+		if($occurrenceTime !== null) {
+			// fake a start time and ask to change single instance or start new series
+			$attendee->event->setStartTime(new DateTime('@'.$occurrenceTime));
 		}
 
 		$this->renderModel($attendee, $returnProperties);

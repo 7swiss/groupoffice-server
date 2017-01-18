@@ -141,7 +141,7 @@ class ICalendarHelper {
 	static public function makeRecurrenceIterator(RecurrenceRule $rule) {
 		$values = ['FREQ' => $rule->frequency];
 		empty($rule->occurrences) ?: $values['COUNT'] = $rule->occurrences;
-		empty($rule->until) ?:	$values['UNTIL'] = $rule->until;
+		empty($rule->until) ?:	$values['UNTIL'] = $rule->until->format('Ymd');
 		empty($rule->interval) ?: $values['INTERVAL'] = $rule->interval;
 		empty($rule->bySetPos) ?: $values['BYSETPOS'] = $rule->bySetPos;
 		empty($rule->bySecond) ?: $values['BYSECOND'] = $rule->bySecond;
@@ -175,7 +175,11 @@ class ICalendarHelper {
 	static private function createRrule($recurrenceRule) {
 		$rule = '';
 		foreach(self::$ruleMap as $key => $value) {
-			empty($recurrenceRule->{$value}) ?: $rule .= $key . '=' .$recurrenceRule->{$value}. ';';
+			if(!empty($recurrenceRule->{$value})) {
+				$rule .= $key . '=';
+				$rule .= ($value == 'until') ? $recurrenceRule->{$value}->format('Ymd') : $recurrenceRule->{$value};
+				$rule .= ';';
+			}
 		}
 		return $rule;
 	}

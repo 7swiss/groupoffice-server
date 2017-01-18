@@ -25,7 +25,6 @@ use IFW\Auth\Permissions\Everyone;
  * @property Attendee $organizer the attendee that created the event
  * @property Attendee[] $attendees all attendees that are added including organizer
  * @property EventAttachment[] $attachments File attachments
- * 
  */
 class Event extends Record {
 
@@ -36,7 +35,7 @@ class Event extends Record {
 	public $id;
 
 	/**
-	 * A univarsal unique identifier for the object.
+	 * A universal unique identifier for the object.
 	 * @var string
 	 */							
 	public $uuid;
@@ -134,6 +133,8 @@ class Event extends Record {
 	// DEFINE
 	private $oldVEvent = null;
 
+	private $changeOccurences;
+
 	protected function init() {
 		if ($this->isNew()) {
 			$this->uuid = UUID::v4();
@@ -160,8 +161,20 @@ class Event extends Record {
 	}
 
 	/**
+	 * When changing an recurring event:
+	 * '1' for single occurrence. anything else for 'from this occurrence forward'
+	 * @param int $value 
+	 */
+	public function setChangeOccurrence($value) {
+		if(!$this->isRecurring) {
+			throw \Exception('You can only make exceptions for recurring events');
+		}
+		$this->changeOccurences = $value;
+	}
+
+	/**
 	 * TODO: function is not called when the attributes of events are set relational
-	 * Eg. through an attendence
+	 * Eg. through an attendance
 	 * @param string $value Title of event
 	 */
 	public function setTitle($value) {
@@ -192,7 +205,7 @@ class Event extends Record {
 		$events = self::find($query);
 		$allOccurrences = [];
 		foreach($events as $event) {
-			$allOccurrences = $event->recurrenceRule->getOccurences($start, $end);
+			$allOccurrences = array_merge($allOccurrences, $event->recurrenceRule->getOccurences($start, $end));
 		}
 		return new \IFW\Data\Store($allOccurrences);
 	}
@@ -245,8 +258,8 @@ class Event extends Record {
 	}
 
 	/**
-	 * When this event is an exception for antoher event.
-	 * This is the date for the occurence
+	 * When this event is an exception for another event.
+	 * This is the date for the occurrence
 	 */
 	public function getOccurrenceData() {
 
@@ -255,9 +268,9 @@ class Event extends Record {
 
 	/**
 	 * Will move the endTime with it
-	 * @param \Datetime $datetime
+	 * @param Datetime $datetime
 	 */
-	public function setStartTime(\Datetime $datetime) {
+	public function setStartTime(DateTime $datetime) {
 		$diff = $this->getDuration();
 		$this->startAt = clone $datetime;
 		$this->endAt = $datetime->add($diff);
@@ -272,9 +285,17 @@ class Event extends Record {
 
 	public function internalSave() {
 
+		if(isset($this->changeOccurences)) {
+			if($this->changeOccurences === 1) {
+				$this->saveChangesAsException($this->recurranceId);
+			} else {
+				$this->saveChangesFromHere($this->recurranceId);
+			}
+		}
+
 		if(!$this->isModified('vevent')) {
 			// THIS GIVES A SEGMENTATION FAULT IN PHP 7.0.13
-			$this->vevent = ICalendarHelper::toVObject($this)->serialize();		
+			//$this->vevent = ICalendarHelper::toVObject($this)->serialize();
 		}
 
 		if($this->getHasAttendees()) {
@@ -307,6 +328,41 @@ class Event extends Record {
 	public function confirm() {
 		$this->status = EventStatus::Confirmed;
 		return $this;
+	}
+
+	/**
+	 * Set the until time of this recurrence rule and create a new event
+	 * with the same recurring rule starting from The occurrence start time
+	 */
+	private function saveChangesFromHere(DateTime $occurrence) {
+		//need occurrence start time
+
+		$newSeries = new self();
+		$newSeries->setValues($this->toArray());
+		$newSeries->uuid = UUID::v4();
+		//Todo: Copy attendees, rrule, attachment. Move Exceptions after $occurrence
+
+		$newSeries->recurrenceRule->startAt = $occurrence; //occurrence that we are editing
+		$this->recurrenceRule->until = $occurrence; //occurrence that we are editing
+
+	}
+
+	private function saveChangesAsException(DateTime $occurrence) {
+		$event = new self();
+		$event->setValues($this->toArray());
+		$event->uuid = UUID::v4();
+
+		$this->addException($occurrence, $event);
+		return $event->save();
+	}
+
+	public function addException(DateTime $occurrence, Event &$replacementEvent = null) {
+		$exception = new EventException();
+		$exception->date = $occurrence;
+		$this->recurrenceRule->exceptions[] = $exception;
+		$success = $exception->save();
+		$replacementEvent->exceptionId = $exception->id;
+		return $success;
 	}
 
 	/**
