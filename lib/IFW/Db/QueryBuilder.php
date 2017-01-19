@@ -760,7 +760,7 @@ class QueryBuilder {
 			$stmt->execute();
 		} catch (\PDOException $e) {
 			
-//			GO()->debug("FAILED SQL: ".$this->build(false));
+			GO()->debug("FAILED SQL: ".$this->build(true));
 //			GO()->debug($binds);
 			
 			throw $e;

@@ -1278,7 +1278,7 @@ abstract class Record extends DataModel {
 				continue;
 			}
 			
-			if(!$relationStore->isModified()) {				
+			if(!$relationStore->isModified()) {					
 				continue;
 			}
 			
@@ -1286,8 +1286,6 @@ abstract class Record extends DataModel {
 			foreach($relationStore as $record) {
 				$record->isSavedByRelation = true;
 			}
-			
-//			\IFW::app()->debug("Saving relation $relationName");
 
 			if(!$relationStore->save()) {				
 				$this->setValidationError($relationName, 'relation');				

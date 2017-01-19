@@ -33,5 +33,9 @@ class BlobUser extends \GO\Core\Orm\Record {
 	 * @var string
 	 */							
 	public $modelPk;
+	
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone();
+	}
 
 }

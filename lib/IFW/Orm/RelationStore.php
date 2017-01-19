@@ -187,7 +187,10 @@ class RelationStore extends Store implements ArrayAccess {
 				$this->record->$fromField = null;
 			}else if($fromIsPrimary && !$toIsPrimary) {
 				//the foreign key is primary and this one is not so clear.
-				$this->single()->$toField = null;
+				$record = $this->single();
+				if($record) {
+					$record->$toField = null;
+				}
 			}
 		}
 	}
@@ -357,7 +360,7 @@ class RelationStore extends Store implements ArrayAccess {
 		}
 		
 		foreach($this->modified as $record) {
-			if($record->isModified()) {
+			if($record->isModified() || $record->markDeleted) {
 				return true;
 			}
 			
@@ -417,7 +420,7 @@ class RelationStore extends Store implements ArrayAccess {
 				}
 				
 				//not sure if isModified check will have side effects.
-				if ($record->isModified() && !$record->save()) {
+				if (($record->isModified() || $record->markDeleted) && !$record->save()) {
 					return false;
 				}
 				

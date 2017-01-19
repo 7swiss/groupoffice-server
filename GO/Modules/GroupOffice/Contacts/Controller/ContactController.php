@@ -96,7 +96,7 @@ class ContactController extends Controller {
 		$filters->addFilter(AgeFilter::class);
 		
 		
-		Field::addFilters(ContactCustomFields::class, $filters);
+//		Field::addFilters(ContactCustomFields::class, $filters);
 		
 		return $filters;
 	}

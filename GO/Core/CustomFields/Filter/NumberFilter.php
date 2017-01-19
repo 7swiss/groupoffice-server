@@ -10,10 +10,12 @@ class NumberFilter extends NumberrangeFilter {
 	
 	public function apply(Query $query) {		
 		if(!empty($this->min)) {			
+			$query->joinRelation('customfields');
 			$query->andWhere(['>=',['customfields.'.$this->field->databaseName => $this->min]]);
 		}
 		
 		if(!empty($this->max)) {			
+			$query->joinRelation('customfields');
 			$query->andWhere(['<=',['customfields.'.$this->field->databaseName => $this->max]]);
 		}
 	}

@@ -24,7 +24,7 @@ class ViaRelation extends Model {
 		$model = $this->record->{$relationName};
 
 		if(!isset($model)) {
-			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select the key?");
+			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select or set the key?");
 		}
 		
 		return $model->permissions->can($permissionType, $user);
