@@ -100,7 +100,7 @@ class Store extends \IFW\Data\Store {
 
 	/**
 	 * Get the query object
-	 *
+	 * 
 	 * @return Query
 	 */
 	public function getQuery() {
@@ -309,12 +309,9 @@ class Store extends \IFW\Data\Store {
 		}		
 	}
 	
-//	/**
-//	 * @todo _isRelation gives problem when using the query as sub query
-//	 * See /var/www/groupoffice-server/GO/Modules/Elearning/Model/ElearningPermissions.php line 67
-//	 */
-//	public function __clone() {
-//		$this->query = clone $this->query;
-//		$this->query->_isRelational(false);
-//	}
+	/**
+	 */
+	public function __clone() {
+		$this->query = clone $this->query;
+	}
 }

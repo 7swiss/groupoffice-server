@@ -257,7 +257,11 @@ class Thread extends Record {
 		$this->flagged = (bool) $values['flagged'];
 		$this->messageCount = (int) $values['messageCount'];
 		$this->answered = $values['minReplyToId'] > 0;
-		$this->hasAttachments = Attachment::find(['message.messages.threadId' => $this->id, "contentId" => null])->single() != false;
+		$this->hasAttachments = Attachment::find(
+						(new Query)
+							->andWhere(['message.messages.threadId' => $this->id, "contentId" => null])
+							->joinRelation('message.messages')
+						)->single() != false;
 
 		return $this->update();		
 	}

@@ -99,9 +99,9 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function actionCreate($accountId, $returnProperties = "") {
 
-		$message = new Message();
+		$message = Message::create($accountId);
 		$message->setValues(GO()->getRequest()->body['data']);
 	
 		$message->save();

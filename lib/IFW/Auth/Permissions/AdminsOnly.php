@@ -12,4 +12,9 @@ class AdminsOnly extends Model {
 	protected function internalCan($permissionType, UserInterface $user) {
 		return false;
 	}
+	
+	protected function internalApplyToQuery(\IFW\Orm\Query $query, UserInterface $user) {
+		//Return no results
+		$query->andWhere('0');
+	}
 }

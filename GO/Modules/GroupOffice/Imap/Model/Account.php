@@ -285,14 +285,16 @@ class Account extends AccountRecord implements SyncableInterface{
 				//try to find an older thread
 				$refs = MessageReference::find((new Query)->fetchSingleValue('uuid')->andWhere(['messageId' => $message->id]))->all();
 				
-				$relatedStore = MessagesMessage::find(
-							(new Query())
-							->fetchSingleValue('threadId')
-							->andWhere(['accountId'=>$this->id])
-							->andWhere(['!=',['threadId' => null]])
-							->andWhere(['uuid' => $refs])
-							);
-				$threadId = $relatedStore->single();
+				if(count($refs)) {
+					$relatedStore = MessagesMessage::find(
+								(new Query())
+								->fetchSingleValue('threadId')
+								->andWhere(['accountId'=>$this->id])
+								->andWhere(['!=',['threadId' => null]])
+								->andWhere(['uuid' => $refs])
+								);
+					$threadId = $relatedStore->single();
+				}
 			}
 			
 			if($threadId) {
@@ -376,6 +378,7 @@ class Account extends AccountRecord implements SyncableInterface{
 	private function sendMessages() {
 		$messages = MessagesMessage::find(
 						(new IFW\Orm\Query())						
+						->joinRelation('thread')						
 						->where([
 								'thread.accountId'=>$this->id,
 								'type'=>  MessagesMessage::TYPE_OUTBOX

@@ -45,6 +45,7 @@ class NotificationController extends Controller {
 						
 		$query = (new Query())
 				->distinct()				
+				->joinRelation('for.groupUsers')
 				->where(['for.groupUsers.userId' => $currentUserId])
 				->joinRelation('appearances', false, 'LEFT', ['appearances.userId' => $currentUserId])						
 				->andWhere(['>',['expiresAt' => new DateTime()]])

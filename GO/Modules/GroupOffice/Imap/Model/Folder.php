@@ -372,9 +372,16 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	 */
 	public function getLowestSyncedUid() {
 
-		$store = clone $this->messages;
-		$store->getQuery()->select('min(imapUid) AS lowestSyncedUid')->fetchMode(\PDO::FETCH_COLUMN, 0);
-		return (int) $store->single();
+//		$store = clone $this->messages;
+//		$store->getQuery()->select('min(imapUid) AS lowestSyncedUid')->fetchMode(\PDO::FETCH_COLUMN, 0);
+//		return (int) $store->single();
+		
+		return (int) Message::find(
+							(new IFW\Orm\Query)
+							->where(['folderId' => $this->id])
+							->fetchSingleValue("min(imapUid)")
+						)->single();
+		
 
 	}
 	

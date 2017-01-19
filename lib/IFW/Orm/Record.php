@@ -1213,7 +1213,13 @@ abstract class Record extends DataModel {
 		//Unset the accessed relations so user set relations are queried from the db after save.
 		foreach($this->relations as $relationName => $relationStore) {
 			foreach($relationStore as $record) {
-				$record->commit();
+				if(!is_a($record, self::class)) {					
+					GO()->debug($relationStore);
+					throw new \Exception("Not a record in ".$this->getClassName()."::".$relationName."?");
+				}
+				if($record->isSaving && !$this->isSavedByRelation) {
+					$record->commit();
+				}
 			}
 			$relationStore->reset();
 		}
@@ -1529,7 +1535,7 @@ abstract class Record extends DataModel {
 				$bindParams[$tag] = $value;				
 				$stmt->bindValue($tag, $value, $column->pdoType);				
 			}
-//			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
+			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
 
 			$ret = $stmt->execute();
 		} catch (Exception $e) {

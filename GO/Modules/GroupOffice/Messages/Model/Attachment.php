@@ -151,18 +151,14 @@ class Attachment extends Record {
 		return new \IFW\Auth\Permissions\Everyone();
 	}
 	
-	protected function internalValidate() {
+	
+	public function internalSave() {
+
+		$this->saveBlob('blobId');
 		
 		if(isset($this->blobId) && !isset($this->contentType)) {
 			$this->contentType = Blob::findByPk($this->blobId)->contentType;
 		}
-		
-		return parent::internalValidate();
-	}
-
-	public function internalSave() {
-
-		$this->saveBlob('blobId');
 
 		$success = parent::internalSave();
 

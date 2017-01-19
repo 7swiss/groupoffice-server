@@ -507,7 +507,10 @@ class Query extends Criteria {
 	 * @return static
 	 */
 	public function skipReadPermission() {
-		$this->skipReadPermission = true;
+		
+		if(!isset($this->fetchMode)) {
+			$this->skipReadPermission = true;
+		}
 		
 		return $this;
 	}

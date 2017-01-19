@@ -41,7 +41,11 @@ trait BlobNotifierTrait {
 			if($this->getOldAttributeValue($columnName)){
 				$this->freeBlob($this->getOldAttributeValue($columnName));
 			}
-			$this->useBlob($this->$columnName);
+			
+			$this->attach(\IFW\Orm\Record::EVENT_AFTER_SAVE, function() use ($columnName) {
+				$this->useBlob($this->$columnName);
+			});
+			
 		}
 	}
 

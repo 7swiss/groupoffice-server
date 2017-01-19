@@ -45,6 +45,17 @@ use Exception;
  *	$contact->save();
  * </code>
  * 
+ * @method Query getQuery() 
+ * Use this function with caution. Because when you modify the query you also 
+ * modify the record relational property which can lead to unexpected results.
+ * You can use clone to avoid problems.
+ * `````````````````````````````````````````````````````````````````````````````
+ * $store = clone $this->messages;
+ * $store->getQuery()->select('min(imapUid) AS lowestSyncedUid')
+ *   ->fetchMode(\PDO::FETCH_COLUMN, 0);
+ * return (int) $store->single();
+ * `````````````````````````````````````````````````````````````````````````````
+ * 
  */
 class RelationStore extends Store implements ArrayAccess {
 
@@ -430,7 +441,6 @@ class RelationStore extends Store implements ArrayAccess {
 			}
 
 		}
-		
 		
 		return true;
 	}

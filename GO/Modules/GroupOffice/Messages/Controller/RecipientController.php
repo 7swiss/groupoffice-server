@@ -21,6 +21,7 @@ class RecipientController extends Controller {
 						->orderBy(['name' => 'ASC'])
 						->limit($limit)
 						->joinRelation('emailAddresses')
+						->fetchMode(\PDO::FETCH_ASSOC)
 						->select('t.name AS personal, emailAddresses.email AS address')
 						->groupBy(['emailAddresses.email'])
 						->search($searchQuery, ['t.name', 'emailAddresses.email']);
@@ -31,13 +32,14 @@ class RecipientController extends Controller {
 		$emails = [];
 		
 		foreach($records as $record) {
-			$emails = $record->address;
+			$emails = $record['address'];
 		}
 
 		$count = count($records);
 		if ($count < $limit) {
 			$query = (new Query())
 							->select('t.address, t.personal')
+							->fetchMode(\PDO::FETCH_ASSOC)
 							->joinRelation('message.thread.account', false)
 							->where(['account.createdBy' => GO()->getAuth()->user()->id()])												
 							->search($searchQuery, ['t.personal', 't.address'])
@@ -56,10 +58,10 @@ class RecipientController extends Controller {
 		$store = new Store($records);
 		$store->setReturnProperties('personal,address');
 		$store->format('personal', function($record) {
-			return !empty($record->personal) ? $record->personal : $record->address;
+			return !empty($record['personal']) ? $record['personal'] : $record['address'];
 		});
 		$store->format('full', function($record) {
-			$recipient = new Recipient($record->address, $record->personal);
+			$recipient = new Recipient($record['address'], $record['personal']);
 			return (string) $recipient;
 		});
 

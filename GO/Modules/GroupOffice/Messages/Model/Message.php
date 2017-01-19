@@ -224,7 +224,7 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	public static function internalGetPermissions() {
-		return new ViaRelation('thread');
+		return new ViaRelation('account');
 	}	
 	
 	
@@ -241,7 +241,7 @@ class Message extends \GO\Core\Orm\Record {
 		
 		$message = new self;
 		$message->thread = new \GO\Modules\GroupOffice\Messages\Model\Thread();
-		$message->thread->accountId = $accountId;
+		$message->accountId = $message->thread->accountId = $accountId;
 		$address = $message->thread->account->getAccountRecord()->getFromAddress();
 		$message->from = $address;
 		
