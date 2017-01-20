@@ -1201,6 +1201,7 @@ abstract class Record extends DataModel {
 	 */
 	private function commit() {
 		if($this->saveStartedTransaction) {
+			GO()->debug("COMMIT ".$this->getClassName());
 			$this->getDbConnection()->commit();
 			$this->saveStartedTransaction = false;
 		}
@@ -1411,7 +1412,7 @@ abstract class Record extends DataModel {
 				$stmt->bindValue($bindTag, $column->recordToDb($this->$colName), $column->pdoType);
 			}
 
-//			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
+			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
 
 			$ret = $stmt->execute();
 			
@@ -1528,7 +1529,7 @@ abstract class Record extends DataModel {
 				$column = $this->getColumn($attr['colName']);			
 				
 				//if it's a primary key and it's modified we must bind the old value here
-				$value = $attr['isPk'] && $this->isModified($attr['colName']) ? $this->getOldAttributeValue($attr['colName']) : $this->{$attr['colName']};
+				$value = $attr['isPk'] && !$this->isNew && $this->isModified($attr['colName']) ? $this->getOldAttributeValue($attr['colName']) : $this->{$attr['colName']};
 				
 				$value = $column->recordToDb($value);
 				

@@ -73,6 +73,13 @@ class Job extends Record {
 	 * @var \DateTime
 	 */							
 	public $lastRun;
+	
+	/**
+	 * Cron job is enabled or not
+	 * 
+	 * @var boolean 
+	 */
+	public $enabled;
 
 	protected static function defineRelations() {
 		self::hasOne('module', Module::class, ['moduleId'=>'id']);
@@ -91,8 +98,11 @@ class Job extends Record {
 	public static function runNext() {
 		
 		$query = (new Query())
-						->where(['<=', ['nextRun' => new DateTime()]])
-						->orWhere(['nextRun' => null]);
+						->where(['enabled'=>1])
+						->andWhere((new \IFW\Db\Criteria())
+							->where(['<=', ['nextRun' => new DateTime()]])
+							->orWhere(['nextRun' => null])
+										);
 		
 		$job = self::find($query)->single();
 
@@ -117,7 +127,7 @@ class Job extends Record {
 
 		if (!isset($this->nextRun)) {
 			$cronExpression = CronExpression::factory($this->cronExpression);
-			$this->nextRun = $cronExpression->getNextRunDate();
+			$this->nextRun = $cronExpression->getNextRunDate('-1 minute');
 			$this->save();
 		} else {
 			$cronExpression = CronExpression::factory($this->cronExpression);

@@ -146,7 +146,14 @@ class RelationStore extends Store implements ArrayAccess {
 		}
 	}
 	
-	public function all() {		
+	/**
+	 * Loads all records from the database into the store as array.
+	 * 
+	 * Modifications can be made
+	 * 
+	 * @return Record[]
+	 */
+	public function all() {
 		if(!isset($this->modified)) {
 			$this->modified = parent::all();
 		}		
@@ -164,8 +171,7 @@ class RelationStore extends Store implements ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$value = $this->normalize($value);
 		
-		if(!isset($value)) {
-			
+		if(!isset($value)) {			
 			if($this->getRelation()->hasMany()) {
 				throw new \Exception("Invalid value null for has many relation");
 			}else

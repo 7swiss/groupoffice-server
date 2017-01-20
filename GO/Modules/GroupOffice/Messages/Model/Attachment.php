@@ -151,21 +151,27 @@ class Attachment extends Record {
 		return new \IFW\Auth\Permissions\Everyone();
 	}
 	
-	
-	public function internalSave() {
-
+	protected function internalValidate() {
+		if(!parent::internalValidate()) {
+			return false;
+		}
+		
 		$this->saveBlob('blobId');
 		
 		if(isset($this->blobId) && !isset($this->contentType)) {
 			$this->contentType = Blob::findByPk($this->blobId)->contentType;
 		}
+		return true;
+	}
+	
+	public function internalSave() {		
 
 		$success = parent::internalSave();
 
 		if($success && $this->isNew() && $this->contentType === 'text/calendar') {
 			
 			//delay fire event until complete message has been saved. Otherwise
-			$this->message->attach(\GO\Modules\GroupOffice\DevTools\Model\Record::EVENT_AFTER_SAVE, function() {
+			$this->message->attach(self::EVENT_AFTER_SAVE, function() {
 				$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
 			});			
 		}
