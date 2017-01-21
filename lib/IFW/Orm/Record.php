@@ -1201,7 +1201,6 @@ abstract class Record extends DataModel {
 	 */
 	private function commit() {
 		if($this->saveStartedTransaction) {
-			GO()->debug("COMMIT ".$this->getClassName());
 			$this->getDbConnection()->commit();
 			$this->saveStartedTransaction = false;
 		}
