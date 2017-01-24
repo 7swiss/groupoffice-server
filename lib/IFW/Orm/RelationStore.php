@@ -295,7 +295,7 @@ class RelationStore extends Store implements ArrayAccess {
 		//If it's not a Record then it must be an array with record properties.
 		
 		if (!is_array($newToRecord)) {
-			throw new Exception("Invalid value given to relation '".$this->relation->getName()."'. A '" . get_class($newToRecord).'\' was given which should be a \''.$toRecordName.'\'');
+			throw new Exception("Invalid value given to relation '".$this->relation->getName()."'. A '" . \IFW\Debugger::getType($newToRecord).'\' was given which should be a \''.$toRecordName.'\'');
 		}
 
 		$propArray = $newToRecord;

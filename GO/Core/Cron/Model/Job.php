@@ -75,6 +75,15 @@ class Job extends Record {
 	public $lastRun;
 	
 	/**
+	 * If the cron is running then this is set to the start time.
+	 * 
+	 * @var \DateTime
+	 */							
+	public $runningSince;	
+	
+	
+	
+	/**
 	 * Cron job is enabled or not
 	 * 
 	 * @var boolean 
@@ -99,10 +108,7 @@ class Job extends Record {
 		
 		$query = (new Query())
 						->where(['enabled'=>1])
-						->andWhere((new \IFW\Db\Criteria())
-							->where(['<=', ['nextRun' => new DateTime()]])
-							->orWhere(['nextRun' => null])
-										);
+						->andWhere(['<=', ['nextRun' => new DateTime()]]);							
 		
 		$job = self::find($query)->single();
 
@@ -114,7 +120,47 @@ class Job extends Record {
 	public function internalValidate() {
 
 		if (!CronExpression::isValidExpression($this->cronExpression)) {
-			$this->setValidationError('cronExpression', 'invalid CRON expression');
+			$this->setValidationError('cronExpression', 'INVALIDEXPRESSION');
+		}
+		
+		if(!class_exists($this->cronClassName)) {
+			$this->setValidationError('cronClassName', 'CLASSNOTFOUND');
+		}
+		
+		if(!method_exists($this->cronClassName, 'findModuleName')) {
+			$this->setValidationError('cronClassName', 'INVALIDCLASS');
+		}
+		
+		if(!method_exists($this->cronClassName, $this->method)) {
+			$this->setValidationError('method', 'METHODNOTFOUND');
+		}
+		
+		if(!$this->getValidationErrors()) {
+			$cls = $this->cronClassName;
+
+			$moduleName = $cls::findModuleName();
+
+			if($moduleName) {
+	//			var_dump($moduleName);
+				$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
+				if($module) {
+					$this->module = $module;
+				}
+			}		
+		}
+		
+		if($this->isModified('nextRun')) {
+			$cronExpression = CronExpression::factory($this->cronExpression);
+			$this->nextRun = $cronExpression->getNextRunDate($this->nextRun);
+		}
+		
+		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {
+			$cronExpression = CronExpression::factory($this->cronExpression);
+			$this->nextRun = $cronExpression->getNextRunDate();
+		}
+		
+		if(!$this->enabled) {
+			$this->nextRun = null;
 		}
 
 		return parent::internalValidate();
@@ -124,21 +170,13 @@ class Job extends Record {
 	 * Run the job or schedule it if it has not been scheduled yet.
 	 */
 	public function run() {
-
-		if (!isset($this->nextRun)) {
-			$cronExpression = CronExpression::factory($this->cronExpression);
-			$this->nextRun = $cronExpression->getNextRunDate('-1 minute');
-			$this->save();
-		} else {
-			$cronExpression = CronExpression::factory($this->cronExpression);
-			$this->nextRun = $cronExpression->getNextRunDate();
-			$this->save();			
-
-			$this->runMethod();
+		//Set nextRun to null so it won't run more then once at a time
+		$this->nextRun = null;
+		//set runningSince to now
+		$this->runningSince = new \DateTime();
+		if(!$this->save()) {
+			throw new \Exception("Could not save CRON job");
 		}
-	}
-
-	private function runMethod() {
 		
 		GO()->log("info", "Running CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 		
@@ -157,7 +195,13 @@ class Job extends Record {
 		}
 		
 		$this->lastRun = new \DateTime();
-		$this->save();
+		$this->runningSince = null;
+		
+		$cronExpression = CronExpression::factory($this->cronExpression);
+		$this->nextRun = $cronExpression->getNextRunDate();
+		if(!$this->save()) {
+			throw new \Exception("Could not save CRON job");
+		}
 	}
 
 }

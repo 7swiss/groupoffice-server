@@ -114,6 +114,7 @@ class Module extends BaseModule {
 
 
 		$router->addRoutesFor(JobController::class)
+						->crud('cron/jobs', 'jobId')
 						->get('cron/run', 'run');
 
 

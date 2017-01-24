@@ -18,6 +18,15 @@ use IFW\Exception\NotFound;
  */
 class JobController extends Controller {
 	
+	protected function checkAccess() {
+		
+		if(!GO()->getAuth()->user()->isAdmin()) {
+			return false;
+		}
+		
+		return parent::checkAccess();
+	}
+	
 	
 	protected function actionRun() {
 		Job::runNext();

@@ -191,5 +191,20 @@ class Debugger extends Object {
 	public function getEntries() {
 		return $this->entries;
 	}
+	
+	/**
+	 * Returns the type of a given variable.
+	 * 
+	 * @param mixed $var
+	 * @return string
+	 */
+	public static function getType($var) {
+		if(is_object($var)) {
+			return get_class($var);
+		}else
+		{
+			return gettype($var);
+		}
+	}
 
 }
