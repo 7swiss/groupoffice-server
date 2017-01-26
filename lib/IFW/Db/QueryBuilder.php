@@ -186,10 +186,10 @@ class QueryBuilder {
 			}
 
 			$select .= $this->joinRelationSelectString;
-			$select .= 'FROM `' . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->query->tableAlias . "`\n";
+			$select .= "\n".$prefix."FROM `" . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->query->tableAlias . "`";
 			
 			
-			$where = $prefix . $this->buildWhere(null, $prefix);
+			$where = "\n".$prefix . $this->buildWhere(null, $prefix);
 
 
 			$group = "\n".$prefix.$this->buildGroupBy();
@@ -309,20 +309,7 @@ class QueryBuilder {
 	 *
 	 * @return array [['tableAlias' => 't', 'column' => 'id', 'pdoType' => PDO::PARAM_INT]]
 	 */
-	public function getBindParameters() {
-//		$ps = $this->query->bindParameters;
-//		
-//		foreach ($this->buildBindParameters as $p) {
-//			$columnObj = $this->findColumn($p['tableAlias'], $p['column']);
-//
-//			$p['pdoType'] = $columnObj->pdoType;
-//			$p['value'] = $columnObj->recordToDb($columnObj->normalizeInput($p['value']));
-//
-//			$ps[] = $p;
-//		}
-//
-//		return $ps;
-		
+	public function getBindParameters() {		
 		return array_merge($this->query->bindParameters, $this->buildBindParameters);
 	}
 
@@ -383,6 +370,8 @@ class QueryBuilder {
 		foreach ($conditions as $condition) {
 			$where .= $prefix . $condition[0] . "\n" . $this->buildCondition($condition[1], $prefix) . "\n";
 		}
+		
+		$where = rtrim($where);
 
 		return $appendWhere ? "WHERE\n" . $where : $where;
 	}
@@ -411,7 +400,7 @@ class QueryBuilder {
 			throw new Exception("Invalid condition passed\n\n" . var_export($condition, true));
 		}
 
-		$c .= $prefix . "\n".$prefix.")";
+		$c .= "\n".$prefix.")";
 
 		return $c;
 	}
@@ -444,7 +433,7 @@ class QueryBuilder {
 		$builder->mergeAliasMap($this->aliasMap);
 		$builder->isSubQuery = true;
 
-		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
+		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $builder->build(false, $prefix . "\t") ."\n". $prefix . ")";
 		
 		foreach ($builder->getBindParameters() as $v) {
 //			$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
@@ -563,7 +552,7 @@ class QueryBuilder {
 		foreach ($hashValues as $column => $value) {
 
 			if ($str != $prefix) {
-				$str .= $prefix.$type . ' ';
+				$str .= ' ' . $type . ' ';
 			}
 
 			$columnParts = $this->splitTableAndColumn($column);

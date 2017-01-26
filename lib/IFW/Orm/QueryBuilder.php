@@ -178,9 +178,7 @@ class QueryBuilder extends DbQueryBuilder{
 			}
 		}
 
-		$joinSql .= ")\n";
-
-
+		$joinSql .= ")";
 
 		$selectCols = null;
 		if($selectAttributes) {

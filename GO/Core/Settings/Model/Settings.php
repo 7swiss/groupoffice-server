@@ -25,7 +25,10 @@ class Settings extends \GO\Core\Orm\Record {
 	public $smtpAccountId;
 
 	/**
-	 * ;
+	 * Default language ISO code
+	 * 
+	 * Defaults to "en"
+	 * 
 	 * @var string
 	 */							
 	public $defaultLanguage = 'en';

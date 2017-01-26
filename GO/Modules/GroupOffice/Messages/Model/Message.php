@@ -230,14 +230,36 @@ class Message extends \GO\Core\Orm\Record {
 	
 	
 	/**
+	 * Create a new message
 	 * 
-	 * @param AccountRecord $account
+	 * @example
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $message = Message::create($imapAccountId);		
+	 * 		
+	 * $to = new Address();		
+	 * $to->type = Address::TYPE_TO;
+	 * $to->personal = 'John Doe';
+	 * $to->address = 'email@domain.com';
+	 * 		
+	 * $message->to[] = $to;$
+	 * 
+	 * $message->subject = 'test';
+	 * $message->body = 'test';
+	 * 
+	 * //to send
+	 * $message->type = Message::TYPE_OUTBOX;
+	 * 
+	 * $message->save();
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * @param int $accountId 
 	 * @param string $subject
 	 * @param string $body
 	 * @return \self
 	 */
 	
 	public static function create($accountId) {
+		
 		
 		$message = new self;
 		$message->thread = new \GO\Modules\GroupOffice\Messages\Model\Thread();

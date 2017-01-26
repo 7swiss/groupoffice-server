@@ -50,7 +50,7 @@ trait AppTrait {
 	}
 
 	/**
-	 * Get the sytem wide settings record
+	 * Get the system wide settings record
 	 * 
 	 * @return Settings
 	 */
