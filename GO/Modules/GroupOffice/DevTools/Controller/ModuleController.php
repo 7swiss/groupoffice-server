@@ -37,7 +37,7 @@ class ModuleController extends Controller {
 
 			case 'date':
 			case 'datetime':
-				return "\DateTime";
+				return "\IFW\Util\DateTime";
 
 			default:
 				return "string";
