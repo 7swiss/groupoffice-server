@@ -52,9 +52,18 @@ class Job extends Record {
 
 	/**
 	 * CRON Scheduling expression. See http://en.wikipedia.org/wiki/Cron
+	 * 
+	 * Remember that all times on the server are in UTC timezone
+	 * 
 	 * @var string
 	 */							
 	public $cronExpression;
+	
+	/**
+	 * The timezone to calculate run dates in
+	 * @var string 
+	 */
+	public $timezone = 'UTC';
 
 	/**
 	 * 
@@ -64,7 +73,7 @@ class Job extends Record {
 
 	/**
 	 * Calculated time this cron will run
-	 * @var \DateTime
+	 * @var \IFW\Util\DateTime
 	 */							
 	public $nextRun;
 
@@ -135,6 +144,14 @@ class Job extends Record {
 			$this->setValidationError('method', 'METHODNOTFOUND');
 		}
 		
+		if($this->isModified('timezone')) {
+			try {
+				$tz = new \DateTimeZone($this->timezone);
+			}catch(\Exception $e) {
+				$this->setValidationError('timezone', 'INVALIDTIMEZONE');
+			}
+		}
+		
 		if(!$this->getValidationErrors()) {
 			$cls = $this->cronClassName;
 
@@ -149,21 +166,35 @@ class Job extends Record {
 			}		
 		}
 		
-		if($this->isModified('nextRun')) {
-			$cronExpression = CronExpression::factory($this->cronExpression);
-			$this->nextRun = $cronExpression->getNextRunDate($this->nextRun);
+		if($this->isModified('nextRun') && isset($this->nextRun)) {			
+			//round to next minute
+			$seconds = 60 - $this->nextRun->format('s');
+			$this->nextRun->modify("+$seconds second");
 		}
 		
-		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {
-			$cronExpression = CronExpression::factory($this->cronExpression);
-			$this->nextRun = $cronExpression->getNextRunDate();
+		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {			
+			$this->nextRun = $this->getNextRunDate();
 		}
+		
+
 		
 		if(!$this->enabled) {
 			$this->nextRun = null;
 		}
 
 		return parent::internalValidate();
+	}
+	
+	private function getNextRunDate() {
+		
+		//Convert to local time zone stored in job
+		$now = new \DateTime();
+		$now->setTimezone(new \DateTimeZone($this->timezone));
+		$cronExpression = CronExpression::factory($this->cronExpression);
+		$localDate = $cronExpression->getNextRunDate($now);
+		$localDate->setTimezone(new \DateTimeZone('UTC'));
+		
+		return $localDate;
 	}
 
 	/**
@@ -197,8 +228,8 @@ class Job extends Record {
 		$this->lastRun = new \DateTime();
 		$this->runningSince = null;
 		
-		$cronExpression = CronExpression::factory($this->cronExpression);
-		$this->nextRun = $cronExpression->getNextRunDate();
+		$this->nextRun = $this->getNextRunDate();
+		
 		if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}

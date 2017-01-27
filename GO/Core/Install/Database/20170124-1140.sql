@@ -1,1 +1,2 @@
 ALTER TABLE `cron_job` ADD `runningSince` DATETIME NULL DEFAULT NULL AFTER `lastRun`, ADD INDEX (`runningSince`);
+ALTER TABLE `cron_job` ADD `timezone` VARCHAR(100) NOT NULL DEFAULT 'UTC' COMMENT 'The timezone to calculate run dates in' AFTER `runningSince`;
