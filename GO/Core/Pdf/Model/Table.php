@@ -1,6 +1,42 @@
 <?php
 namespace GO\Core\Pdf\Model;
 
+/**
+ * Render a table inside a PDF
+ * 
+ * @example
+ * `````````````````````````````````````````````````````````````````````````````
+
+ * $pdf = new Pdf();
+ * 
+ * $table = new Table($pdf);
+ * $table->setCol('name', .5);
+ * $table->setCol('description', .5);
+ * 
+ *  // Print line for headers
+ * 	$pdf->hr();
+		
+ *  // Style for headers
+		$pdf->setColor('text', 110, 110, 110);
+		$pdf->setColor('draw', 110, 110, 110);
+		$pdf->size(8);
+ * 
+ *  $headers = ['name' => 'Name', 'description' => 'Description'];
+ * 		
+		$table->addRow($headers);
+		
+		$pdf->hr();
+ * 
+ *  // reset style to defaults
+ *  $pdf->setColor('text', 0, 0, 0);
+		$pdf->size();
+ * 
+ *  // Add data
+ *  $table->addRow(['name' => 'Foo', 'description' => 'Bar']);
+ * 
+ * 
+ * `````````````````````````````````````````````````````````````````````````````
+ */
 class Table {
 	
 	/**
@@ -45,8 +81,9 @@ class Table {
 	 * Add a table column
 	 * 
 	 * @param string $id
-	 * @param float $width
-	 * @param string $align 'L'
+	 * @param float $width percentage. 1 = 100% .5 = 50%
+	 * @param string $align 'L', 'C', 'J', or 'R'
+	 * @param int $border
 	 */
 	public function setCol($id, $width, $align='L', $border=0) {
 		$this->cols[$id] = ['width' => $width, 'align' => $align, 'border'=>$border];
