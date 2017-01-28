@@ -9,6 +9,7 @@ use IFW\Orm\Query;
 /**
  * The Pdf model
  *
+ * For usage see {@see PdfRenderer}
  * 
  * @property PdfBlock[] $blocks
  * @property Blob $stationaryPdfBlob

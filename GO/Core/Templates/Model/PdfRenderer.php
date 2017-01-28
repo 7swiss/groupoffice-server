@@ -7,6 +7,23 @@ use IFW\Template\VariableParser;
 
 /**
  * Renders a PDF from template
+ * 
+ * @example
+ * `````````````````````````````````````````````````````````````````````````````
+ * 
+ * $template = Pdf::findByPk(1);
+ * 
+ * $models = ['foo' => $record];
+ * 
+ * $pdf = new PdfRenderer($template, $models);
+ * 
+ * GO()->getResponse()->setHeader('Content-Type', 'application/pdf');
+		GO()->getResponse()->setHeader('Content-Disposition', 'inline; filename="' . $template->name . '.pdf"');
+		GO()->getResponse()->setHeader('Content-Transfer-Encoding', 'binary');
+		
+ * echo $pdf->render();
+ * 
+ * `````````````````````````````````````````````````````````````````````````````
  */
 class PdfRenderer extends PdfModel {
 	
