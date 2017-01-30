@@ -174,7 +174,8 @@ class Module extends BaseModule {
 						->crud('templates/messages/:moduleClassName', 'templateMessageId');
 		
 		$router->addRoutesFor(PdfController::class)
-						->crud('templates/pdf/:moduleClassName', 'pdfTemplateId');
+						->crud('templates/pdf/:moduleClassName', 'pdfTemplateId')
+						->get('templates/pdf/:moduleClassName/:pdfTemplateId/preview', 'preview');
 		
 		
 		$router->addRoutesFor(Comments\Controller\CommentController::class)

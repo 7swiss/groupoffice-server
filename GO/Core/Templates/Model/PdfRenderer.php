@@ -39,6 +39,8 @@ class PdfRenderer extends PdfModel {
 	 */
 	protected $variableParser;
 	
+	public $previewMode = false;
+	
 	/**
 	 * Constructor
 	 * 
@@ -50,6 +52,7 @@ class PdfRenderer extends PdfModel {
 		$this->template = $template;		
 		
 		$orientation = $this->template->landscape ? 'L' : 'P';		
+		
 		
 		$this->variableParser = new VariableParser();
 		foreach($templateModels as $name => $model) {
@@ -153,11 +156,12 @@ class PdfRenderer extends PdfModel {
 			$block->height = $this->lh;		
 		}
 		
+		$data = $this->previewMode ? $block->data : $this->variableParser->parse($block->data);
 		
 		$this->MultiCell(
 						$block->width, 
 						$block->height, 
-						$this->variableParser->parse($block->data), 
+						$data, 
 						0, //border 
 						$block->align, 
 						false, //fill
@@ -175,12 +179,14 @@ class PdfRenderer extends PdfModel {
 			$y = $block->height + $this->getY();
 		}
 		
+		$data = $this->previewMode ? $block->data : $this->variableParser->parse($block->data);
+		
 		$this->writeHTMLCell(	
 						$block->width, 
 						$block->height, 
 						isset($block->x) ? $block->x : '', 
 						isset($block->y) ? $block->y : '',
-						$this->variableParser->parse($block->data),
+						$data,
 						0,//border
 						1 //ln
 						);		

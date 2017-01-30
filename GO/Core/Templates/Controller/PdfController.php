@@ -158,4 +158,23 @@ class PdfController extends Controller {
 
 		$this->renderModel($pdftemplate);
 	}
+	
+	
+	public function actionPreview($pdfTemplateId) {
+		$pdftemplate = Pdf::findByPk($pdfTemplateId);
+
+		if (!$pdftemplate) {
+			throw new NotFound();
+		}
+
+		$pdfRenderer = new \GO\Core\Templates\Model\PdfRenderer($pdftemplate);
+		$pdfRenderer->previewMode = true;
+		
+		GO()->getResponse()->setHeader('Content-Type', 'application/pdf');
+		GO()->getResponse()->setHeader('Content-Disposition', 'inline; filename="' . $pdftemplate->name . '.pdf"');
+		GO()->getResponse()->setHeader('Content-Transfer-Encoding', 'binary');
+		
+		
+		echo $pdfRenderer->render();
+	}
 }
