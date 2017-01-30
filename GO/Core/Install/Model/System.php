@@ -131,23 +131,46 @@ class System extends Model {
 
 
 		foreach ($updates as $file) {
+			if ($file->getExtension() === 'php') {
+				$this->runScript($file, $skipFirstError);
+			} else {
+				$this->runQueries($file, $skipFirstError);
+			}
+
+			$this->getInstallation()->dbVersion++;
+			if (!$this->getInstallation()->save()) {
+				throw new \Exception("Could not save installation");
+			}
+		}
+	}
+
+	private function runScript(File $file, &$skipFirstError) {
+		try {
+			require($file->path());
+		} catch (\Exception $e) {
+			if (!$skipFirstError) {
+				$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage();
+				throw new \Exception($msg);
+			}else
+			{
+				GO()->debug("Skipping error: ".$e->getMessage());
+				$skipFirstError = false;
+			}
+			
+		}
+	}
+
+	private function runQueries(File $file, &$skipFirstError) {
+		$queries = Utils::getSqlQueries($file);
+		foreach ($queries as $query) {
 			try {
-				if ($file->getExtension() === 'php') {
-					require($file->path());
-				} else {
-					Utils::runSQLFile($file);
-				}
+				IFW::app()->getDbConnection()->query($query);
 			} catch (\Exception $e) {
 				if (!$skipFirstError) {
 					$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage();
 					throw new \Exception($msg);
 				}
 				$skipFirstError = false;
-			}
-
-			$this->getInstallation()->dbVersion++;
-			if (!$this->getInstallation()->save()) {
-				throw new \Exception("Could not save installation");
 			}
 		}
 	}

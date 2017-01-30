@@ -214,41 +214,27 @@ class Module extends Record {
 		$updates = self::collectModuleUpgrades($moduleManagers);
 		
 		foreach($updates as $update){
-			try{
-				$file = $update[1];
-				$moduleManagerClass = $update[0];
+			
+			$file = $update[1];
+			$moduleManagerClass = $update[0];
 
-				$module = Module::find(['name' => $moduleManagerClass])->single();
-				if(!$module) {
+			$module = Module::find(['name' => $moduleManagerClass])->single();
+			if(!$module) {
 
-					GO()->debug("Installing dependency module '".$moduleManagerClass."'");
+				GO()->debug("Installing dependency module '".$moduleManagerClass."'");
 
-					$module = new Module();
-					$module->name = $moduleManagerClass;
-					$module->dontInstallDatabase();	
-					$module->save();
-				}				
-				
-				GO()->debug("Running installation file '".$file->getPath()."'");
+				$module = new Module();
+				$module->name = $moduleManagerClass;
+				$module->dontInstallDatabase();	
+				$module->save();
+			}				
 
-				if($file->getExtension() === 'php'){
-					require($file->getPath());
-				}else
-				{					
-					Utils::runSQLFile($file);
-				}	
+			GO()->debug("Running installation file '".$file->getPath()."'");
 
-			}catch (\Exception $e){
-
-				if(!$skipFirstError) {
-					$msg = "An exception ocurred in upgrade file ".$file->getPath().". If you're a developer, you might need to skip the upgrade file because you already applied the changes. Rerun the upgrade with skipFirstError=1 as parameter.\n\n".$e->getMessage();
-
-					throw new \Exception($msg);
-				}else
-				{
-					GO()->debug("Skipping error: ".$e->getMessage());
-					$skipFirstError = false;
-				}
+			if ($file->getExtension() === 'php') {
+				$this->runScript($file, $skipFirstError);
+			} else {
+				$this->runQueries($file, $skipFirstError);
 			}
 			
 			$module->version++;
@@ -258,9 +244,38 @@ class Module extends Record {
 			if(!$module->save()) {
 				throw new \Exception("Could not save module ".$module->name.". Validation errors: ".var_export($module->getValidationErrors(), true));
 			}
+		}	 
+	}
+	
+	private static function runScript(File $file, &$skipFirstError) {
+		try {
+			require($file->path());
+		} catch (\Exception $e) {
+			if (!$skipFirstError) {
+				$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage();
+				throw new \Exception($msg);
+			}else
+			{
+				GO()->debug("Skipping error: ".$e->getMessage());
+				$skipFirstError = false;
+			}
+			
 		}
+	}
 
-		 
+	private static function runQueries(File $file, &$skipFirstError) {
+		$queries = Utils::getSqlQueries($file);
+		foreach ($queries as $query) {
+			try {
+				IFW::app()->getDbConnection()->query($query);
+			} catch (\Exception $e) {
+				if (!$skipFirstError) {
+					$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage();
+					throw new \Exception($msg);
+				}
+				$skipFirstError = false;
+			}
+		}
 	}
 	
 	
