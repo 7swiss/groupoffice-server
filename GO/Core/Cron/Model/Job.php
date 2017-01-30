@@ -168,8 +168,10 @@ class Job extends Record {
 		
 		if($this->isModified('nextRun') && isset($this->nextRun)) {			
 			//round to next minute
-			$seconds = 60 - $this->nextRun->format('s');
-			$this->nextRun->modify("+$seconds second");
+			if(!GO()->getDebugger()->enabled) {
+				$seconds = 60 - $this->nextRun->format('s');
+				$this->nextRun->modify("+$seconds second");
+			}
 		}
 		
 		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {			
@@ -223,6 +225,8 @@ class Job extends Record {
 			
 		} catch (Exception $ex) {
 			GO()->error("An exception occurred in CRON method: " . $this->cronClassName . "::" . $this->method . " ".$ex->getMessage(), $this);
+			
+			GO()->debug((string) $ex);
 		}
 		
 		$this->lastRun = new \DateTime();
