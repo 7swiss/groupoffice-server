@@ -24,6 +24,6 @@ class PDO extends \PDO{
 
 		$this->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
 		$this->query("SET sql_mode='STRICT_ALL_TABLES'");
-		$this->query("SET time_zone = UTC");
+		$this->query("SET time_zone = '+00:00'");
 	}
 }
