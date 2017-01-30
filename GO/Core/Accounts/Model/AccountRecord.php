@@ -29,7 +29,7 @@ abstract class AccountRecord extends Record {
 	
 	protected function internalValidate() {
 		
-		if($this->isNew()) {
+//		if($this->isNew()) {
 			$this->coreAccount->modelName = $this->getClassName();
 			$this->coreAccount->name = $this->getName();
 			
@@ -38,7 +38,7 @@ abstract class AccountRecord extends Record {
 			}
 
 			$this->id = $this->coreAccount->id;
-		}
+//		}
 		
 		return parent::internalValidate();
 	}
