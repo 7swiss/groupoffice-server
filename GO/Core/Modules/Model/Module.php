@@ -232,9 +232,9 @@ class Module extends Record {
 			GO()->debug("Running installation file '".$file->getPath()."'");
 
 			if ($file->getExtension() === 'php') {
-				$this->runScript($file, $skipFirstError);
+				self::runScript($file, $skipFirstError);
 			} else {
-				$this->runQueries($file, $skipFirstError);
+				self::runQueries($file, $skipFirstError);
 			}
 			
 			$module->version++;
