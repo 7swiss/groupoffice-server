@@ -247,7 +247,7 @@ class Module extends Record {
 		}	 
 	}
 	
-	private static function runScript(File $file, &$skipFirstError) {
+	private static function runScript(\IFW\Fs\File $file, &$skipFirstError) {
 		try {
 			require($file->path());
 		} catch (\Exception $e) {
@@ -263,7 +263,7 @@ class Module extends Record {
 		}
 	}
 
-	private static function runQueries(File $file, &$skipFirstError) {
+	private static function runQueries(\IFW\Fs\File $file, &$skipFirstError) {
 		$queries = Utils::getSqlQueries($file);
 		foreach ($queries as $query) {
 			try {
