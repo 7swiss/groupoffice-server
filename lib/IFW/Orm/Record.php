@@ -918,13 +918,13 @@ abstract class Record extends DataModel {
 		}
 		
 		foreach($attributeName as $a) {
-			if(isset($this->oldAttributes[$a])) {
+			if(array_key_exists($a, $this->oldAttributes)) {
 				$this->$a = $this->oldAttributes[$a];
 			} else if (isset($this->relations[$a])) {
 				unset($this->relations[$a]);
 			} else
 			{
-				throw new Exception("Attribute or relation '$name' not found!");
+				throw new Exception("Attribute or relation '$a' not found!");
 			}
 		}
 	}

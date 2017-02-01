@@ -201,7 +201,7 @@ class QueryBuilder {
 				$limit .= "\n".$prefix."LIMIT " . intval($this->query->offset) . ',' . intval($this->query->limit);
 			}
 			
-			$this->sql = $prefix . $select . $joins . $where . $group . $having . $orderBy . $limit;
+			$this->sql = trim($prefix . $select . $joins . $where . $group . $having . $orderBy . $limit);
 		}
 		if ($replaceBindParameters) {
 			return $this->replaceBindParameters($this->sql);
