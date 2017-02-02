@@ -131,8 +131,8 @@ CREATE TABLE `calendar_event` (
   PRIMARY KEY (`id`),
   KEY `fk_calendar_event_calendar_exception1_idx` (`exceptionId`,`id`),
   KEY `fk_calendar_event_calendar_attending_individual1_idx` (`id`,`organizerEmail`),
-  CONSTRAINT `fk_calendar_event_calendar_exception1` FOREIGN KEY (`exceptionId`, `id`)
-	REFERENCES `calendar_exception` (`id`, `recurrenceEventId`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_calendar_event_calendar_exception1` FOREIGN KEY (`exceptionId`)
+	REFERENCES `calendar_exception` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
 

@@ -45,20 +45,21 @@ class ICalendarHelper {
 		if($event->getIsRecurring()) {
 			$vcalendar->VEVENT->RRULE = self::createRrule($event->recurrenceRule);
 			foreach($event->recurrenceRule->exceptions as $exception) {
+				if($exception->isRemoved) {
 				$vcalendar->VEVENT->add(
 					'EXDATE',
-					$exception->date,
-					['VALUE' => $event->allDay ? "DATE" : "DATETIME"]
+					$exception->recurrenceId
+					//['VALUE' => $event->allDay ? "DATE" : "DATETIME"]
 				);
+				} else {
+					// TODO add exception event with RecurrenceId to VCalendar object
+//					$vcalendar->VEVENT->add(
+//						'RECURRENCE-ID',
+//						$event->exception->recurrenceId,
+//						['VALUE'=>$event->allDay ? "DATE" : "DATETIME"]
+//					);
+				}
 			}
-		}
-
-		if($event->getIsException()) {
-			$vcalendar->VEVENT->add(
-				'RECURRENCE-ID',
-				$event->exception->date,
-				['VALUE'=>$event->allDay ? "DATE" : "DATETIME"]
-			);
 		}
 
 		// FROM GO 6.1 Comments:

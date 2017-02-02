@@ -35,7 +35,7 @@ class Attendee extends Record {
 	public $email;
 
 	/**
-	 * weither participation is required, option, chairman or not participating (None)
+	 * wither participation is required, option, chairman or not participating (None)
 	 * @var int
 	 */							
 	public $role = 1;
@@ -47,7 +47,7 @@ class Attendee extends Record {
 	public $responseStatus = 1;
 
 	/**
-	 * foreignkey to the calendar
+	 * foreign key to the calendar
 	 * @var int
 	 */							
 	public $calendarId;
@@ -76,7 +76,7 @@ class Attendee extends Record {
 	// OVERRIDES
 
 	public static function tableName() {
-		return 'calendar_attending_individual';
+		return 'calendar_attendee';
 	}
 
 	public static function internalGetPermissions() {
@@ -97,15 +97,17 @@ class Attendee extends Record {
 	}
 
 	protected function internalSave() {
-		GO()->getAuth()->sudo(function(){
-			$user = User::find(['email'=>$this->email])->single();
-			if(!empty($user)) {
-				$this->userId = $user->id;
-				$this->calendarId = $user->getDefaultCalendar()->id;
-			}
-			
-		});
-		$this->event->save(); // call save to send invites&updates if needed
+		if(empty($this->calendarId)) {
+			GO()->getAuth()->sudo(function(){
+				$user = User::find(['email'=>$this->email])->single();
+				if(!empty($user)) {
+					$this->userId = $user->id;
+					$this->calendarId = $user->getDefaultCalendar()->id;
+				}
+
+			});
+		}
+		$this->event->save(); // call save to send invites & updates if needed
 		
 		return parent::internalSave();
 	}
@@ -116,7 +118,10 @@ class Attendee extends Record {
 	 * @return bool
 	 */
 	public function getIsOrganizer() {
-		return $this->event->organizerEmail == $this->email;
+		if(!empty($this->event)) {
+			return $this->event->organizerEmail == $this->email;
+		}
+		return false;
 	}
 
 	public function addAlarms($defaultAlarms) {
@@ -169,13 +174,10 @@ class Attendee extends Record {
 	 * @return boolean
 	 */
 	protected function internalDelete($hard) {
-		if(parent::internalDelete($hard)){
-			if($this->getIsOrganizer()) {
-				return $this->event->delete();
-			}
-			return true;
+		if($this->getIsOrganizer()) {
+			return $this->event->delete();
 		}
 
-		return false;
+		return parent::internalDelete($hard);
 	}
 }

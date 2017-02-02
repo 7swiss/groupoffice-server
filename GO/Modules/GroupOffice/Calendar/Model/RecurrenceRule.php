@@ -9,6 +9,7 @@
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use IFW\Orm\Record;
+use IFW\Util\DateTime;
 use IFW\Auth\Permissions\ViaRelation;
 
 /**
@@ -124,7 +125,7 @@ class RecurrenceRule extends Record {
 	}
 	protected static function defineRelations() {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
-		self::hasMany('exceptions', EventException::class, ['eventId' => 'recurrenceEventId']);
+		self::hasMany('exceptions', RecurrenceException::class, ['eventId' => 'eventId']);
 	}
 
 	protected static function internalGetPermissions() {
@@ -145,6 +146,15 @@ class RecurrenceRule extends Record {
 			return true; // save nothing when there is no frequency
 		}
 		return parent::internalSave();
+	}
+
+	/**
+	 * Close the series including this day
+	 * @param DateTime $date
+	 */
+	public function stopBefore(DateTime $date) {
+		$this->until = clone $date;
+		$this->until->sub(new \DateInterval('P1D')); // gisteren
 	}
 
 	/**
@@ -170,15 +180,28 @@ class RecurrenceRule extends Record {
 	 */
 	public function getOccurences($start, $end) {
 		$result = [];
-
 		$this->getIterator()->fastForward($start);
-		while($startAt = $this->getIterator()->current()) {
-			if($startAt > $end)
+		while($recurrenceId = $this->getIterator()->current()) {
+			if($recurrenceId > $end)
 				break;
+
 			$event = clone $this->event;
-			$event->setStartTime($startAt);
-			$result[] = $event;
+			$event->addRecurrenceId($recurrenceId);
+			$result[$recurrenceId->getTimestamp()] = $event;
 			$this->getIterator()->next();
+		}
+		foreach($this->exceptions as $exception) {
+			//$c = $exception->recurrenceId->format('Ymd');
+			if($exception->recurrenceId > $end || $exception->recurrenceId < $start) {
+				continue;
+			}
+			
+			
+			if($exception->isRemoved) {
+				unset($result[$exception->recurrenceId->getTimestamp()]);
+			} else {
+				$result[$exception->recurrenceId->getTimestamp()]->applyException($exception);
+			}
 		}
 		return $result;
 	}
