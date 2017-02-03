@@ -714,6 +714,16 @@ abstract class Record extends DataModel {
 	}
 	
 	/**
+	 * Checks if a relation has already been fetched or set in the record.
+	 * 
+	 * @param string $name Relation name
+	 * @return bool
+	 */
+	public function relationIsFetched($name) {
+		return array_key_exists($name, $this->relations);
+	}
+	
+	/**
 	 * Check if a readable propery exists
 	 * 
 	 * public properties, getter methods, columns and relations are checked
@@ -830,6 +840,9 @@ abstract class Record extends DataModel {
 	protected function setRelated($name, $value) {
 		
 		$relation = $this->getRelation($name);
+		//set to null to prevent loops when setting parent relations. 
+		//The relationIsFetched will work within the __set operation this way.
+		$this->relations[$name] = null; 
 		$this->relations[$name] = $relation->set($this, $value);				
 		
 		return $this->relations[$name];

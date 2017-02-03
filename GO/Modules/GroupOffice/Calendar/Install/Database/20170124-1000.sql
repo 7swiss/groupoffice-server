@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `calendar_recurrence_exception` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `eventId` INT NOT NULL,
   `recurrenceId` DATETIME NOT NULL,
-  `isDeleted` TINYINT(1) NOT NULL DEFAULT 1,
+  `isRemoved` TINYINT(1) NOT NULL DEFAULT 1,
   `title` VARCHAR(255) NULL,
   `startAt` DATETIME NULL,
   `endAt` DATETIME NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `calendar_recurrence_exception` (
     REFERENCES `calendar_recurrence_rule` (`eventId`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
+ENGINE = InnoDB;
 
 
 ALTER TABLE `calendar_event`

@@ -228,8 +228,9 @@ class RelationStore extends Store implements ArrayAccess {
 	 */
 	private function setParentRelation(Record $value) {		
 		$relation = $value::findParentRelation($this->getRelation());
-		if($relation) {
-			$value->{$relation->getName()} = $this->record;
+		//check if it hasn't been fetched or set already to prevent loops
+		if($relation && !$value->relationIsFetched($relation->getName())) {			
+			$value->{$relation->getName()} = $this->record;			
 		}		
 	}
 	
