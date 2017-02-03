@@ -45,20 +45,21 @@ class ICalendarHelper {
 		if($event->getIsRecurring()) {
 			$vcalendar->VEVENT->RRULE = self::createRrule($event->recurrenceRule);
 			foreach($event->recurrenceRule->exceptions as $exception) {
+				if($exception->isRemoved) {
 				$vcalendar->VEVENT->add(
 					'EXDATE',
-					$exception->date,
-					['VALUE' => $event->allDay ? "DATE" : "DATETIME"]
+					$exception->recurrenceId
+					//['VALUE' => $event->allDay ? "DATE" : "DATETIME"]
 				);
+				} else {
+					// TODO add exception event with RecurrenceId to VCalendar object
+//					$vcalendar->VEVENT->add(
+//						'RECURRENCE-ID',
+//						$event->exception->recurrenceId,
+//						['VALUE'=>$event->allDay ? "DATE" : "DATETIME"]
+//					);
+				}
 			}
-		}
-
-		if($event->getIsException()) {
-			$vcalendar->VEVENT->add(
-				'RECURRENCE-ID',
-				$event->exception->date,
-				['VALUE'=>$event->allDay ? "DATE" : "DATETIME"]
-			);
 		}
 
 		// FROM GO 6.1 Comments:
@@ -141,7 +142,7 @@ class ICalendarHelper {
 	static public function makeRecurrenceIterator(RecurrenceRule $rule) {
 		$values = ['FREQ' => $rule->frequency];
 		empty($rule->occurrences) ?: $values['COUNT'] = $rule->occurrences;
-		empty($rule->until) ?:	$values['UNTIL'] = $rule->until;
+		empty($rule->until) ?:	$values['UNTIL'] = $rule->until->format('Ymd');
 		empty($rule->interval) ?: $values['INTERVAL'] = $rule->interval;
 		empty($rule->bySetPos) ?: $values['BYSETPOS'] = $rule->bySetPos;
 		empty($rule->bySecond) ?: $values['BYSECOND'] = $rule->bySecond;
@@ -175,7 +176,11 @@ class ICalendarHelper {
 	static private function createRrule($recurrenceRule) {
 		$rule = '';
 		foreach(self::$ruleMap as $key => $value) {
-			empty($recurrenceRule->{$value}) ?: $rule .= $key . '=' .$recurrenceRule->{$value}. ';';
+			if(!empty($recurrenceRule->{$value})) {
+				$rule .= $key . '=';
+				$rule .= ($value == 'until') ? $recurrenceRule->{$value}->format('Ymd') : $recurrenceRule->{$value};
+				$rule .= ';';
+			}
 		}
 		return $rule;
 	}

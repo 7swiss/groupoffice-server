@@ -25,7 +25,7 @@ class EventException extends Record {
 	public $id;
 
 	/**
-	 * 
+	 * FK to event this is an exception for
 	 * @var int
 	 */							
 	public $recurrenceEventId;

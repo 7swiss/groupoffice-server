@@ -8,6 +8,7 @@ use GO\Modules\GroupOffice\Calendar\Model\Event;
 use GO\Modules\GroupOffice\Calendar\Model\User;
 use IFW;
 use IFW\Exception\NotFound;
+use IFW\Util\DateTime;
 use IFW\Orm\Query;
 
 /**
@@ -26,13 +27,13 @@ class EventController extends Controller {
 	 *
 	 * @param string $orderColumn Order by this column
 	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
-	 * @param int $limit Limit the returned records
-	 * @param int $offset Start the select on this offset
+	 * @param string $from Y-m-d end first event show
+	 * @param string $until Y-m-d start last event
 	 * @param string $searchQuery Search on this query.
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.startAt', $orderDirection = 'ASC', $year = null, $month = null, $searchQuery = "", $returnProperties = "*,attendees", $where = null) {
+	public function actionStore($orderColumn = 't.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*,attendees", $where = null) {
 
 		$query = (new Query)
 			->joinRelation('recurrenceRule', false, 'LEFT')
@@ -42,15 +43,12 @@ class EventController extends Controller {
 			$query->search($searchQuery, ['title']);
 			$recurringEvents = new IFW\Data\Store([]); // does not find recurring events
 		} else {
-			$query->where('YEAR(startAt) = :year')->bind([':year' => $year]);
-			$recurringEvents = Event::findRecurring(new \DateTime($year.'-1-1'), new \DateTime(($year+1).'-1-1'));
+			$query->where('startAt <= :until AND endAt > :from')->bind([':until' => $until, ':from' => $from]);
+			$recurringEvents = Event::findRecurring(new \DateTime($from), new \DateTime($until));
 			$recurringEvents->setReturnProperties($returnProperties);
 		}
 
 		$query->andWhere('recurrenceRule.frequency IS NULL');
-		if ($month !== null) {
-			$query->andWhere('MONTH(startAt) = :month')->bind([':month' => $month]);
-		}
 
 		if (!empty($where)) {
 
@@ -67,23 +65,19 @@ class EventController extends Controller {
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	protected function actionRead($eventId,$userId, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	protected function actionRead($eventId,$userId, $recurrenceId = null, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$attendee = Attendee::findByPk(['eventId'=>$eventId,'userId'=>$userId]);
 
 		if (!$attendee) {
 			throw new NotFound();
 		}
+		if($recurrenceId !== null) {
+			// fake a start time and ask to change single instance or start new series
+			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
+		}
 
 		$this->renderModel($attendee, $returnProperties);
-	}
-
-	protected function actionDownload($id) {
-		$event = Event::findByPk($id);
-		$vObject = \GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper::toVObject($event);
-		header('Content-type: text/calendar; charset=utf-8');
-		header('Content-Disposition: inline; filename=calendar.ics');
-		echo $vObject->serialize();
 	}
 
 	protected function actionNew($returnProperties = "*,alarms,event[*,attendees]"){
@@ -108,11 +102,7 @@ class EventController extends Controller {
 	public function actionCreate($returnProperties = "") {
 
 		$attendee = Attendee::me();
-
 		$attendee->setValues(IFW::app()->getRequest()->body['data']);
-//		if($attendee->event->save()) {
-//
-//		}
 		$attendee->save();
 
 		$this->renderModel($attendee, $returnProperties);
@@ -126,15 +116,21 @@ class EventController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($eventId, $userId, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function actionUpdate($eventId, $userId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$attendee = Attendee::findByPk(['eventId'=>$eventId,'userId'=>$userId]);
 
 		if (!$attendee) {
 			throw new NotFound();
 		}
-
+	
 		$attendee->setValues(IFW::app()->getRequest()->body['data']);
+		if($recurrenceId !== null) {
+			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
+			// modified is cleared after appling exception so set it again
+			$attendee->event->setValues(IFW::app()->getRequest()->body['data']['event']);
+		}
+		$attendee->event->singleInstance = ($single === '1') ? true : false;
 		$attendee->save();
 
 		$this->renderModel($attendee, $returnProperties);
@@ -148,14 +144,21 @@ class EventController extends Controller {
 	 * @todo: If you are the organizer and want to cancel the event. Call actionCancel()
 	 *
 	 * @param int $eventId
+	 * @param int $userId
+	 * @param string $recurrenceId Start time of occurrence when recurring
+	 * @param bool $single when true delete a single occurrence
 	 * @throws NotFound
 	 */
-	public function actionDelete($eventId, $userId) {
+	public function actionDelete($eventId, $userId, $recurrenceId = null, $single = '1') {
 		$attendee = Attendee::findByPk(['eventId'=>$eventId, 'userId'=>$userId]);
 
 		if (!$attendee) {
 			throw new NotFound();
 		}
+		$attendee->event->singleInstance = ($single === '1') ? true : false;
+		if($recurrenceId !== null) {
+			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
+		} 
 
 		$attendee->delete();
 
@@ -164,6 +167,14 @@ class EventController extends Controller {
 
 	public function actionImportICS() {
 
+	}
+
+	protected function actionDownload($id) {
+		$event = Event::findByPk($id);
+		$vObject = \GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper::toVObject($event);
+		header('Content-type: text/calendar; charset=utf-8');
+		header('Content-Disposition: inline; filename=calendar.ics');
+		echo $vObject->serialize();
 	}
 	
 

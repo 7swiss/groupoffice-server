@@ -415,6 +415,11 @@ abstract class Record extends DataModel {
 		}
 	}
 
+	public function clearModified() {
+		foreach ($this->getColumns() as $colName => $column)
+			$this->oldAttributes[$colName] = null;
+	}
+
 	/**
 	 * Set's the default values from the database definitions
 	 * 
