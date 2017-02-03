@@ -171,7 +171,7 @@ class RelationStore extends Store implements ArrayAccess {
 	public function offsetSet($offset, $value) {
 		$value = $this->normalize($value);
 		
-		if(!isset($value)) {			
+		if(!isset($value)) {
 			if($this->getRelation()->hasMany()) {
 				throw new \Exception("Invalid value null for has many relation");
 			}else
@@ -179,6 +179,9 @@ class RelationStore extends Store implements ArrayAccess {
 				$this->clearHasOne();
 				return;
 			}			
+		}else
+		{
+			$this->setParentRelation($value);
 		}
 		
 		if (is_null($offset)) {
@@ -186,6 +189,68 @@ class RelationStore extends Store implements ArrayAccess {
 		} else {
 			$this->modified[$offset] = $value;
 		}
+	}
+	
+	/**
+	 * When a relation is set we attempt to set the parent relation.
+	 * 
+	 * @example 
+	 * 
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $contact = new Contact();
+	 *		
+	 *		$emailAddress = new EmailAddress();
+	 *		$emailAddress->email = 'test@intermesh.nl';
+	 *		$emailAddress->type = 'work';
+	 *		
+	 *		$contact->emailAddresses[] = $emailAddress;
+	 *		
+	 * //these are equal because of this functionality
+	 *		$this->assertEquals($emailAddress->contact, $contact);
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * @param \IFW\Orm\Record $value
+	 * @return type
+	 */
+	private function setParentRelation(Record $value) {
+		
+		if($this->getRelation()->getViaRecordName()) {
+			return;
+		}
+		
+		foreach($value->getRelations() as $relation) {
+			if(!$relation->hasMany() && $relation->getToRecordName() == $this->getRelation()->getFromRecordName() && $this->keysMatch($relation)) {
+				
+//				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
+				$value->{$relation->getName()} = $this->record;
+				break;
+			}							
+		}		
+	}
+	
+	
+	private function keysMatch(Relation $relation) {
+		
+		$parentKeys = $this->getRelation()->getKeys();
+		
+		if(count($relation->getKeys()) != count($parentKeys )) {
+			return false;
+		}
+				
+		//check if keys are reversed
+		foreach($relation->getKeys() as $from => $to) {
+			if(!isset($parentKeys[$to])) {
+				return false;
+			}
+			
+			if($parentKeys[$to] != $from) {
+				return false;
+			}
+		}
+		
+		
+		
+		return true;
 	}
 	
 	private function clearHasOne() {

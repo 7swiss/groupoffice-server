@@ -1290,7 +1290,10 @@ abstract class Record extends DataModel {
 			
 			//this will prevent modifications to be cleared
 			foreach($relationStore as $record) {
-				$record->isSavedByRelation = true;
+				//don't set this if the record was already saving. Loops.
+				if(!$record->isSaving) {
+					$record->isSavedByRelation = true;
+				}
 			}
 
 			if(!$relationStore->save()) {				
@@ -1345,7 +1348,10 @@ abstract class Record extends DataModel {
 			
 			//Modifications are not cleared directly.
 			foreach($relationStore as $record) {
-				$record->isSavedByRelation = true;
+				//don't set this if the record was already saving. Loops.
+				if(!$record->isSaving) {
+					$record->isSavedByRelation = true;
+				}
 			}
 			
 			if(!$relationStore->save()) {						
