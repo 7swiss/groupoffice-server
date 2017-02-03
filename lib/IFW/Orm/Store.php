@@ -1,14 +1,12 @@
 <?php
 namespace IFW\Orm;
 
+use ArrayIterator;
 use Exception;
 use IFW;
-use IFW\Data\ArrayableInterface;
-use IFW\Data\Object;
 use IFW\Data\ReturnProperties;
 use IFW\Orm\Query;
 use IFW\Orm\Record;
-use IteratorAggregate;
 use PDOStatement;
 
 
@@ -61,7 +59,8 @@ class Store extends \IFW\Data\Store {
 //		return $this->pdoStatement;
 		
 		$queryBuilder = $this->query->getBuilder($this->recordClassName);	
-		return $queryBuilder->execute();
+//		return $queryBuilder->execute();
+		return new StoreIterator($queryBuilder->execute());
 	}
 	
 	public function __toString() {
@@ -83,7 +82,7 @@ class Store extends \IFW\Data\Store {
 	 * @return int
 	 */
 	public function getRowCount() {
-		return $this->getIterator()->rowCount();
+		return $this->getIterator()->getInnerIterator()->rowCount();
 	}
 
 	/**
@@ -220,17 +219,22 @@ class Store extends \IFW\Data\Store {
 	 */
 	public function all() {
 		
-		$iterator = $this->getIterator();
+//		$iterator = $this->getIterator();
 		
-		if($iterator instanceOf \ArrayIterator) {
-			return iterator_to_array($iterator);
+//		if($iterator instanceOf ArrayIterator) {
+//			return iterator_to_array($iterator);
+//		}
+		
+//		if(!method_exists($iterator, 'fetchAll')) {
+//			throw new \Exception("Strange iterator! ". var_dump($iterator));
+//		}
+		
+		$all = [];
+		foreach($this->getIterator() as $r) {
+			$all[] = $r;
 		}
 		
-		if(!method_exists($iterator, 'fetchAll')) {
-			throw new \Exception("Strange iterator! ". var_dump($iterator));
-		}
-		
-		return $iterator->fetchAll();
+		return $all;
 	}
 
 	

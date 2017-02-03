@@ -20,6 +20,17 @@ class TestController extends Controller {
 		
 		$contact->save();
 		
+		
+		$contactId = $contact->id;
+		
+		
+		$contact = Contact::findByPk($contactId);
+		
+		$equal = $contact->emailAddresses[0]->contact == $contact;
+		
+//		var_dump($equal);
+		
+		
 		$this->renderModel($contact);
 		
 //				$user = User::find(['username' => 'unittest'])->single();

@@ -79,11 +79,11 @@ class RelationStore extends Store implements ArrayAccess {
 	/**
 	 * 
 	 * @param \IFW\Orm\Relation $relation
-	 * @param \IFW\Orm\Record $model
+	 * @param \IFW\Orm\Record $record
 	 * @param \IFW\Orm\Query $query When query is null we should not query the results but just hold modified records
 	 */
-	public function __construct(Relation $relation, Record $model, Query $query = null) {
-		$this->record = $model;
+	public function __construct(Relation $relation, Record $record, Query $query = null) {
+		$this->record = $record;
 		$this->relation = $relation;
 		parent::__construct($relation->getToRecordName(), isset($query) ? $query : new Query() );
 		
@@ -100,6 +100,15 @@ class RelationStore extends Store implements ArrayAccess {
 	public function getRelation() {
 		return $this->relation;
 	}
+	
+	/**
+	 * Get the record that has this relation store
+	 * 
+	 * @return Record
+	 */
+	public function getRecord() {
+		return $this->record;
+	}
 
 	/**
 	 * Get's the iterator
@@ -110,7 +119,9 @@ class RelationStore extends Store implements ArrayAccess {
 		if (isset($this->modified)) {
 			return new ArrayIterator($this->modified);
 		} else {
-			return parent::getIterator();
+			$iterator = parent::getIterator();
+			$iterator->setRelationStore($this);
+			return $iterator;
 		}
 	}
 	
@@ -165,6 +176,9 @@ class RelationStore extends Store implements ArrayAccess {
 	}
 
 	public function offsetGet($offset) {
+		if(!isset($this->modified)) {
+			$this->modified = parent::all();
+		}	
 		return isset($this->modified[$offset]) ? $this->modified[$offset] : null;
 	}
 
@@ -212,46 +226,13 @@ class RelationStore extends Store implements ArrayAccess {
 	 * @param \IFW\Orm\Record $value
 	 * @return type
 	 */
-	private function setParentRelation(Record $value) {
-		
-		if($this->getRelation()->getViaRecordName()) {
-			return;
-		}
-		
-		foreach($value->getRelations() as $relation) {
-			if(!$relation->hasMany() && $relation->getToRecordName() == $this->getRelation()->getFromRecordName() && $this->keysMatch($relation)) {
-				
-//				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
-				$value->{$relation->getName()} = $this->record;
-				break;
-			}							
+	private function setParentRelation(Record $value) {		
+		$relation = $value::findParentRelation($this->getRelation());
+		if($relation) {
+			$value->{$relation->getName()} = $this->record;
 		}		
 	}
 	
-	
-	private function keysMatch(Relation $relation) {
-		
-		$parentKeys = $this->getRelation()->getKeys();
-		
-		if(count($relation->getKeys()) != count($parentKeys )) {
-			return false;
-		}
-				
-		//check if keys are reversed
-		foreach($relation->getKeys() as $from => $to) {
-			if(!isset($parentKeys[$to])) {
-				return false;
-			}
-			
-			if($parentKeys[$to] != $from) {
-				return false;
-			}
-		}
-		
-		
-		
-		return true;
-	}
 	
 	private function clearHasOne() {
 		

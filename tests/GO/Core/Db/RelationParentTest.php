@@ -25,7 +25,23 @@ class RelationParentTest extends PHPUnit_Framework_TestCase {
 		
 		$contact->emailAddresses[] = $emailAddress;
 		
+		
+		
 		$this->assertEquals($emailAddress->contact, $contact);
+		
+		
+		$contact->save();
+		//now when reading		
+		$contactId = $contact->id;
+		
+		
+		$contact = Contact::findByPk($contactId);
+		
+		$firstEmail = $contact->emailAddresses[0];
+		
+		$this->assertEquals($firstEmail->contact, $contact);
+		
+		$contact->deleteHard();
 		
 	}
 }

@@ -119,6 +119,14 @@ use IFW\Validate\ValidateUnique;
  * $user->save();
  * </code>
  * 
+ * Or modify relations directly:
+ * <code>
+ * $contact = Contact::findByPk($id);
+ * $contact->emailAddresses[0]->type = 'work';
+ * $contact->save();
+ * </code>
+ *
+ * 
  * See also {@see RelationStore} for more information about how the has many relation collection works.
  *
  * See the {@see Query} object for available options for the find functions and the User object for an example implementation.
@@ -340,6 +348,7 @@ abstract class Record extends DataModel {
 	 */
 	public function __construct($isNew = true) {
 
+		
 		parent::__construct();
 
 		$this->isNew = $isNew;
@@ -367,6 +376,7 @@ abstract class Record extends DataModel {
 		}
 		
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
+		
 	}
 	
 	/**
@@ -391,11 +401,17 @@ abstract class Record extends DataModel {
 				$this->$colName = $column->dbToRecord($this->$colName);				
 			}
 		}		
+		
 		//filled by joined relations
-		foreach($this->relations as $relationStore) {
-			$relationStore[0]->castDatabaseAttributes();
-			$relationStore[0]->isNew = false;
-			$relationStore[0]->loadingFromDatabase = false;
+		foreach($this->relations as $relationName => $relationStore) {
+
+			//check loading from database boolean to prevent infinite loop because 
+			//the reverse / parent relations are set automatically.
+			if($relationStore[0]->loadingFromDatabase) {
+				$relationStore[0]->loadingFromDatabase = false;
+				$relationStore[0]->castDatabaseAttributes();
+				$relationStore[0]->isNew = false;
+			}			
 		}
 		
 		$this->setOldAttributes();
@@ -415,6 +431,9 @@ abstract class Record extends DataModel {
 		}
 	}
 
+	/**
+	 * Clears all modified attributes
+	 */
 	public function clearModified() {
 		foreach ($this->getColumns() as $colName => $column)
 			$this->oldAttributes[$colName] = null;
@@ -656,12 +675,12 @@ abstract class Record extends DataModel {
 		}
 		
 		if(!isset($this->relations[$name])){			
-			$store = $relation->get($this);
 			
+			//Get't RelationStore
+			$store = $relation->get($this);			
 			
-			//TODO Is this right?
-			$toRecordName = $relation->getToRecordName();
-		
+			//Apply permissions to relational query
+			$toRecordName = $relation->getToRecordName();		
 			$permissions = $toRecordName::internalGetPermissions();
 			$permissions->setRecordClassName($toRecordName);
 			$permissions->applyToQuery($store->getQuery());
@@ -1024,6 +1043,75 @@ abstract class Record extends DataModel {
 	protected static function defineRelations() {
 		
 //		self::fireStaticEvent(self::EVENT_DEFINE_RELATIONS);
+	}
+	
+	
+	/**
+	 * When a relation is set we attempt to set the parent relation. in
+	 * {@see RelationStore::setParentRelation()}
+	 * 
+	 * @example 
+	 * 
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $contact = new Contact();
+	 *		
+	 *		$emailAddress = new EmailAddress();
+	 *		$emailAddress->email = 'test@intermesh.nl';
+	 *		$emailAddress->type = 'work';
+	 *		
+	 *		$contact->emailAddresses[] = $emailAddress;
+	 *		
+	 * //these are equal because of this functionality
+	 *		$this->assertEquals($emailAddress->contact, $contact);
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * @param Relation $childRelation
+	 * @return Relation
+	 */
+	
+	public static function findParentRelation(Relation $childRelation) {
+		if($childRelation->getViaRecordName()) {
+			//not supported
+			return null;
+		}
+		
+		foreach(self::getRelations() as $parentRelation) {
+			if(
+							!$parentRelation->hasMany() && 
+							$parentRelation->getToRecordName() == $childRelation->getFromRecordName() && 
+							self::keysMatch($childRelation, $parentRelation)
+				) {
+				
+//				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
+				return $parentRelation;
+			}							
+		}
+		
+		return null;
+		
+	}
+	
+	
+	private static function keysMatch(Relation $parentRelation, Relation $childRelation) {
+		
+		$childKeys = $childRelation->getKeys();
+		
+		if(count($parentRelation->getKeys()) != count($childKeys)) {
+			return false;
+		}
+				
+		//check if keys are reversed
+		foreach($parentRelation->getKeys() as $from => $to) {
+			if(!isset($childKeys[$to])) {
+				return false;
+			}
+			
+			if($childKeys[$to] != $from) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	/**
