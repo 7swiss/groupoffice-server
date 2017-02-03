@@ -128,7 +128,9 @@ class EventController extends Controller {
 		if($recurrenceId !== null) {
 			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
 			// modified is cleared after appling exception so set it again
-			$attendee->event->setValues(IFW::app()->getRequest()->body['data']['event']);
+			if(isset(IFW::app()->getRequest()->body['data']['event'])) {
+				$attendee->event->setValues(IFW::app()->getRequest()->body['data']['event']);
+			}
 		}
 		$attendee->event->singleInstance = ($single === '1') ? true : false;
 		$attendee->save();
