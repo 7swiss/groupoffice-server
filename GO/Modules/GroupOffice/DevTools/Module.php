@@ -13,7 +13,10 @@ class Module extends InstallableModule {
 						->get('devtools/models', 'list')
 						->get('devtools/models/:modelName/props', 'props')
 						
-						->addRoute('*', 'devtools/test', 'test', true);
+						->addRoute('*', 'devtools/test2', 'test', true);
+		
+		$router->addRoutesFor(Controller\TestController::class) 
+						->get('devtools/test', 'test');
 		
 		
 		$router->addRoutesFor(RoutesController::class)
@@ -25,6 +28,8 @@ class Module extends InstallableModule {
 //		$router->addRoutesFor(Controller\RecordTestController::class)
 //						->set('devtools/record-test/benchmark', 'benchmark')
 //						->set('devtools/record-test/convert', 'convert');
+		
+		
 		
 		$router->addRoutesFor(Controller\ModuleController::class)
 						->set('devtools/module/init', 'init');
