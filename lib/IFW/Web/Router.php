@@ -4,7 +4,6 @@ namespace IFW\Web;
 use IFW;
 use IFW\Exception\HttpException;
 
-
 /**
  * The router routes requests to their controller actions
  *
@@ -45,11 +44,11 @@ use IFW\Exception\HttpException;
  * Using a '*' as prefix to a parameter it will include the whole path after it.
  * 
  * So when calling /api/devtools/test/bar/foo/foobar the following route will
- * call the ation with: $path = 'bar/foo/foobar'; and $bar = 'foobar'; :
+ * call the action with: $path = 'bar/foo/foobar';
  *
  * `````````````````````````````````````````````````````````````````````````````
  * 
- * ->addRoute('*', 'devtools/test/*path/foo/:bar', 'test', true);
+ * ->addRoute('*', 'devtools/test/*path/foo/bar', 'test', true);
  * 
  * `````````````````````````````````````````````````````````````````````````````
  * 
@@ -60,15 +59,14 @@ use IFW\Exception\HttpException;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
+class Router extends IFW\Router {
 
-class Router extends IFW\Router {	
-	
 	/**
 	 *
 	 * @var RouteCollection[] 
 	 */
 	private $routeCollections = [];
-	
+
 	/**
 	 * The current route. 
 	 * 
@@ -76,7 +74,7 @@ class Router extends IFW\Router {
 	 * 
 	 * @var string 
 	 */
-	private $route;	
+	private $route;
 
 	/**
 	 * Get the params passed in a route.
@@ -86,10 +84,8 @@ class Router extends IFW\Router {
 	 * @var array
 	 */
 	private $routeParams = [];
-	
-	
 	private $routeParts;
-	
+
 	/**
 	 * When building the route table this is set to the module currently processed
 	 * so that we can record this.
@@ -97,7 +93,7 @@ class Router extends IFW\Router {
 	 * @var string 
 	 */
 	private $currentModuleName;
-	
+
 	/**
 	 * Add a {@see \IFW\Controller} to the router
 	 * 
@@ -107,10 +103,10 @@ class Router extends IFW\Router {
 	 * <code>
 	 * 
 	 * $router->addController(AuthController::class)				
-	 *			->get('auth', 'isLoggedIn')
-	 *			->post('auth', 'login')
-	 *			->delete('auth', 'logout')						
-	 *			->post('auth/users/:userId/switch-to', 'switchTo');
+	 * 			->get('auth', 'isLoggedIn')
+	 * 			->post('auth', 'login')
+	 * 			->delete('auth', 'logout')						
+	 * 			->post('auth/users/:userId/switch-to', 'switchTo');
 	 * 
 	 * </code>
 	 * 
@@ -120,378 +116,38 @@ class Router extends IFW\Router {
 	public function addRoutesFor($controllerName) {
 		$routesCollection = new RouteCollection($controllerName, $this->currentModuleName);
 		$this->routeCollections[] = $routesCollection;
-		
+
 		return $routesCollection;
 	}
-	
-	private $optimizedRoutes = [];
-	
-	
+
+	private $optimizedRoutes = ['children' => [], 'methods' => []];
+
 	/**
 	 * Converts route definitions to an optimized array for the router
 	 * 
-	 * <code>
-	 *array(18) {
-  ["auth"]=>
-  array(2) {
-    ["methods"]=>
-    array(4) {
-      ["GET"]=>
-      array(2) {
-        ["routeParams"]=>
-        array(0) {
-        }
-        ["actions"]=>
-        array(1) {
-          [0]=>
-          array(2) {
-            [0]=>
-            string(46) "GO\Core\Auth\Browser\Controller\AuthController"
-            [1]=>
-            string(10) "isLoggedIn"
-          }
-        }
-      }
-      ["POST"]=>
-      array(2) {
-        ["routeParams"]=>
-        array(0) {
-        }
-        ["actions"]=>
-        array(1) {
-          [0]=>
-          array(2) {
-            [0]=>
-            string(46) "GO\Core\Auth\Browser\Controller\AuthController"
-            [1]=>
-            string(5) "login"
-          }
-        }
-      }
-      ["DELETE"]=>
-      array(2) {
-        ["routeParams"]=>
-        array(0) {
-        }
-        ["actions"]=>
-        array(1) {
-          [0]=>
-          array(2) {
-            [0]=>
-            string(46) "GO\Core\Auth\Browser\Controller\AuthController"
-            [1]=>
-            string(6) "logout"
-          }
-        }
-      }
-      ["PUT"]=>
-      array(2) {
-        ["routeParams"]=>
-        array(0) {
-        }
-        ["actions"]=>
-        array(0) {
-        }
-      }
-    }
-    ["children"]=>
-    array(2) {
-      ["users"]=>
-      array(2) {
-        ["methods"]=>
-        array(4) {
-          ["POST"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(1) {
-              [0]=>
-              string(6) "userId"
-            }
-            ["actions"]=>
-            array(1) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(38) "GO\Core\Modules\Users\Controller\UserController"
-                [1]=>
-                string(6) "create"
-              }
-            }
-          }
-          ["GET"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(1) {
-              [0]=>
-              string(6) "userId"
-            }
-            ["actions"]=>
-            array(2) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(38) "GO\Core\Modules\Users\Controller\UserController"
-                [1]=>
-                string(5) "store"
-              }
-              [1]=>
-              array(2) {
-                [0]=>
-                string(38) "GO\Core\Modules\Users\Controller\UserController"
-                [1]=>
-                string(4) "read"
-              }
-            }
-          }
-          ["PUT"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(1) {
-              [0]=>
-              string(6) "userId"
-            }
-            ["actions"]=>
-            array(1) {
-              [1]=>
-              array(2) {
-                [0]=>
-                string(38) "GO\Core\Modules\Users\Controller\UserController"
-                [1]=>
-                string(6) "update"
-              }
-            }
-          }
-          ["DELETE"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(0) {
-            }
-            ["actions"]=>
-            array(1) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(38) "GO\Core\Modules\Users\Controller\UserController"
-                [1]=>
-                string(6) "delete"
-              }
-            }
-          }
-        }
-        ["children"]=>
-        array(3) {
-          ["switch-to"]=>
-          array(2) {
-            ["methods"]=>
-            array(1) {
-              ["POST"]=>
-              array(2) {
-                ["routeParams"]=>
-                array(0) {
-                }
-                ["actions"]=>
-                array(1) {
-                  [1]=>
-                  array(2) {
-                    [0]=>
-                    string(46) "GO\Core\Auth\Browser\Controller\AuthController"
-                    [1]=>
-                    string(8) "switchTo"
-                  }
-                }
-              }
-            }
-            ["children"]=>
-            array(0) {
-            }
-          }
-          [0]=>
-          array(2) {
-            ["methods"]=>
-            array(1) {
-              ["GET"]=>
-              array(2) {
-                ["routeParams"]=>
-                array(0) {
-                }
-                ["actions"]=>
-                array(1) {
-                  [0]=>
-                  array(2) {
-                    [0]=>
-                    string(38) "GO\Core\Modules\Users\Controller\UserController"
-                    [1]=>
-                    string(3) "new"
-                  }
-                }
-              }
-            }
-            ["children"]=>
-            array(0) {
-            }
-          }
-          ["filters"]=>
-          array(2) {
-            ["methods"]=>
-            array(1) {
-              ["GET"]=>
-              array(2) {
-                ["routeParams"]=>
-                array(0) {
-                }
-                ["actions"]=>
-                array(1) {
-                  [0]=>
-                  array(2) {
-                    [0]=>
-                    string(38) "GO\Core\Modules\Users\Controller\UserController"
-                    [1]=>
-                    string(7) "filters"
-                  }
-                }
-              }
-            }
-            ["children"]=>
-            array(0) {
-            }
-          }
-        }
-      }
-      ["groups"]=>
-      array(2) {
-        ["methods"]=>
-        array(4) {
-          ["GET"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(1) {
-              [0]=>
-              string(7) "groupId"
-            }
-            ["actions"]=>
-            array(2) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                [1]=>
-                string(5) "store"
-              }
-              [1]=>
-              array(2) {
-                [0]=>
-                string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                [1]=>
-                string(4) "read"
-              }
-            }
-          }
-          ["PUT"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(1) {
-              [0]=>
-              string(7) "groupId"
-            }
-            ["actions"]=>
-            array(1) {
-              [1]=>
-              array(2) {
-                [0]=>
-                string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                [1]=>
-                string(6) "update"
-              }
-            }
-          }
-          ["POST"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(0) {
-            }
-            ["actions"]=>
-            array(1) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                [1]=>
-                string(6) "create"
-              }
-            }
-          }
-          ["DELETE"]=>
-          array(2) {
-            ["routeParams"]=>
-            array(0) {
-            }
-            ["actions"]=>
-            array(1) {
-              [0]=>
-              array(2) {
-                [0]=>
-                string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                [1]=>
-                string(6) "delete"
-              }
-            }
-          }
-        }
-        ["children"]=>
-        array(1) {
-          [0]=>
-          array(2) {
-            ["methods"]=>
-            array(1) {
-              ["GET"]=>
-              array(2) {
-                ["routeParams"]=>
-                array(0) {
-                }
-                ["actions"]=>
-                array(1) {
-                  [0]=>
-                  array(2) {
-                    [0]=>
-                    string(39) "GO\Core\Modules\Users\Controller\GroupController"
-                    [1]=>
-                    string(3) "new"
-                  }
-                }
-              }
-            }
-            ["children"]=>
-            array(0) {
-            }
-          }
-        }
-      }
-    }
-  }
-	 * </code>
 	 * 
 	 * @return array
 	 */
-	private function optimizeRoutes(){		
-		foreach($this->routeCollections as $routeCollection){
+	private function optimizeRoutes() {
+		foreach ($this->routeCollections as $routeCollection) {
 			$controller = $routeCollection->getControllerName();
 			$moduleName = $routeCollection->getModuleName();
-			
+
 			$routes = $routeCollection->getRoutes();
-			
-			foreach($routes as $route){
+
+			foreach ($routes as $route) {
 				$method = $route[0];
-				$action = $route[2];				
+				$action = $route[2];
 				$routeParts = explode('/', $route[1]);
-				$stop = $route[3];
-				
-				$this->addRouteParts($routeParts, $method, $action, $controller, $moduleName, $stop);
+
+				$this->addRouteParts($routeParts, $method, $action, $controller, $moduleName);
 			}
 		}
-		
+
+//		var_dump($this->optimizedRoutes);
 		return $this->optimizedRoutes;
 	}
-	
+
 	/**
 	 * Get all the route collections
 	 * 
@@ -499,93 +155,65 @@ class Router extends IFW\Router {
 	 * 
 	 * @return RouteCollection[]
 	 */
-	public function getRouteCollections(){
+	public function getRouteCollections() {
 		return $this->routeCollections;
 	}
-	
+
+	/**
+	 * Checks if this route part is a parameter. Prefixed with : or *.
+	 * 
+	 * @param string $part
+	 * @return bool
+	 */
 	private function isParamPart($part) {
 		$firstChar = substr($part, 0, 1);
-		
+
 		return $firstChar == ':' || $firstChar == '*';
 	}
-	
-	private function addRouteParts($routeParts, $method, $action, $controller, $moduleName, $stop){
-//		if(!isset($this->_optimizedRoutes[$method])){
-//			$this->_optimizedRoutes[$method] = [];
-//		}
-		
-		$cur = [
-				'children' => &$this->optimizedRoutes
-		];
-		
-		//eg /bands/:bandId/albums/:albumId
-		//At the bands we store bandId as routeParams and at albums we store albumId.
-		//But the total of route params is 2 for this route.		
-		$totalRouteParams = 0; 
-		
-		foreach($routeParts as $part) {
-			
-//			if(empty($part)) {
-//				var_dump($routeParts);
-//				throw new \Exception();
-//			}
-			
-			if(!$this->isParamPart($part)){			
-				if(!isset($cur['children'][$part])) {
-					$cur['children'][$part] = [
+
+	private function addRouteParts($routeParts, $method, $action, $controller, $moduleName) {
+
+		$cur = &$this->optimizedRoutes;
+
+		foreach ($routeParts as $part) {
+			if (!isset($cur['children'][$part])) {
+				$cur['children'][$part] = [
 						'methods' => [],
 						'children' => []
-					];
-				}
-				
-				if(!isset($cur['children'][$part]['methods'][$method])) {
-					$cur['children'][$part]['methods'][$method] = [
-						'stop' => false,
-						'routeParams' => [],
-						'actions' => [], //indexed with no. of params
-					];
-				}
-
-				$cur = &$cur['children'][$part];
-			}else
-			{
-				//route parameter
-//				$routeParam = substr($part, 1);
-				if(!in_array($part, $cur['methods'][$method]['routeParams'])){
-					$cur['methods'][$method]['routeParams'][] = $part;
-				}
-				
-				$totalRouteParams++;
+				];
 			}
-		}	
-		$cur['methods'][$method]['stop'] = $stop;
-		$cur['methods'][$method]['actions'][$totalRouteParams] = [$controller, $action, $moduleName];		
+			$cur = &$cur['children'][$part];
+		}
+
+		$cur['methods'][$method] = [
+				'controller' => $controller,
+				'action' => $action,
+				'moduleName' => $moduleName];
 	}
-	
+
 	public function getInterfaceType() {
 		return 'Web';
 	}
-	
-	
+
 	/**
 	 * Called on application initialization
 	 */
 	public function initRoutes() {
 		$this->optimizedRoutes = IFW::app()->getCache()->get('routes');
-		if(!$this->optimizedRoutes) {	
-			
+		if (!$this->optimizedRoutes) {
+
 			IFW::app()->debug("Initializing routes");
-			
-			foreach(IFW::app()->getModules() as $moduleName) {				
-				$this->currentModuleName = $moduleName;				
+
+			foreach (IFW::app()->getModules() as $moduleName) {
+				$this->currentModuleName = $moduleName;
 				$moduleName::defineWebRoutes($this);
 			}
-			
+
 			$this->optimizeRoutes();
 			IFW::app()->getCache()->set('routes', $this->optimizedRoutes);
 		}
-	}	
-	
+	}
+
 	/**
 	 * The current route. 
 	 * 
@@ -601,18 +229,16 @@ class Router extends IFW\Router {
 	 * Finds the controller that matches the route and runs it.
 	 */
 	public function run() {
-		
 		$this->route = IFW::app()->getRequest()->getRoute();
-		
-		if(empty($this->route)){
+
+		if (empty($this->route)) {
 			IFW::app()->getResponse()->redirect($this->buildUrl('system/check'));
 		}
 
 		$this->routeParts = explode('/', $this->route);
 		$this->walkRoute($this->optimizedRoutes);
+	}
 
-	}	
-	
 	/**
 	 * Get the params passed in a route.
 	 * 
@@ -622,145 +248,68 @@ class Router extends IFW\Router {
 	 */
 	public function getRouteParams() {
 		return $this->routeParams;
-	}	
-	
+	}
+
+	private function finishRoute($routes, $routeParams) {
+
+		if (isset($routes['methods'][\IFW::app()->getRequest()->method])) {
+			$action = $routes['methods'][\IFW::app()->getRequest()->method];
+		} else if (isset($routes['methods']['*'])) {
+			$action = $routes['methods']['*'];
+		} else {
+			return false;
+		}
+
+		$this->routeParams = $routeParams;
+
+		$params = array_merge($this->routeParams, $_GET);
+
+		$controller = new $action['controller'];
+		$controller->run(strtolower($action['action']), $params);
+
+		return true;
+	}
+
 	/**
 	 * 
 	 * @param string[] $routes The available routes in the router
 	 * @throws HttpException
 	 */
-	private function walkRoute($routes) {
+	private function walkRoute($routes, $routeParams = []) {
 
+		//eg. contacts
 		$routePart = array_shift($this->routeParts);
-		
-		if(!isset($routes[$routePart])){
-			throw new \IFW\Exception\HttpException(404, "Route '$routePart' not found");
-		}
-		$config = $routes[$routePart];
-		
-		/* eg:
-		 * array(2) {
-    ["methods"]=>
-    array(4) {
-      ["GET"]=>
-      array(2) {
-        ["routeParams"]=>
-        array(0) {
-        }
-        ["actions"]=>
-        array(1) {
-          [0]=>
-          array(2) {
-            [0]=>
-            string(46) "GO\Core\Auth\Browser\Controller\AuthController"
-            [1]=>
-            string(10) "isLoggedIn"
-          }
-        }
-      }
-		 */
-		
-		$method = \IFW::app()->getRequest()->method;
-		
-		$found = $this->extractRouteParams($config, $method);
-		if(!$found) {
-			$method = '*';
-			$found = $this->extractRouteParams($config, $method);
-		}
-		
-		if(!$found) {
-			throw new \IFW\Exception\HttpException(405, "HTTP method '".\IFW::app()->getRequest()->method."' not allowed. Only ".implode(',', array_keys($config['methods']))." are supported");
+		if (!$routePart) {
+			//end of the route
+			return $this->finishRoute($routes, $routeParams);
 		}
 
-		if (!empty($this->routeParts) && !$config['methods'][$method]['stop']) {
-			return $this->walkRoute($config['children']);
-		} else {			
-			$action = $this->getAction($config, $method);
-			
-			//send router parameters and GET parameters together
-			$params = array_merge($this->routeParams, $_GET);
+		if (isset($routes['children'][$routePart])) {
+			//exact match. Follow the route			
+			if ($this->walkRoute($routes['children'][$routePart], $routeParams)) {
+				return true;
+			}
+		}
 
-			$controller = new $action[0]();
-			$controller->run(strtolower($action[1]), $params);
-		}
-		
-	}
-	/**
-	 * The fill find the controller and controller action method based on the number
-	 * of route parameters and HTTP request method (PUT, POST, GET etc.)
-	 * 
-	 * @param type $config
-	 * @param type $method
-	 * @return type
-	 * @throws \IFW\Exception\HttpException
-	 */
-	private function getAction($config, $method) {
-		$paramCount = count($this->routeParams);
-			
-		if (empty($config['methods'][$method]['actions'][$paramCount])) {
-//				var_dump($config['methods']['GET']);
-//				throw new HttpException(405, "HTTP ".$method." not allowed. Only ".implode(',', array_keys($config['methods']))." are supported");
-//				throw new Exception("No action defined for this route!");
-			throw new \IFW\Exception\HttpException(405, "No action defined for ".$method." on route ".$this->route." params: ".var_export($this->routeParams, true));
-		}
-		
-		return $config['methods'][$method]['actions'][$paramCount];
-	}
+		//try the variables
+		foreach ($routes['children'] as $routeParamName => $childRoutes) {
+			if ($this->isParamPart($routeParamName)) {
 
-	/**
-	 * Extracts route parameters
-	 * For example in /contact/:contactId ":contactId" is a route parameter.
-	 * 
-	 * So when /contact/1 is requested $this->routeParams['contactId']=1; will be set by this function.
-	 * 
-	 * The part is shifted off the route parts array.
-	 * 
-	 * @param array $config
-	 * @param string $method
-	 * @return boolean false if there is no configuration for the given HTTP method.
-	 */
-	private function extractRouteParams($config, $method) {
-		
-		//HTTP method has no routes
-		if(!isset($config['methods'][$method])) {
-			return false;
-		}
-		
-		foreach ($config['methods'][$method]['routeParams'] as $paramTypeAndName) {
-			
-			if(empty($this->routeParts)){
-				break;
-			}
-			
-			$part = array_shift($this->routeParts);			
-			if(isset($config['children'][$part])){
-			
-				//put back the part
-				array_unshift($this->routeParts, $part);
-				
-				// If there's an exact child match.
-				// Like 0 here matches both rules. In this case the rule with the exact match wins.
-				//
-				// Rules example:
-				// ->get('auth/users/0','new')
-				// ->get('auth/users/:userId','read')
-				
-				break;
-			}
-			
-			
-			//: or * Star should take all of the route
-			$paramType = substr($paramTypeAndName, 0,1);
-			$paramName = substr($paramTypeAndName,1);
-			
-			$this->routeParams[$paramName] = $part;
-			if($paramType=='*' && !empty($this->routeParts)) {
-				
-				$this->routeParams[$paramName] .= '/'.implode('/', $this->routeParts);
+				if (substr($routeParamName, 0, 1) == '*') {
+					//this parameter will swallow the whole route and pass it as a aprameter
+					if (!empty($this->routeParts)) {
+						$routePart .= '/' . implode('/', $this->routeParts);
+						$this->routeParts = [];
+					}
+				}
+
+				if ($this->walkRoute($childRoutes, array_merge($routeParams, [ltrim($routeParamName, ':*') => $routePart]))) {
+					return true;
+				}
 			}
 		}
-		
-		return true;
+
+		throw new \IFW\Exception\NotFound("Route '" . IFW::app()->getRequest()->getRoute() . "' not defined for method: " . IFW::app()->getRequest()->getMethod() . '.');
 	}
 
 	/**
@@ -771,5 +320,4 @@ class Router extends IFW\Router {
 	public function getModuleName() {
 		return $this->currentModuleName;
 	}
-
 }

@@ -38,11 +38,10 @@ class RouteCollection {
 	 * @param string $method GET, PUT, POST, DELETE etc. or * for any method.
 	 * @param string $route eg. auth/users
 	 * @param string $action The controller action without the "action" prefix. eg. "store" leads to method actionStore. The actions are case-insensitive.
-	 * @param boolean $stop Set to true to ignore the rest of the route and run this action. Useful for mapping /carddav to a controller that implements SabreDAV for example.
 	 * @return \IFW\Web\RouteCollection
 	 */
-	public function addRoute($method, $route, $action, $stop = false) {
-		$this->routes[] = [$method, $route, $action, $stop];
+	public function addRoute($method, $route, $action) {
+		$this->routes[] = [$method, $route, $action];
 		
 		return $this;
 	}
