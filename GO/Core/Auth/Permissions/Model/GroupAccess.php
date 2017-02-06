@@ -35,9 +35,6 @@ abstract class GroupAccess extends Record {
 
 
 	protected static function defineRelations() {
-		
-		
-
 		static::hasMany('groupUsers', UserGroup::class, ['groupId' => 'groupId']);
 		static::hasOne('group', Group::class, ['groupId' => 'id']);		
 		

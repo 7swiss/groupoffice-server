@@ -285,9 +285,8 @@ class Contact extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new ContactPermissions();
-	}
-	
+		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(ContactGroup::class);
+	}	
 	
 	public function getLanguage() {
 		$lang = $this->language;

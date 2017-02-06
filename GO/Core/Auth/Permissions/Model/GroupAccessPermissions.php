@@ -20,7 +20,7 @@ class GroupAccessPermissions extends ViaRelation {
 		}
 		
 		//don't edit owner record
-		if($this->record->groupId == $this->record->{$this->relationName}->ownedBy) {
+		if(!$this->record->isNew() && $this->record->groupId == $this->record->{$this->relationName}->ownedBy) {
 			return false;
 		}else
 		{
@@ -30,6 +30,10 @@ class GroupAccessPermissions extends ViaRelation {
 	}
 	
 	public function toArray($properties = null) {
-		\IFW\Auth\Permissions\Model::toArray($properties);
+		return \IFW\Auth\Permissions\Model::toArray($properties);
+	}
+	
+	protected function internalApplyToQuery(\IFW\Orm\Query $query, UserInterface $user) {
+		
 	}
 }

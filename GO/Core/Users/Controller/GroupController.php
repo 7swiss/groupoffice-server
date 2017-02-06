@@ -17,10 +17,6 @@ use IFW\Orm\Query;
  */
 class GroupController extends Controller {
 
-	protected function checkAccess() {
-		return parent::checkAccess() && \GO()->getAuth()->isAdmin();
-	}
-
 	/**
 	 * Fetch groups
 	 *

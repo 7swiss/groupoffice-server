@@ -14,9 +14,9 @@ use IFW\Orm\Relation;
  */
 class ViaRelation extends Model {
 	
-	private $relationName;
+	protected $relationName;
 	
-	private $requirePermissionType;
+	protected $requirePermissionType;
 	
 	/**
 	 * Constructor

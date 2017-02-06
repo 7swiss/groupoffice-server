@@ -235,8 +235,9 @@ class Router extends IFW\Router {
 			IFW::app()->getResponse()->redirect($this->buildUrl('system/check'));
 		}
 
-		$this->routeParts = explode('/', $this->route);
-		$this->walkRoute($this->optimizedRoutes);
+		if(!$this->walkRoute($this->optimizedRoutes, explode('/', $this->route))) {
+			throw new \IFW\Exception\NotFound("Route '" . IFW::app()->getRequest()->getRoute() . "' not defined for method: " . IFW::app()->getRequest()->getMethod() . '.');
+		}
 	}
 
 	/**
@@ -275,18 +276,18 @@ class Router extends IFW\Router {
 	 * @param string[] $routes The available routes in the router
 	 * @throws HttpException
 	 */
-	private function walkRoute($routes, $routeParams = []) {
+	private function walkRoute($routes, $routeParts, $routeParams = []) {
 
 		//eg. contacts
-		$routePart = array_shift($this->routeParts);
-		if (!$routePart) {
+		$routePart = array_shift($routeParts);
+		if ($routePart === null) {
 			//end of the route
 			return $this->finishRoute($routes, $routeParams);
 		}
 
 		if (isset($routes['children'][$routePart])) {
 			//exact match. Follow the route			
-			if ($this->walkRoute($routes['children'][$routePart], $routeParams)) {
+			if ($this->walkRoute($routes['children'][$routePart], $routeParts, $routeParams)) {
 				return true;
 			}
 		}
@@ -298,18 +299,18 @@ class Router extends IFW\Router {
 				if (substr($routeParamName, 0, 1) == '*') {
 					//this parameter will swallow the whole route and pass it as a aprameter
 					if (!empty($this->routeParts)) {
-						$routePart .= '/' . implode('/', $this->routeParts);
+						$routePart .= '/' . implode('/', $routeParts);
 						$this->routeParts = [];
 					}
 				}
 
-				if ($this->walkRoute($childRoutes, array_merge($routeParams, [ltrim($routeParamName, ':*') => $routePart]))) {
+				if ($this->walkRoute($childRoutes, $routeParts, array_merge($routeParams, [ltrim($routeParamName, ':*') => $routePart]))) {
 					return true;
 				}
 			}
 		}
 
-		throw new \IFW\Exception\NotFound("Route '" . IFW::app()->getRequest()->getRoute() . "' not defined for method: " . IFW::app()->getRequest()->getMethod() . '.');
+		return false;
 	}
 
 	/**
