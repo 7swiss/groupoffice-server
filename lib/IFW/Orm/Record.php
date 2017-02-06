@@ -792,7 +792,18 @@ abstract class Record extends DataModel {
 		} elseif (($relation = $this->getRelation($name))) {												
 			$this->setRelated($name, $value);
 		} else {
-			parent::__set($name, $value);
+			$getter = 'get' . $name;
+			if(method_exists($this, $getter)){
+				
+				//Allow to set read only properties with their original value.
+				//http://stackoverflow.com/questions/20533712/how-should-a-restful-service-expose-read-only-properties-on-mutable-resources								
+//				$errorMsg = "Can't set read only property '$name' in '".static::class."'";
+				//for performance reasons we simply ignore it.
+				\IFW::app()->getDebugger()->debug("Discarding read only property '$name' in '".static::class."'");
+			}else {
+				$errorMsg = "Can't set not existing property '$name' in '".static::class."'";
+				throw new Exception($errorMsg);
+			}
 		}
 
 	}

@@ -4,8 +4,41 @@ namespace GO\Core\Auth\Permissions\Controller;
 use GO\Core\Controller;
 use IFW\Orm\Query;
 
+/**
+ * Abstract GroupAccess controller
+ * 
+ * Used with {@see \GO\Core\Auth\Permissions\Model\GroupPermissions}
+ * 
+ * @example
+ * `````````````````````````````````````````````````````````````````````````````
+ * <?php
+ * namespace GO\Modules\GroupOffice\Contacts\Controller;
+ * 
+ * use GO\Core\Auth\Permissions\Controller\GroupAccessPermissionsController;
+ * use GO\Modules\GroupOffice\Contacts\Model\ContactGroup;
+ * 
+ * class PermissionsController extends GroupAccessPermissionsController {	
+ * 	public function getGroupRecordClassName() {
+ * 		return ContactGroup::class;
+ * 	}
+ * }
+ * `````````````````````````````````````````````````````````````````````````````
+ * 
+ */
 abstract class GroupAccessPermissionsController extends Controller {
 	
+	/**
+	 * This will add all the routes for this controller.
+	 * 
+	 * The routes are:
+	 * 
+	 * GET $baseRoute/:id/permissions
+	 * PUT $baseRoute/:id/permissions/:groupId
+	 * DELETE $baseRoute/:id/permissions/:groupId
+	 * 
+	 * @param \IFW\Web\Router $router
+	 * @param string $baseRoute The base route
+	 */
 	public static function addRoutesTo(\IFW\Web\Router $router, $baseRoute) {
 		$router->addRoutesFor(static::class)
 						->get($baseRoute . '/:id/permissions', 'store')
@@ -14,6 +47,11 @@ abstract class GroupAccessPermissionsController extends Controller {
 		
 	}
 	
+	/**
+	 * Return the record that extends {@see \GO\Core\Auth\Permissions\Model\GroupAccess}
+	 * 
+	 * @return string
+	 */
 	abstract function getGroupRecordClassName();
 	
 	protected function actionStore($id) {		

@@ -1,9 +1,14 @@
 <?php
 namespace GO\Core\Auth\Permissions\Model;
 
+use IFW\Auth\Permissions\Model;
 use IFW\Auth\Permissions\ViaRelation;
 use IFW\Auth\UserInterface;
+use IFW\Orm\Query;
 
+/**
+ * GroupAccess permissions model. Used by {@see GroupAccess}
+ */
 class GroupAccessPermissions extends ViaRelation {
 	public function __construct($relationName) {
 		parent::__construct($relationName, self::PERMISSION_CHANGE_PERMISSIONS);
@@ -30,10 +35,10 @@ class GroupAccessPermissions extends ViaRelation {
 	}
 	
 	public function toArray($properties = null) {
-		return \IFW\Auth\Permissions\Model::toArray($properties);
+		return Model::toArray($properties);
 	}
 	
-	protected function internalApplyToQuery(\IFW\Orm\Query $query, UserInterface $user) {
+	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
 	}
 }

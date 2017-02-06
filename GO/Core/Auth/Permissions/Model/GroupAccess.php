@@ -8,6 +8,7 @@ use IFW\Orm\Record;
 /**
  * The GroupAccess record
  *
+ * Used for {@see GroupPermissions}
  *
  * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

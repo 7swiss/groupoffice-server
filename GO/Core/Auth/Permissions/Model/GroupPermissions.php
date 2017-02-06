@@ -7,16 +7,24 @@ use IFW\Auth\UserInterface;
 use IFW\Orm\Query;
 
 /**
- * Contact permissions
+ * Group permissions model
  * 
- * Every contact can be shared with one group. Because every user has a private 
- * group and there's an everyone group this gives 3 options:
+ * You can use this model if you want to limit access to an item and grant 
+ * access to one or more groups.
  * 
- * 1. private
- * 2. public
- * 3. A specific group
+ * 1. Create a link table between your record and {@see \GO\Core\Users\Model\Group}. 
+ * 2. Create the record model and make this record extend {@see GroupAccess}. 
+ *		For example see {@see \GO\Modules\GroupOffice\Contacts\Model\ContactGroup}
+ * 3. Use the this model in the record that you want to secure. For example see 
+ *		{@see \GO\Modules\GroupOffice\Contacts\Model\Contact::internalGetPermissions()}
+ *		``````````````````````````````````````````````````````````````````````````
+ *		protected static function internalGetPermissions() {
+ *		  return new \GO\Core\Auth\Permissions\Model\GroupPermissions(ContactGroup::class);
+ *	  }	
+ * 		``````````````````````````````````````````````````````````````````````````
+ * 4. Implement a controller that extends {@see \GO\Core\Auth\Permissions\Controller\GroupAccessPermissionsController} 
+ *    to make permissions configurable via the API.
  * 
- * Contacts are always shared writable but only the creator or admin may change the group.
  */
 class GroupPermissions extends Model {	
 		
@@ -24,6 +32,11 @@ class GroupPermissions extends Model {
 	
 	private $groupAccessRecordName;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param string $groupAccessRecordName The link table record
+	 */
 	public function __construct($groupAccessRecordName) {
 		
 		$this->groupAccessRecordName = $groupAccessRecordName;
