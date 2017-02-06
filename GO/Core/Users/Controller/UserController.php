@@ -43,7 +43,7 @@ class UserController extends Controller {
 	 * @param string $where {@see \IFW\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where = null) {
+	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -56,15 +56,8 @@ class UserController extends Controller {
 
 		$this->getFilterCollection()->apply($query);
 
-		if (!empty($where)) {
-
-			$where = json_decode($where, true);
-
-			if (count($where)) {
-				$query
-								->groupBy(['t.id'])
-								->whereSafe($where);
-			}
+		if(isset($q)) {
+			$query->setFromClient($q);
 		}
 
 		$users = User::find($query);

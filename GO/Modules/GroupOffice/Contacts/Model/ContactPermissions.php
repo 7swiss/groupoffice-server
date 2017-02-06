@@ -53,32 +53,39 @@ class ContactPermissions extends Model {
 	}
 	
 	private function getContactGroup($user) {
-//		if(!isset($this->contactGroup)) {
+		if(!isset($this->contactGroup)) {
 			return $this->contactGroup = ContactGroup::find((new Query())
 							->joinRelation('groupUsers')
-							->andWhere(['contactId'=>$this->record->id])							
+							->andWhere(['contactId' => $this->record->id])							
 							->andWhere(['groupUsers.userId' => $user->id()])
 							)->single();
-//		}
+		}
 		
-//		return $this->contactGroup;
+		return $this->contactGroup;
 	}
 	
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
-		
-		parent::internalApplyToQuery($query, $user);
-		
+		$groupAccess = ContactGroup::find(
+						(new Query())
+						->tableAlias('groupAccess')						
+						->joinRelation('groupUsers')
+						->where(['groupUsers.userId' => $user->id()])
+						->andWhere('groupAccess.contactId = t.id')
+						);
 		
 		$query->skipReadPermission()
-						->joinRelation('groupPermissions')->debug()
-						->joinRelation(
-										'groupPermissions.groupUsers', 
-										false, 
-										'INNER', 
-										['groupUsers.userId' => $user->id()]
-										)
-						->groupBy(['t.id']);
+						->andWhere(['EXISTS', $groupAccess])->debug();
+		
+//		$query->skipReadPermission()
+//						->joinRelation('groupPermissions')->debug()
+//						->joinRelation(
+//										'groupPermissions.groupUsers', 
+//										false, 
+//										'INNER', 
+//										['groupUsers.userId' => $user->id()]
+//										)
+//						->groupBy(['t.id']);
 	}
 
 }

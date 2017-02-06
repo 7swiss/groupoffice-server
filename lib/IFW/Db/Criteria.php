@@ -80,7 +80,7 @@ class Criteria extends Object {
 	 */
 	protected $where = [];	
 	
-	protected function getWhere() {
+	public function getWhere() {
 		return $this->where;
 	}
 	
@@ -91,8 +91,12 @@ class Criteria extends Object {
 	 */
 	private $bindParameters = [];
 	
-	
-	protected function getBindParameters() {
+	/**
+	 * Key value array of bind parameters.
+	 * 
+	 * @return array eg. ['paramTag' => ':someTag', 'value' => 'Some value', 'pdoType' => PDO::PARAM_STR]
+	 */
+	public function getBindParameters() {
 		return $this->bindParameters;
 	}
 	

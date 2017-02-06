@@ -347,17 +347,18 @@ abstract class Record extends DataModel {
 	 * mysql values from PDO are always strings.
 	 */
 	public function __construct($isNew = true) {
-
 		
 		parent::__construct();
 
 		$this->isNew = $isNew;
 
 		if (!$this->isNew) {
-			$this->castDatabaseAttributes();			
+			$this->castDatabaseAttributes();	//Will also call setOldAttributes()		
 		} else {
-			$this->setDefaultAttributes();			
+			$this->setDefaultAttributes();
+			$this->setOldAttributes();
 		}
+		
 		$this->loadingFromDatabase = false;
 		
 		$this->init();
@@ -444,7 +445,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * Also sets the 'createdBy' column to the current logged in user id.
 	 */
-	private function setDefaultAttributes() {
+	protected function setDefaultAttributes() {
 		
 		foreach ($this->getColumns() as $colName => $column) {			
 			$this->$colName = $column->default;			
@@ -453,8 +454,6 @@ abstract class Record extends DataModel {
 		if ($this->hasColumn('createdBy')) {
 			$this->createdBy = IFW::app()->getAuth()->user() ? IFW::app()->getAuth()->user()->id() : 1;
 		}
-		
-		$this->setOldAttributes();
 	}
 
 	/**
@@ -1137,7 +1136,8 @@ abstract class Record extends DataModel {
 		
 		$map = explode('.', $name);
 		
-		$modelName = self::getClassName();		
+		$modelName = static::class;
+		
 		foreach($map as $name) {
 			$relations = $modelName::getRelations();
 			if(!isset($relations[$name])) {
@@ -1155,7 +1155,7 @@ abstract class Record extends DataModel {
 	 * @return Relation[]
 	 */
 	public static function getRelations() {		
-		$calledClass = get_called_class();
+		$calledClass = static::class;
 		
 		if(!isset(self::$relationDefs[$calledClass])){
 			self::$relationDefs[$calledClass] = IFW::app()->getCache()->get($calledClass.'-relations');
@@ -2336,7 +2336,7 @@ abstract class Record extends DataModel {
 	 * @return Relation
 	 */
 	public static function hasMany($name, $relatedModelName, array $keys){
-		$calledClass = get_called_class();
+		$calledClass = static::class;
 		
 		if(!isset(self::$relationDefs[$calledClass])) {
 			self::$relationDefs[$calledClass] = [];
@@ -2366,7 +2366,7 @@ abstract class Record extends DataModel {
 	 * @return Relation
 	 */
 	public static function hasOne($name, $relatedModelName, array $keys){
-		$calledClass = get_called_class();
+		$calledClass = static::class;
 		
 		if(!isset(self::$relationDefs[$calledClass])) {
 			self::$relationDefs[$calledClass] = [];

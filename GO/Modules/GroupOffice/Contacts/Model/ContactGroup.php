@@ -1,9 +1,7 @@
 <?php
 namespace GO\Modules\GroupOffice\Contacts\Model;
 
-use GO\Core\Users\Model\Group;
-use GO\Core\Users\Model\UserGroup;
-use IFW\Orm\Record;
+use GO\Core\Auth\Permissions\Model\GroupAccess;
 
 /**
  * The ContactGroup model
@@ -14,44 +12,28 @@ use IFW\Orm\Record;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
+class ContactGroup extends GroupAccess {
 
-class ContactGroup extends Record {
-	
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $contactId;
 
 	/**
 	 * 
-	 * @var int
-	 */							
-	public $groupId;
-
-	/**
-	 * 
 	 * @var bool
-	 */							
+	 */
 	public $write = true;
 
 	/**
 	 * 
 	 * @var bool
-	 */							
+	 */
 	public $delete = true;
 
-	protected static function defineRelations() {
-		
-		self::hasMany('groupUsers', UserGroup::class, ['groupId'=>'groupId']);
-		self::hasOne('group', Group::class, ['groupId'=>'id']);
-		self::hasOne('contact', Contact::class, ['contactId'=>'id']);
-		
-		parent::defineRelations();
+
+	protected static function groupsFor() {
+		return self::hasOne('contact', Contact::class, ['contactId' => 'id']);
 	}
-	
-	protected static function internalGetPermissions() {
-		return new ContactGroupPermissions();
-	}
-	
 }

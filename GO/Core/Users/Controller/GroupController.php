@@ -32,13 +32,17 @@ class GroupController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
 				->offset($offset)
 				->search($searchQuery, array('t.name'));
+		
+		if(isset($q)) {
+			$query->setFromClient($q);
+		}
 
 		$groups = Group::find($query);
 		$groups->setReturnProperties($returnProperties);

@@ -6,6 +6,12 @@ use GO\Core\Modules\Model\Module;
 use GO\Core\Orm\Model\RecordType;
 use IFW\Orm\Record as IFWRecord;
 
+/**
+ * Extends IFW record and adds GroupOffice specific functionality
+ * 
+ * Like setting the ownedBy column.
+ * 
+ */
 abstract class Record extends IFWRecord {	
 	
 	const LOG_ACTION_CREATE = 'create';
@@ -46,5 +52,12 @@ abstract class Record extends IFWRecord {
 		}
 		
 		return $recordType;
+	}
+	
+	protected function setDefaultAttributes() {
+		parent::setDefaultAttributes();
+		if($this->hasColumn('ownedBy')) {
+			$this->ownedBy = GO()->getAuth()->user()->group->id;
+		}
 	}
 }

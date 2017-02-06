@@ -157,8 +157,8 @@ class Store extends \IFW\Data\Store {
 	private function isFindByPk() {
 
 		//IFW::app()->debug($this->_query->where);
-
-		$count = count($this->query->where);
+		$w = $this->query->getWhere();
+		$count = count($w);
 
 		if ($count != 1) {
 			return false;
@@ -185,7 +185,7 @@ class Store extends \IFW\Data\Store {
 //		//end soft delete support
 //		
 		//looks like: ['AND', '=', ['id'=>'1','name'=>'merijn']
-		$where = $this->query->where[0][1];
+		$where = $w[0][1];
 
 		if (!is_array($where) || $where[0] != 'AND' || $where[1] != '=') {
 			return false;

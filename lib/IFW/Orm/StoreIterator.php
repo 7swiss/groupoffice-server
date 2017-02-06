@@ -59,7 +59,9 @@ class StoreIterator extends IteratorIterator {
 		{
 			$this->next();
 		}
-		return $this->current();
+		$current = $this->current();
+		
+		return isset($current) ? $current : false;
 	}
 	
 }

@@ -18,10 +18,6 @@ use IFW\Orm\Query;
 /**
  * The contact model
  *
- * @property int $ownerUserId
- * @property User $owner
- * @property int $groupId The group this contact is accessible too (full access). Set to null to make it a private contact for the owner.
- *
  * @property EmailAddress[] $emailAddresses
  * @property Phone[] $phoneNumbers
  * @property Date[] $dates
@@ -29,10 +25,16 @@ use IFW\Orm\Query;
  * @property Contact[] $organizations
  * @property Contact[] $employees
  * @property ContactTag[] $tags
- * @property GO\Core\Blob\Model\Blob $photoBlob The Blob object represending the contact picture
+ * @property GO\Core\Blob\Model\Blob $photoBlob The Blob object representing the contact picture
  *
  */
 class Contact extends Record {
+
+	/**
+	 * The group that owns the contact and can modify permissions.
+	 * @var int
+	 */							
+	public $ownedBy;
 
 	/**
 	 * The primary key
@@ -171,7 +173,8 @@ class Contact extends Record {
 	public static function defineRelations(){
 		
 		
-		self::hasOne('owner', User::class, ['createdBy'=>'id']);
+		self::hasOne('owner', Group::class, ['ownedBy'=>'id']);
+		self::hasOne('creator', User::class, ['createdBy'=>'id']);
 		self::hasMany('emailAddresses', EmailAddress::class, ['id'=>'contactId']);
 		
 		self::hasMany('tags',Tag::class, ['id'=>'contactId'], true)
@@ -209,23 +212,7 @@ class Contact extends Record {
 		parent::defineRelations();
 	}
 	
-//	protected function init() {
-		
-//		if(!isset($this->photoBlobId)) {
-//			$blob = \GO\Core\Blob\Model\Blob::createFromFile(new File(dirname(dirname(__FILE__)).'/Resources/male.png'));
-//			$this->photoBlobId = $blob->blobId;			
-//		}
-		
-//		parent::init();
-//	}
-		
 	public function internalValidate() {
-		
-		//If groupId is set to null then make this a private contact for the owner
-//		if(!isset($this->groupId)) {
-//			$this->groupId = $this->owner->group->id;
-//		}
-//		
 		//always fill name field on contact too
 		if(!isset($this->name) && !$this->isOrganization){
 			$this->name = $this->firstName;
@@ -242,11 +229,9 @@ class Contact extends Record {
 	
 	
 	public function internalSave() {
-
 		
 		//When the contact is copied then the groupPermissions relation is copied as well.
-		$createPermissions = $this->isNew() && !$this->isModified('groupPermissions');
-		
+		$createPermissions = $this->isNew() && !$this->isModified('groupPermissions');		
 		
 		$this->saveBlob('photoBlobId');
 		
@@ -263,17 +248,9 @@ class Contact extends Record {
 		}		
 		
 		if($createPermissions) {
-//			var_dump($this);
 			$cg = new ContactGroup();
 			$cg->contactId = $this->id;
-			$cg->groupId = $this->owner->group->id;			
-			if(!$cg->save()) {
-				return false;
-			}
-			
-			$cg = new ContactGroup();
-			$cg->contactId = $this->id;
-			$cg->groupId = Group::ID_EVERYONE;			
+			$cg->groupId = $this->ownedBy;
 			if(!$cg->save()) {
 				return false;
 			}
@@ -296,8 +273,6 @@ class Contact extends Record {
 		}
 
 		return true;
-		
-
 	}	
 	
 	protected function internalDelete($hard) {

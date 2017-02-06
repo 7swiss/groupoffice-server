@@ -23,11 +23,11 @@ class QueryBuilder extends DbQueryBuilder{
 		$select = parent::buildSelect();
 		
 		if(!$this->isSubQuery) {
-			if($this->getQuery()->skipReadPermission) {
+			if($this->getQuery()->getSkipReadPermission()) {
 				$select .= ', 1 AS skipReadPermission ';
 			}
 
-			if($this->getQuery()->isRelational) {
+			if($this->getQuery()->getIsRelational()) {
 				$select .= ', 1 AS isRelational ';
 			}
 		}
@@ -147,7 +147,7 @@ class QueryBuilder extends DbQueryBuilder{
 		}
 		
 		//soft delete
-		if(!$this->getQuery()->withDeleted && $relatedModelName::getColumn('deleted')) {
+		if(!$this->getQuery()->getWithDeleted() && $relatedModelName::getColumn('deleted')) {
 			$joinSql .= ' AND `'.$relation->getName().'`.`deleted` = false';
 		}
 
@@ -162,7 +162,7 @@ class QueryBuilder extends DbQueryBuilder{
 			$where = $this->buildWhere($relation->query, "\t");//str_replace('`t`', '`' . $relation->getName() . '`', $this->buildWhere($relation->query, "\t"));
 
 			$this->defaultRecordForEmptyAlias = $this->recordClassName;
-			$this->tableAlias = $this->getQuery()->tableAlias;
+			$this->tableAlias = $this->getQuery()->getTableAlias();
 
 			if (!empty($where)) {
 				$joinSql .= ' AND (' . $where . ')';

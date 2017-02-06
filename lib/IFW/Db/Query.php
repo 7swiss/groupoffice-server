@@ -14,6 +14,8 @@ use ReflectionClass;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Query extends Criteria {
+	
+	private $tableAlias = 't';
 
 	protected $debug;
 	
@@ -29,9 +31,9 @@ class Query extends Criteria {
 	
 	private $limit;
 	
-	private $offset;	
+	private $offset = 0;	
 	
-	protected $joins;
+	protected $joins = [];
 
 	private $fetchMode;
 	
@@ -46,48 +48,52 @@ class Query extends Criteria {
 	private $relationFromRecord;
 
 	
-	protected function getwithDeleted() {
+	public function getTableAlias() {
+		return $this->tableAlias;
+	}
+	
+	public function getWithDeleted() {
 		return $this->withDeleted;
 	}
 	
-	protected function getHaving() {
+	public function getHaving() {
 		return $this->having;
 	}
 	
-	protected function getDebug() {
+	public function getDebug() {
 		return $this->debug;
 	}
 	
-	protected function getDistinct() {
+	public function getDistinct() {
 		return $this->distinct;
 	}
-	protected function getSelect() {
+	public function getSelect() {
 		return $this->select;
 	}
-	protected function getOrderBy() {
+	public function getOrderBy() {
 		return $this->orderBy;
 	}
-	protected function getGroupBy() {
+	public function getGroupBy() {
 		return $this->groupBy;
 	}
-	protected function getLimit() {
+	public function getLimit() {
 		return $this->limit;
 	}
-	protected function getOffset() {
+	public function getOffset() {
 		return $this->offset;
 	}
-	protected function getJoins() {
+	public function getJoins() {
 		return $this->joins;
 	}
-	protected function getFetchMode() {
+	public function getFetchMode() {
 		return $this->fetchMode;
 	}
 	
-	protected function getSkipReadPermission(){
+	public function getSkipReadPermission(){
 		return $this->skipReadPermission;
 	}
 	
-	protected function getIsRelational(){
+	public function getIsRelational(){
 		return isset($this->relation);
 	}
 	
@@ -257,7 +263,7 @@ class Query extends Criteria {
 	
 	
 	
-	private $tableAlias = 't';
+	
 	
 	public function tableAlias($alias) {
 		
@@ -265,9 +271,7 @@ class Query extends Criteria {
 		return $this;
 	}
 	
-	protected function getTableAlias() {
-		return $this->tableAlias;
-	}
+	
 
 
 	/**
@@ -456,7 +460,7 @@ class Query extends Criteria {
 	 * @return static
 	 */
 	public function offset($offset = 0) {
-		$this->offset = $offset;
+		$this->offset = (int) $offset;
 		return $this;
 	}
 
@@ -467,7 +471,7 @@ class Query extends Criteria {
 	 * @return static
 	 */
 	public function limit($limit = 0) {
-		$this->limit = $limit;
+		$this->limit = (int) $limit;
 		return $this;
 	}
 	

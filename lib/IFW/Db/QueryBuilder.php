@@ -134,7 +134,7 @@ class QueryBuilder {
 
 	private function softDelete() {
 
-		if ($this->query->withDeleted) {
+		if ($this->query->getWithDeleted()) {
 			return;
 		}
 
@@ -170,23 +170,23 @@ class QueryBuilder {
 			$this->alreadyJoinedRelations = [];
 			$this->buildBindParameters = [];
 
-			$this->tableAlias = $this->query->tableAlias;
-			$this->aliasMap[$this->query->tableAlias] = $this->recordClassName;
+			$this->tableAlias = $this->query->getTableAlias();
+			$this->aliasMap[$this->tableAlias] = $this->recordClassName;
 
 			$select = "\n".$prefix.$this->buildSelect();
 
 			
 			$joins = "";
 
-			if (isset($this->query->joins)) {
-				foreach ($this->query->joins as $join) {
-					$method = 'join' . $join[0];
-					$joins .= "\n".$prefix.$this->$method($join[1]);
-				}
+			
+			foreach ($this->query->getJoins() as $join) {
+				$method = 'join' . $join[0];
+				$joins .= "\n".$prefix.$this->$method($join[1]);
 			}
+			
 
 			$select .= $this->joinRelationSelectString;
-			$select .= "\n".$prefix."FROM `" . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->query->tableAlias . "`";
+			$select .= "\n".$prefix."FROM `" . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->tableAlias . "`";
 			
 			
 			$where = "\n".$prefix . $this->buildWhere(null, $prefix);
@@ -197,8 +197,8 @@ class QueryBuilder {
 			$orderBy = "\n".$prefix.$this->buildOrderBy();
 
 			$limit = "";
-			if (!empty($this->query->limit)) {
-				$limit .= "\n".$prefix."LIMIT " . intval($this->query->offset) . ',' . intval($this->query->limit);
+			if ($this->query->getLimit() > 0) {
+				$limit .= "\n".$prefix."LIMIT " . $this->query->getOffset() . ',' . $this->query->getLimit();
 			}
 			
 			$this->sql = trim($prefix . $select . $joins . $where . $group . $having . $orderBy . $limit);
@@ -217,21 +217,22 @@ class QueryBuilder {
 		//			$select .= "SQL_CALC_FOUND_ROWS ";
 		//		}
 
-		if ($this->query->distinct) {
+		if ($this->query->getDistinct()) {
 			$select .= "DISTINCT ";
 		}
 
-		if (!empty($this->query->select)) {
-			if (is_array($this->query->select)) {
-				foreach ($this->query->select as $attr) {
+		$s = $this->query->getSelect();
+		if (!empty($s)) {
+			if (is_array($s)) {
+				foreach ($s as $attr) {
 					$select .= $this->quoteTableAndColumnName($attr) . ', ';
 				}
 				$select = trim($select, ', ');
 			} else {
-				$select .= $this->query->select;
+				$select .= $s;
 			}
 		} else {
-			$select .= $this->query->tableAlias . '.*';
+			$select .= $this->query->getTableAlias() . '.*';
 		}
 
 
@@ -310,7 +311,7 @@ class QueryBuilder {
 	 * @return array [['tableAlias' => 't', 'column' => 'id', 'pdoType' => PDO::PARAM_INT]]
 	 */
 	public function getBindParameters() {		
-		return array_merge($this->query->bindParameters, $this->buildBindParameters);
+		return array_merge($this->query->getBindParameters(), $this->buildBindParameters);
 	}
 
 	private function buildGroupBy() {
@@ -351,14 +352,14 @@ class QueryBuilder {
 			$appendWhere = true;
 		} else {
 			//import new params
-			foreach ($query->bindParameters as $v) {
+			foreach ($query->getBindParameters() as $v) {
 //				$this-query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 				$this->buildBindParameters[] = $v;
 			}
 			$appendWhere = false;
 		}
 
-		$conditions = $query->where;
+		$conditions = $query->getWhere();
 		$condition = array_shift($conditions);
 
 		if (!$condition) {
@@ -624,14 +625,14 @@ class QueryBuilder {
 	}
 
 	private function buildOrderBy() {
-
-		if (empty($this->query->orderBy)) {
+		$oBy = $this->query->getOrderBy();
+		if (empty($oBy)) {
 			return '';
 		}
 
 		$orderBy = "ORDER BY ";
 
-		foreach ($this->query->orderBy as $column => $direction) {
+		foreach ($oBy as $column => $direction) {
 			
 			if($direction instanceof Expression) {
 				$orderBy .= $direction.', ';
@@ -647,11 +648,12 @@ class QueryBuilder {
 
 	private function buildHaving() {
 
-		if (empty($this->query->having)) {
+		$h = $this->query->getHaving();
+		if (empty($h)) {
 			return '';
 		}
 
-		$conditions = $this->query->having;
+		$conditions = $h;
 		$condition = array_shift($conditions);
 
 		$having = $this->buildCondition($condition[1]) . "\n";
@@ -734,19 +736,23 @@ class QueryBuilder {
 				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
 			}
 
-			if (!isset($this->query->fetchMode)) {
+			if (!$this->query->getFetchMode()) {
 //				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName); //for current record
 				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false]); //for new record
 			} else {
-				call_user_func_array([$stmt, 'setFetchMode'], $this->query->fetchMode);
+				call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
 			}
 
-			if ($this->query->debug) {
+			if ($this->query->getDebug()) {
 				IFW::app()->getDebugger()->debugSql($sql, $binds, 2);
 //				IFW::app()->getDebugger()->debugCalledFrom(10);
 			}
 
 			$stmt->execute();
+			
+			if ($this->query->getDebug()) {
+				GO()->debug("Query done");
+			}
 		} catch (\PDOException $e) {
 			
 			GO()->debug("FAILED SQL: ".$this->build(true));
