@@ -8,7 +8,7 @@
 
 namespace GO\Modules\GroupOffice\Files\Model;
 
-use DateTime;
+use IFW\Util\DateTime;
 use GO\Core\Blob\Model\Blob;
 use GO\Core\Orm\Record;
 use GO\Core\Users\Model\User;
@@ -109,7 +109,7 @@ class Node extends Record {
 
 	protected static function defineRelations() {
 
-		self::hasMany('access', NodeAccess::class, ['id' => 'nodeId']);
+		self::hasMany('groups', NodeGroup::class, ['id' => 'nodeId']);
 		self::hasOne('nodeUser', NodeUser::class, ['id' => 'nodeId']); //Current user is added in getRelations() override below. This is because relations are cached.
 		self::hasMany('children', Node::class, ['id' => 'parentid']);
 		self::hasOne('parent', Node::class, ['parentId' => 'id']);
@@ -166,6 +166,10 @@ class Node extends Record {
 			$path .= $dir->name . '/';
 		}
 		return $path . $this->name;
+	}
+
+	public function getSize() {
+		return isset($this->blob) ? $this->blob->size : null;
 	}
 
 	public function getType() {

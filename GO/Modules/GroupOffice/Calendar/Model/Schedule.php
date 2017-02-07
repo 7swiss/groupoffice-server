@@ -15,12 +15,12 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
  */
 class Schedule {
 
-	protected $userId;
+	protected $groupId;
 	protected $resourceId;
 	
-	public static function byUser($id) {
+	public static function byGroup($id) {
 		$self = new self();
-		$self->userId = $id;
+		$self->groupId = $id;
 		return $self;
 	}
 	

@@ -14,7 +14,7 @@ use IFW\Auth\Permissions\OwnerOnly;
  * Calendar holds the calendar-specific information such as name, color and sync info
  * They contain events but these are linked together by @see Attendees
  *
- * @property User $owner
+ * @property Group $owner
  * @property Alarm[] $defaultAlarms this alarm is default for all events in this calendar
  * @property Event[] $events Loaded through attendees
  */

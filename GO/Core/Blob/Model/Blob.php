@@ -218,10 +218,14 @@ class Blob extends Record {
 	}
 
 	private function storagePath() {
+		
 		return GO()->getConfig()->getDataFolder()->getPath() . '/blob/' . $this->createdAt->format('Y') . '/' . $this->createdAt->format('m') . '/';
 	}
 
 	public function getPath() {
+		if(!isset($this->createdAt)) {
+			return null;
+		}
 		return $this->storagePath() . $this->blobId;
 	}
 
