@@ -21,8 +21,8 @@ use ReflectionProperty;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class Model extends Object implements ArrayableInterface{
-	
+abstract class Model extends Object implements ArrayableInterface {
+
 	/**
 	 * Define the properties that are returned by {@see toArray()} by default.
 	 * 
@@ -33,52 +33,60 @@ abstract class Model extends Object implements ArrayableInterface{
 	 * 
 	 * @param string eg "id,name,creator[id,username,photoBlobId]"
 	 */
-	public static function getDefaultReturnProperties(){
-		
-		$cacheKey = static::getClassName().'-DefaultReturnProperties';
-		
+	public static function getDefaultReturnProperties() {
+		$ret = implode(',', static::getReadableProperties());
+		return $ret;
+	}
+
+	/**
+	 * Get the readable property names as array
+	 * 
+	 * @return string[]
+	 */
+	protected static function getReadableProperties() {
+
+		$cacheKey = static::getClassName() . '-getReadableProperties';
+
 		$ret = GO()->getCache()->get($cacheKey);
-		if($ret) {
+		if ($ret) {
 			return $ret;
 		}
-		
+
 		$arr = [];
 		$reflectionObject = new ReflectionClass(static::class);
 		$methods = $reflectionObject->getMethods(ReflectionMethod::IS_PUBLIC);
-		
-		foreach($methods as $method){
+
+		foreach ($methods as $method) {
 			/* @var $method ReflectionMethod */
-			
-			if($method->isStatic()){
+
+			if ($method->isStatic()) {
 				continue;
 			}
-			
-			$params = $method->getParameters();			
-			foreach($params as $p) {
+
+			$params = $method->getParameters();
+			foreach ($params as $p) {
 				/* @var $p \ReflectionParameter */
-				if(!$p->isDefaultValueAvailable()) {
+				if (!$p->isDefaultValueAvailable()) {
 					continue 2;
 				}
 			}
-			if(substr($method->getName(), 0,3) == 'get'){
-				$arr[] = lcfirst(substr($method->getName(),3));
-			}			
-		}
-		
-		$props = $reflectionObject->getProperties(ReflectionProperty::IS_PUBLIC);
-		
-		foreach($props as $prop){
-			if(!$prop->isStatic()){
-				$arr[]=$prop->getName();
+			if (substr($method->getName(), 0, 3) == 'get') {
+				$arr[] = lcfirst(substr($method->getName(), 3));
 			}
 		}
-		
-		$ret = implode(',',$arr);
-		
-		GO()->getCache()->set($cacheKey, $ret);
-		
-		return $ret;
-	}	
+
+		$props = $reflectionObject->getProperties(ReflectionProperty::IS_PUBLIC);
+
+		foreach ($props as $prop) {
+			if (!$prop->isStatic()) {
+				$arr[] = $prop->getName();
+			}
+		}
+
+		GO()->getCache()->set($cacheKey, $arr);
+
+		return $arr;
+	}
 
 	/**
 	 * Convert model into array for API output.
@@ -107,8 +115,8 @@ abstract class Model extends Object implements ArrayableInterface{
 	 * 
 	 * 
 	 * $response->data['project'] = Project::findByPk($projectId)->toArray(
-	 *				'*,contact[*,company[name,addresses[formatted]]'	
-	 *				);
+	 * 				'*,contact[*,company[name,addresses[formatted]]'	
+	 * 				);
 	 * 
 	 * </code>
 	 * 
@@ -122,30 +130,30 @@ abstract class Model extends Object implements ArrayableInterface{
 	 * @return array
 	 */
 	public function toArray($properties = null) {
-		
-		if(!($properties instanceof ReturnProperties)) {			
-			$properties = new ReturnProperties($properties, $this->getDefaultReturnProperties());		
+
+		if (!($properties instanceof ReturnProperties)) {
+			$properties = new ReturnProperties($properties, $this->getDefaultReturnProperties());
 		}
 
 		$arr = [];
-		
+
 		foreach ($properties as $propName => $subReturnProperties) {
 			//recursive
-			if($subReturnProperties=='&'){
+			if ($subReturnProperties == '&') {
 				$subReturnProperties = $properties;
 			}
 
 			try {
-				$arr[$propName] = $this->convertValue(ModelHelper::getValue($this, $propName), $subReturnProperties);				
+				$arr[$propName] = $this->convertValue(ModelHelper::getValue($this, $propName), $subReturnProperties);
 			} catch (NotArrayable $e) {
-				IFW::app()->debug("Skipped prop ".$this->getClassName()."::".$propName." because it's not scalar or ArrayConvertable");
+				IFW::app()->debug("Skipped prop " . $this->getClassName() . "::" . $propName . " because it's not scalar or ArrayConvertable");
 			}
 		}
-		
+
 
 		return $arr;
 	}
-	
+
 	/**
 	 * Converts value to an array if supported
 	 * 
@@ -156,31 +164,28 @@ abstract class Model extends Object implements ArrayableInterface{
 	 * @throws NotArrayable
 	 */
 	private function convertValue($value, $subReturnProperties) {
-		if($value instanceof ArrayableInterface){
+		if ($value instanceof ArrayableInterface) {
 			return $value->toArray($subReturnProperties);
-		}else if($value instanceof \DateTime) {
-			
+		} else if ($value instanceof \DateTime) {
+
 			return $value->format(\IFW\Util\DateTime::FORMAT_API);
-		}
-		elseif(is_array($value)){
+		} elseif (is_array($value)) {
 			//support an array of models too
-			if(isset($value[0])) {
+			if (isset($value[0])) {
 				$arr = [];
-				foreach($value as $key => $v){
+				foreach ($value as $key => $v) {
 					$arr[$key] = $this->convertValue($v, $subReturnProperties);
-				}			
+				}
 				return $arr;
 			}
 			return $value;
-			
 		} else if (is_scalar($value) || is_null($value)) {
-			return $value;			
-		}else
-		{
+			return $value;
+		} else {
 			throw new NotArrayable();
 		}
 	}
-	
+
 //	/**
 //	 * Get a single attribute
 //	 * 
@@ -207,8 +212,6 @@ abstract class Model extends Object implements ArrayableInterface{
 //		
 //		return $attr;		
 //	}
-	
-	
 
 	/**
 	 * Set public properties with key value array.
@@ -225,8 +228,9 @@ abstract class Model extends Object implements ArrayableInterface{
 	 * @param array $properties
 	 * @return \static
 	 */
-	public function setValues(array $properties) {		
+	public function setValues(array $properties) {
 		ModelHelper::setValues($this, $properties);
 		return $this;
 	}
+
 }

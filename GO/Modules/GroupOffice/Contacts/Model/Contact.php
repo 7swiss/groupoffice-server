@@ -205,7 +205,7 @@ class Contact extends Record {
 						->via(ContactGroup::class, ['groupId'=>'groupId']);
 		
 		
-		self::hasMany('groupPermissions', ContactGroup::class, ['id' => 'contactId']);
+		self::hasMany('groups', ContactGroup::class, ['id' => 'contactId']);
 
 		self::hasOne('photoBlob', Blob::class, ['photoBlobId' => 'blobId']);
 				
@@ -231,7 +231,7 @@ class Contact extends Record {
 	public function internalSave() {
 		
 		//When the contact is copied then the groupPermissions relation is copied as well.
-		$createPermissions = $this->isNew() && !$this->isModified('groupPermissions');		
+		$createPermissions = $this->isNew() && !$this->isModified('groups');		
 		
 		$this->saveBlob('photoBlobId');
 		
