@@ -418,10 +418,10 @@ class RelationStore extends Store implements ArrayAccess {
 			return false;
 		}
 //		Why????
-//		//in case of a single belongs to it's not important that it's modified
-		if($this->getRelation()->isBelongsTo()) {
-			return true;
-		}
+		//in case of a single belongs to it's not important that it's modified
+//		if($this->getRelation()->isBelongsTo()) {
+//			return true;
+//		}
 		
 		foreach($this->modified as $record) {
 			if($record->isModified() || $record->markDeleted) {

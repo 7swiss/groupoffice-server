@@ -867,6 +867,13 @@ abstract class Record extends DataModel {
 	
 
 	/**
+	 * To prevent infinite loops with relations
+	 * 
+	 * @var bool 
+	 */
+	private $isCheckingModified = false;
+	
+	/**
 	 * Check if this record or record attribute has modifications not saved to
 	 * the database yet.
 	 * 
@@ -890,6 +897,23 @@ abstract class Record extends DataModel {
 	 * @return boolean
 	 */
 	public function isModified($attributeOrRelationName = null) {
+		
+		//prevent infinite loop
+		if($this->isCheckingModified) {
+			return false;
+		}
+		$this->isCheckingModified = true;
+		
+		try {
+			$ret = $this->internalIsModified($attributeOrRelationName);
+		} finally {
+			$this->isCheckingModified = false;
+		}		
+		
+		return $ret;
+	}
+	
+	private function internalIsModified($attributeOrRelationName) {
 		if (!isset($attributeOrRelationName)) {
 			
 			foreach($this->oldAttributes as $colName => $loadedValue) {
@@ -2316,23 +2340,11 @@ abstract class Record extends DataModel {
 		return $array;
 	}	
 	
-//	
-//	/**
-//	 * Populates the record with database values. Used when relations are fetched 
-//	 * with {@see Query::joinRelation()}
-//	 * 
-//	 * @param array $properties
-//	 */
-//	private function populate(array $properties) {
-//		$this->loadingFromDatabase = true;
-//		$this->isNew = false;
-//		$this->setValues($properties);
-//		$this->castDatabaseAttributes();
-//		$this->loadingFromDatabase = false;
-//	}
-
-	
-	
+	public static function getDefaultReturnProperties() {
+		$props =  array_diff(parent::getReadableProperties(), ['validationErrors','modified', 'modifiedAttributes', 'markDeleted']);
+		
+		return implode(',', $props);
+	}		
 
 	/**
 	 * Create a hasMany relation. 
