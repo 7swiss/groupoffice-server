@@ -897,8 +897,11 @@ abstract class Record extends DataModel {
 		}
 		$this->isCheckingModified = true;
 		
-		$ret = $this->internalIsModified($attributeOrRelationName);
-		$this->isCheckingModified = false;
+		try {
+			$ret = $this->internalIsModified($attributeOrRelationName);
+		} finally {
+			$this->isCheckingModified = false;
+		}		
 		
 		return $ret;
 	}
@@ -2334,8 +2337,7 @@ abstract class Record extends DataModel {
 		$props =  array_diff(parent::getReadableProperties(), ['validationErrors','modified', 'modifiedAttributes', 'markDeleted']);
 		
 		return implode(',', $props);
-	}	
-	
+	}		
 
 	/**
 	 * Create a hasMany relation. 

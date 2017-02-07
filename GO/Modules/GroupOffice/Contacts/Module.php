@@ -4,7 +4,6 @@ namespace GO\Modules\GroupOffice\Contacts;
 
 use GO\Core\Modules\Model\InstallableModule;
 use GO\Modules\GroupOffice\Contacts\Controller\ContactController;
-use GO\Modules\GroupOffice\Contacts\Controller\ContactThumbController;
 use GO\Modules\GroupOffice\Contacts\Model\ContactsModulePermissions;
 use IFW\Web\Router;
 
@@ -21,12 +20,7 @@ class Module extends InstallableModule{
 				->get('contacts/:contactId/vcard','vcard')
 				->get('contacts/import/:blobId','import')
 				->get('contacts/filters', 'filters')
-				->get('contacts/byuser/:userId','readByUser');			
-		
-		
-		Controller\PermissionsController::addRoutesTo($router, 'contacts');	
-		
-		
+				->get('contacts/byuser/:userId','readByUser');
 	}
 	
 	

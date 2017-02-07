@@ -95,7 +95,7 @@ class GroupPermissions extends Model {
 						->tableAlias('groupAccess')						
 						->joinRelation('groupUsers')
 						->where(['groupUsers.userId' => $user->id()])
-						->andWhere('groupAccess.'.$cls::getForPk().' = t.id')
+						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias().'.id')
 						);
 		
 		$query->skipReadPermission()

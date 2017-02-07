@@ -65,5 +65,18 @@ abstract class GroupAccess extends Record {
 		
 		return new \GO\Core\Auth\Permissions\Model\GroupAccessPermissions($relation->getName());
 	}
+	
+	public function getIsOwner() {
+		
+		static::defineRelations(); //to avoid cache problems
+		$relation = static::groupsFor();
+		
+		return $this->{$relation->getName()}->ownedBy == $this->groupId;
+		
+	}
+	
+	public static function getDefaultReturnProperties() {
+		return parent::getDefaultReturnProperties().',group[id,name]';
+	}
 
 }
