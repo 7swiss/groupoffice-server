@@ -4,7 +4,7 @@ namespace GO\Modules\GroupOffice\Files\Controller;
 
 use IFW;
 use GO\Core\Controller;
-use GO\Modules\Files\Model\Node;
+use GO\Modules\GroupOffice\Files\Model\Node;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 
@@ -30,11 +30,11 @@ class NodeController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[username],blob[size]") {
+	public function actionStore($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[username]") {
 		$filter = json_decode($filter, true);
 		$query = (new Query)
-				  ->joinRelation('blob', 'size', 'LEFT') // folder has no size
-				  ->joinRelation('nodeUser', 'starred', 'LEFT')
+				  ->joinRelation('blob', true, 'LEFT') // folder has no size
+				  ->joinRelation('nodeUser', 'starred')
 				  ->joinRelation('owner', 'name')
 				  ->orderBy(['isDirectory' => 'DESC', $orderColumn => $orderDirection])
 				  ->limit($limit)

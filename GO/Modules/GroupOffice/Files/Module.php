@@ -3,7 +3,7 @@
 namespace GO\Modules\GroupOffice\Files;
 
 use GO\Core\Modules\Model\InstallableModule;
-use GO\Modules\Files\Controller\NodeController;
+use GO\Modules\GroupOffice\Files\Controller\NodeController;
 use IFW\Web\Router;
 
 class Module extends InstallableModule {

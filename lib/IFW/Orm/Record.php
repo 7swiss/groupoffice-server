@@ -817,7 +817,14 @@ abstract class Record extends DataModel {
 		$propName = array_pop($propPathParts);
 		
 		$currentRecord = &$this;				
-		foreach ($propPathParts as $part) {					
+		foreach ($propPathParts as $part) {		
+			$relation = $currentRecord::getRelation($part);
+			if($relation && !$currentRecord::relationIsFetched($part)) {
+				$cls = $relation->getToRecordName();
+				$record = new $cls(true);
+				$currentRecord->$part = $record;
+			}
+
 			$currentRecord = &$currentRecord->$part;
 			
 		}

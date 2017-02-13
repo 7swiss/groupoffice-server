@@ -8,16 +8,16 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use GO\Core\Users\Model\User as FWUser;
+use GO\Core\Users\Model\Group as FWGroup;
 use IFW\Orm\Query;
 use IFW\Auth\Permissions\OwnerOnly;
 
 /**
- * Make sure the Groupoffice user implements the needed functions for the calendar.
+ * Make sure the GroupOffice user implements the needed functions for the calendar.
  * 
  * @property string $name;
  */
-class User extends FWUser implements PrincipalInterface {
+class Group extends FWGroup { // implements PrincipalInterface {
 
 	public static function defineRelations() {
 		self::hasMany('calendars', Calendar::class, ['id' => 'ownedBy']);
@@ -48,11 +48,7 @@ class User extends FWUser implements PrincipalInterface {
 	}
 	
 	public function getEmail() {
-		return $this->email;
-	}
-	
-	public function getPrincipalType() {
-		return PrincipalInterface::Individual;
+		return $this->user->email;
 	}
 
 	/**
@@ -68,11 +64,7 @@ class User extends FWUser implements PrincipalInterface {
 //	}
 	
 	public function getName() {
-		return $this->username;
-	}
-	
-	public function getSchedual() {
-		return Schedule::byUser($this->id);
+		return $this->name;
 	}
 
 }

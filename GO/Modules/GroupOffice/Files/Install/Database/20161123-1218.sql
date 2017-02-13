@@ -57,7 +57,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `files_node_access`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `files_node_access` (
+CREATE TABLE IF NOT EXISTS `files_node_group` (
   `nodeId` INT NOT NULL,
   `groupId` INT NOT NULL,
   `canRead` TINYINT(1) NOT NULL DEFAULT 1,

@@ -9,7 +9,7 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 
 /* ENUM RSVP */
 
-class ResponseStatus {
+class AttendeeStatus {
 
 	const __default = self::NeedsAction;
     

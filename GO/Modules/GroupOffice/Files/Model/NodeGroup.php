@@ -14,7 +14,7 @@ use GO\Core\Users\Model\Group;
  * The time depends on the object it is attached to
  *
  */
-class NodeAccess extends Record {
+class NodeGroup extends Record {
 
 	/**
 	 * PK

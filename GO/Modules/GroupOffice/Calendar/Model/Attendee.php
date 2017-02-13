@@ -18,7 +18,7 @@ use IFW\Auth\Permissions\ViaRelation;
  * @property Alarms[] $alarms ringing bells about the event
  * @property Event $event The event the Attendee is attening to
  * @property Calendar $calendar The calendar the attendens to the event is shown in
- * @property User $user When a user in the system is an attendee the id gets saved
+ * @property Group $group When a user in the system is an attendee the id gets saved
  */
 class Attendee extends Record {
 	
@@ -56,14 +56,14 @@ class Attendee extends Record {
 	 * user linked to this event
 	 * @var int
 	 */							
-	public $userId;
+	public $groupId;
 
 	// DEFINE
 
 	static public function me() {
 		$me = new self();
 		$me->email = User::current()->email;
-		$me->userId = User::current()->id;
+		$me->groupId = User::current()->group->id;
 		$me->setCalendar(User::current()->getDefaultCalendar());
 		$me->responseStatus = ResponseStatus::Accepted;
 		$event = new Event();
@@ -87,7 +87,7 @@ class Attendee extends Record {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
 		self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);
 		self::hasMany('alarms', Alarm::class, ['eventId' => 'eventId', 'userId' => 'userId']);
-		self::hasOne('user', User::class, ['userId'=> 'id']);
+		self::hasOne('group', Group::class, ['groupId'=> 'id']);
 	}
 
 	protected static function defineValidationRules() {
