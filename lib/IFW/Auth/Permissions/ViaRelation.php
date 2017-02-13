@@ -62,6 +62,19 @@ class ViaRelation extends Model {
 	
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
+
+		if($query->getRelation()) {
+			//check if we're doing a relational query from the relation set in $this->relationName.
+			//If so we can skip the permissions
+			$parent = $query->getRelation()->findParent();
+
+			if($parent && $parent->getName() == $this->relationName) {
+				//query is relational and coming from the ViaRelation so no extra query is needed.
+				return;
+			}
+		}
+		
+		
 		$recordClassName = $this->recordClassName;
 
 		$relation = $recordClassName::getRelation($this->relationName);

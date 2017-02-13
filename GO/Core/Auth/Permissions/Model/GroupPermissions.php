@@ -22,8 +22,11 @@ use IFW\Orm\Query;
  *		  return new \GO\Core\Auth\Permissions\Model\GroupPermissions(ContactGroup::class);
  *	  }	
  * 		``````````````````````````````````````````````````````````````````````````
- * 4. Implement a controller that extends {@see \GO\Core\Auth\Permissions\Controller\GroupAccessPermissionsController} 
- *    to make permissions configurable via the API.
+ * 4. Define a 'groups' relation to the new GroupAccess record in the record you 
+ *		want to secure in function defineRelations():
+ *		``````````````````````````````````````````````````````````````````````````
+ *		self::hasMany('groups', ContactGroup::class, ['id' => 'contactId']);
+ *		``````````````````````````````````````````````````````````````````````````
  * 
  */
 class GroupPermissions extends Model {	

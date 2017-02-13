@@ -440,4 +440,15 @@ class Relation {
 		
 		return $isNull ? null : $query;
 	}
+	
+	/**
+	 * {@see Record::findParentRelation()}
+	 * 
+	 * @return Relation
+	 */
+	public function findParent() {
+		$record = $this->toRecordName;
+		
+		return $record::findParentRelation($this);
+	}
 }

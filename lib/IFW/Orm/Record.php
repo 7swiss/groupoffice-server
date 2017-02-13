@@ -1122,11 +1122,11 @@ abstract class Record extends DataModel {
 			return null;
 		}
 		
-		foreach(self::getRelations() as $parentRelation) {
+		foreach(static::getRelations() as $parentRelation) {
 			if(
 							!$parentRelation->hasMany() && 
 							$parentRelation->getToRecordName() == $childRelation->getFromRecordName() && 
-							self::keysMatch($childRelation, $parentRelation)
+							static::keysMatch($childRelation, $parentRelation)
 				) {
 				
 //				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
