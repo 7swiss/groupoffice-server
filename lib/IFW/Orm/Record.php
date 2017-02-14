@@ -628,6 +628,20 @@ abstract class Record extends DataModel {
 
 	/**
 	 * Get's a relation from cache or from the database
+	 * 
+	 * Can be used in overrides with a getter. For example a company employees relation:
+	 * 
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * public function getEmployees() {
+	 *		if(!$this->isOrganization) {
+	 *			return null;
+	 *		}else
+	 *		{
+	 *			return $this->getRelated('employees');
+	 *		}
+	 *	}
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
 	 *
 	 * @param string $name Name of the relation
 	 * @param Query $query
