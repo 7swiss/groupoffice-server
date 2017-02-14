@@ -15,21 +15,23 @@ class StoreIterator extends IteratorIterator {
 	 *
 	 * @var RelationStore
 	 */
-	private $relationStore;
+	private $store;
 	
-	public function setRelationStore(RelationStore $store) {
-		$this->relationStore = $store;
+	public function __construct(\Traversable $iterator, \IFW\Orm\Store $store) {
+		parent::__construct($iterator);
+		
+		$this->store = $store;
 	}
-	
+
 	public function current() {
 		$record =parent::current();
-		
+	
 		//set's the parent
-		if(isset($this->relationStore) && $record) {
-			$relation = $record::findParentRelation($this->relationStore->getRelation());
+		if($this->store instanceof RelationStore && $record) {
+			$relation = $record::findParentRelation($this->store->getRelation());
 			//check if it hasn't been fetched or set already to prevent loops
 			if($relation && !$record->relationIsFetched($relation->getName())) {				
-				$record->{$relation->getName()} = $this->relationStore->getRecord();				
+				$record->{$relation->getName()} = $this->store->getRecord();				
 			}
 		}
 		

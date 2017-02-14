@@ -1,44 +1,40 @@
 <?php
+
 namespace GO\Core\Auth\Permissions\Model;
 
+use Exception;
 use IFW\Auth\Permissions\Model;
-use IFW\Auth\Permissions\ViaRelation;
 use IFW\Auth\UserInterface;
-use IFW\Orm\Query;
 
 /**
  * GroupAccess permissions model. Used by {@see GroupAccess}
  */
-class GroupAccessPermissions extends ViaRelation {
+class GroupAccessPermissions extends Model {
+
+	private $relationName;
+
 	public function __construct($relationName) {
-		parent::__construct($relationName, self::PERMISSION_CHANGE_PERMISSIONS);
+		$this->relationName = $relationName;
 	}
-	
+
 	protected function internalCan($permissionType, UserInterface $user) {
-		
-		if(!parent::internalCan($permissionType, $user)) {
-			return false;
-		}
-		
-		if($permissionType == self::PERMISSION_READ) {
+
+		if ($permissionType == self::PERMISSION_READ) {
 			return true;
 		}
-		
+
+		$relationName = $this->relationName;
+
+		$relatedRecord = $this->record->{$relationName};
+		if (!isset($relatedRecord)) {
+			throw new Exception("Relation $relationName is not set in " . $this->record->getClassName() . ", Maybe you didn't select or set the key?");
+		}
+
 		//don't edit owner record
-		if(!$this->record->isNew() && $this->record->groupId == $this->record->{$this->relationName}->ownedBy) {
+		if (!$relatedRecord->isNew() && $this->record->groupId == $relatedRecord->ownedBy) {
 			return false;
-		}else
-		{
-			return true;
 		}
-		
-	}
-	
-	public function toArray($properties = null) {
-		return Model::toArray($properties);
-	}
-	
-	protected function internalApplyToQuery(Query $query, UserInterface $user) {
-		
+
+		return $relatedRecord->permissions->can(self::PERMISSION_CHANGE_PERMISSIONS, $user);
 	}
 }

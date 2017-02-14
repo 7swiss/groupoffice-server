@@ -7,7 +7,9 @@ use IFW;
 use IFW\Db\Column;
 use IFW\Db\Criteria;
 use IFW\Db\PDO;
+use PDOException;
 use PDOStatement;
+use function GO;
 
 /**
  * QueryBuilder
@@ -737,8 +739,7 @@ class QueryBuilder {
 			}
 
 			if (!$this->query->getFetchMode()) {
-//				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName); //for current record
-				$stmt->setFetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false]); //for new record
+				$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			} else {
 				call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
 			}
@@ -753,7 +754,7 @@ class QueryBuilder {
 			if ($this->query->getDebug()) {
 				GO()->debug("Query done");
 			}
-		} catch (\PDOException $e) {
+		} catch (PDOException $e) {
 			
 			GO()->debug("FAILED SQL: ".$this->build(true));
 //			GO()->debug($binds);

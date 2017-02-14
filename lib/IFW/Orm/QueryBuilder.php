@@ -17,23 +17,7 @@ use IFW\Orm\Relation;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class QueryBuilder extends DbQueryBuilder{
-	
-	protected function buildSelect() {
-		$select = parent::buildSelect();
-		
-		if(!$this->isSubQuery) {
-			if($this->getQuery()->getSkipReadPermission()) {
-				$select .= ', 1 AS skipReadPermission ';
-			}
-
-			if($this->getQuery()->getIsRelational()) {
-				$select .= ', 1 AS isRelational ';
-			}
-		}
-		
-		return $select;
-	}
+class QueryBuilder extends DbQueryBuilder{	
 
 	/**
 	 * Join relation can automatically add select from columns. These must be appended afterwards

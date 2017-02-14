@@ -1,12 +1,12 @@
 <?php
 namespace IFW\Orm;
 
-use ArrayIterator;
 use Exception;
 use IFW;
 use IFW\Data\ReturnProperties;
 use IFW\Orm\Query;
 use IFW\Orm\Record;
+use PDO;
 use PDOStatement;
 
 
@@ -51,16 +51,15 @@ class Store extends \IFW\Data\Store {
 	 */
 	public function getIterator() {
 
-//		if (!isset($this->pdoStatement)) {			
-//			$queryBuilder = $this->query->build($this->recordClassName);	
-//			$this->pdoStatement =  $queryBuilder->execute();
-//		}
-//
-//		return $this->pdoStatement;
-		
 		$queryBuilder = $this->query->getBuilder($this->recordClassName);	
-//		return $queryBuilder->execute();
-		return new StoreIterator($queryBuilder->execute());
+
+		if($this->query->getFetchMode() == null) {
+			//set fetch mode to fetch Record objects
+			$this->query->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->query->getSkipReadPermission()]); //for new record
+		}
+		
+		$iterator = new StoreIterator($queryBuilder->execute(), $this);
+		return $iterator;
 	}
 	
 	public function __toString() {

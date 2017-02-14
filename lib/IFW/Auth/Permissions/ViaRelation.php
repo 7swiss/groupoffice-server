@@ -16,44 +16,29 @@ class ViaRelation extends Model {
 	
 	protected $relationName;
 	
-	protected $requirePermissionType;
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param string $relationName
-	 * @param int $requirePermissionType 
-	 * By default read permissions on the relation is required to read and update 
-	 * permission is required to update or delete. Because it's probably allowed 
-	 * to delete a contact's e-mail addreess when you have update permissions for 
-	 * the contact. But you can optionally supply a hard coded permission type.
-	 * For example permissions model should raise the permission type to 
-	 * PERMISSION_CHANGE_PERMISSIONS like in {@see \GO\Modules\GroupOffice\Contacts\Model\ContactGroup}
 	 */
-	public function __construct($relationName, $requirePermissionType = null) {
-		$this->relationName = $relationName;
-		$this->requirePermissionType = $requirePermissionType;
+	public function __construct($relationName) {
+		$this->relationName = $relationName;		
 	}
 	
 	protected function internalCan($permissionType, UserInterface $user) {		
 		
 		$relationName = $this->relationName;
 		
-		//see $requirePermissionType for explanation
-		if(isset($this->requirePermissionType)) {
-			$permissionType = $this->requirePermissionType;
-		} else {
-			$permissionType = $permissionType == self::PERMISSION_READ ? self::PERMISSION_READ : self::PERMISSION_UPDATE;
-		}
+		$permissionType = $permissionType == self::PERMISSION_READ ? self::PERMISSION_READ : self::PERMISSION_UPDATE;		
 		
-		
-		$model = $this->record->{$relationName};
+		$relatedRecord = $this->record->{$relationName};
 
-		if(!isset($model)) {
+		if(!isset($relatedRecord)) {
 			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select or set the key?");
 		}
 		
-		return $model->permissions->can($permissionType, $user);
+		return $relatedRecord->permissions->can($permissionType, $user);
 	}
 	
 	public function toArray($properties = null) {

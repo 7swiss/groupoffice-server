@@ -120,7 +120,6 @@ class RelationStore extends Store implements ArrayAccess {
 			return new ArrayIterator($this->modified);
 		} else {
 			$iterator = parent::getIterator();
-			$iterator->setRelationStore($this);
 			return $iterator;
 		}
 	}
@@ -134,8 +133,7 @@ class RelationStore extends Store implements ArrayAccess {
 		if(isset($this->modified)) {
 			return isset($this->modified[0]) ? $this->modified[0] : null;
 		}else
-		{
-			
+		{			
 			
 			$record = parent::single();							
 			if($record) {

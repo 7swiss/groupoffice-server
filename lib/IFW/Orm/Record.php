@@ -278,29 +278,9 @@ abstract class Record extends DataModel {
 	 * 
 	 * @var PermissionsModel 
 	 */
-	private $permissions;
+	private $permissions;	
 	
 	/**
-	 * Set by PDO when this record was fetched via a relation
-	 * 
-	 * eg $contact->organizations
-	 * 
-	 * @access private
-	 * @var boolean 
-	 */
-	protected $isRelational = false;
-	
-	/**
-	 * Internally used to skip read permission check in the __construct
-	 * {@see \IFW\Auth\Permissions\Model::query()}
-	 * 
-	 * @access private
-	 * @var boolean
-	 */
-	protected $skipReadPermission = false;
-	
-	
-		/**
 	 * When saving relational this is set on the children of the parent object 
 	 * that is  being saved. All objects in the save will not reset their 
 	 * modifications until the parent save operation has been completed successfully.
@@ -346,7 +326,7 @@ abstract class Record extends DataModel {
 	 * default attributes and casts mysql values to int, floats or booleans as 
 	 * mysql values from PDO are always strings.
 	 */
-	public function __construct($isNew = true) {
+	public function __construct($isNew = true, $skipReadPermissions = false) {
 		
 		parent::__construct();
 
@@ -371,9 +351,9 @@ abstract class Record extends DataModel {
 		}else
 		{
 			//skipReadPermission is selected if you use IFW\Auth\Permissions\Model::query() so permissions have already been checked
-			if(!$this->skipReadPermission && !$this->isRelational && !PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
+			if(!$skipReadPermissions && !PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
 				throw new Forbidden("You're not permitted to read ".$this->getClassName()." ".var_export($this->pk(), true));
-			}
+			}			
 		}
 		
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
