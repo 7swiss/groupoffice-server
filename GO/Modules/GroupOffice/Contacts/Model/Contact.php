@@ -301,5 +301,23 @@ class Contact extends Record {
 	public function setLanguage() {
 		return $this->language;
 	}
+	
+	public function getEmployees() {
+		if(!$this->isOrganization) {
+			return null;
+		}else
+		{
+			return $this->getRelated('employees');
+		}
+	}
+	
+	public function getOrganizations() {
+		if($this->isOrganization) {
+			return null;
+		}else
+		{
+			return $this->getRelated('organizations');
+		}
+	}
 
 }
