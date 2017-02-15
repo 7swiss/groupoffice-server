@@ -90,6 +90,8 @@ abstract class Model extends Object implements ArrayableInterface {
 
 	/**
 	 * Convert model into array for API output.
+	 * 
+	 * Beware of infinite loops. For example a contact with organizations and their employees will loop infinite.
 	 *
 	 * It will only convert scalars or objects that implement {@see ArrayableInterface}.
 	 * 
@@ -149,8 +151,7 @@ abstract class Model extends Object implements ArrayableInterface {
 				IFW::app()->debug("Skipped prop " . $this->getClassName() . "::" . $propName . " because it's not scalar or ArrayConvertable");
 			}
 		}
-
-
+		
 		return $arr;
 	}
 
