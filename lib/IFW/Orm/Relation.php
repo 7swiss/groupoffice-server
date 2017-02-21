@@ -328,8 +328,12 @@ class Relation {
 		
 		//ContactEmailAddress::hasOne('contact', Contact::class, ['contactId' => 'id']);
 		
-		if($this->many) {
+		if($this->many || $this->getViaRecordName()) {
 			return false;
+		}
+		
+		if(\IFW::app()->getDebugger()->enabled) {
+			$this->checkKeys();
 		}
 		
 		$fromRecord = $this->fromRecordName;
@@ -344,7 +348,7 @@ class Relation {
 		
 		foreach($this->keys as $fromField => $toField) {
 			
-			$from = $fromRecord::getColumn($fromField);
+			$from = $fromRecord::getColumn($fromField);			
 			
 			if(!$from->primary) {
 				return true;
@@ -383,6 +387,45 @@ class Relation {
 		}
 		return $store;
 	}
+	
+	
+	private function checkKeys() {
+		
+			
+			$fromRecordName = $this->fromRecordName;
+			$toRecordName = $this->toRecordName;
+			
+			
+			//check if keys exist in debug mode
+			foreach($this->keys as $fromField => $toField) {
+				if(!$fromRecordName::getColumn($fromField) ) {
+					throw new \Exception("Invalid keys defined for relation '".$this->name."'. $fromRecordName::$fromField doesn't exist");
+				}
+				
+				if(!isset($this->viaRecordName)) {
+					if(!$toRecordName::getColumn($toField) ) {
+						throw new \Exception("Invalid keys defined for relation '".$this->name."'. $toRecordName::$toField doesn't exist");
+					}
+				} else {
+					$viaRecordName = $this->viaRecordName;
+					if(!$viaRecordName::getColumn($toField) ) {
+						throw new \Exception("Invalid keys defined for relation '".$this->name."'. $viaRecordName::$toField doesn't exist");
+					}
+					
+					foreach($this->viaKeys as $fromField => $toField) {
+						$viaRecordName = $this->viaRecordName;
+						if(!$viaRecordName::getColumn($fromField) ) {
+							throw new \Exception("Invalid keys defined for relation '".$this->name."'. $viaRecordName::$fromField doesn't exist");
+						}
+						
+						if(!$toRecordName::getColumn($toField) ) {
+							throw new \Exception("Invalid keys defined for relation '".$this->name."'. $toRecordName::$toField doesn't exist");
+						}
+					}
+				}
+			}
+		
+	}
 
 	/**
 	 * Queries the database for the relation
@@ -402,6 +445,10 @@ class Relation {
 	 * @return Query
 	 */
 	private function buildQuery(Record $record) {
+		if(\IFW::app()->getDebugger()->enabled) {
+			$this->checkKeys();
+		}
+		
 		$query = isset($this->query) ? clone $this->query : new Query();	
 		$query->setRelation($this, $record);
 //		$query->debug();
