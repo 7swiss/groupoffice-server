@@ -115,7 +115,7 @@ class NodeController extends Controller {
 		$node->setValues(IFW::app()->getRequest()->body['data']);
 		$node->save();
 
-		$returnProperties .= ',access,nodeUser';
+		$returnProperties .= ',groups,nodeUser';
 
 		$this->renderModel($node, $returnProperties);
 	}

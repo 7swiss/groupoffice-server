@@ -29,7 +29,7 @@ class Group extends FWGroup { // implements PrincipalInterface {
 	 * @return User
 	 */
 	public static function current() {
-		return self::findByPk(\GO()->getAuth()->user()->id);
+		return self::findByPk(\GO()->getAuth()->user()->group->id);
 	}
 
 	protected static function internalGetPermissions() {
@@ -48,6 +48,8 @@ class Group extends FWGroup { // implements PrincipalInterface {
 	}
 	
 	public function getEmail() {
+		if(empty($this->user))
+			return null;
 		return $this->user->email;
 	}
 

@@ -50,7 +50,7 @@ class Alarm extends Record {
 	 * 
 	 * @var int
 	 */							
-	public $userId;
+	public $groupId;
 
 	const Start = 1;
 	const End = 2;
@@ -74,7 +74,7 @@ class Alarm extends Record {
 	}
 
 	protected static function defineRelations() {
-		self::hasOne('attendee', Attendee::class, ['eventId'=>'eventId', 'userId' => 'userId']);
+		self::hasOne('attendee', Attendee::class, ['eventId'=>'eventId', 'groupId' => 'groupId']);
 	}
 	
 	public function ring() {

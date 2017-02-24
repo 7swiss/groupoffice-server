@@ -4,7 +4,7 @@
  * @author Michael de Hart <mdhart@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-namespace GO\Modules\GroupOffice\Files\Model;
+namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use GO\Core\Orm\Record;
 use GO\Core\Users\Model\Group;
@@ -15,13 +15,13 @@ use GO\Core\Auth\Permissions\Model\GroupAccess;
  * The time depends on the object it is attached to
  *
  */
-class NodeGroup extends GroupAccess {
+class CalendarGroup extends GroupAccess {
 
 	/**
 	 * PK
 	 * @var int
 	 */							
-	public $nodeId;
+	public $calendarId;
 
 	/**
 	 * PK
@@ -42,7 +42,7 @@ class NodeGroup extends GroupAccess {
 	public $canWrite = false;
 
 	protected static function groupsFor() {
-		return self::hasOne('node', Node::class, ['nodeId' => 'id']);
+		return self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);
 	}
 
 }

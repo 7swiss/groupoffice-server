@@ -9,6 +9,7 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use IFW\Orm\Record;
 use IFW\Auth\Permissions\ViaRelation;
+use GO\Core\Users\Model\User;
 
 /**
  * Attendee records hold attendee / guest information.
@@ -62,9 +63,9 @@ class Attendee extends Record {
 
 	static public function me() {
 		$me = new self();
-		$me->email = User::current()->email;
-		$me->groupId = User::current()->group->id;
-		$me->setCalendar(User::current()->getDefaultCalendar());
+		$me->email = Group::current()->email;
+		$me->groupId = \GO()->getAuth()->user()->groupId;
+		$me->setCalendar(Group::current()->getDefaultCalendar());
 		$me->responseStatus = ResponseStatus::Accepted;
 		$event = new Event();
 		$me->event = $event;
@@ -80,13 +81,13 @@ class Attendee extends Record {
 	}
 
 	public static function internalGetPermissions() {
-		return new ViaRelation('event');
+		return new ViaRelation('calendar');
 	}
 	
 	protected static function defineRelations() {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
 		self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);
-		self::hasMany('alarms', Alarm::class, ['eventId' => 'eventId', 'userId' => 'userId']);
+		self::hasMany('alarms', Alarm::class, ['eventId' => 'eventId', 'groupId' => 'groupId']);
 		self::hasOne('group', Group::class, ['groupId'=> 'id']);
 	}
 
@@ -101,7 +102,7 @@ class Attendee extends Record {
 			GO()->getAuth()->sudo(function(){
 				$user = User::find(['email'=>$this->email])->single();
 				if(!empty($user)) {
-					$this->userId = $user->id;
+					$this->groupId = $user->group->id;
 					$this->calendarId = $user->getDefaultCalendar()->id;
 				}
 
@@ -135,7 +136,7 @@ class Attendee extends Record {
 	 * @return type
 	 */
 	public function getHasAlarms() {
-		if($this->userId == User::current()->id) {
+		if($this->groupId == Group::current()->id) {
 			return $this->alarms->getRowCount() > 0;
 		}
 		return null;

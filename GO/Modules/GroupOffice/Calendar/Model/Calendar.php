@@ -64,13 +64,12 @@ class Calendar extends Record {
 	}
 
 	protected static function internalGetPermissions() {
-		$p = new OwnerOnly();
-		$p->userIdField = 'ownedBy';
-		return $p;
-	}	
+		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(CalendarGroup::class);
+	}
 	
 	protected static function defineRelations() {
 		//TODO: join events to this and select by timespan
+		self::hasMany('groups', CalendarGroup::class, ['id' => 'calendarId']);
 		self::hasMany('attendees', Attendee::class, ['id' => 'calendarId']);
 		self::hasMany('defaultAlarms', DefaultAlarm::class, ['id' => 'calendarId']);
 	}

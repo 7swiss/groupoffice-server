@@ -126,6 +126,10 @@ class Node extends Record {
 		return $relations;
 	}
 
+	protected static function internalGetPermissions() {
+		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(NodeGroup::class);
+	}
+
 	protected function internalSave() {
 
 		if ($this->isNew()) {
