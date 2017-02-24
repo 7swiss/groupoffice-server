@@ -83,7 +83,7 @@ class Entry extends Record {
 	protected static function defineRelations() {
 		
 		self::hasOne('creator', User::class, ['createdBy' => 'id']);
-		self::hasOne('aboutRecordType', RecordType::class, ['recordTypeId'=>'id']);
+//		self::hasOne('aboutRecordType', RecordType::class, ['recordTypeId'=>'id']);
 		parent::defineRelations();
 	}
 	

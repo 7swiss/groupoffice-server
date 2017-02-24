@@ -319,5 +319,12 @@ class Contact extends Record {
 			return $this->getRelated('organizations');
 		}
 	}
+	
+	public static function getDefaultReturnProperties() {
+		//remove employees and organizations because they can create infinite loops
+		$props =  array_diff(parent::getReadableProperties(), ['validationErrors','modified', 'modifiedAttributes', 'markDeleted', 'employees', 'organizations']);
+		
+		return implode(',', $props);
+	}
 
 }

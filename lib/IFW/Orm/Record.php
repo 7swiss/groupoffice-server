@@ -813,7 +813,7 @@ abstract class Record extends DataModel {
 		$currentRecord = &$this;				
 		foreach ($propPathParts as $part) {		
 			$relation = $currentRecord::getRelation($part);
-			if($relation && !$currentRecord::relationIsFetched($part)) {
+			if($relation && !$currentRecord->relationIsFetched($part)) {
 				$cls = $relation->getToRecordName();
 				$record = new $cls(true);
 				$currentRecord->$part = $record;

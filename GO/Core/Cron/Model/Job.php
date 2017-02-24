@@ -224,6 +224,7 @@ class Job extends Record {
 			GO()->log("info", "Finished CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 			
 		} catch (Exception $ex) {
+			
 			GO()->error("An exception occurred in CRON method: " . $this->cronClassName . "::" . $this->method . " ".$ex->getMessage(), $this);
 			
 			GO()->debug((string) $ex);
