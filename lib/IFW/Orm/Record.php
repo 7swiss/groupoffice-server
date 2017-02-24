@@ -1477,7 +1477,7 @@ abstract class Record extends DataModel {
 				 * $belongsTo = new B();
 				 * $record->belongsTo = $belongsTo; //$record can not get key of $belongsTo yet.
 				 * 
-				 * $belongsTo->save(); //NOt it gets a key but $record is not aware yet.
+				 * $belongsTo->save(); //Now it gets a key but $record is not aware yet.
 				 * 
 				 * $record->save(); //Now we get into this code block here and keys are set
 				 */
@@ -1988,6 +1988,10 @@ abstract class Record extends DataModel {
 			$relation = $this->getRelation($relationName);
 			
 			if($relation->hasMany()) {
+				continue;
+			}
+			
+			if(!$relationStore->isModified()) {
 				continue;
 			}
 			

@@ -255,6 +255,8 @@ class RelationStore extends Store implements ArrayAccess {
 				}
 			}
 		}
+		
+		$this->reset();
 	}
 	
 	/**
