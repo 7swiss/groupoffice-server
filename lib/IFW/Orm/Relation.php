@@ -378,9 +378,11 @@ class Relation {
 		$store = $this->get($record);
 		
 		if($this->many) {			
-			foreach($value as $record) {
-				$store[] = $record;
-			}			
+			if(isset($value)) {
+				foreach($value as $record) {
+					$store[] = $record;
+				}			
+			}
 		}else
 		{
 			$store[] = $value;

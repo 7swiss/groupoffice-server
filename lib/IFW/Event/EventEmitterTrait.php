@@ -71,7 +71,7 @@ trait EventEmitterTrait {
 			$return = call_user_func_array($listener, $args);			
 			if($return === false){
 				
-			\IFW::app()->debug('Event listerner: '.var_export($listener, true).' returned false');
+				\IFW::app()->debug('Event listener: '.var_export($listener, true).' returned false');
 				
 				return false;
 			}
