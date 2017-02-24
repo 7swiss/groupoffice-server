@@ -25,3 +25,17 @@ ADD CONSTRAINT `fk_calendar_calendar_core_user1`
   REFERENCES `auth_group` (`id`)
   ON DELETE CASCADE
   ON UPDATE NO ACTION;
+
+ALTER TABLE `calendar_alarm`
+DROP FOREIGN KEY `fk_calendar_alarm_auth_user`;
+ALTER TABLE `calendar_alarm`
+CHANGE COLUMN `userId` `groupId` INT(11) NOT NULL ;
+ALTER TABLE .`calendar_alarm`
+ADD INDEX `fk_calendar_alarm_auth_group_idx` (`groupId` ASC),
+DROP INDEX `fk_calendar_alarm_auth_user_idx` ;
+ALTER TABLE `calendar_alarm`
+ADD CONSTRAINT `fk_calendar_alarm_auth_user`
+  FOREIGN KEY (`groupId`)
+  REFERENCES `auth_group` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;

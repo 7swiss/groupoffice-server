@@ -4,7 +4,7 @@ namespace GO\Modules\GroupOffice\Calendar\Controller;
 
 use IFW;
 use GO\Core\Controller;
-use GO\Modules\GroupOffice\Calendar\Model\User;
+use GO\Modules\GroupOffice\Calendar\Model\Group;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 
@@ -50,10 +50,10 @@ class UserController extends Controller {
 			}
 		}
 
-		$users = User::find($query);
-		$users->setReturnProperties($returnProperties);
+		$groups = Group::find($query);
+		$groups->setReturnProperties($returnProperties);
 
-		$this->renderStore($users);
+		$this->renderStore($groups);
 	}
 
 	
