@@ -47,6 +47,10 @@ class Message extends Swift_Message {
 
 		$this->setFrom($this->account->fromEmail, $this->account->fromName);
 	}
+	
+	public static function newInstance($subject = null, $body = null, $contentType = null, $charset = null) {
+		throw new \Exception("Please construct a new object");
+	}
 
 	/**
 	 * Send the message like it would be sent in a mail client.

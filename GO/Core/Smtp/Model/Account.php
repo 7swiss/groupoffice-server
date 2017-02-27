@@ -101,25 +101,6 @@ class Account extends AccountRecord {
 		return true;
 	}
 
-	/**
-	 * Create a swift transport with these account settings
-	 * 
-	 * @return Swift_Transport
-	 */
-	private function createTransport(){
-		$transport = Swift_SmtpTransport::newInstance($this->hostname, $this->port);
-		
-		if(isset($this->encryption)){
-			$transport->setEncryption($this->encryption);
-		}
-		
-		if(isset($this->username)){
-			$transport->setUsername($this->username);
-			$transport->setPassword($this->password);
-		}
-
-		return $transport;		
-	}
 	
 	/**
 	 * Get the mailer using this account settings
@@ -127,7 +108,7 @@ class Account extends AccountRecord {
 	 * @return Swift_Mailer
 	 */
 	public function createMailer(){
-		return new Swift_Mailer($this->createTransport());
+		return new \GO\Core\Email\Model\Mailer($this);
 	}
 	
 	/**

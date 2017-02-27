@@ -47,9 +47,8 @@ abstract class Object {
 	private function applyConfig(){
 		$className = static::class;		
 		if(isset(IFW::app()->getConfig()->classConfig[$className])){			
-			foreach(IFW::app()->getConfig()->classConfig[$className] as $key=>$value){
-//				var_dump($className.' '.$key.': '.$value);
-				$this->$key=$value;
+			foreach(IFW::app()->getConfig()->classConfig[$className] as $key => $value){
+				$this->$key = $value;
 			}
 		}		
 	}
