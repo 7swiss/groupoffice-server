@@ -6,8 +6,6 @@
  */
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use GO\Core\Orm\Record;
-use GO\Core\Users\Model\Group;
 use GO\Core\Auth\Permissions\Model\GroupAccess;
 
 /**
