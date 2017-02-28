@@ -1859,8 +1859,9 @@ abstract class Record extends DataModel {
 		
 		$query = Query::normalize($query);
 		
-		
 		$calledClassName = get_called_class();
+		
+		$query->setRecordClassName($calledClassName);
 		
 		$permissions = static::internalGetPermissions();
 		$permissions->setRecordClassName($calledClassName);
@@ -1868,7 +1869,7 @@ abstract class Record extends DataModel {
 		
 		static::fireStaticEvent(self::EVENT_FIND, $calledClassName, $query);
 		
-		$store = new Store($calledClassName, $query);
+		$store = new Store($query);
 
 		return $store;
 	}

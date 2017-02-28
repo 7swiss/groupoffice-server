@@ -238,7 +238,12 @@ class Connection extends Object{
 		return new Query();
 	}
 	
+	/**
+	 * Create a new command to do an INSERT, UPDATE, DELETE or SELECT
+	 * 
+	 * @return Command
+	 */
 	public function createCommand() {
-		
+		return new Command($this);
 	}
 }

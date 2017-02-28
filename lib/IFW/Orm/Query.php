@@ -116,18 +116,25 @@ class Query extends DbQuery {
 	}
 	
 	
+	public function setRecordClassName($recordClassName) {
+		$this->recordClassName = $recordClassName;
+		
+		return $this->from($recordClassName::tableName());
+		
+	}
+	
+	public function getRecordClassName() {
+		return $this->recordClassName;
+	}
+	
 	/**
 	 * Get the query builder object that can build the select SQL statement
 	 * 
 	 * @param string $recordClassName
 	 * @return QueryBuilder
 	 */
-	public function getBuilder($recordClassName) {		
-		$builder = new QueryBuilder($recordClassName);
-		return $builder->select($this);
+	public function getBuilder() {		
+		return new QueryBuilder($this->recordClassName);
 		
 	}
-	
-	
-
 }

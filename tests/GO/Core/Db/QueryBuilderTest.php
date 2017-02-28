@@ -13,7 +13,8 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		
 		$contactId = 1;
 		
-		$queryBuilder = (new \IFW\Orm\Query())
+		$command = (new \IFW\Orm\Query())
+						->setRecordClassName(\GO\Modules\GroupOffice\Messages\Model\Thread::class)						
 						->select('ca.contactId, 
 	t.id AS modelId, 
 	"GO\\\\Modules\\\\Messages\\\\Model\\\\Thread" AS `modelName`, 
@@ -26,10 +27,10 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 //						->joinModel(ContactEmailAddress::class, 'email', 'ca', 'email', 'addresses')
 						->join(EmailAddress::tableName(),'ca','ca.email=addresses.address')
 						->where(['ca.contactId' => $contactId])
-						->groupBy(['t.id'])
-						->getBuilder(\GO\Modules\GroupOffice\Messages\Model\Thread::class);
+						->groupBy(['t.id'])->createCommand();
+						
 		
-		$sql = $queryBuilder->build(true);
+		$sql = (string) $command;
 		
 		$this->assertStringStartsWith("SELECT", $sql);
 		

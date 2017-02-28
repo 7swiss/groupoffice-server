@@ -23,11 +23,6 @@ use PDOStatement;
  */
 class Store extends \IFW\Data\Store {
 
-	/**
-	 *
-	 * @var string 
-	 */
-	private $recordClassName;
 	
 	/**
 	 * When findByPk is used the results are cached in this variable
@@ -51,19 +46,17 @@ class Store extends \IFW\Data\Store {
 	 */
 	public function getIterator() {
 
-		$queryBuilder = $this->query->getBuilder($this->recordClassName);	
-
 		if($this->query->getFetchMode() == null) {
 			//set fetch mode to fetch Record objects
-			$this->query->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->query->getSkipReadPermission()]); //for new record
-		}
+			$this->query->fetchMode(PDO::FETCH_CLASS, $this->query->getRecordClassName(), [false, $this->query->getSkipReadPermission()]); //for new record
+		}		
 		
-		$iterator = new StoreIterator($queryBuilder->execute(), $this);
+		$iterator = new StoreIterator($this->query->createCommand()->execute(), $this);
 		return $iterator;
 	}
 	
 	public function __toString() {
-		return $this->query->getBuilder($this->recordClassName)->build(true);
+		return $this->query->getBuilder()->buildSelect(true);
 	}
 		
 	/**
@@ -72,7 +65,7 @@ class Store extends \IFW\Data\Store {
 	 * @param string
 	 */
 	public function getRecordClassName() {
-		return $this->recordClassName;
+		return $this->query->recordClassName;
 	}
 
 	/**
@@ -86,13 +79,11 @@ class Store extends \IFW\Data\Store {
 
 	/**
 	 *
-	 * @param string $recordClassName The class name of the activerecord to find.
 	 */
-	public function __construct($recordClassName, Query $query) {
+	public function __construct(Query $query) {
 
 		parent::__construct();
 
-		$this->recordClassName = $recordClassName;
 		$this->query = $query;
 	}
 
@@ -125,7 +116,7 @@ class Store extends \IFW\Data\Store {
 
 			$keyStr = implode('-', $primaryKeyValues);
 
-			$hash = $this->recordClassName . '-' . $keyStr;
+			$hash = $this->query->getRecordClassName() . '-' . $keyStr;
 			if (!isset(self::$cache[$hash])) {
 				$model = $this->getIterator()->fetch();
 
@@ -193,9 +184,9 @@ class Store extends \IFW\Data\Store {
 		$whereKeyValues = array_pop($where);
 		$whereKeys = array_keys($whereKeyValues);
 
-		$modelName = $this->recordClassName;
+		$recordClassName = $this->query->getRecordClassName();
 
-		$primaryKeys = $modelName::getPrimaryKey();
+		$primaryKeys = $recordClassName::getPrimaryKey();
 
 		if (count($whereKeys) != count($primaryKeys)) {
 			return false;

@@ -23,7 +23,7 @@ class QueryBuilder extends DbQueryBuilder{
 	 * Join relation can automatically add select from columns. These must be appended afterwards
 	 * @var string 
 	 */
-	protected $joinRelationSelectString;
+	protected $joinRelationSelectString = "";
 	
 	private $recordClassName;
 	
@@ -32,6 +32,9 @@ class QueryBuilder extends DbQueryBuilder{
 		$this->recordClassName = $recordClassName;
 	}
 	
+	protected function buildSelectFields() {
+		return parent::buildSelectFields().$this->joinRelationSelectString;;
+	}
 	/**
 	 * Get the name of the record this query builder is for.
 	 *

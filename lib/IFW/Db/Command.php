@@ -1,22 +1,33 @@
 <?php
 namespace IFW\Db;
 
-class Command extends Criteria {
+use Exception;
+use IFW;
+use PDOException;
+use function GO;
+
+class Command {
 	
 	public function __construct(Connection $connection) {
 		
 		$this->connection = $connection;
 		
-		parent::__construct();
 	}
 	
 	const TYPE_INSERT = 0;
 	const TYPE_UPDATE = 1;
 	const TYPE_DELETE = 2;
+	const TYPE_SELECT = 4;
 	
 	private $type;
 	private $tableName;
 	private $data;
+	
+	/**
+	 *
+	 * @var Query
+	 */
+	private $query;
 	
 	/**
 	 *
@@ -34,18 +45,16 @@ class Command extends Criteria {
 		$this->type = self::TYPE_INSERT;
 		$this->tableName = $tableName;
 		$this->data = $data;
-		
-		$this->columns = new Columns($tableName);
-		
+	
 		return $this;
 	}
 	
-	public function update($tableName, $data) {
+	public function update($tableName, $data, Query $query) {
 		$this->type = self::TYPE_UPDATE;
 		$this->tableName = $tableName;
 		$this->data = $data;
 		
-		$this->columns = new Columns($tableName);
+		$this->query = $query;
 		
 		return $this;
 	}
@@ -54,12 +63,50 @@ class Command extends Criteria {
 		$this->type = self::TYPE_DELETE;
 		$this->tableName = $tableName;
 		
-		$this->columns = new Columns($tableName);
+		return $this;
+	}
+	
+	/**
+	 * Create select command
+	 * 
+	 * @param \IFW\Db\Query $query
+	 * @return $this
+	 */
+	public function select(Query $query) {		
+		$this->type = self::TYPE_SELECT;
+		$this->query = $query;
 		
 		return $this;
 	}
 	
-	public function getSql() {
+	/**
+	 * Will replace all :paramName tags with the values. Used for debugging the SQL string.
+	 *
+	 * @param string $sql
+	 * @param string
+	 */
+	private function replaceBindParameters($sql, $bindParams) {		
+
+		$binds = [];
+		foreach ($bindParams as $p) {
+			$binds[$p['paramTag']] = var_export($p['value'], true);
+		}
+
+		//sort so $binds :param1 does not replace :param11 first.
+		krsort($binds);
+
+		foreach ($binds as $tag => $value) {
+			$sql = str_replace($tag, $value, $sql);
+		}
+
+		return $sql;
+	}
+	
+	public function __toString() {
+		$queryBuilder = $this->query->getBuilder();
+		$build = $queryBuilder->buildSelect($this->query);
+		
+		return $this->replaceBindParameters($build['sql'], $build['params']);
 		
 	}
 	
@@ -70,25 +117,19 @@ class Command extends Criteria {
 				
 			case self::TYPE_UPDATE:				
 				return $this->executeUpdate();
+				
+			case self::TYPE_SELECT:				
+				return $this->executeSelect();
 			
 			default:				
-				throw new \Exception("Please call insert, update or delete first");
+				throw new Exception("Please call insert, update or delete first");
 		}
 	}
-	
-	private $paramCount = 0;
-	private $paramPrefix = ':ifw';
-	
+
 	/**
-	 * Private function to get the current parameter prefix.
-	 *
-	 * @param string The next available parameter prefix.
+	 * 
+	 *  @todo move to querybuilder
 	 */
-	private function getParamTag() {
-		self::$paramCount++;
-		return self::$paramPrefix . self::$paramCount;
-	}
-	
 	private function executeUpdate() {
 		
 		$binds = [];
@@ -110,7 +151,7 @@ class Command extends Criteria {
 	}
 	
 	/**
-	 * 
+	 * @todo move to querybuilder
 	 * @return bool
 	 */
 	private function executeInsert() {
@@ -133,5 +174,42 @@ class Command extends Criteria {
 		
 		return $stmt->execute();
 		
+	}
+	
+
+	private function executeSelect() {
+		
+		$queryBuilder = $this->query->getBuilder();
+		$build = $queryBuilder->buildSelect($this->query);
+
+		try {
+			$binds = [];
+			$stmt = IFW::app()->getDbConnection()->getPDO()->prepare($build['sql']);
+
+			foreach ($build['params'] as $p) {
+				$binds[$p['paramTag']] = $p['value'];
+				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
+			}
+
+			if (!$this->query->getFetchMode()) {
+				$stmt->setFetchMode(PDO::FETCH_ASSOC);
+			} else {
+				call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
+			}
+
+			if ($this->query->getDebug()) {
+				IFW::app()->getDebugger()->debugSql($build['sql'], $binds, 2);
+			}
+			
+			$stmt->execute();
+
+		} catch (PDOException $e) {
+			
+			\IFW::app()->debug("FAILED SQL: ".$this->replaceBindParameters($build['sql'], $build['params']));
+			
+			throw $e;
+		}
+
+		return $stmt;
 	}
 }

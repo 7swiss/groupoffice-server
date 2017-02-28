@@ -91,9 +91,11 @@ class RelationStore extends Store implements ArrayAccess {
 			$query = new Query();
 		}
 		
+		$query->setRecordClassName($relation->getToRecordName());
+		
 		$query->setRelation($relation, $record);
 		
-		parent::__construct($relation->getToRecordName(), $query);
+		parent::__construct($query);
 		
 		
 	}

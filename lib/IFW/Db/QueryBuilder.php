@@ -21,6 +21,11 @@ use function GO;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class QueryBuilder {
+	
+//	const TYPE_INSERT = 0;
+//	const TYPE_UPDATE = 1;
+//	const TYPE_DELETE = 2;
+//	const TYPE_SELECT = 3;
 
 	use \IFW\Event\EventEmitterTrait;
 
@@ -127,6 +132,7 @@ class QueryBuilder {
 		return $this->query;
 	}
 	
+	
 
 
 	/**
@@ -138,9 +144,9 @@ class QueryBuilder {
 		return $this->tableName;
 	}
 
-	public function __toString() {
-		return $this->build(true);
-	}
+//	public function __toString() {
+//		return $this->buildSelect(true);
+//	}
 
 	private function softDelete() {
 
@@ -161,11 +167,7 @@ class QueryBuilder {
 		}
 	}
 	
-	public function select(Query $query) {
-		$this->query = $query;
-		
-		return $this;
-	}
+
 
 	/**
 	 * Build the SQL string
@@ -173,8 +175,9 @@ class QueryBuilder {
 	 * @param boolean $replaceBindParameters Will replace all :paramName tags with the values. Used for debugging the SQL string.
 	 * @return string
 	 */
-	public function build($replaceBindParameters = false, $prefix = '') {
-		
+	public function buildSelect(Query $query = null, $prefix = '') {
+
+		$this->query = $query;
 
 		if (!isset($this->sql)) {
 			$this->fireEvent(self::EVENT_BUILD_QUERY, $this);
@@ -187,7 +190,7 @@ class QueryBuilder {
 			$this->tableAlias = $this->query->getTableAlias();
 			$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
 
-			$select = "\n".$prefix.$this->buildSelect();
+			
 
 			
 			$joins = "";
@@ -198,8 +201,8 @@ class QueryBuilder {
 				$joins .= "\n".$prefix.$this->$method($join[1]);
 			}
 			
-
-			$select .= $this->joinRelationSelectString;
+			$select = "\n".$prefix.$this->buildSelectFields();
+			
 			$select .= "\n".$prefix."FROM `" . $this->tableName . '` `' . $this->tableAlias . "`";
 			
 			
@@ -217,14 +220,14 @@ class QueryBuilder {
 			
 			$this->sql = trim($prefix . $select . $joins . $where . $group . $having . $orderBy . $limit);
 		}
-		if ($replaceBindParameters) {
-			return $this->replaceBindParameters($this->sql);
-		} else {
-			return $this->sql;
-		}
+//		if ($replaceBindParameters) {
+//			return $this->replaceBindParameters($this->sql);
+//		} else {
+			return ['sql' => $this->sql, 'params' => $this->getBindParameters()];
+//		}
 	}
 
-	protected function buildSelect() {
+	protected function buildSelectFields() {
 		$select = "SELECT ";
 
 		//		if ($this->_query->calcFoundRows && $this->_query->limit > 0) {
@@ -294,29 +297,7 @@ class QueryBuilder {
 		return $this->aliasMap[$tableAlias][$column];
 	}
 
-	/**
-	 * Will replace all :paramName tags with the values. Used for debugging the SQL string.
-	 *
-	 * @param string $sql
-	 * @param string
-	 */
-	private function replaceBindParameters($sql) {
-		$bindParams = $this->getBindParameters();
-
-		$binds = [];
-		foreach ($bindParams as $p) {
-			$binds[$p['paramTag']] = var_export($p['value'], true);
-		}
-
-		//sort so $binds :param1 does not replace :param11 first.
-		krsort($binds);
-
-		foreach ($binds as $tag => $value) {
-			$sql = str_replace($tag, $value, $sql);
-		}
-
-		return $sql;
-	}
+	
 
 	/**
 	 * Get the parameters to bind to the SQL statement
@@ -446,10 +427,12 @@ class QueryBuilder {
 		$builder = $store->getQuery()->getBuilder($store->getRecordClassName());
 		$builder->mergeAliasMap($this->aliasMap);
 		$builder->isSubQuery = true;
-
-		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $builder->build(false, $prefix . "\t") ."\n". $prefix . ")";
 		
-		foreach ($builder->getBindParameters() as $v) {
+		$build = $builder->buildSelect($store->getQuery(), $prefix . "\t");
+
+		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $build['sql'] ."\n". $prefix . ")";
+		
+		foreach ($build['params'] as $v) {
 //			$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			$this->buildBindParameters[] = $v;
 		}
@@ -601,8 +584,10 @@ class QueryBuilder {
 				$builder = $value->getQuery()->getBuilder($value->getRecordClassName());
 				$this->mergeAliasMap($builder->aliasMap);
 				$builder->isSubQuery = true;
-				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $builder->build(false, $prefix . "\t") . $prefix . ")\n";
-				foreach ($builder->getBindParameters() as $v) {
+				$build = $builder->buildSelect($value->getQuery(), $prefix . "\t");
+				
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";
+				foreach ($build['params'] as $v) {
 //					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 					$this->buildBindParameters[] = $v;
 				}
@@ -710,8 +695,9 @@ class QueryBuilder {
 		if ($config['src'] instanceof \IFW\Orm\Store) {
 			$builder = $config['src']->getQuery()->getBuilder($config['src']->getRecordClassName());
 			$this->mergeAliasMap($builder->aliasMap);
-			$joinTableName = '(' . $builder->build() . ')';
-			foreach ($builder->getBindParameters() as $v) {
+			$build = $builder->buildSelect($config['src']->getQuery());
+			$joinTableName = '(' . $build['sql'] . ')';
+			foreach ($build['params'] as $v) {
 				$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			}
 		} else {
@@ -730,51 +716,4 @@ class QueryBuilder {
 
 		return $join;
 	}
-
-	/**
-	 * Build the SQL, prepare it and exeucte the statement.
-	 *
-	 * @return PDOStatement
-	 * @throws Exception
-	 */
-	public function execute() {
-
-		$sql = $this->build();
-
-		try {
-			$binds = [];
-			$stmt = IFW::app()->getDbConnection()->getPDO()->prepare($sql);
-
-			foreach ($this->getBindParameters() as $p) {
-				$binds[$p['paramTag']] = $p['value'];
-				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
-			}
-
-			if (!$this->query->getFetchMode()) {
-				$stmt->setFetchMode(PDO::FETCH_ASSOC);
-			} else {
-				call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
-			}
-
-			if ($this->query->getDebug()) {
-				IFW::app()->getDebugger()->debugSql($sql, $binds, 2);
-//				IFW::app()->getDebugger()->debugCalledFrom(10);
-			}
-
-			$stmt->execute();
-			
-			if ($this->query->getDebug()) {
-				GO()->debug("Query done");
-			}
-		} catch (PDOException $e) {
-			
-			GO()->debug("FAILED SQL: ".$this->build(true));
-//			GO()->debug($binds);
-			
-			throw $e;
-		}
-
-		return $stmt;
-	}
-
 }

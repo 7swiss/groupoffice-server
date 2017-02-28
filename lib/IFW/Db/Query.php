@@ -150,6 +150,23 @@ class Query extends Criteria {
 //		return $this;
 //	}
 	
+	private $tableName;
+	
+	public function getFrom() {
+		return $this->tableName;
+	}
+	
+	/**
+	 * 
+	 * @param string $tableName
+	 * @return $this
+	 */
+	public function from($tableName) {
+		$this->tableName = $tableName;
+		
+		return $this;
+	}
+	
 	
 	/**
 	 * Set the PDO fetch mode
@@ -489,17 +506,11 @@ class Query extends Criteria {
 	}
 	
 	/**
-	 * Get the query builder object that can build the select SQL statement
 	 * 
-	 * @param string $recordClassName
-	 * @return QueryBuilder
+	 * @return Command
 	 */
-	public function getBuilder($recordClassName) {
-		if(!isset($this->queryBuilder[$recordClassName])) {
-			$this->queryBuilder[$recordClassName] = new QueryBuilder($recordClassName, $this);
-		}
-		
-		return $this->queryBuilder[$recordClassName];	
+	public function createCommand() {
+		return GO()->getDbConnection()->createCommand()->select($this);
 	}
 	
 	/**
@@ -695,6 +706,14 @@ class Query extends Criteria {
 		$this->where = [];
 	}
 
-	
+	/**
+	 * Get the query builder object that can build the select SQL statement
+	 * 
+	 * @param string $recordClassName
+	 * @return QueryBuilder
+	 */
+	public function getBuilder() {		
+		return new QueryBuilder($this->tableName);		
+	}
 	
 }
