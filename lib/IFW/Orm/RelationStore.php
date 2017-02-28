@@ -190,7 +190,7 @@ class RelationStore extends Store implements ArrayAccess {
 			{
 				$this->clearHasOne();
 				return;
-			}			
+			}
 		}else
 		{
 			$this->setParentRelation($value);

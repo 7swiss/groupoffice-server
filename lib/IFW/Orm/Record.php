@@ -345,6 +345,8 @@ abstract class Record extends DataModel {
 		
 		if($this->isNew) {
 //			Removed this check becuase it caused a problem with join relation. It creates a new object but it's a read action.
+//			Permissions are checked on save anyway so it's not really a problem
+//			
 //			if(!$this->getPermissions()->can(PermissionsModel::ACTION_CREATE)) {
 //				throw new Forbidden("You're not permitted to create a ".$this->getClassName());
 //			}
