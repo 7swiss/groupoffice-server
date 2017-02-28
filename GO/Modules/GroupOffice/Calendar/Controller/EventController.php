@@ -65,9 +65,9 @@ class EventController extends Controller {
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	protected function actionRead($eventId,$userId, $recurrenceId = null, $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	protected function actionRead($eventId,$groupId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
-		$attendee = Attendee::findByPk(['eventId'=>$eventId,'userId'=>$userId]);
+		$attendee = Attendee::findByPk(['eventId'=>$eventId,'groupId'=>$groupId]);
 
 		if (!$attendee) {
 			throw new NotFound();
@@ -116,9 +116,9 @@ class EventController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($eventId, $userId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,userId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function actionUpdate($eventId, $groupId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
-		$attendee = Attendee::findByPk(['eventId'=>$eventId,'userId'=>$userId]);
+		$attendee = Attendee::findByPk(['eventId'=>$eventId,'groupId'=>$groupId]);
 
 		if (!$attendee) {
 			throw new NotFound();
@@ -146,13 +146,13 @@ class EventController extends Controller {
 	 * @todo: If you are the organizer and want to cancel the event. Call actionCancel()
 	 *
 	 * @param int $eventId
-	 * @param int $userId
+	 * @param int $groupId
 	 * @param string $recurrenceId Start time of occurrence when recurring
 	 * @param bool $single when true delete a single occurrence
 	 * @throws NotFound
 	 */
-	public function actionDelete($eventId, $userId, $recurrenceId = null, $single = '1') {
-		$attendee = Attendee::findByPk(['eventId'=>$eventId, 'userId'=>$userId]);
+	public function actionDelete($eventId, $groupId, $recurrenceId = null, $single = '1') {
+		$attendee = Attendee::findByPk(['eventId'=>$eventId, 'groupId'=>$groupId]);
 
 		if (!$attendee) {
 			throw new NotFound();
