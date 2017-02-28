@@ -295,7 +295,9 @@ class ICalendarHelper {
 	static public function sendMail(VObject\ITip\Message $itip) {
 
 		$invite = new \Swift_Attachment($itip->message->serialize(), 'invite.ics','text/calendar');
-		\GO()->getMailer()->compose()
+		
+		$message = new Message(GO()->getSettings()->smtpAccount);
+		$message
 			->setSubject($itip->message->VEVENT->SUMMARY)
 			->setFrom($itip->sender, (string)$itip->senderName)
 			->setTo($itip->recipient, (string)$itip->recipientName)

@@ -329,7 +329,7 @@ class ContactController extends Controller {
 			$contact->setValues($values);
 			$contact->save();
 			
-			$response['data'][] = $contact->toArray();
+			$response['data'][] = $contact->toArray('id');
 		}
 		
 		$this->render($response);

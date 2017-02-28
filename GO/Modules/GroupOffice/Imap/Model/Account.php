@@ -403,7 +403,7 @@ class Account extends AccountRecord implements SyncableInterface{
 		
 		GO()->debug("Sending ".$messagesMessage->subject);
 		
-		$message = Swift_Message::newInstance($messagesMessage->subject)
+		$message = (new \GO\Core\Email\Model\Message($this->smtpAccount, $messagesMessage->subject))
 				->setFrom($messagesMessage->from->address, $messagesMessage->from->personal);
 		
 		
@@ -439,7 +439,7 @@ class Account extends AccountRecord implements SyncableInterface{
 		foreach ($messagesMessage->attachments as $attachment) {
 			$blob = Blob::findByPk($attachment->blobId);
 			
-			$swiftAttachment = Swift_Attachment::fromPath($blob->getPath(), $blob->contentType);
+			$swiftAttachment = \GO\Core\Email\Model\Attachment::fromPath($blob->getPath(), $blob->contentType);
 			$swiftAttachment->setFilename($attachment->name);
 			
 			if(isset($attachment->contentId)) {
@@ -477,9 +477,9 @@ class Account extends AccountRecord implements SyncableInterface{
 		
 		}
 		
-		//workaround https://github.com/swiftmailer/swiftmailer/issues/335
-		$mailer = $this->smtpAccount->createMailer();
-		$numberOfRecipients = $mailer->send($message, $failures);
+		$failures = [];
+		//workaround https://github.com/swiftmailer/swiftmailer/issues/335		
+		$numberOfRecipients = $message->send($failures);
 		if(!$numberOfRecipients ) {
 			//throw new \Exception("Failed to send message: ".var_export($failures, true));
 			GO()->debug("Failed to send message: ".var_export($failures, true));

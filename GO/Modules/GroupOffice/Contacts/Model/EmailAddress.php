@@ -15,7 +15,7 @@ use IFW\Validate\ValidateEmail;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class EmailAddress extends Record{	
+class EmailAddress extends \IFW\Orm\PropertyRecord{	
 	
 	/**
 	 * 
@@ -64,8 +64,6 @@ class EmailAddress extends Record{
 //	  	];
 //	}
 	
-	public static function internalGetPermissions() {
-		return new ViaRelation('contact');
-	}
+
 }
 

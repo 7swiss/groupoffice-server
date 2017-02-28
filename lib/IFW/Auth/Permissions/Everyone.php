@@ -12,8 +12,8 @@ class Everyone extends Model {
 	protected function internalCan($permissionType, UserInterface $user) {
 			return true;
 	}
-//	
-//	public function toArray($properties = null) {
-//		return null;
-//	}
+	
+	public function toArray($properties = null) {
+		return null;
+	}
 }
