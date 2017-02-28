@@ -31,7 +31,7 @@ class GroupAccessPermissions extends Model {
 		}
 
 		//don't edit owner record
-		if (!$relatedRecord->isNew() && $this->record->groupId == $relatedRecord->ownedBy) {
+		if (!$this->record->isNew() && $this->record->groupId == $relatedRecord->ownedBy) {
 			return false;
 		}
 

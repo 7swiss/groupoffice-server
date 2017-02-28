@@ -27,6 +27,8 @@ use IFW\Orm\Query;
  *		``````````````````````````````````````````````````````````````````````````
  *		self::hasMany('groups', ContactGroup::class, ['id' => 'contactId']);
  *		``````````````````````````````````````````````````````````````````````````
+ * 5. By default there are the properties write and delete. If you don't add them
+ *		to your database they will always be false.
  * 
  */
 class GroupPermissions extends Model {	
@@ -34,6 +36,7 @@ class GroupPermissions extends Model {
 	private $groupAccess;
 	
 	private $groupAccessRecordName;
+	
 	
 	/**
 	 * Constructor

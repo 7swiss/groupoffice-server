@@ -20,18 +20,6 @@ class ContactGroup extends GroupAccess {
 	 */
 	public $contactId;
 
-	/**
-	 * 
-	 * @var bool
-	 */
-	public $write = true;
-
-	/**
-	 * 
-	 * @var bool
-	 */
-	public $delete = true;
-
 
 	protected static function groupsFor() {
 		return self::hasOne('contact', Contact::class, ['contactId' => 'id']);

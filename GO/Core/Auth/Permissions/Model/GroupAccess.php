@@ -22,6 +22,20 @@ abstract class GroupAccess extends Record {
 	 */
 	public $groupId;
 	
+	
+	/**
+	 *
+	 * @var bool 
+	 */
+	public $delete = false;
+	
+	
+	/**
+	 *
+	 * @var bool 
+	 */
+	public $write = false;
+	
 	/**
 	 * Define the relation that these groups grant access for.
 	 * 
