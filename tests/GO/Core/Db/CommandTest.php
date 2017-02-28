@@ -9,7 +9,7 @@ use PHPUnit_Framework_TestCase;
  * like the configuration, reqeuest, debugger etc.
  */
 class CommandTest extends PHPUnit_Framework_TestCase {
-	public function testToString() {
+	public function testSelect() {
 		
 		$query = (new Query())
 						->select('id,username')
@@ -21,5 +21,24 @@ class CommandTest extends PHPUnit_Framework_TestCase {
 		$record = $stmt->fetch();
 		
 		$this->assertArrayHasKey('username', $record);
+	}
+	
+	public function testInsert() {
+		
+		
+		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', ['id' => 1, 'username' => 'test']);
+		
+		echo $command->toString();
+	}
+	
+	public function testUpdate() {
+				
+		$command = GO()->getDbConnection()->createCommand()->update('auth_user', ['username' => 'test', 'lastLogin' => new \DateTime()], ['username' => 'test']);
+		
+		echo $command->toString();
+		
+		$stmt = $command->execute();
+		
+		echo $stmt->rowCount();
 	}
 }

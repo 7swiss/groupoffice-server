@@ -22,10 +22,7 @@ use function GO;
  */
 class QueryBuilder {
 	
-//	const TYPE_INSERT = 0;
-//	const TYPE_UPDATE = 1;
-//	const TYPE_DELETE = 2;
-//	const TYPE_SELECT = 3;
+
 
 	use \IFW\Event\EventEmitterTrait;
 
@@ -167,6 +164,68 @@ class QueryBuilder {
 		}
 	}
 	
+	
+	/**
+	 * @return bool
+	 */
+	public function buildInsert($data) {
+		
+		$this->reset();
+		
+		
+		
+		$tags = [];
+		foreach($data as $colName => $value) {
+			
+			$paramTag = $this->getParamTag();
+			$tags[] = $paramTag;
+			$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+		}
+		
+		$sql = "INSERT INTO `{$this->tableName}` (`" . implode('`,` ', array_keys($data)) . "`)\n".
+						"VALUES (" . implode(', ', $tags) . ")";
+		
+		return ['sql' => $sql, 'params' => $this->getBindParameters()];
+		
+	}
+	
+	public function buildUpdate($data, Query $query) {
+		
+		$this->reset();
+		
+		$this->query = $query;
+		$this->tableAlias = $this->query->getTableAlias();
+		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+		
+		foreach($data as $colName => $value) {
+			$paramTag = $this->getParamTag();
+			$updates[] = '`'.$colName.'` = '.$paramTag;
+			
+			$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+		}
+		
+		$sql = "UPDATE `{$this->tableName}` `" . $this->tableAlias . "` SET ". implode(', ', $updates);
+		
+		$where = $this->buildWhere();
+		
+		if(!empty($where)) {
+			$sql .= "\n".$where;
+		}		
+		
+		return ['sql' => $sql, 'params' => $this->getBindParameters()];
+	}
+	
+	
+	private function reset() {
+		$this->query = null;
+		
+		$this->alreadyJoinedRelations = [];
+		$this->buildBindParameters = [];
+
+		$this->aliasMap = [];
+		$this->aliasMap[$this->tableName] = new Columns($this->tableName);
+		$this->tableAlias = $this->tableName;
+	}
 
 
 	/**
@@ -177,21 +236,16 @@ class QueryBuilder {
 	 */
 	public function buildSelect(Query $query = null, $prefix = '') {
 
+		$this->reset();
+		
 		$this->query = $query;
+		$this->tableAlias = $this->query->getTableAlias();
+		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
 
-		if (!isset($this->sql)) {
+//		if (!isset($this->sql)) {
 			$this->fireEvent(self::EVENT_BUILD_QUERY, $this);
 
 			$this->softDelete();
-
-			$this->alreadyJoinedRelations = [];
-			$this->buildBindParameters = [];
-
-			$this->tableAlias = $this->query->getTableAlias();
-			$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
-
-			
-
 			
 			$joins = "";
 
@@ -219,7 +273,7 @@ class QueryBuilder {
 			}
 			
 			$this->sql = trim($prefix . $select . $joins . $where . $group . $having . $orderBy . $limit);
-		}
+//		}
 //		if ($replaceBindParameters) {
 //			return $this->replaceBindParameters($this->sql);
 //		} else {
@@ -304,8 +358,9 @@ class QueryBuilder {
 	 *
 	 * @return array [['tableAlias' => 't', 'column' => 'id', 'pdoType' => PDO::PARAM_INT]]
 	 */
-	public function getBindParameters() {		
-		return array_merge($this->query->getBindParameters(), $this->buildBindParameters);
+	private function getBindParameters() {		
+		
+		return isset($this->query) ? array_merge($this->query->getBindParameters(), $this->buildBindParameters) : $this->buildBindParameters;
 	}
 
 	private function buildGroupBy() {
@@ -664,11 +719,11 @@ class QueryBuilder {
 		return "HAVING" . $having;
 	}
 
-	private function addBuildBindParameter($paramTag, $value, $tableAlias, $column) {
+	private function addBuildBindParameter($paramTag, $value, $tableAlias, $columnName) {
 		
 //		GO()->debug("Added bind param $paramTag ".$this->recordClassName);
 		
-		$columnObj = $this->findColumn($tableAlias, $column);
+		$columnObj = $this->findColumn($tableAlias, $columnName);
 
 		$this->buildBindParameters[] = [
 			 'paramTag' => $paramTag,

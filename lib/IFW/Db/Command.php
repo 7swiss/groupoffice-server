@@ -49,12 +49,12 @@ class Command {
 		return $this;
 	}
 	
-	public function update($tableName, $data, Query $query) {
+	public function update($tableName, $data, $query) {
 		$this->type = self::TYPE_UPDATE;
 		$this->tableName = $tableName;
 		$this->data = $data;
 		
-		$this->query = $query;
+		$this->query = \IFW\Db\Query::normalize($query);
 		
 		return $this;
 	}
@@ -103,85 +103,41 @@ class Command {
 	}
 	
 	public function __toString() {
-		$queryBuilder = $this->query->getBuilder();
-		$build = $queryBuilder->buildSelect($this->query);
+			
+		return $this->toString();
+	}
+	
+	public function toString() {
+		$build = $this->build();
 		
 		return $this->replaceBindParameters($build['sql'], $build['params']);
 		
 	}
 	
-	public function execute() {
+	private function build() {
 		switch($this->type) {
 			case self::TYPE_INSERT:				
-				return $this->executeInsert();
+				$queryBuilder = new QueryBuilder($this->tableName);
+				return  $queryBuilder->buildInsert($this->data);
 				
 			case self::TYPE_UPDATE:				
-				return $this->executeUpdate();
+				$queryBuilder = new QueryBuilder($this->tableName);
+				return $queryBuilder->buildUpdate($this->data, $this->query);
 				
-			case self::TYPE_SELECT:				
-				return $this->executeSelect();
+			case self::TYPE_SELECT:			
+				$queryBuilder = $this->query->getBuilder();
+		
+				return $queryBuilder->buildSelect($this->query);
 			
 			default:				
 				throw new Exception("Please call insert, update or delete first");
 		}
 	}
-
-	/**
-	 * 
-	 *  @todo move to querybuilder
-	 */
-	private function executeUpdate() {
-		
-		$binds = [];
-		foreach($this->data as $colName => $value) {
-			$binds[$colName] = self::getParamTag();
-			$updates[] = '`'.$colName.'` = '.$binds[$colName];
-		}
-		
-		$sql = "UPDATE `{$this->tableName}` SET ". implode(',', $updates);
-		
-		$stmt = $this->connection->getPDO()->prepare($sql);
-		
-		foreach($this->data as $colName => $value) {			
-			$column = $this->columns[$colName];		
-			$stmt->bindValue($binds[$colName], $column->recordToDb($this->$colName), $column->pdoType);
-		}
-		
-		return $this->execute();
-	}
 	
-	/**
-	 * @todo move to querybuilder
-	 * @return bool
-	 */
-	private function executeInsert() {
+	public function execute() {		
 		
-		$binds = [];
-		foreach($this->data as $colName => $value) {
-			$binds[$colName] = self::getParamTag();
-		}
+		$build = $this->build();
 		
-		$sql = "INSERT INTO `{$this->tableName}` (`" . implode('`,` ', array_keys($this->data)) . "`) VALUES " .
-						"(" . implode(', ', array_values($binds)) . ")";
-		
-		$stmt = $this->connection->getPDO()->prepare($sql);
-		
-		
-		foreach($this->data as $colName => $value) {			
-			$column = $this->columns[$colName];		
-			$stmt->bindValue($binds[$colName], $column->recordToDb($this->$colName), $column->pdoType);
-		}
-		
-		return $stmt->execute();
-		
-	}
-	
-
-	private function executeSelect() {
-		
-		$queryBuilder = $this->query->getBuilder();
-		$build = $queryBuilder->buildSelect($this->query);
-
 		try {
 			$binds = [];
 			$stmt = IFW::app()->getDbConnection()->getPDO()->prepare($build['sql']);
@@ -191,14 +147,17 @@ class Command {
 				$stmt->bindValue($p['paramTag'], $p['value'], $p['pdoType']);
 			}
 
-			if (!$this->query->getFetchMode()) {
-				$stmt->setFetchMode(PDO::FETCH_ASSOC);
-			} else {
-				call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
-			}
+			if($this->type == self::TYPE_SELECT) {
+				if (!$this->query->getFetchMode()) {
+					$stmt->setFetchMode(PDO::FETCH_ASSOC);
+				} else {
+					call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
+				}
 
-			if ($this->query->getDebug()) {
-				IFW::app()->getDebugger()->debugSql($build['sql'], $binds, 2);
+
+				if ($this->query->getDebug()) {
+					IFW::app()->getDebugger()->debugSql($build['sql'], $binds, 2);
+				}
 			}
 			
 			$stmt->execute();
@@ -209,7 +168,7 @@ class Command {
 			
 			throw $e;
 		}
-
+		
 		return $stmt;
-	}
+	}	
 }
