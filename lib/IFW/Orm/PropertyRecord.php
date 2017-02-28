@@ -2,6 +2,9 @@
 
 namespace IFW\Orm;
 
+use Exception;
+use IFW\Auth\Permissions\Everyone;
+
 /**
  * Property record
  * 
@@ -13,8 +16,9 @@ class PropertyRecord extends Record {
 	
 	public static function find($query = null) {
 		
+		$query = Query::normalize($query);
 		if(!$query->getRelation()) {
-			throw new \Exception("Property '".static::class."' can't be queried directly. Use as relation only.");
+			throw new Exception("Property '".static::class."' can't be queried directly. Use as relation only.");
 		}
 		
 		return parent::find($query);
@@ -23,14 +27,14 @@ class PropertyRecord extends Record {
 	protected function internalSave() {
 		
 		if(!$this->isSavedByRelation()) {
-			throw new \Exception("Property '".static::class."' can't be saved directly. Use as relation only.");
+			throw new Exception("Property '".static::class."' can't be saved directly. Use as relation only.");
 		}
 		
-		parent::internalSave();
+		return parent::internalSave();
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\Everyone();
+		return new Everyone();
 	}
 	
 	public static function getDefaultReturnProperties() {

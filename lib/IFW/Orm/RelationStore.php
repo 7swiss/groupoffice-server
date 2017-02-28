@@ -85,11 +85,17 @@ class RelationStore extends Store implements ArrayAccess {
 	public function __construct(Relation $relation, Record $record, Query $query = null) {
 		$this->record = $record;
 		$this->relation = $relation;
-		parent::__construct($relation->getToRecordName(), isset($query) ? $query : new Query() );
 		
 		if($query == null) {
 			$this->modified = [];
+			$query = new Query();
 		}
+		
+		$query->setRelation($relation, $record);
+		
+		parent::__construct($relation->getToRecordName(), $query);
+		
+		
 	}
 	
 	/**
@@ -373,9 +379,11 @@ class RelationStore extends Store implements ArrayAccess {
 		}
 		
 		//try to find an existing record.
-		$pk = $this->buildPk($toPks, $propArray);				
+		$pk = $this->buildPk($toPks, $propArray);		
+		$query = new Query();		
+		$query->where($pk)->setRelation($this->relation, $this->record); //for propery record
 
-		$newToRecord = $pk ? $toRecordName::find($pk)->single() : false;
+		$newToRecord = $pk ? $toRecordName::find($query)->single() : false;
 		if (!$newToRecord) {
 			$newToRecord = new $toRecordName;
 		}		

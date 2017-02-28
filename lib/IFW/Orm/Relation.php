@@ -452,7 +452,7 @@ class Relation {
 		}
 		
 		$query = isset($this->query) ? clone $this->query : new Query();	
-		$query->setRelation($this, $record);
+		
 //		$query->debug();
 		
 		//if all keys are null return null
