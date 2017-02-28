@@ -22,22 +22,18 @@ class CalendarGroup extends GroupAccess {
 	public $calendarId;
 
 	/**
-	 * PK
-	 * @var int
+	 * 
+	 * @var bool
 	 */							
-	public $groupId;
+	public $read = true;
+
+	public $delete = false; //moet er zijn
 
 	/**
 	 * 
 	 * @var bool
 	 */							
-	public $canRead = true;
-
-	/**
-	 * 
-	 * @var bool
-	 */							
-	public $canWrite = false;
+	public $write = false;
 
 	protected static function groupsFor() {
 		return self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);

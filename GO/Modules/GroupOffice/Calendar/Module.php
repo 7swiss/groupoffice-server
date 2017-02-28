@@ -56,10 +56,10 @@ class Module extends InstallableModule {
 			->get('event', 'store')
 			->get('event/0', 'new')
 			->get('event/download/:id', 'download')
-			->get('event/:eventId/:userId', 'read')
-			->put('event/:eventId/:userId', 'update')
+			->get('event/:eventId/:groupId', 'read')
+			->put('event/:eventId/:groupId', 'update')
 			->post('event', 'create')
-			->delete('event/:eventId/:userId', 'delete');
+			->delete('event/:eventId/:groupId', 'delete');
 
 		$router->addRoutesFor(CalendarController::class)
 			->get('calendar', 'store')

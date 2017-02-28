@@ -67,7 +67,7 @@ class ICalendarHelper {
 		// For a CANCEL or REPLY we must send the organizer and the current user.
 		foreach($event->attendees as $attendee) {
 			$attr = ['cn' => $attendee->getName()];
-			($attendee->responseStatus === ResponseStatus::__default) ?: $attr['partstat'] = ResponseStatus::$text[$attendee->responseStatus];
+			($attendee->responseStatus === AttendeeStatus::__default) ?: $attr['partstat'] = AttendeeStatus::$text[$attendee->responseStatus];
 			($attendee->role === Role::__default) ?: $attr['role'] = Role::$text[$attendee->role];
 
 //			var_dump($attendee);
@@ -116,7 +116,7 @@ class ICalendarHelper {
 			$event->organizerEmail = str_replace('mailto:', '',(string)$vevent->ORGANIZER);
 			$organizer = new Attendee();
 			$organizer->email = str_replace('mailto:', '',(string)$vevent->ORGANIZER);
-			$organizer->responseStatus = ResponseStatus::fromText($vevent->ORGANIZER['PARTSTAT']);
+			$organizer->responseStatus = AttendeeStatus::fromText($vevent->ORGANIZER['PARTSTAT']);
 			$organizer->role = Role::fromText($vevent->ORGANIZER['ROLE']);
 			$event->attendees[] = $organizer;
 
@@ -124,7 +124,7 @@ class ICalendarHelper {
 				$attendee = new Attendee();
 				//$attendee->name = $vattendee['CN'];
 				$attendee->email = str_replace('mailto:', '',(string)$vattendee); // Will link to userId when found
-				$attendee->responseStatus = ResponseStatus::fromText($vattendee['PARTSTAT']);
+				$attendee->responseStatus = AttendeeStatus::fromText($vattendee['PARTSTAT']);
 				$attendee->role = Role::fromText($vattendee['ROLE']);
 				$event->attendees[] = $attendee;
 			}

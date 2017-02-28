@@ -11,7 +11,6 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 use GO\Core\Users\Model\Group as FWGroup;
 use IFW\Orm\Query;
 use IFW\Auth\Permissions\OwnerOnly;
-
 /**
  * Make sure the GroupOffice user implements the needed functions for the calendar.
  * 
@@ -29,24 +28,15 @@ class Group extends FWGroup { // implements PrincipalInterface {
 	 * @return User
 	 */
 	public static function current() {
-		return self::findByPk(\GO()->getAuth()->user()->group->id);
+		return \GO()->getAuth()->user()->group;
 	}
 
-	protected static function internalGetPermissions() {
-		$p = new OwnerOnly();
-		$p->userIdField = 'id';
-		return $p;
-	}
+//	protected static function internalGetPermissions() {
+//		$p = new OwnerOnly();
+//		$p->userIdField = 'id';
+//		return $p;
+//	}
 
-	/**
-	 * When the user accepts an invitation the event will be added to this calendar
-	 * @todo make this configurable instead of selecting the first one.
-	 * @return Calendar the default
-	 */
-	public function getDefaultCalendar() {
-		return Calendar::find((new Query)->select('id')->where(['ownedBy'=>$this->id]))->single();
-	}
-	
 	public function getEmail() {
 		if(empty($this->user))
 			return null;

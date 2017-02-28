@@ -5,6 +5,7 @@ namespace GO\Modules\GroupOffice\Calendar\Controller;
 use IFW;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\Calendar\Model\Group;
+//use GO\Core\Users\Model\Group;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 
