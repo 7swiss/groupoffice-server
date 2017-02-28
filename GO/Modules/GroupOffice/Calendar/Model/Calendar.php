@@ -7,7 +7,7 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use IFW\Orm\Record;
+use GO\Core\Orm\Record;
 use IFW\Auth\Permissions\OwnerOnly;
 
 /**
@@ -66,17 +66,33 @@ class Calendar extends Record {
 	protected static function internalGetPermissions() {
 		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(CalendarGroup::class);
 	}
+
+	public function internalSave() {
+
+		$createPermissions = $this->isNew() && !$this->isModified('groups');
+
+		//$this->update();
+		if(!parent::internalSave()) {
+			return false;
+		}
+
+		if($createPermissions) {
+			$cg = new CalendarGroup();
+			$cg->calendarId = $this->id;
+			$cg->groupId = $this->ownedBy;
+			if(!$cg->save()) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	protected static function defineRelations() {
 		//TODO: join events to this and select by timespan
+		self::hasOne('owner', Group::class, ['ownedBy'=>'id']);
 		self::hasMany('groups', CalendarGroup::class, ['id' => 'calendarId']);
 		self::hasMany('attendees', Attendee::class, ['id' => 'calendarId']);
 		self::hasMany('defaultAlarms', DefaultAlarm::class, ['id' => 'calendarId']);
-	}
-	
-	public function internalSave() {
-		//$this->update();
-		return parent::internalSave();
 	}
 	
 	// ATTRIBUTES

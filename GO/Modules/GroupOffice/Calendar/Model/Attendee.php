@@ -10,6 +10,7 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 use IFW\Orm\Record;
 use IFW\Auth\Permissions\ViaRelation;
 use GO\Core\Users\Model\User;
+use IFW\Orm\Query;
 
 /**
  * Attendee records hold attendee / guest information.
@@ -45,7 +46,7 @@ class Attendee extends Record {
 	 * Whether the attendee has accepted, declined, delegated or is tentative.
 	 * @var int
 	 */							
-	public $responseStatus = 1;
+	public $responseStatus = AttendeeStatus::NeedsAction;
 
 	/**
 	 * foreign key to the calendar
@@ -63,10 +64,10 @@ class Attendee extends Record {
 
 	static public function me() {
 		$me = new self();
-		$me->email = Group::current()->email;
-		$me->groupId = \GO()->getAuth()->user()->groupId;
-		$me->setCalendar(Group::current()->getDefaultCalendar());
-		$me->responseStatus = ResponseStatus::Accepted;
+		$me->email = \GO()->getAuth()->user()->email;
+		$me->groupId = Group::current()->id;
+		$me->setCalendar(Calendar::find((new Query)->select('id')->where(['ownedBy'=>Group::current()->id]))->single());
+		$me->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
 		$me->event = $event;
 		//$me->event->attendees[] = $me;
