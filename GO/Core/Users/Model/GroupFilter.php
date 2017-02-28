@@ -30,8 +30,9 @@ class GroupFilter extends MultiselectFilter {
 //		$this->applyOtherFilters($query);		
 		
 		$groupRelation = $this->_getGroupRelation();
+		$viaRecordName = $groupRelation->getViaRecordName();
 		$query->join(
-						$groupRelation->getViaRecordName(), 
+						$viaRecordName::tableName(), 
 						'groupLink2',
 						(new Criteria())
 							->where('t.id=groupLink2.userId')
@@ -63,8 +64,9 @@ class GroupFilter extends MultiselectFilter {
 			$groupRelation = $this->_getGroupRelation();		
 //			$query->joinModel($groupRelation->getVia(), $groupRelation->getKey() , 'groupLink', $groupRelation->getForeignKey());
 //			$query->groupBy(['t.id'])->andWhere(['IN','groupLink.groupId',$this->selected]);
+			$viaRecordName = $groupRelation->getViaRecordName();
 			$query->join(
-							$groupRelation->getViaRecordName(), 
+							$viaRecordName::tableName(), 
 							'groupLink',
 							(new Criteria())
 								->where('t.id=groupLink.userId')

@@ -278,22 +278,13 @@ class Criteria extends Object {
 			return $this;
 		}		
 		
-		if (!isset($pdoType)) {
-			if (is_bool($value)) {
-				$pdoType = PDO::PARAM_BOOL;
-			} elseif (is_int($value)) {
-				$pdoType = PDO::PARAM_INT;
-			} elseif (is_null($value)) {
-				$pdoType = PDO::PARAM_NULL;
-			} else {
-				$pdoType = PDO::PARAM_STR;
-			}
+		if (!isset($pdoType)) {			
+			$pdoType = Utils::getPdoParamType($value);			
 		}
 		
 		$this->bindParameters[] = ['paramTag' => $tag, 'value' => $value, 'pdoType' => $pdoType];
 		
 		return $this;
 	}
-	
 	
 }

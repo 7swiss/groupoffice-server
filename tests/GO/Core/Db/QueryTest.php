@@ -1,7 +1,6 @@
 <?php
 namespace IFW\Db;
 
-use GO\Modules\Contacts\Model\Address;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -14,7 +13,7 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 		$query1 = new \IFW\Orm\Query();
 		$query1->select('t.*')
 						->debug()
-						->join(Address::class,'addresses','t.id=addresses.contactId')
+						->join(\GO\Modules\GroupOffice\Contacts\Model\Address::tableName(),'addresses','t.id=addresses.contactId')
 						->joinRelation('emailAddresses');
 		
 		$query2 = (new \IFW\Orm\Query)->joinRelation('phoneNumbers');

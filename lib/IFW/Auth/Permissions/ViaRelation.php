@@ -82,7 +82,8 @@ class ViaRelation extends Model {
 				$on .= '`'.$linkTableAlias.'`.`'.$fromField.'`=`'.$subquery->getTableAlias().'`.`'.$toField.'`'; 
 			}
 			//join ContactTag
-			$subquery->join($this->viaRecordName, $linkTableAlias, $on);
+			$viaRecordName = $this->viaRecordName;
+			$subquery->join($viaRecordName::tableName(), $linkTableAlias, $on);
 
 			foreach($relation->getKeys() as $myKey => $theirKey) {
 				$subquery->andWhere($linkTableAlias.'.'.$theirKey.' = `'.$subquery->getTableAlias().'`.`'. $myKey.'`');			

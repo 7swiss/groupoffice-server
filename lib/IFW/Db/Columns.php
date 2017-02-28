@@ -26,6 +26,10 @@ class Columns implements ArrayAccess, IteratorAggregate{
 		
 		$this->createFromDatabase();
 	}	
+	
+	public function getTableName() {
+		return $this->tableName;
+	}
 
 	private function getCacheKey() {
 		return 'dbColumns_' . $this->tableName;
@@ -233,6 +237,20 @@ class Columns implements ArrayAccess, IteratorAggregate{
 	 */
 	public function getColumnNames() {
 		return array_keys($this->columns);
+	}
+	
+	/**
+	 * Get a column
+	 * 
+	 * @param string $name
+	 * @return Column
+	 */
+	public function getColumn($name) {
+		if(!isset($this->columns[$name])) {
+			return null;
+		}
+		
+		return $this->columns[$name];
 	}
 
 }

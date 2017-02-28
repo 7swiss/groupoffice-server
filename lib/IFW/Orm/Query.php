@@ -123,7 +123,9 @@ class Query extends DbQuery {
 	 * @return QueryBuilder
 	 */
 	public function getBuilder($recordClassName) {		
-		return new QueryBuilder($recordClassName, $this);
+		$builder = new QueryBuilder($recordClassName);
+		return $builder->select($this);
+		
 	}
 	
 	

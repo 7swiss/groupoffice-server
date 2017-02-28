@@ -25,6 +25,22 @@ class QueryBuilder extends DbQueryBuilder{
 	 */
 	protected $joinRelationSelectString;
 	
+	private $recordClassName;
+	
+	public function __construct($recordClassName) {
+		parent::__construct($recordClassName::tableName());
+		$this->recordClassName = $recordClassName;
+	}
+	
+	/**
+	 * Get the name of the record this query builder is for.
+	 *
+	 * @param string
+	 */
+	public function getRecordClassName() {
+		return $this->recordClassName;
+	}
+	
 	protected function joinRelation($joinRelation) {
 
 		$join = '';
@@ -135,7 +151,7 @@ class QueryBuilder extends DbQueryBuilder{
 			$joinSql .= ' AND `'.$relation->getName().'`.`deleted` = false';
 		}
 
-		$this->aliasMap[$relation->getName()] = $relatedModelName;
+		$this->aliasMap[$relation->getName()] = $relatedModelName::getColumns();
 
 		if (isset($relation->query)) {
 			$relation->query->tableAlias($relation->getName());

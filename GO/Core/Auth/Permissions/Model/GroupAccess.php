@@ -22,6 +22,20 @@ abstract class GroupAccess extends Record {
 	 */
 	public $groupId;
 	
+	
+	/**
+	 *
+	 * @var bool 
+	 */
+	public $delete = false;
+	
+	
+	/**
+	 *
+	 * @var bool 
+	 */
+	public $write = false;
+	
 	/**
 	 * Define the relation that these groups grant access for.
 	 * 
@@ -32,7 +46,9 @@ abstract class GroupAccess extends Record {
 	 * 
 	 * @return \IFW\Orm\Relation
 	 */
-	abstract protected static function groupsFor();
+	protected static function groupsFor() {
+		throw new \Exception("Please implement");
+	}
 
 
 	protected static function defineRelations() {

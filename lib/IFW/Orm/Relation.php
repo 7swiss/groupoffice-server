@@ -467,7 +467,8 @@ class Relation {
 				$on .= '`'.$linkTableAlias.'`.`'.$fromField.'`=`'.$query->getTableAlias().'`.`'.$toField.'`'; 
 			}
 			//join ContactTag
-			$query->join($this->viaRecordName, $linkTableAlias, $on);
+			$viaRecordName = $this->viaRecordName;
+			$query->join($viaRecordName::tableName(), $linkTableAlias, $on);
 
 			foreach($this->keys as $myKey => $theirKey) {
 				
