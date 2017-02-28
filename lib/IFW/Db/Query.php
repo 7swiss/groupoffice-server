@@ -435,16 +435,16 @@ class Query extends Criteria {
 	 *  $groups = Group::find($query);
 	 * </code>
 	 *
-	 * @param string|\IFW\Orm\Store $recordClassName The record class name or sub query to join
+	 * @param string|\IFW\Orm\Store $tableName The record class name or sub query to join
 	 * @param string $joinTableAlias Leave empty for none.
 	 * @param Criteria|array|string $on The criteria used in the ON clause {@see Criteria::normalize()}
 	 * @param string $type The join type. INNER, LEFT or RIGHT
 	 * @return static
 	 */
-	public function join($recordClassName, $joinTableAlias, $on, $type = 'INNER') {
+	public function join($tableName, $joinTableAlias, $on, $type = 'INNER') {
 
 		$this->joins[] = ['manual' , [
-				'modelClassName' => $recordClassName,
+				'src' => $tableName,
 				'on' => Criteria::normalize($on),
 				'joinTableAlias' => $joinTableAlias,
 				'type' => $type

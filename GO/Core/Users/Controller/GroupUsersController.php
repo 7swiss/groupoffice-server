@@ -20,7 +20,7 @@ class GroupUsersController extends Controller {
 									->offset($offset)
 									->search($searchQuery, ['t.username'])
 									->join(
-											UserGroup::class, 
+											UserGroup::tableName(), 
 											'userGroup', 
 													(new Criteria())
 														->where('t.id = userGroup.userId')

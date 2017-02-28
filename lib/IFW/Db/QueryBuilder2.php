@@ -20,7 +20,7 @@ use function GO;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class QueryBuilder {
+class QueryBuilder2 {
 
 	use \IFW\Event\EventEmitterTrait;
 
@@ -48,14 +48,7 @@ class QueryBuilder {
 	 */
 	private $query;
 
-	/**
-	 * The name of the record model.
-	 *
-	 * eg. GO\Modules\Contacts\Model\Contact
-	 *
-	 * @var string
-	 */
-	protected $tableName;
+	protected $recordClassName;
 	protected $defaultRecordForEmptyAlias;
 	protected $tableAlias;
 //	protected $defaultTableAlias = 't';
@@ -90,22 +83,16 @@ class QueryBuilder {
 	 * @var array
 	 */
 	protected $aliasMap = [];
-	
-	/**
-	 *
-	 * @var Columns 
-	 */
-	private $columns;
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $tableName The table to operate on
+	 * @param string $recordClassName The record that extends {@see Record}
+	 * @param \IFW\Orm\Query $query
 	 */
-	public function __construct($tableName) {		
-		$this->tableName = $this->defaultRecordForEmptyAlias = $tableName;
-		
-		$this->columns = new Columns($tableName);
+	public function __construct($recordClassName, Query $query) {
+		$this->query = $query;
+		$this->recordClassName = $this->defaultRecordForEmptyAlias = $recordClassName;
 	}
 
 	/**
@@ -126,16 +113,14 @@ class QueryBuilder {
 	public function getQuery() {
 		return $this->query;
 	}
-	
-
 
 	/**
 	 * Get the name of the record this query builder is for.
 	 *
 	 * @param string
 	 */
-	public function getTableName() {
-		return $this->tableName;
+	public function getRecordClassName() {
+		return $this->recordClassName;
 	}
 
 	public function __toString() {
@@ -148,7 +133,9 @@ class QueryBuilder {
 			return;
 		}
 
-		if ($this->columns->getColumn('deleted')) {
+		$recordClassName = $this->recordClassName;
+
+		if ($recordClassName::getColumn('deleted')) {
 
 			//Group all existing where criteria. For example WHERE id=1 OR id=2 will become WHERE (id=1 OR id=2)
 			$criteria = $this->query->getWhereAsCriteria();
@@ -160,12 +147,6 @@ class QueryBuilder {
 			}
 		}
 	}
-	
-	public function select(Query $query) {
-		$this->query = $query;
-		
-		return $this;
-	}
 
 	/**
 	 * Build the SQL string
@@ -174,7 +155,7 @@ class QueryBuilder {
 	 * @return string
 	 */
 	public function build($replaceBindParameters = false, $prefix = '') {
-		
+
 
 		if (!isset($this->sql)) {
 			$this->fireEvent(self::EVENT_BUILD_QUERY, $this);
@@ -185,7 +166,7 @@ class QueryBuilder {
 			$this->buildBindParameters = [];
 
 			$this->tableAlias = $this->query->getTableAlias();
-			$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+			$this->aliasMap[$this->tableAlias] = $this->recordClassName;
 
 			$select = "\n".$prefix.$this->buildSelect();
 
@@ -200,7 +181,7 @@ class QueryBuilder {
 			
 
 			$select .= $this->joinRelationSelectString;
-			$select .= "\n".$prefix."FROM `" . $this->tableName . '` `' . $this->tableAlias . "`";
+			$select .= "\n".$prefix."FROM `" . call_user_func([$this->recordClassName, 'tableName']) . '` `' . $this->tableAlias . "`";
 			
 			
 			$where = "\n".$prefix . $this->buildWhere(null, $prefix);
@@ -287,11 +268,12 @@ class QueryBuilder {
 		if (!isset($this->aliasMap[$tableAlias])) {
 			throw new Exception("Alias '" . $tableAlias . "'  not found in the aliasMap: " . var_export($this->aliasMap, true) . ' for ' . $column);
 		}
-		
-		if (!isset($this->aliasMap[$tableAlias][$column])) {
-			throw new Exception("Column '" . $column . "' not found in table " . $this->aliasMap[$tableAlias]->getTableName());
+
+		$columnObject = call_user_func([$this->aliasMap[$tableAlias], 'getColumn'], $column);
+		if (!$columnObject) {
+			throw new Exception("Column '" . $column . "' not found in model " . $this->aliasMap[$tableAlias]);
 		}
-		return $this->aliasMap[$tableAlias][$column];
+		return $columnObject;
 	}
 
 	/**
@@ -469,9 +451,8 @@ class QueryBuilder {
 //			$alias = $usePrimaryTableAsDefault ? $this->query->tableAlias : null;
 			$colName = trim($column, ' `');
 
-//			$primaryRecordClass = $this->defaultRecordForEmptyAlias;
-			
-			$columnObject = $this->aliasMap[$this->tableAlias]->getColumn($colName);
+			$primaryRecordClass = $this->defaultRecordForEmptyAlias;
+			$columnObject = $primaryRecordClass::getColumn($colName);
 
 			//use primary table alias (t) if it's a column of the main record class
 			if ($columnObject) {
@@ -707,16 +688,16 @@ class QueryBuilder {
 	private function joinManual($config) {
 		$join = "";
 
-		if ($config['src'] instanceof \IFW\Orm\Store) {
-			$builder = $config['src']->getQuery()->getBuilder($config['src']->getRecordClassName());
+		if ($config['modelClassName'] instanceof \IFW\Orm\Store) {
+			$builder = $config['modelClassName']->getQuery()->getBuilder($config['modelClassName']->getRecordClassName());
 			$this->mergeAliasMap($builder->aliasMap);
 			$joinTableName = '(' . $builder->build() . ')';
 			foreach ($builder->getBindParameters() as $v) {
 				$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			}
 		} else {
-			$this->aliasMap[$config['joinTableAlias']] = new Columns($config['src']);
-			$joinTableName = '`' . $config['src'] . '`';
+			$this->aliasMap[$config['joinTableAlias']] = $config['modelClassName'];
+			$joinTableName = '`' . call_user_func(array($config['modelClassName'], 'tableName')) . '`';
 		}
 
 		$join .= $config['type'] . ' JOIN ' . $joinTableName . ' ';

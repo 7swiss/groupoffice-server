@@ -8,16 +8,16 @@ use IFW\Fs\File;
 use PDOException;
 
 class Utils {
-	
+
 	public static function runSQLFile(File $file) {
 		$queries = self::getSqlQueries($file);
 
 		try {
-			for($i=0,$c = count($queries); $i < $c; $i++){			
-				IFW::app()->getDbConnection()->query($queries[$i]);		
+			for ($i = 0, $c = count($queries); $i < $c; $i++) {
+				IFW::app()->getDbConnection()->query($queries[$i]);
 			}
-		}catch (PDOException $e) {
-			throw new \Exception($e->getMessage().' on query ('.$i.') '.$queries[$i]);
+		} catch (PDOException $e) {
+			throw new \Exception($e->getMessage() . ' on query (' . $i . ') ' . $queries[$i]);
 		}
 	}
 
@@ -31,7 +31,7 @@ class Utils {
 	public static function getSqlQueries(File $file) {
 		$sql = '';
 		$queries = array();
-		
+
 		$handle = $file->open('r');
 		if ($handle) {
 			while (!feof($handle)) {
@@ -67,24 +67,23 @@ class Utils {
 		}
 		return $queries;
 	}
-	
+
 	/**
 	 * Check if a database exists
 	 * 
 	 * @param string $tableName
 	 * @return boolean 
 	 */
-	public static function databaseExists($databaseName){
+	public static function databaseExists($databaseName) {
 		$stmt = IFW::app()->getDbConnection()->query('SHOW DATABASES');
-		while($r=$stmt->fetch()){
-			if($r[0]==$databaseName){
+		while ($r = $stmt->fetch()) {
+			if ($r[0] == $databaseName) {
 				return true;
-			}		
+			}
 		}
-		
+
 		return false;
 	}
-	
 
 	/**
 	 * Check if a table exists in the Group-Office database.
@@ -92,16 +91,15 @@ class Utils {
 	 * @param string $tableName
 	 * @return boolean 
 	 */
-	public static function tableExists($tableName){
-	
+	public static function tableExists($tableName) {
+
 		$stmt = IFW::app()->getDbConnection()->query('SHOW TABLES');
 		$stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
 		$tableNames = $stmt->fetchAll();
-		
+
 		return in_array($tableName, $tableNames);
-		
 	}
-	
+
 	/**
 	 * Check if a column exists 
 	 * 
@@ -109,25 +107,41 @@ class Utils {
 	 * @param string $columnName
 	 * @return boolean
 	 */
-	public static function columnExists($tableName, $columnName){
-		$sql = "SHOW FIELDS FROM `".$tableName."`";
+	public static function columnExists($tableName, $columnName) {
+		$sql = "SHOW FIELDS FROM `" . $tableName . "`";
 		$stmt = IFW::app()->getDbConnection()->query($sql);
-		while($record = $stmt->fetch(PDO::FETCH_ASSOC)){
-			if($record['Field']==$columnName){
+		while ($record = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			if ($record['Field'] == $columnName) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	public static function cutAttributesToColumnLength(IFW\Orm\Record $record) {
-		foreach($record->getColumns() as $column) {
-			if($column->pdoType == \PDO::PARAM_STR && $column->length) {
+		foreach ($record->getColumns() as $column) {
+			if ($column->pdoType == \PDO::PARAM_STR && $column->length) {
 				$record->{$column->name} = IFW\Util\StringUtil::cutString($record->{$column->name}, $column->length, false, null);
 			}
 		}
 	}
-	
-	
+
+	/**
+	 * Detect PDO param type for binding by checking the PHP variable type
+	 * 
+	 * @param mixed $variable
+	 * @return int
+	 */
+	public static function getPdoParamType($variable) {
+		if (is_bool($variable)) {
+			return PDO::PARAM_BOOL;
+		} elseif (is_int($variable)) {
+			return PDO::PARAM_INT;
+		} elseif (is_null($variable)) {
+			return PDO::PARAM_NULL;
+		} else {
+			return PDO::PARAM_STR;
+		}
+	}
 
 }

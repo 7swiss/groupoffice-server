@@ -228,4 +228,17 @@ class Connection extends Object{
 		IFW::app()->debug($sql);
 		return IFW::app()->getDbConnection()->query($sql);
 	}
+	
+	/**
+	 * Creates a new select query object
+	 * 
+	 * @return \IFW\Db\Query
+	 */
+	public function createQuery() {
+		return new Query();
+	}
+	
+	public function createCommand() {
+		
+	}
 }

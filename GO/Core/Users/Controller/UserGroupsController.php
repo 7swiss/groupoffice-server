@@ -20,7 +20,7 @@ class UserGroupsController extends Controller {
 									->offset($offset)
 									->search($searchQuery, array('t.name'))
 									->join(
-											UserGroup::class, 'userGroup', (new Criteria())
+											UserGroup::tableName(), 'userGroup', (new Criteria())
 											->where('t.id = userGroup.groupId')
 											->andWhere(['userGroup.userId' => $userId])
 											,  'LEFT')

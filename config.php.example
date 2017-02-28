@@ -22,7 +22,7 @@ return [
 
 		// Will make sure all mail will be sent to this address for debugging
 		//"GO\Core\Email\Model\Mailer" => [
-		//	debugEmail => 'test@intermesh.nl'	
+		//	"debugEmail" => 'test@intermesh.nl'	
 		//],
 		
 //		'IFW\Debugger'=> [
