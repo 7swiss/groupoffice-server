@@ -10,12 +10,12 @@ use IFW\Web\Encoder\XmlEncoder;
  * The HTTP request class.
  *
  * <p>Example:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $var = IFW::app()->request()->queryParams['someVar'];
  * 
  * //Get the JSON or XML data
  * $var = IFW::app()->request()->payload['somevar'];
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * @property-read string[] $queryParams {@see getQueryParams()}
  * @property-read string[] $body {@see getPayload()}
@@ -104,12 +104,12 @@ class Request extends Object{
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * [
 	 * 'accept' => 'application/json',
 	 * 'accept-aanguage' => 'en-us'
 	 * ]
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @return array
 	 */

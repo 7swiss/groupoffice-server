@@ -15,13 +15,13 @@ trait ValidationTrait {
 	 *
 	 * These rules should be checked when saving this model.
 	 *
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * protected static function defineValidationRules() {
 	 *
 	 * 	return [
 	 * 			new ValidateEmail("email")
 	 * 	];
-	 * }</code>
+	 * }```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return Base[]
 	 */

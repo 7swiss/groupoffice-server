@@ -71,16 +71,16 @@ class AuthController extends Controller {
 	 *
 	 * <p>Sample JSON post:</p>
 	 *
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {
 	 * 	"username": "user",
 	 * 	"password": "secret"
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return Response The token
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {
 	 *   "data": {
 	 *     "user": {
@@ -157,7 +157,7 @@ class AuthController extends Controller {
 	 *   },
 	 *   "success": true
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 */
 	public function actionLogin($returnProperties = '*,user[*]') {

@@ -423,7 +423,7 @@ class Query extends Criteria {
 	 * Make a join where you can specify the join criteria yourself.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $query = (new Query())
 	 *  ->orderBy([$orderColumn => $orderDirection])
 	 *  ->limit($limit)
@@ -445,7 +445,7 @@ class Query extends Criteria {
 	 *  }
 	 * 
 	 *  $groups = Group::find($query);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string|\IFW\Orm\Store $tableName The record class name or sub query to join
 	 * @param string $joinTableAlias Leave empty for none.

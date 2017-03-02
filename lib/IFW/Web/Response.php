@@ -14,20 +14,20 @@ use IFW\Exception\HttpException;
  * The minimal response will be:
  *
  * (JSON)
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * ['success' => true]
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * or
  * 
  * (XML)
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * <message>
  * 	<success type="boolean">true</success>
  * </message>
  * 
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

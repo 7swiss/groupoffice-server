@@ -16,17 +16,17 @@ use IFW\Orm\Query;
  * in their manager class. The constants are prefixed with ACTION_. 
  * eg.:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * const ACTION_CREATE_CONTACTS = 'createContacts';
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * These can be checked like this:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $can = \GO\Modules\Contacts\ContactsModule::model()
  *   ->getPermissions()
  *   ->can(\GO\Modules\Contacts\ContactsModule::ACTION_CREATE_CONTACTS);
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  */
 class ModuleManagerPermissions extends Model {
 

@@ -2,13 +2,13 @@
 
 namespace GO\Modules\Bands;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class BandsModuleTest extends PHPUnit_Framework_TestCase {
+class BandsModuleTest extends \PHPUnit\Framework\TestCase {
 
 	public function testConfig(){
 		

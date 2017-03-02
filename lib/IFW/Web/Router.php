@@ -100,7 +100,7 @@ class Router extends IFW\Router {
 	 * This function returns a RouteCollection object so you can add 
 	 * route mappings to controller methods.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $router->addController(AuthController::class)				
 	 * 			->get('auth', 'isLoggedIn')
@@ -108,7 +108,7 @@ class Router extends IFW\Router {
 	 * 			->delete('auth', 'logout')						
 	 * 			->post('auth/users/:userId/switch-to', 'switchTo');
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param $controllerName
 	 * @return RouteCollection 

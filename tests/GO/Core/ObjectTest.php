@@ -21,7 +21,7 @@ class TestModel extends Model{
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class ModelTest extends \PHPUnit_Framework_TestCase{
+class ModelTest extends \PHPUnit\Framework\TestCase{
 
 	/**
 	 * @expectedException        Exception

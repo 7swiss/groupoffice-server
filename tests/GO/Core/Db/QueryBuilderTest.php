@@ -2,13 +2,13 @@
 namespace IFW\Db;
 
 use GO\Modules\GroupOffice\Contacts\Model\EmailAddress;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class QueryBuilderTest extends PHPUnit_Framework_TestCase {
+class QueryBuilderTest extends \PHPUnit\Framework\TestCase {
 	public function testToString() {
 		
 		$contactId = 1;

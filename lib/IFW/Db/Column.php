@@ -9,10 +9,10 @@ use Exception;
  * Represents a Record database column attribute.
  * 
  * <p>Example:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $model = User::findByPk(1);
  * echo $model->getColumn('username')->length;
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * If you want to override a column parameter then override Record::getColumns():
  * 

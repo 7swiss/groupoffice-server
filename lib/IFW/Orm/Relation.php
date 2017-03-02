@@ -164,11 +164,11 @@ class Relation {
 	 * You can also set extra where parameters but please be aware that they are not 
 	 * applied when setting the relation.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * self::has('tags',Tag::class, ['id'=>'contactId'], true)
 	 *						->via(ContactTag::class,['tagId'=>'id'])
 	 *						->setQuery((new Query())->orderBy(['name'=>'ASC']));
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * 
 	 * For example in {@see GO\Modules\Messages\Model\Message} we have a relation 
@@ -276,10 +276,10 @@ class Relation {
 	 *
 	 * is UserGroup in this case. It connects the User and Group records.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * self::hasMany('groups', Group::class, ["id"=>"userId"])
 	 *		->via(UserGroup::class, ['groupId'=> "id"]);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * 
 	 * The table alias assigned in the query is {RelationName}Link.

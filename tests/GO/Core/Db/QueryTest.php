@@ -1,13 +1,13 @@
 <?php
 namespace IFW\Db;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class QueryTest extends PHPUnit_Framework_TestCase {
+class QueryTest extends \PHPUnit\Framework\TestCase {
 	public function testMergeWith() {
 		
 		$query1 = new \IFW\Orm\Query();

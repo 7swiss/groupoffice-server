@@ -25,9 +25,9 @@ use IFW\Web\Router;
  * like the configuration, request, debugger etc.
  * 
  * <p>Example:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $this->config()->getTempFolder();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  */
 abstract class App {
 
@@ -102,7 +102,7 @@ abstract class App {
 	 * @param array $config Config object with properties per class name.
 	 * 
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * array(
 	 * 			
 	 * 			'IFW\Config'=>array(
@@ -130,7 +130,7 @@ abstract class App {
 	 * 			)
 	 * 			
 	 * 	))
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 */
 	public function __construct($classLoader, array $config) {

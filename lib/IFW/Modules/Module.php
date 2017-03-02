@@ -16,7 +16,7 @@ use ReflectionClass;
  * 
  * Eg:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * <?php
  * namespace GO\Modules\Bands;
  *
@@ -43,7 +43,7 @@ use ReflectionClass;
  *	}
  * }
  *
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * 
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl

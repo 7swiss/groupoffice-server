@@ -16,7 +16,7 @@ use Exception;
  * 
  * Example:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * //Array with hasmany relation of the contact model
  * $contactAttr = [
  *   'firstName' => 'Test', 
@@ -43,7 +43,7 @@ use Exception;
  *	$contact->emailAddresses[] = $firstEmail;
  *	
  *	$contact->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @method Query getQuery() 
  * Use this function with caution. Because when you modify the query you also 

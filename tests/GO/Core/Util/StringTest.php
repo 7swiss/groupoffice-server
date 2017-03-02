@@ -2,13 +2,13 @@
 namespace IFW\Util;
 
 use IFW\Imap\Utils;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class StringTest extends PHPUnit_Framework_TestCase {
+class StringTest extends \PHPUnit\Framework\TestCase {
 	public function testMimeHeader() {
 
 		$mime = "=?utf-8?q?=F0=9F=92=AC_Your_opinion_of_Tern_Hill_Hall?=";

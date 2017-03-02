@@ -2,7 +2,7 @@
 
 namespace IFW\Data;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
 class Test extends \IFW\Model {
@@ -20,7 +20,7 @@ class Test extends \IFW\Model {
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class ReturnAttributesTest extends PHPUnit_Framework_TestCase{
+class ReturnAttributesTest extends \PHPUnit\Framework\TestCase{
 	function testInit(){
 		
 		$test = new Test();		

@@ -6,10 +6,18 @@ use DateTime;
 use GO\Core\Orm\Record;
 use GO\Core\Users\Model\User;
 use IFW\Orm\Query;
-use function GO;
 
 /**
  * The Comment record
+ * 
+ * Using:
+ * 
+ * 1. Create a new link record between an item and comment. It should have a 
+ * 'commentId' and for example 'taskId' as in {@see GO\Modules\GroupOffice\Tasks\Model\TaskComment}
+ * 
+ * 2. Create a controller for the new link record. See {@see \GO\Core\Comments\Controller\CommentController}
+ * 
+ * 
  *
  * @property Attachment[] $attachments
  * @property User $creator

@@ -18,9 +18,9 @@ use IFW\Util\ClassFinder;
 use IFW\Util\StringUtil;
 
 /**
- * Record model
+ * Record model.
  * 
- * Records are {@see DataModel}s that are stored in the database. Database columns are 
+ * Records are models that are stored in the database. Database columns are 
  * automatically converted into properties and relational data can be accessed
  * easily.
  *
@@ -48,33 +48,34 @@ use IFW\Util\StringUtil;
  * Basic usage
  * -----------
  *
- * <p>Create a new model:</p>
- * <code>
+ * Create a new model:
+ * 
+ * ```
  * $user = new User();
  * $user->username="merijn";
  * $user->email="merijn@intermesh.nl";
  * $user->modifiedAt='2014-07-22T16:10:15Z'; //makes no sense but just for showing how to format the time.
  * $user->createdAt = new \DateTime(); //makes no sense but just for showing how to set dates.
  * $user->save();
- * </code>
+ * ```
  *
  * <p>Updating a model:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user = User::find(['username' => 'merijn'])->single();
  *
  * if($user){
  *    $user->email="merijn@intermesh.nl";
  *    $user->save();
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * <p>Find all users ({@see find()}):</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $users = User::find();
  * foreach($users as $user){
  *     echo $user->username.'<br />';
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * 
  * Relations
@@ -85,13 +86,13 @@ use IFW\Util\StringUtil;
  * 
  * To get the "groups" relation of a user simply do:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * //$user->groups returns a RelationStore because it's a has many relation
  * foreach($user->groups as $group){
  *    echo $group->name;
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * 
  * If you'd like to query a subset of the relation you can adjust the relation 
@@ -99,31 +100,31 @@ use IFW\Util\StringUtil;
  * you are adjusting the actual relation of the model that might be needed in 
  * other parts of the code:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $attachments = clone $message->attachments;
  * $attachments->getQuery()->where(['AND','!=', ['contentId' => null]]);
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * You can also set relations:
  * 
  * With models:
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user->groups = [$groupModel1, $groupModel2]; 
  * $user->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * Or with arrays of attributes. (This is the API way when  posting JSON):
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user->groups = [['groupId' => 1]), ['groupId' => 2]]; 
  * $user->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * Or modify relations directly:
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $contact = Contact::findByPk($id);
  * $contact->emailAddresses[0]->type = 'work';
  * $contact->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * 
  * See also {@see RelationStore} for more information about how the has many relation collection works.
@@ -491,9 +492,9 @@ abstract class Record extends DataModel {
 	 * Get the database columns
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $columns = User::getColumns();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return Columns|Column[] Array with column name as key
 	 */
@@ -512,10 +513,10 @@ abstract class Record extends DataModel {
 	 * Get the database column definition
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $column = User::getColumn('username);
 	 * echo $column->length;
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $name
 	 * @return Column
@@ -872,7 +873,7 @@ abstract class Record extends DataModel {
 	 * Check if this record or record attribute has modifications not saved to
 	 * the database yet.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * if($record->isModified()) {
 	 *	//the record has at least one modified attribute
@@ -886,7 +887,7 @@ abstract class Record extends DataModel {
 	 *	//foo or bar is modified
 	 * }
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string|array $attributeOrRelationName If you pass an array then they are all checked
 	 * @return boolean
@@ -1006,14 +1007,14 @@ abstract class Record extends DataModel {
 	 * Get the old value for a modified attribute.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * $model = User::findByPk(1);
 	 * $model->username='newValue':
 	 *
 	 * $oldValue = $model->getOldAttributeValue('username');
 	 *
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * @param string $attributeName
 	 * @return mixed
 	 */
@@ -1032,7 +1033,7 @@ abstract class Record extends DataModel {
 	 * that are not saved to the database yet.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * $model = User::findByPk(1);
 	 * $model->username='newValue':
@@ -1041,7 +1042,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * $modifiedAtttibutes = ['username' => 'oldusername'];
 	 *
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return array eg. ['attributeName' => 'oldValue]
 	 */
@@ -1065,7 +1066,7 @@ abstract class Record extends DataModel {
 	 * * {@see hasMany()}
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations(){
 	 *	
 	 *  self::hasOne('owner', User::class, ['ownerUserId' => 'id]);
@@ -1077,17 +1078,17 @@ abstract class Record extends DataModel {
 	 *	
 	 *	self::hasOne('customfields', ContactCustomFields::class, ['id' => 'id']);
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * It's also possible to add relations to other models:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations(){
 	 *  
 	 *	GO\Core\Auth\DataModel\User::hasOne('contact', Contact::class, ['id' => 'userId']);
 	 *	
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 */
 	protected static function defineRelations() {
 		
@@ -1245,14 +1246,14 @@ abstract class Record extends DataModel {
 	 * Save changes to database
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(1);
 	 * $model->setAttibutes(['username'=>'admin']);
 	 * if(!$model->save())	{
 	 *  //oops, validation must have failed
 	 *   var_dump($model->getValidationErrors();
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Don't override this method. Override {@see internalSave()} instead.
 	 *
@@ -1635,15 +1636,15 @@ abstract class Record extends DataModel {
 	 * Find a Record by primary key
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $user = User::findByPk(1);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * The primary key can also be an array:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $user = User::find(['groupId'=>1,'userId'=>2])->single();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param int|array $pk
 	 * @return static
@@ -1660,7 +1661,7 @@ abstract class Record extends DataModel {
 	}
 
 	/**
-	 * Find records
+	 * Find records.
 	 * 
 	 * Finds records based on the {@see Query} Object you pass. It returns a
 	 * {@see Store} object. The documentation tells that it returns an instance
@@ -1668,8 +1669,8 @@ abstract class Record extends DataModel {
 	 * 
 	 * Basic usage
 	 * -----------
-	 * 
-	 * <code>
+	 *
+	 * ```php
 	 * 
 	 * //Single user by attributes.
 	 * $user = User::find(['username' => 'admin'])->single(); 
@@ -1686,14 +1687,15 @@ abstract class Record extends DataModel {
 	 * foreach ($users as $user) {
 	 *   echo $user->username."<br />";
 	 * }
-	 * </code>
+	 * 
+	 * ```
 	 * 
 	 * Join relations
 	 * --------------
 	 * 
 	 * With {@see Query::joinRelation()} it's possible to join a relation so that later calls to that relation don't need to be fetched from the database separately.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $contacts = Contact::find(
 	 *         (new Query())
 	 *           ->joinRelation('addressbook', true)
@@ -1702,11 +1704,11 @@ abstract class Record extends DataModel {
 	 * foreach ($contacts as $contact) {
 	 *   echo $contact->addressbook->name."<br />"; //no query needed for the addressbook relation.
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Complex join {@see Query::join()}
 	 * ------------
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $groups = Group::find((new Query())
 	 *         ->orderBy([$orderColumn => $orderDirection])
@@ -1723,29 +1725,29 @@ abstract class Record extends DataModel {
    *              'LEFT')
    *          ->where(['userGroup.groupId'=>null])
    *          );
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * More features
 	 * -------------
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $finder = Contact::find(
-						(new Query())
-								->select('t.*, count(emailAddresses.id)')
-								->joinRelation('emailAddresses', false)								
-								->groupBy(['t.id'])
-								->having("count(emailAddresses.id) > 0")
-						->where(['!=',['lastName'=>null]])
-						->andWhere((new Criteria())
-							->where(['firstName', => ['Merijn', 'Wesley']]) //IN condition with array
-							->orWhere(['emailAddresses.email'=>'test@intermesh.nl'])
-						)
-		);
-	 * </code>
+	 * 						(new Query())
+	 * 								->select('t.*, count(emailAddresses.id)')
+	 * 								->joinRelation('emailAddresses', false)								
+	 * 								->groupBy(['t.id'])
+	 * 								->having("count(emailAddresses.id) > 0")
+	 * 						->where(['!=',['lastName'=>null]])
+	 * 						->andWhere((new Criteria())
+	 * 							->where(['firstName', => ['Merijn', 'Wesley']]) //IN condition with array
+	 * 							->orWhere(['emailAddresses.email'=>'test@intermesh.nl'])
+	 * 						)
+	 * 		);
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * <p>Produces:</p>
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * SELECT t.*, count(emailAddresses.id) FROM `contactsContact` t
 	 * INNER JOIN `contactsContactEmailAddress` emailAddresses ON (`t`.`id` = `emailAddresses`.`contactId`)
 	 * WHERE
@@ -1771,7 +1773,7 @@ abstract class Record extends DataModel {
 	 * (
 	 *		count(emailAddresses.id) > 0
 	 * )
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param Query|array|StringUtil $query Query object. When you pass an array a new 
 	 * Query object will be autocreated and the array will be passed to 
@@ -2027,10 +2029,10 @@ abstract class Record extends DataModel {
 	 * deleted models.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(2);
 	 * $model->deleteHard();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return boolean
 	 */
@@ -2047,11 +2049,12 @@ abstract class Record extends DataModel {
 	 * Delete's the model from the database or set's it to deleted if soft delete 
 	 * is supported.
 	 *
-	 * <p>Example:</p>
-	 * <code>
+	 * Example:
+	 * 
+	 * ```php
 	 * $model = User::findByPk(2);
 	 * $model->delete();
-	 * </code>
+	 * ```
 	 * 
 	 * Don't override this method. Override {@see internalDelete()} instead. The 
 	 * internalDelete function is called after permission checks and validation.
@@ -2250,7 +2253,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * For example a contact has many email addresses.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations() {
 	 *	...
 	 * 
@@ -2258,7 +2261,7 @@ abstract class Record extends DataModel {
 	 * 
 	 *	...
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $relatedModelName The class name of the related model. eg. UserGroup::class
 	 * @param string $keys The relation keys. eg ['id'=>'userId']
@@ -2279,7 +2282,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * For example a user has one contact
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations() {
 	 *	...
 	 * 
@@ -2287,7 +2290,7 @@ abstract class Record extends DataModel {
 	 * 
 	 *	...
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $name The name of the relation
 	 * @param string $relatedModelName The class name of the related model. eg. UserGroup::class
@@ -2311,9 +2314,9 @@ abstract class Record extends DataModel {
 //	 * It only copies the database attributes and relations that are 
 //	 * {@see Relation::isIdentifying()} and not {@see Relation::isBelongsTo()}.
 //	 * 
-//	 * <code>
+//	 * ```````````````````````````````````````````````````````````````````````````
 //	 * $model = $model->copy();	
-//	 * </code>
+//	 * ```````````````````````````````````````````````````````````````````````````
 //	 * 
 //	 * 
 //	 * @param array $attributes

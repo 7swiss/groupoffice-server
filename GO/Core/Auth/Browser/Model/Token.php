@@ -26,11 +26,11 @@ use IFW\Orm\Record;
  * can't use the header method. 
  * 
  * Optionally you can disable the token checking in config.php:
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 'GO\Core\Auth\Browser\Model\Token' => [
 			"checkXSRFToken" => false //Can be convenient to disable in development mode.
 		],
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * Authentication starts in {@see \GO\Core\Controller::checkAccess()}. 
  * It calls the {@see \GO\Core\Auth\\GO()->auth()->user()} function that tries to 
@@ -175,9 +175,9 @@ class Token extends Record {
 	 * The folder will be destroyed automatically when the token expires.
 	 * 
 	 * This folder is accessible via the {@see \GO\Core\Auth\UserProvider}
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $tempFolder = IFW::auth()->tempFolder();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param boolean $autoCreate
 	 * @return Folder

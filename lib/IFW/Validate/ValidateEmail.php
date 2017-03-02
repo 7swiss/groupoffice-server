@@ -10,7 +10,7 @@ use IFW\Data\Model;
  * 
  * <p>eg. in a Record do:</p>
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * protected static function defineValidationRules() {
  *	
  *		self::getColumn('username')->required=true;
@@ -22,7 +22,7 @@ use IFW\Data\Model;
  *        new ValidatePassword('password', 'passwordConfirm') //Also encrypts it on success
  *		);
  *	}
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

@@ -7,13 +7,14 @@ use GO\Core\Users\Model\Group;
 use GO\Core\Users\Model\User;
 use GO\Modules\GroupOffice\Contacts\Model\Contact;
 use GO\Modules\GroupOffice\Contacts\Model\EmailAddress;
-use PHPUnit_Framework_TestCase;
+use GO\Modules\GroupOffice\Contacts\Module;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class AbstractRecordTest extends PHPUnit_Framework_TestCase {
+class AbstractRecordTest extends TestCase {
 
 	public function testDateSet() {
 
@@ -26,7 +27,7 @@ class AbstractRecordTest extends PHPUnit_Framework_TestCase {
 	
 	public function testFindModule() {
 		$contact = new Contact();
-		$this->assertEquals(\GO\Modules\GroupOffice\Contacts\Module::class, $contact->findModuleName());
+		$this->assertEquals(Module::class, $contact->findModuleName());
 	}
 	
 	
