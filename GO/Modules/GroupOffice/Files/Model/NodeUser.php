@@ -9,12 +9,14 @@
 namespace GO\Modules\GroupOffice\Files\Model;
 
 use DateTime;
-use GO\Core\Orm\Record;
+//use GO\Core\Orm\Record;
+use \IFW\Orm\PropertyRecord;
 use GO\Core\Users\Model\User;
+use IFW\Auth\Permissions\ViaRelation;
 
 /**
  */
-class NodeUser extends Record {
+class NodeUser extends PropertyRecord {
 
 	/**
 	 * 

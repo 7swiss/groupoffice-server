@@ -30,11 +30,11 @@ class NodeController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[username]") {
+	public function actionStore($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name]") {
 		$filter = json_decode($filter, true);
 		$query = (new Query)
 				  ->joinRelation('blob', true, 'LEFT') // folder has no size
-				  ->joinRelation('nodeUser', 'starred')
+				  ->joinRelation('nodeUser', 'starred', 'LEFT')
 				  ->joinRelation('owner', 'name')
 				  ->orderBy(['isDirectory' => 'DESC', $orderColumn => $orderDirection])
 				  ->limit($limit)
@@ -50,6 +50,11 @@ class NodeController extends Controller {
 		//}
 		if (!empty($filter['starred'])) {
 			$query->andWhere('nodeUser.starred = 1');
+		}
+		if (!empty($filter['shared'])) {
+			$query->andWhere('ownedBy != '.\GO()->getAuth()->user()->group->id);
+		} else {
+			$query->andWhere('ownedBy = '.\GO()->getAuth()->user()->group->id);
 		}
 		if (!empty($filter['trash'])) {
 			$query->withDeleted()->andWhere('deleted = 1');

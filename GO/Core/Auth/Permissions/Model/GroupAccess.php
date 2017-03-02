@@ -78,7 +78,7 @@ abstract class GroupAccess extends Record {
 		
 		static::defineRelations(); //to avoid cache problems
 		$relation = static::groupsFor();
-		
+
 		return new \GO\Core\Auth\Permissions\Model\GroupAccessPermissions($relation->getName());
 	}
 	

@@ -60,8 +60,8 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `files_node_group` (
   `nodeId` INT NOT NULL,
   `groupId` INT NOT NULL,
-  `canRead` TINYINT(1) NOT NULL DEFAULT 1,
-  `canWrite` TINYINT(1) NOT NULL DEFAULT 0,
+  `read` TINYINT(1) NOT NULL DEFAULT 1,
+  `write` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`nodeId`, `groupId`),
   INDEX `fk_fiiles_node_access_files_node1_idx` (`nodeId` ASC),
   INDEX `fk_fiiles_node_access_auth_group1_idx` (`groupId` ASC),
