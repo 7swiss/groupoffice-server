@@ -400,28 +400,28 @@ class Relation {
 			
 			//check if keys exist in debug mode
 			foreach($this->keys as $fromField => $toField) {
-				if(!$fromRecordName::getColumn($fromField) ) {
-					throw new \Exception("Invalid keys defined for relation '".$this->name."'. $fromRecordName::$fromField doesn't exist");
+				if(!property_exists($fromRecordName, $fromField) ) {
+					throw new \Exception("Invalid keys defined for relation '". $fromRecordName .'::'. $this->name ."'. $fromRecordName::$fromField doesn't exist");
 				}
 				
 				if(!isset($this->viaRecordName)) {
-					if(!$toRecordName::getColumn($toField) ) {
-						throw new \Exception("Invalid keys defined for relation '".$this->name."'. $toRecordName::$toField doesn't exist");
+					if(!property_exists($toRecordName, $toField) ) {
+						throw new \Exception("Invalid keys defined for relation '". $fromRecordName .'::'. $this->name ."'. $toRecordName::$toField doesn't exist");
 					}
 				} else {
 					$viaRecordName = $this->viaRecordName;
-					if(!$viaRecordName::getColumn($toField) ) {
-						throw new \Exception("Invalid keys defined for relation '".$this->name."'. $viaRecordName::$toField doesn't exist");
+					if(!property_exists($viaRecordName, $toField) ) {
+						throw new \Exception("Invalid keys defined for relation '". $fromRecordName .'::'. $this->name ."'.$viaRecordName::$toField doesn't exist");
 					}
 					
 					foreach($this->viaKeys as $fromField => $toField) {
 						$viaRecordName = $this->viaRecordName;
-						if(!$viaRecordName::getColumn($fromField) ) {
-							throw new \Exception("Invalid keys defined for relation '".$this->name."'. $viaRecordName::$fromField doesn't exist");
+						if(!property_exists($viaRecordName, $fromField) ) {
+							throw new \Exception("Invalid keys defined for relation '". $fromRecordName .'::'. $this->name ."'. $viaRecordName::$fromField doesn't exist");
 						}
 						
-						if(!$toRecordName::getColumn($toField) ) {
-							throw new \Exception("Invalid keys defined for relation '".$this->name."'. $toRecordName::$toField doesn't exist");
+						if(!property_exists($toRecordName, $toField) ) {
+							throw new \Exception("Invalid keys defined for relation '". $fromRecordName .'::'. $this->name ."'. $toRecordName::$toField doesn't exist");
 						}
 					}
 				}
