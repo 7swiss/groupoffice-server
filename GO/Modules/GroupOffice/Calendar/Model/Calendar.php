@@ -66,26 +66,6 @@ class Calendar extends Record {
 	protected static function internalGetPermissions() {
 		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(CalendarGroup::class);
 	}
-
-	public function internalSave() {
-
-		$createPermissions = $this->isNew() && !$this->isModified('groups');
-
-		//$this->update();
-		if(!parent::internalSave()) {
-			return false;
-		}
-
-		if($createPermissions) {
-			$cg = new CalendarGroup();
-			$cg->calendarId = $this->id;
-			$cg->groupId = $this->ownedBy;
-			if(!$cg->save()) {
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	protected static function defineRelations() {
 		//TODO: join events to this and select by timespan

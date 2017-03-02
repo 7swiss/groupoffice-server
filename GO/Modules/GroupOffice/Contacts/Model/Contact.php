@@ -230,9 +230,6 @@ class Contact extends Record {
 	
 	public function internalSave() {
 		
-		//When the contact is copied then the groupPermissions relation is copied as well.
-		$createPermissions = $this->isNew() && !$this->isModified('groups');		
-		
 		$this->saveBlob('photoBlobId');
 		
 		if($this->userId && $this->isModified('photoBlobId')) {
@@ -246,16 +243,6 @@ class Contact extends Record {
 		if(!parent::internalSave()){			
 			return false;
 		}		
-		
-		if($createPermissions) {
-			$cg = new ContactGroup();
-			$cg->contactId = $this->id;
-			$cg->groupId = $this->ownedBy;
-			if(!$cg->save()) {
-				return false;
-			}
-		}
-		
 		
 		if($this->isModified()) {
 			$logAction = $this->isNew() ? self::LOG_ACTION_CREATE : self::LOG_ACTION_UPDATE;
