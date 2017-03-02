@@ -54,14 +54,14 @@ abstract class Record extends IFWRecord {
 		return $recordType;
 	}
 
-	protected function internalSave() {
-
-		if($this->isNew() && $this->hasReadableProperty('groups') && !$this->isModified('groups')) {
-			$this->groups[] = ['groupId'=>$this->ownedBy];
-		}
-
-		return parent::internalSave();
-	}
+//	protected function internalSave() {
+//
+//		if($this->isNew() && $this->hasReadableProperty('groups') && !$this->isModified('groups')) {
+//			$this->groups[] = ['groupId'=>$this->ownedBy];
+//		}
+//
+//		return parent::internalSave();
+//	}
 	
 	protected function setDefaultAttributes() {
 		parent::setDefaultAttributes();
