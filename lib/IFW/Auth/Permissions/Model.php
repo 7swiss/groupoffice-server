@@ -2,12 +2,10 @@
 
 namespace IFW\Auth\Permissions;
 
-use Exception;
 use IFW;
 use IFW\Data\Model as DataModel;
 use IFW\Orm\Query;
 use IFW\Orm\Record;
-use ReflectionClass;
 
 /**
  * Abstract permissions model to secure records
@@ -296,52 +294,4 @@ abstract class Model extends DataModel {
 			$record->groups[] = ['groupId' => $record->ownedBy];
 		}
 	}
-//	
-//	/**
-//	 * Override this method to implement your permission logic
-//	 * 
-//	 * @param Query $query
-//	 * @throws Exception
-//	 */
-//	protected static function internalQuery(Query $query, IFW\Auth\UserInterface $user) {
-//		throw new \Exception("Please implement internalQuery() in ".static::class);
-//	}
-//	
-//	/**
-//	 * Get a query object that only returns records that are readable for the 
-//	 * current user.
-//	 * 
-//	 * WARNING: Records returned by the query will NOT be checked for read 
-//	 * permission.
-//	 * 
-//	 * You need to override internalQuery() and implement your permission stuff 
-//	 * there.
-//	 * 
-//	 * @param Query|array|string $query
-//	 * @return Query
-//	 */
-//	public static final function query($query = null, IFW\Auth\UserInterface $user = null) {
-//		
-//		if($user == null) {
-//			$user = IFW::app()->getAuth()->user();
-//			if(!$user) {
-//				throw new IFW\Exception\NotAuthenticated();
-//			}
-//		}
-//		
-//		$query = Query::normalize($query)->_skipReadPermission();
-//
-//		static::internalQuery($query, $user);
-//		
-//		return $query;
-//	
-////				
-////		//avoid permission check on every find result See in checkAction above.				
-////		$query->getBuilder(Contact::class)->attach(QueryBuilder::EVENT_BUILD_QUERY, function($queryBuilder) {
-////			$select = empty($queryBuilder->getQuery()->select) ? 't.*' : '';
-////			$queryBuilder->getQuery()->select($select . ', 1 AS _hasFindPermission');
-////		});
-////		
-////		return $query;
-//	}
 }
