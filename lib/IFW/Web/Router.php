@@ -84,7 +84,7 @@ class Router extends IFW\Router {
 	 * @var array
 	 */
 	private $routeParams = [];
-	private $routeParts;
+//	private $routeParts;
 
 	/**
 	 * When building the route table this is set to the module currently processed
@@ -301,9 +301,9 @@ class Router extends IFW\Router {
 
 				if (substr($routeParamName, 0, 1) == '*') {
 					//this parameter will swallow the whole route and pass it as a aprameter
-					if (!empty($this->routeParts)) {
+					if (!empty($routeParts)) {
 						$routePart .= '/' . implode('/', $routeParts);
-						$this->routeParts = [];
+						$routeParts = [];
 					}
 				}
 
