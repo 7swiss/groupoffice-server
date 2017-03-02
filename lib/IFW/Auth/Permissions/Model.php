@@ -285,6 +285,17 @@ abstract class Model extends DataModel {
 	protected function internalApplyToQuery(Query $query, \IFW\Auth\UserInterface $user){
 		
 	}
+	
+	/**
+	 * Override this function to initialize your permissions on a new record
+	 * 
+	 * @param Record $record
+	 */
+	public function beforeCreate(Record $record) {
+		if($record->getRelation('groups') && property_exists($record, 'ownedBy') && !$record->isModified('groups')) {
+			$record->groups[] = ['groupId' => $record->ownedBy];
+		}
+	}
 //	
 //	/**
 //	 * Override this method to implement your permission logic

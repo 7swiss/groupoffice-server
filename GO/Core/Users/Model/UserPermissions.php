@@ -36,5 +36,4 @@ class UserPermissions extends ReadOnly {
 						->andWhere(['userGroup.groupUsers.userId' => $user->id])
 						->andWhere(['!=',['userGroup.groupUsers.groupId' => Group::ID_EVERYONE]]);
 	}
-
 }

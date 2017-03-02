@@ -1296,6 +1296,10 @@ abstract class Record extends DataModel {
 			if($this->saveStartedTransaction) {
 				$this->getDbConnection()->beginTransaction();
 			}	
+			
+			if($this->isNew()) {
+				$this->getPermissions()->beforeCreate($this);
+			}
 
 			//save modified attributes for after save event
 			$success = $this->internalSave();			

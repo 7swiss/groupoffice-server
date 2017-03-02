@@ -36,5 +36,5 @@ class GroupAccessPermissions extends Model {
 		}
 
 		return $relatedRecord->permissions->can(self::PERMISSION_CHANGE_PERMISSIONS, $user);
-	}
+	}	
 }
