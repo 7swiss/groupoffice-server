@@ -3,13 +3,8 @@
 namespace IFW\Db;
 
 use Exception;
-use IFW;
 use IFW\Db\Column;
 use IFW\Db\Criteria;
-use IFW\Db\PDO;
-use PDOException;
-use PDOStatement;
-use function GO;
 
 /**
  * QueryBuilder
@@ -172,19 +167,41 @@ class QueryBuilder {
 		
 		$this->reset();
 		
+		$sql = "INSERT INTO `{$this->tableName}`";
 		
-		
-		$tags = [];
-		foreach($data as $colName => $value) {
+		if($data instanceof \IFW\Db\Query) {
+			$build = $data->createCommand()->build();
 			
-			$paramTag = $this->getParamTag();
-			$tags[] = $paramTag;
-			$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+			$sql .= ' ' . $build['sql'];
+			//import subquery bind params
+			foreach ($build['params'] as $v) {
+				$this->buildBindParameters[] = $v;
+			}
+			
+		}else if($data instanceof \IFW\Orm\Store) {
+			$builder = $data->getQuery()->getBuilder($data->getRecordClassName());
+			$builder->mergeAliasMap($this->aliasMap);
+			
+			$build = $builder->buildSelect($data->getQuery());
+			
+			$sql .= ' ' . $build['sql'];
+			//import subquery bind params
+			foreach ($build['params'] as $v) {
+				$this->buildBindParameters[] = $v;
+			}
+		} else {
+		
+			$tags = [];
+			foreach($data as $colName => $value) {
+
+				$paramTag = $this->getParamTag();
+				$tags[] = $paramTag;
+				$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+			}
+
+			$sql .= " (\n\t`" . implode("`,\n\t`", array_keys($data)) . "`\n)\n".
+							"VALUES (\n\t" . implode(",\n\t", $tags) . "\n)";
 		}
-		
-		$sql = "INSERT INTO `{$this->tableName}` (`" . implode('`,` ', array_keys($data)) . "`)\n".
-						"VALUES (" . implode(', ', $tags) . ")";
-		
 		return ['sql' => $sql, 'params' => $this->getBindParameters()];
 		
 	}
@@ -204,7 +221,28 @@ class QueryBuilder {
 			$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
 		}
 		
-		$sql = "UPDATE `{$this->tableName}` `" . $this->tableAlias . "` SET ". implode(', ', $updates);
+		$sql = "UPDATE `{$this->tableName}` `" . $this->tableAlias . "` SET\n\t". implode(",\n\t", $updates);
+		
+		$where = $this->buildWhere();
+		
+		if(!empty($where)) {
+			$sql .= "\n".$where;
+		}		
+		
+		return ['sql' => $sql, 'params' => $this->getBindParameters()];
+	}
+	
+	
+	public function buildDelete(Query $query) {
+		
+		$this->reset();
+		
+		$this->query = $query;
+		$this->tableAlias = $this->query->getTableAlias();
+		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+		
+		
+		$sql = "DELETE FROM `" . $this->tableAlias . "` USING `" . $this->tableName . "` AS `" . $this->tableAlias . "` ";
 		
 		$where = $this->buildWhere();
 		
@@ -454,8 +492,6 @@ class QueryBuilder {
 
 		return $c;
 	}
-
-	protected $isSubQuery = false;
 	
 	/**
 	 * Builds the where array syntax to a parameterized SQL string
@@ -481,14 +517,14 @@ class QueryBuilder {
 	private function buildSubQuery($comparator, \IFW\Orm\Store $store, $prefix) {
 		$builder = $store->getQuery()->getBuilder($store->getRecordClassName());
 		$builder->mergeAliasMap($this->aliasMap);
-		$builder->isSubQuery = true;
+
 		
 		$build = $builder->buildSelect($store->getQuery(), $prefix . "\t");
 
 		$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $build['sql'] ."\n". $prefix . ")";
 		
+		//import subquery bind params
 		foreach ($build['params'] as $v) {
-//			$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			$this->buildBindParameters[] = $v;
 		}
 		return $str;
@@ -638,7 +674,7 @@ class QueryBuilder {
 				//subquery
 				$builder = $value->getQuery()->getBuilder($value->getRecordClassName());
 				$this->mergeAliasMap($builder->aliasMap);
-				$builder->isSubQuery = true;
+
 				$build = $builder->buildSelect($value->getQuery(), $prefix . "\t");
 				
 				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";

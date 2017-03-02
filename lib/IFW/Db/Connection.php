@@ -230,20 +230,50 @@ class Connection extends Object{
 	}
 	
 	/**
-	 * Creates a new select query object
-	 * 
-	 * @return \IFW\Db\Query
-	 */
-	public function createQuery() {
-		return new Query();
-	}
-	
-	/**
 	 * Create a new command to do an INSERT, UPDATE, DELETE or SELECT
 	 * 
+	 * 
+	 * For select you don't usually call this directly.
+	 * 
+	 * @example select
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 	$query = (new Query())
+						->select('id,username')
+						->from('auth_user')
+						->where(['id' => 1]);
+		
+		$stmt = $query->createCommand()->execute();
+		
+		$record = $stmt->fetch();
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * @example insert
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $command = GO()->getDbConnection()->createCommand()
+	 *   ->insert('auth_user', ['id' => 1, 'username' => 'test']);
+	 * 
+	 * $command->execute();
+	 * ``````````````````````````````````````````````````````````````````````````` 
+	 * 
+	 * @example insert select
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $query = new \IFW\Db\Query();
+		$query->select('id,username')
+						->from('auth_user');
+		
+		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', $query);
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * @example update
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $command = GO()->getDbConnection()->createCommand()->update('auth_user', ['lastLogin' => new \DateTime()], ['id' => 1]);
+		
+		$stmt = $command->execute();
+		
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * @return Command
 	 */
 	public function createCommand() {
-		return new Command($this);
+		return new Command();
 	}
 }

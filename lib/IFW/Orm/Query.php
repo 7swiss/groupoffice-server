@@ -119,8 +119,20 @@ class Query extends DbQuery {
 	public function setRecordClassName($recordClassName) {
 		$this->recordClassName = $recordClassName;
 		
+		
+		
 		return $this->from($recordClassName::tableName());
 		
+	}
+	
+	public function createCommand() {
+		
+		if($this->getFetchMode() == null) {
+			//set fetch mode to fetch Record objects
+			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getSkipReadPermission()]); //for new record
+		}
+		
+		return parent::createCommand();
 	}
 	
 	public function getRecordClassName() {

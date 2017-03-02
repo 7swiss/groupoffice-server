@@ -4,43 +4,52 @@ namespace IFW\Db;
 use Exception;
 use IFW;
 use PDOException;
-use function GO;
+use PDOStatement;
 
 class Command {
-	
-	public function __construct(Connection $connection) {
-		
-		$this->connection = $connection;
-		
-	}
 	
 	const TYPE_INSERT = 0;
 	const TYPE_UPDATE = 1;
 	const TYPE_DELETE = 2;
 	const TYPE_SELECT = 4;
 	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $type;
+	
+	/**
+	 * Table to perform command on
+	 * 
+	 * @var string 
+	 */
 	private $tableName;
+	
+	/**
+	 * Command data
+	 * 
+	 * @var mixed 
+	 */
 	private $data;
 	
 	/**
-	 *
+	 * Query for commands
+	 * 
 	 * @var Query
 	 */
 	private $query;
+
 	
 	/**
-	 *
-	 * @var Columns 
+	 * Create an insert command
+	 * 
+	 * {@see Connection::createCommand()}
+	 * 
+	 * @param string $tableName
+	 * @param array|Query $data Key value array or select query
+	 * @return $this
 	 */
-	private $columns;
-	
-	/**
-	 *
-	 * @var Connection
-	 */
-	private $connection;
-	
 	public function insert($tableName, $data) {
 		$this->type = self::TYPE_INSERT;
 		$this->tableName = $tableName;
@@ -49,7 +58,16 @@ class Command {
 		return $this;
 	}
 	
-	public function update($tableName, $data, $query) {
+	/**
+	 * Create an update command
+	 * 
+	 * {@see Connection::createCommand()}
+	 * 
+	 * @param string $tableName
+	 * @param Query $query
+	 * @return $this
+	 */
+	public function update($tableName, $data, $query = null) {
 		$this->type = self::TYPE_UPDATE;
 		$this->tableName = $tableName;
 		$this->data = $data;
@@ -59,9 +77,20 @@ class Command {
 		return $this;
 	}
 	
-	public function delete($tableName) {
+	/**
+	 * Create a delete command
+	 * 
+	 * {@see Connection::createCommand()}
+	 * 
+	 * @param string $tableName
+	 * @param Query $query
+	 * @return $this
+	 */
+	public function delete($tableName, $query = null) {
 		$this->type = self::TYPE_DELETE;
 		$this->tableName = $tableName;
+		
+		$this->query = \IFW\Db\Query::normalize($query);
 		
 		return $this;
 	}
@@ -89,13 +118,19 @@ class Command {
 
 		$binds = [];
 		foreach ($bindParams as $p) {
-			$binds[$p['paramTag']] = var_export($p['value'], true);
+			if(is_string($p['value']) && !mb_check_encoding($p['value'], 'utf8')) {
+				$queryValue = "[NON UTF8 VALUE]";
+			}else
+			{
+				$queryValue = var_export($p['value'], true);
+			}
+			$binds[$p['paramTag']] = $queryValue;
 		}
 
 		//sort so $binds :param1 does not replace :param11 first.
 		krsort($binds);
 
-		foreach ($binds as $tag => $value) {
+		foreach ($binds as $tag => $value) {	
 			$sql = str_replace($tag, $value, $sql);
 		}
 
@@ -107,14 +142,24 @@ class Command {
 		return $this->toString();
 	}
 	
+	/**
+	 * Build SQL string and replace bind parameters for debugging purposes
+	 * 
+	 * @return string
+	 */
 	public function toString() {
 		$build = $this->build();
 		
-		return $this->replaceBindParameters($build['sql'], $build['params']);
-		
+		return $this->replaceBindParameters($build['sql'], $build['params']);		
 	}
 	
-	private function build() {
+	/**
+	 * Builds the SQL and bind parameters
+	 * 
+	 * @return array ['sql' => 'SELECT...', 'params' => [':ifw1' => 'value']]
+	 * @throws Exception
+	 */
+	public function build() {
 		switch($this->type) {
 			case self::TYPE_INSERT:				
 				$queryBuilder = new QueryBuilder($this->tableName);
@@ -123,6 +168,10 @@ class Command {
 			case self::TYPE_UPDATE:				
 				$queryBuilder = new QueryBuilder($this->tableName);
 				return $queryBuilder->buildUpdate($this->data, $this->query);
+				
+			case self::TYPE_DELETE:				
+				$queryBuilder = new QueryBuilder($this->tableName);
+				return $queryBuilder->buildDelete($this->query);
 				
 			case self::TYPE_SELECT:			
 				$queryBuilder = $this->query->getBuilder();
@@ -134,11 +183,20 @@ class Command {
 		}
 	}
 	
+	/**
+	 * Execute the command
+	 * 
+	 * @return PDOStatement
+	 * @throws PDOException
+	 */
 	public function execute() {		
 		
 		$build = $this->build();
 		
+		IFW::app()->debug($this->replaceBindParameters($build['sql'], $build['params']), 2);
+		
 		try {
+			
 			$binds = [];
 			$stmt = IFW::app()->getDbConnection()->getPDO()->prepare($build['sql']);
 
@@ -152,11 +210,6 @@ class Command {
 					$stmt->setFetchMode(PDO::FETCH_ASSOC);
 				} else {
 					call_user_func_array([$stmt, 'setFetchMode'], $this->query->getFetchMode());
-				}
-
-
-				if ($this->query->getDebug()) {
-					IFW::app()->getDebugger()->debugSql($build['sql'], $binds, 2);
 				}
 			}
 			

@@ -2,11 +2,8 @@
 namespace IFW\Orm;
 
 use Exception;
-use IFW;
-use IFW\Data\ReturnProperties;
 use IFW\Orm\Query;
 use IFW\Orm\Record;
-use PDO;
 use PDOStatement;
 
 
@@ -45,18 +42,12 @@ class Store extends \IFW\Data\Store {
 	 * @throws Exception
 	 */
 	public function getIterator() {
-
-		if($this->query->getFetchMode() == null) {
-			//set fetch mode to fetch Record objects
-			$this->query->fetchMode(PDO::FETCH_CLASS, $this->query->getRecordClassName(), [false, $this->query->getSkipReadPermission()]); //for new record
-		}		
-		
 		$iterator = new StoreIterator($this->query->createCommand()->execute(), $this);
 		return $iterator;
 	}
 	
 	public function __toString() {
-		return $this->query->getBuilder()->buildSelect(true);
+		return $this->query->createCommand()->toString();
 	}
 		
 	/**
@@ -260,48 +251,48 @@ class Store extends \IFW\Data\Store {
 		return $this;
 	}
 	
-	private function getColumnsAndRelations($returnPropertiesStr, $recordClassName) {
-		
-		$returnProperties = new ReturnProperties($returnPropertiesStr, $recordClassName::getDefaultApiProperties());	
-		
-		$relations =[];
-		$dbColumns = [];
-		foreach ($returnProperties as $attributeName => $relationAttributes) {
-			if ($recordClassName::getRelation($attributeName)) {
-				$relations[$attributeName] = $relationAttributes;
-			}elseif($recordClassName::getColumn($attributeName))
-			{
-				$dbColumns[] = $attributeName;
-			}
-		}
-		
-		return ['relations' => $relations, 'columns' => $dbColumns];
-	}
+//	private function getColumnsAndRelations($returnPropertiesStr, $recordClassName) {
+//		
+//		$returnProperties = new ReturnProperties($returnPropertiesStr, $recordClassName::getDefaultApiProperties());	
+//		
+//		$relations =[];
+//		$dbColumns = [];
+//		foreach ($returnProperties as $attributeName => $relationAttributes) {
+//			if ($recordClassName::getRelation($attributeName)) {
+//				$relations[$attributeName] = $relationAttributes;
+//			}elseif($recordClassName::getColumn($attributeName))
+//			{
+//				$dbColumns[] = $attributeName;
+//			}
+//		}
+//		
+//		return ['relations' => $relations, 'columns' => $dbColumns];
+//	}
 	
-	private function joinRelation($recordClassName, $relationName , $returnPropertiesStr, $relationPrefix = '') {
-		
-		$relation = $recordClassName::getRelation($relationName);
-
-		/* @var $relation Relation */
-
-		if (!$relation) {
-			throw new Exception("Relation '" . $relationName . "' not found in model '$recordClassName'!");
-		}
-		
-		$relatedRecordClassName = $relation->getToRecordName();
-		$colAndRel = $this->getColumnsAndRelations($returnPropertiesStr, $relatedRecordClassName);
-		
-		if (!$relation->hasMany()) {					
-			
-			IFW::app()->debug("Store is joining relation " . $relationPrefix.$relation->getName() . " because it's listed in returnProperties");
-			
-			$this->getQuery()->joinRelation($relationPrefix.$relation->getName(), $colAndRel['columns'], 'LEFT');
-
-			foreach($colAndRel['relations'] as $subRelationName=>$returnProperties) {				
-				$this->joinRelation($recordClassName, $subRelationName, $returnProperties, $relationPrefix.$relationName.'.');						
-			}
-		}		
-	}
+//	private function joinRelation($recordClassName, $relationName , $returnPropertiesStr, $relationPrefix = '') {
+//		
+//		$relation = $recordClassName::getRelation($relationName);
+//
+//		/* @var $relation Relation */
+//
+//		if (!$relation) {
+//			throw new Exception("Relation '" . $relationName . "' not found in model '$recordClassName'!");
+//		}
+//		
+//		$relatedRecordClassName = $relation->getToRecordName();
+//		$colAndRel = $this->getColumnsAndRelations($returnPropertiesStr, $relatedRecordClassName);
+//		
+//		if (!$relation->hasMany()) {					
+//			
+//			IFW::app()->debug("Store is joining relation " . $relationPrefix.$relation->getName() . " because it's listed in returnProperties");
+//			
+//			$this->getQuery()->joinRelation($relationPrefix.$relation->getName(), $colAndRel['columns'], 'LEFT');
+//
+//			foreach($colAndRel['relations'] as $subRelationName=>$returnProperties) {				
+//				$this->joinRelation($recordClassName, $subRelationName, $returnProperties, $relationPrefix.$relationName.'.');						
+//			}
+//		}		
+//	}
 	
 	/**
 	 */

@@ -71,7 +71,7 @@ trait AppTrait {
 	 * @param Record $record
 	 * @throws Exception
 	 */
-	public function log($type, $description = null, Record $record = null) {
+	public function log($type, $description, Record $record = null) {
 		$log = new Entry();
 
 		$log->setRecord($record);

@@ -18,6 +18,7 @@ class RelationParentTest extends PHPUnit_Framework_TestCase {
 	public function test() {
 
 		$contact = new Contact();
+		$contact->name = 'Test contact';
 		
 		$emailAddress = new EmailAddress();
 		$emailAddress->email = 'test@intermesh.nl';

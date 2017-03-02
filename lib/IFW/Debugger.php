@@ -145,43 +145,6 @@ class Debugger extends Object {
 		}
 		$this->debug("END BACKTRACE");
 	}
-
-	/**
-	 * Debug SQL statements
-	 *
-	 * @param string $sql
-	 * @param \IFW\Orm\Query $query
-	 * @param array $bindParams
-	 */
-	public function debugSql($sql, $bindParams = [], $traceBackSteps = 0) {
-
-		//sort so that :param1 does not replace :param11 first.
-		krsort($bindParams);
-
-		foreach ($bindParams as $key => $value) {
-
-//			if(!isset($value)){
-//				$queryValue = "NULL";
-//			}elseif(is_numeric($value)){
-//				$queryValue = $value;
-//			}else
-//			{
-//				$queryValue = '"'.$value.'"';
-//			}
-
-
-			if(is_string($value) && !mb_check_encoding($value, 'utf8')) {
-				$queryValue = "[NON UTF8 VALUE]";
-			}else
-			{
-				$queryValue = var_export($value, true);
-			}
-
-			$sql = str_replace($key, $queryValue, $sql);
-		}
-
-		$this->debug($sql, 'sql', $traceBackSteps);
-	}
 	
 	/**
 	 * Get the debugger entries

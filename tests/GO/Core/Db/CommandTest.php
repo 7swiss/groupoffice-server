@@ -1,8 +1,9 @@
 <?php
 namespace IFW\Db;
 
-use GO\Modules\GroupOffice\Contacts\Model\EmailAddress;
+use DateTime;
 use PHPUnit_Framework_TestCase;
+use function GO;
 
 /**
  * The App class is a collection of static functions to access common services
@@ -24,21 +25,37 @@ class CommandTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testInsert() {
-		
-		
 		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', ['id' => 1, 'username' => 'test']);
 		
-		echo $command->toString();
+		$this->assertStringStartsWith('INSERT INTO', $command->toString());
+	}
+	
+	public function testInsertSelect() {
+		
+		$query = new Query();
+		$query->select('id,username')
+						->from('auth_user');
+		
+		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', $query);
+		
+		$this->assertStringStartsWith('INSERT INTO', $command->toString());
 	}
 	
 	public function testUpdate() {
 				
-		$command = GO()->getDbConnection()->createCommand()->update('auth_user', ['username' => 'test', 'lastLogin' => new \DateTime()], ['username' => 'test']);
+		$command = GO()->getDbConnection()->createCommand()->update('auth_user', ['lastLogin' => new DateTime()], ['id' => 1]);
 		
-		echo $command->toString();
+		$this->assertStringStartsWith('UPDATE', $command->toString());
 		
 		$stmt = $command->execute();
 		
-		echo $stmt->rowCount();
+		$this->assertEquals(1, $stmt->rowCount());
+	}
+	public function testDelete() {
+				
+		echo $command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
+		
+		$this->assertStringStartsWith('DELETE', $command->toString());
+		
 	}
 }

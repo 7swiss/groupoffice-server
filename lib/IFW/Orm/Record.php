@@ -16,7 +16,6 @@ use IFW\Exception\Forbidden;
 use IFW\Imap\Connection;
 use IFW\Util\ClassFinder;
 use IFW\Util\StringUtil;
-use IFW\Validate\ValidateUnique;
 
 /**
  * Record model
@@ -1534,53 +1533,26 @@ abstract class Record extends DataModel {
 		if ($this->hasColumn('modifiedBy') && !$this->isModified('modifiedBy')) {
 			$this->modifiedBy = IFW::app()->getAuth()->user() ? IFW::app()->getAuth()->user()->id() : 1;
 		}
-
-		$colNames = [];
-		$bindParams = [];
 		
-		//Build an array of fields that are set in the object. Unset columns will
-		//not be in the SQL query so default values from the database are respected.
-		$i = 0;
+		$data = [];
+		
 		foreach ($this->getColumns() as $colName => $col) {
-			$i++;
-			$colNames[':attr'.$i] = $colName;				
-			$bindParams[':attr'.$i] = $col->recordToDb($this->$colName);
-		}
-
-		$sql = "INSERT INTO `{$this->tableName()}` (`" . implode('`,`', array_values($colNames)) . "`) VALUES " .
-						"(" . implode(', ', array_keys($colNames)) . ")";
-
-		try {
-			//find auto increment column first because it might do a show tables query
-			$aiCol = $this->findAutoIncrementColumn();
-			
-			$stmt = $this->getDbConnection()->getPDO()->prepare($sql);
-			
-			foreach ($colNames as $bindTag => $colName) {
-				$column = $this->getColumn($colName);
-				$stmt->bindValue($bindTag, $column->recordToDb($this->$colName), $column->pdoType);
-			}
-
-			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
-
-			$ret = $stmt->execute();
-			
-			
-		} catch (Exception $e) {
-
-			$msg = $e->getMessage();
-
-			$msg .= "\n\nFull SQL Query: " . $sql . "\n\nParams:\n" . var_export($bindParams, true);
-
-			$msg .= "\n\n" . $e->getTraceAsString();
-
-			
-			throw new Exception($msg);
+			$data[$colName] = $this->$colName;		
 		}
 		
+		//find auto increment column first because it might do a show tables query
+		$aiCol = $this->findAutoIncrementColumn();
+		
+		$stmt = $this->getDbConnection()
+						->createCommand()
+						->insert($this->tableName(), $data)
+						->execute();
+		if(!$stmt) {
+			return false;
+		}
+
 		if($aiCol) {
 			$lastInsertId = intval($this->getDbConnection()->getPDO()->lastInsertId());			
-//			IFW::app()->debug("Last insert ID for ".$this->getClassName().": ".$lastInsertId);			
 			
 			if(empty($lastInsertId)) {
 				throw new \Exception("Auto increment column didn't increment!");
@@ -1588,7 +1560,7 @@ abstract class Record extends DataModel {
 			$this->{$aiCol->name} = $lastInsertId;
 		}
 
-		return $ret;
+		return $stmt;
 	}
 	
 	/**
@@ -1636,72 +1608,23 @@ abstract class Record extends DataModel {
 		if(empty($modifiedAttributeNames))
 		{
 			return true;
-		}
+		}		
 		
-		$i =0;		
-		$tags = [];
-		$updates = [];
-		
+		$data = [];		
 		foreach ($modifiedAttributeNames as $colName) {
-			$i++;
-			$tag = ':attr'.$i;
-			$updates[] = "`$colName` = " . $tag;
-			
-			$tags[$tag] = ['colName' => $colName, 'isPk' => false];
+			$data[$colName] = $this->$colName;
 		}
-
-		$sql = "UPDATE `{$this->tableName()}` SET " . implode(',', $updates) . " WHERE ";
-
-		$bindParams = [];
 		
+		$where = [];
 		$pks = $this->getPrimaryKey();
 		
-		$first = true;
-		foreach ($pks as $colName) {				
-			$i++;				
-			$tag = ':attr'.$i;
-
-			if (!$first){
-				$sql .= ' AND ';
-			}else{
-				$first = false;
-			}
-
-			$sql .= "`" . $colName . "`= " . $tag;				
-			$tags[$tag] = ['colName' => $colName, 'isPk' => true];
-		}
-
-		try {
-			$stmt = $this->getDbConnection()->getPDO()->prepare($sql);
-
-			foreach ($tags as $tag => $attr) {				
-				$column = $this->getColumn($attr['colName']);			
-				
-				//if it's a primary key and it's modified we must bind the old value here
-				$value = $attr['isPk'] && !$this->isNew && $this->isModified($attr['colName']) ? $this->getOldAttributeValue($attr['colName']) : $this->{$attr['colName']};
-				
-				$value = $column->recordToDb($value);
-				
-				$bindParams[$tag] = $value;				
-				$stmt->bindValue($tag, $value, $column->pdoType);				
-			}
-			IFW::app()->getDebugger()->debugSql($sql, $bindParams);
-
-			$ret = $stmt->execute();
-		} catch (Exception $e) {
-			$msg = $e->getMessage();
-
-			if (IFW::app()->getDebugger()->enabled) {
-				$msg .= "\n\nFull SQL Query: " . $sql . "\n\nParams:\n" . var_export($bindParams, true);
-
-				$msg .= "\n\n" . $e->getTraceAsString();
-
-				IFW::app()->debug($msg);
-			}
-			throw $e;
+		foreach($pks as $colName) {			
+			//if it's a primary key and it's modified we must bind the old value here
+			$where[$colName] = !$this->isNew && $this->isModified($colName) ? $this->getOldAttributeValue($colName) : $this->{$colName};
 		}
 		
-		return $ret;
+		return $this->getDbConnection()->createCommand()->update($this->tableName(), $data, $where)->execute();
+		
 	}
 
 	/**
@@ -2220,37 +2143,8 @@ abstract class Record extends DataModel {
 		return true;
 	}
 
-	private function internalHardDelete() {
-		$sql = "DELETE FROM `" . $this->tableName() . "` WHERE ";
-	
-		$first = true;
-		foreach ($this->getPrimaryKey() as $field) {
-			if (!$first){
-				$sql .= ' AND ';
-			}else{
-				$first = false;
-			}
-
-			$column = $this->getColumn($field);
-
-			$sql .= "`" . $field . '`=' . $this->getDbConnection()->getPDO()->quote($this->{$field}, $column->pdoType);
-		}	
-
-		try {
-			return $this->getDbConnection()->query($sql);		
-		} catch (Exception $e) {
-
-			$msg = $e->getMessage();
-
-			if (IFW::app()->getDebugger()->enabled) {
-				$msg .= "\n\nFull SQL Query: " . $sql;
-
-//				$msg .= "\n\n" . $e->getTraceAsString();
-
-				IFW::app()->debug($msg);
-			}
-			throw $e;
-		}
+	private function internalHardDelete() {		
+		return $this->getDbConnection()->createCommand()->delete($this->tableName(), $this->pk())->execute();
 	}
 	
 	private function internalSoftDelete() {	
