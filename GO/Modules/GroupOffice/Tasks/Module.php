@@ -21,9 +21,10 @@ class Module extends InstallableModule{
 				->get('tasks/:taskId','read')
 				->put('tasks/:taskId', 'update')
 				->post('tasks', 'create')
-				->delete('tasks/:taskId','delete')
-				->get('tasks/comments/:taskId', 'comments')
-				->post('tasks/comments/:taskId', 'addComment');
+				->delete('tasks/:taskId','delete');
+		
+		$router->addRoutesFor(Controller\CommentController::class)
+						->crud('tasks/:taskId/comments', 'commentId');
 				
 	}
 	

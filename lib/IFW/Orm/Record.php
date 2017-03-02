@@ -432,7 +432,7 @@ abstract class Record extends DataModel {
 			$this->$colName = $column->default;			
 		}
 		
-		if ($this->hasColumn('createdBy')) {
+		if (property_exists($this, 'createdBy')) {
 			$this->createdBy = IFW::app()->getAuth()->user() ? IFW::app()->getAuth()->user()->id() : 1;
 		}
 	}

@@ -55,25 +55,6 @@ class TaskController extends Controller {
 	}
 	
 	
-	public function actionComments($taskId) {
-		$task = Task::findByPk($taskId);
-		
-		$this->renderStore($task->comments);
-	}
-	
-	public function actionAddComment($taskId) {
-		$task = Task::findByPk($taskId);
-		
-		$comment = new \GO\Core\Comments\Model\Comment();
-		$comment->setValues(GO()->getRequest()->getBody()['data']);	
-		
-		$task->comments[] = $comment;
-		
-		$task->save();
-		
-		$this->renderModel($task);
-	}
-	
 	protected function actionNew($returnProperties = ""){
 		$task = new Task();
 		$this->renderModel($task, $returnProperties);
