@@ -33,13 +33,13 @@ class NodeGroup extends GroupAccess {
 	 * 
 	 * @var bool
 	 */							
-	public $canRead = true;
+	public $read = true;
 
 	/**
 	 * 
 	 * @var bool
 	 */							
-	public $canWrite = false;
+	public $write = false;
 
 	protected static function groupsFor() {
 		return self::hasOne('node', Node::class, ['nodeId' => 'id']);

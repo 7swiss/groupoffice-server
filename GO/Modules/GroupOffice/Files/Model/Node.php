@@ -11,7 +11,7 @@ namespace GO\Modules\GroupOffice\Files\Model;
 use IFW\Util\DateTime;
 use GO\Core\Blob\Model\Blob;
 use GO\Core\Orm\Record;
-use GO\Core\Users\Model\User;
+use GO\Core\Users\Model\Group;
 use IFW\Orm\Query;
 use GO;
 
@@ -103,7 +103,7 @@ class Node extends Record {
 	private $createDirectories = [];
 
 	protected function init() {
-		$this->ownedBy = GO()->getAuth()->user()->id;
+		$this->ownedBy = GO()->getAuth()->user()->group->id;
 		$this->storageId = 1; //TODO: multiple storage providers
 	}
 
@@ -115,7 +115,7 @@ class Node extends Record {
 		self::hasOne('parent', Node::class, ['parentId' => 'id']);
 		self::hasOne('storage', Storage::class, ['storageId' => 'id']);
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
-		self::hasOne('owner', User::class, ['ownedBy' => 'id']);
+		self::hasOne('owner', Group::class, ['ownedBy' => 'id']);
 	}
 
 	public static function getRelations() {
