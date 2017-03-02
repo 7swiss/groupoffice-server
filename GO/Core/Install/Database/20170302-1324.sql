@@ -1,0 +1,1 @@
+ALTER TABLE `comments_attachment` DROP FOREIGN KEY `comments_attachment_ibfk_1`; ALTER TABLE `comments_attachment` ADD CONSTRAINT `comments_attachment_ibfk_1` FOREIGN KEY (`commentId`) REFERENCES `comments_comment`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;

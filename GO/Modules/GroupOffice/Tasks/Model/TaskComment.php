@@ -1,7 +1,8 @@
 <?php
 namespace GO\Modules\GroupOffice\Tasks\Model;
-						
-use GO\Core\Orm\Record;
+
+use GO\Core\Comments\Model\Comment;
+use IFW\Auth\Permissions\ViaRelation;
 						
 /**
  * The TaskComment record
@@ -11,7 +12,7 @@ use GO\Core\Orm\Record;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class TaskComment extends Record{
+class TaskComment extends Comment {
 
 
 	/**
@@ -20,10 +21,16 @@ class TaskComment extends Record{
 	 */							
 	public $taskId;
 
-	/**
-	 * 
-	 * @var int
-	 */							
-	public $commentId;
+	
+	protected static function defineRelations() {
+		parent::defineRelations();
+		
+		self::hasOne('task', Task::class, ['taskId' => 'id']);
+	}
+	
+	
+	protected static function internalGetPermissions() {
+		return new ViaRelation('task');
+	}
 
 }
