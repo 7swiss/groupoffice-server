@@ -625,8 +625,7 @@ class Query extends Criteria {
 				'orderBy',
 				'limit',
 				'offset',
-				'search',
-				'debug'
+				'search'
 				];
 		
 		$data = json_decode($json, true);
