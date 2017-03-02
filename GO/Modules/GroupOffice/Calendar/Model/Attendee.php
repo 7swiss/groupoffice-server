@@ -126,6 +126,10 @@ class Attendee extends Record {
 		return false;
 	}
 
+	public function getCanWrite() {
+		return $this->getPermissions()->can("update") && $this->getIsOrganizer();
+	}
+
 	public function addAlarms($defaultAlarms) {
 		foreach($defaultAlarms as $defaultAlarm) {
 			$defaultAlarm->addTo($this);
