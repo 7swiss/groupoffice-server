@@ -36,7 +36,7 @@ class Api implements ViewInterface {
 	 * @param array $data
 	 * @return self
 	 */
-	public function render($data) {		
+	public function render($data) {	
 		
 //		$encoder = new IFW\Web\Encoder\PlainEncoder();
 				

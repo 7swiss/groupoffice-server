@@ -36,7 +36,7 @@ class MessageController extends Controller {
 						->orderBy([$orderColumn => $orderDirection])
 						->limit($limit)
 						->offset($offset)
-						->search($searchQuery, ['t.subject'])->debug();
+						->search($searchQuery, ['t.subject']);
 
 		$messages = Message::find($query);
 		$messages->setReturnProperties($returnProperties);

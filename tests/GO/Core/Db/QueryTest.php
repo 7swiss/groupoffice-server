@@ -12,7 +12,6 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 		
 		$query1 = new \IFW\Orm\Query();
 		$query1->select('t.*')
-						->debug()
 						->join(\GO\Modules\GroupOffice\Contacts\Model\Address::tableName(),'addresses','t.id=addresses.contactId')
 						->joinRelation('emailAddresses');
 		
@@ -21,8 +20,6 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 		$query1->mergeWith($query2);
 		
 		$this->assertEquals(3, count($query1->joins));
-
-		$this->assertEquals(true, $query1->debug);
 
 	}
 }

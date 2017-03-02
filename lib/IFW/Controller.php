@@ -114,10 +114,14 @@ abstract class Controller extends Object {
 	 * @param string[] $routerParams A merge of route and query params
 	 */
 	public function run($action, array $routerParams) {	
+		
+		
 
 		if(!$this->checkAccess()){
 			throw new Forbidden();
 		}
+		
+		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
 
 		//Should we remove action prefix? Please consider reserved name like "print"
 		$this->callMethodWithParams("action".$action, $routerParams);

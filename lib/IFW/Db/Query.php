@@ -17,8 +17,6 @@ class Query extends Criteria {
 	
 	private $tableAlias = 't';
 
-	protected $debug;
-	
 	private $distinct;
 	
 	private $select;
@@ -59,10 +57,7 @@ class Query extends Criteria {
 	public function getHaving() {
 		return $this->having;
 	}
-	
-	public function getDebug() {
-		return $this->debug;
-	}
+
 	
 	public function getDistinct() {
 		return $this->distinct;
@@ -530,19 +525,6 @@ class Query extends Criteria {
 		return $this;
 	}
 	
-	/**
-	 * Debug SQL string
-	 * 
-	 * Sends the SQL string to the IFW::app()->debug() command.
-	 * 
-	 * @param boolean $debug
-	 * @return static
-	 */
-	public function debug($debug = true) {
-		$this->debug = $debug;
-		
-		return $this;
-	}
 	
 	
 	/**

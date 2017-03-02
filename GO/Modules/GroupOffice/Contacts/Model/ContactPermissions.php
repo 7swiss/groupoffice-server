@@ -75,7 +75,7 @@ class ContactPermissions extends Model {
 						);
 		
 		$query->skipReadPermission()
-						->andWhere(['EXISTS', $groupAccess])->debug();
+						->andWhere(['EXISTS', $groupAccess]);
 		
 //		$query->skipReadPermission()
 //						->joinRelation('groupPermissions')->debug()

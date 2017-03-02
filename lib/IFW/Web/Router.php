@@ -229,6 +229,9 @@ class Router extends IFW\Router {
 	 * Finds the controller that matches the route and runs it.
 	 */
 	public function run() {
+		
+		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_ROUTER);
+		
 		$this->route = IFW::app()->getRequest()->getRoute();
 
 		if (empty($this->route)) {

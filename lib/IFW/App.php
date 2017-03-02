@@ -145,7 +145,7 @@ abstract class App {
 		//Get the class loader from composer. Couldn't find a better way to do this.
 		$this->classLoader = $classLoader;
 					
-		$this->debug("Start");
+		$this->getDebugger()->setSection(Debugger::SECTION_INIT);		
 
 		Record::initRelations();
 		StaticListeners::singleton()->initListeners();		
@@ -156,7 +156,7 @@ abstract class App {
 		
 		Model::$enablePermissions = true;
 		
-		$this->debug("Initialized");	
+		$this->debug("IFW Core Initialized");	
 	}
 	
 	/**

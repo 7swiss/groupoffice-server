@@ -40,8 +40,7 @@ class BandController extends Controller {
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
 						->limit($limit)
-						->offset($offset)
-						->debug();
+						->offset($offset);
 
 		if (!empty($searchQuery)) {
 			$query->search($searchQuery, ['t.name']);

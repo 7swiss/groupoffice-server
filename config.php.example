@@ -26,10 +26,12 @@ return [
 		//],
 		
 //		'IFW\Debugger'=> [
-//				//Warning: enabling this causes the browser to consume a lot of memory. Use of CTRL + F7 is adviced.
 //				//always enable debugger. Client can also enable it by sending HTTP header X-Debug=1. Open the launcher and press CTRL+F7 in the client to enable this.
-//				'enabled' => true 
+//				'enabled' => true,
+//				'enabledSections' => [\IFW\Debugger::SECTION_CONTROLLER],
+//				'enabledTypes' => [\IFW\Debugger::TYPE_GENERAL, \IFW\Debugger::TYPE_SQL],
 //		],
+
 //		
 //		 'IFW\Orm\Query' => [
 //				 //enables debug on all queries

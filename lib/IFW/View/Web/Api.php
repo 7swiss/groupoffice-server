@@ -81,7 +81,7 @@ class Api implements ViewInterface {
 	 * @return self
 	 */
 	public function render($data) {	
-		
+			
 		if (isset($data['debug'])) {
 			throw new Exception('debug is a reserved data object');
 		}

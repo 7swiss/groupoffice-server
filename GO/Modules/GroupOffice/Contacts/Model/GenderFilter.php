@@ -40,7 +40,7 @@ class GenderFilter extends MultiselectFilter {
 		
 		$query = $this->collection->countQuery();		
 		$this->collection->apply($query);		
-		$query->where(['t.gender' => $gender])->debug();
+		$query->where(['t.gender' => $gender]);
 		
 		return (int) call_user_func([$this->collection->getModelClassName(), 'find'], $query)->single();
 	}

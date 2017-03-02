@@ -214,8 +214,7 @@ class VObject extends Record {
 	 * @return VEvent[]
 	 */
 	public static function findVEvents(\DateTime $start, \DateTime $end, $query = null) {
-		$query = Query::normalize($query)
-						->debug()
+		$query = Query::normalize($query)						
 						->joinRelation('account')
 						->andWhere(['<', ['firstOccurrence' => $end]])
 						->andWhere(['>=', ['lastOccurrence' => $start]]);

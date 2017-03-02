@@ -40,7 +40,7 @@ class TypeFilter extends MultiselectFilter {
 		
 		$query = $this->collection->countQuery();		
 		$this->collection->apply($query, $this);		
-		$query->where(['t.isOrganization' => $isOrganization])->debug();
+		$query->where(['t.isOrganization' => $isOrganization]);
 		
 		return (int) call_user_func([$this->collection->getModelClassName(), 'find'], $query)->single();
 	}
