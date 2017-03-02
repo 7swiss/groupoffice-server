@@ -125,9 +125,7 @@ class Debugger extends Object {
 		
 		if(!$this->enabled || !in_array($this->section, $this->enabledSections) || !in_array($type, $this->enabledTypes)) {
 			return;
-		}
-		
-		
+		}		
 		
 		if($mixed instanceof \Closure) {
 			$mixed = call_user_func($mixed);
