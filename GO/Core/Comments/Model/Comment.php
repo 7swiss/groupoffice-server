@@ -112,13 +112,17 @@ abstract class Comment extends Record {
 			if(!GO()->getDbConnection()->createCommand()->insert('comments_comment', $data)->execute()) {
 				return false;
 			}		
-			$this->commentId = $this->id = GO()->getDbConnection()->getPDO()->lastInsertId();
+			$this->commentId = $this->id = GO()->getDbConnection()->getPDO()->lastInsertId();		
+			
+			
 		}else
 		{			
 			if(!GO()->getDbConnection()->createCommand()->update('comments_comment', $data, ['id' => $this->id])->execute()) {
 				return false;
 			}		
 		}
+		
+		
 		
 		return parent::internalSave();
 	}

@@ -1,12 +1,16 @@
 <?php
+
 namespace GO\Core\Notifications\Model;
 
-use DateTime;
 use GO\Core\Blob\Model\BlobNotifierTrait;
+use GO\Core\Install\Model\System;
+use GO\Core\Orm\Model\RecordType;
 use GO\Core\Orm\Record;
+use GO\Core\Users\Model\User;
 use IFW\Auth\Permissions\Everyone;
 use IFW\Orm\Query;
 use PDO;
+use function GO;
 
 /**
  * The Notification model
@@ -26,12 +30,12 @@ use PDO;
  * ````````````````````````````````````````````````````````````````````````````
  * 
  * protected function internalSave() {
- *	$notification = new \GO\Core\Notifications\Model\Notification();
- *	$notification->iconBlobId = $this->photoBlobId;
- *	$notification->type = $logAction;		
- *	$notification->data = $this->toArray('id,name');
- *	$notification->record = $this;		
- *	return $notification->save();
+ * 	$notification = new \GO\Core\Notifications\Model\Notification();
+ * 	$notification->iconBlobId = $this->photoBlobId;
+ * 	$notification->type = $logAction;		
+ * 	$notification->data = $this->toArray('id,name');
+ * 	$notification->record = $this;		
+ * 	return $notification->save();
  * }
  * 
  * ````````````````````````````````````````````````````````````````````````````
@@ -44,146 +48,170 @@ use PDO;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class Notification extends Record {
-	
-	
+
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $id;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $createdBy;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $createdAt;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $triggerAt;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $iconBlobId;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $expiresAt;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $type;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $category = 'message';
 
 	/**
 	 * 0=min,1=low,2=default,3=high,4=max
 	 * @var int
-	 */							
+	 */
 	public $priority = 2;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $recordTypeId;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $recordId;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	protected $data;
 
 	const CATEGORY_MESSAGE = 'message';
 	const CATEGORY_PROGRESS = 'progress';
-	
+
 	use BlobNotifierTrait;
 
 	protected static function defineRelations() {
-		self::hasOne('creator', \GO\Core\Users\Model\User::class, ['createdBy'=>'id']);
-		self::hasOne('about', \GO\Core\Orm\Model\RecordType::class, ['recordTypeId'=>'id']);
-		self::hasMany('for', NotificationGroup::class, ['id'=>'notificationId']);
-		self::hasMany('appearances', NotificationAppearance::class, ['id'=>'notificationId']);
+		self::hasOne('creator', User::class, ['createdBy' => 'id']);
+		self::hasOne('about', RecordType::class, ['recordTypeId' => 'id']);
+		self::hasMany('for', NotificationGroup::class, ['id' => 'notificationId']);
+		self::hasMany('appearances', NotificationAppearance::class, ['id' => 'notificationId']);
 	}
-	
+
 	protected static function internalGetPermissions() {
-		
+
 		//todo only for
 		return new Everyone();
 	}
-	
-	protected function internalSave() {
-		
-		$this->saveBlob('iconBlobId');
-		
-		if($this->isNew()) {
-			$watches = Watch::find(['recordTypeId'=>$this->recordTypeId, 'recordId' => $this->recordId]);
 
-			foreach($watches as $watch) {
-				$this->for[] = ['groupId'=>$watch->groupId];
-			}
+	/**
+	 * 
+	 * 
+	 * @param string $type
+	 * @param array $data
+	 * @param Record $record
+	 * @param int $iconBlobId
+	 * 
+	 * @return self
+	 */
+	public static function create($type, $data, Record $record, $iconBlobId = null) {
+
+		$notification = new self();
+		$notification->iconBlobId = isset($iconBlobId) ? $iconBlobId : GO()->getAuth()->user()->photoBlobId;
+		$notification->type = $type;
+		$notification->setData($data);
+		$notification->record = $record;
+
+		$watches = Watch::find(['recordTypeId' => $notification->recordTypeId, 'recordId' => $notification->recordId]);
+		if (!$watches->getRowCount()) {
+			return true;
 		}
-		
+		foreach ($watches as $watch) {
+			$notification->for[] = ['groupId' => $watch->groupId];
+		}
+
+		if (!$notification->save()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	protected function internalSave() {
+
+		$this->saveBlob('iconBlobId');
+
+
 		return parent::internalSave();
 	}
-	
+
 	protected function internalDelete($hard) {
-		
-		$this->freeBlob($this->iconBlobId);		
-		
+
+		$this->freeBlob($this->iconBlobId);
+
 		return parent::internalDelete($hard);
 	}
-	
+
 	/**
 	 * Links this notification to a record
 	 * 
 	 * @param Record $record
 	 */
-	public function setRecord(Record $record){
-		$this->recordId = implode('-',$record->pk());
+	public function setRecord(Record $record) {
+		$this->recordId = implode('-', $record->pk());
 		$this->recordTypeId = $record->getRecordType()->id;
 	}
-	
-	
+
 	public function setData($data) {
 		$this->data = json_encode($data);
 	}
-	
+
 	public function getData() {
 		return json_decode($this->data, true);
 	}
-	
+
 	protected function init() {
 		parent::init();
-		
+
 		$this->triggerAt = new \DateTime();
 		$this->expiresAt = new \DateTime('+1 month');
 	}
-	
+
 	/**
 	 * Dismiss a notification for a user
 	 *
@@ -191,8 +219,8 @@ class Notification extends Record {
 	 * @return boolean
 	 */
 	public function dismiss($userId) {
-		$a = NotificationAppearance::findByPk(['notificationId'=>$this->id, 'userId'=>$userId]);
-		if(!$a) {
+		$a = NotificationAppearance::findByPk(['notificationId' => $this->id, 'userId' => $userId]);
+		if (!$a) {
 			$a = new NotificationAppearance();
 			$a->userId = $userId;
 			$a->notificationId = $this->id;
@@ -200,26 +228,24 @@ class Notification extends Record {
 		$a->dismissedAt = new \DateTime();
 		return $a->save();
 	}
-	
-	
+
 	public static function countForCurrentUser() {
-		if(!\GO\Core\Install\Model\System::isDatabaseInstalled() || !GO()->getAuth()->user()){
+		if (!System::isDatabaseInstalled() || !GO()->getAuth()->user()) {
 			return null;
 		}
 
 		$currentUserId = GO()->getAuth()->user()->id();
-		
+
 		$query = (new Query())
 						->select('count(DISTINCT t.id)')
 						->fetchMode(PDO::FETCH_COLUMN, 0)
 						->joinRelation('for.groupUsers')
 						->where(['for.groupUsers.userId' => $currentUserId])
-						->joinRelation('appearances', false, 'LEFT', ['appearances.userId' => $currentUserId])						
-						->andWhere(['>',['expiresAt' => new \DateTime()]])
-						->andWhere(['appearances.userId'=>null]);
+						->joinRelation('appearances', false, 'LEFT', ['appearances.userId' => $currentUserId])
+						->andWhere(['>', ['expiresAt' => new \DateTime()]])
+						->andWhere(['appearances.userId' => null]);
 
 		return (int) Notification::find($query)->single();
-		
 	}
-	
+
 }

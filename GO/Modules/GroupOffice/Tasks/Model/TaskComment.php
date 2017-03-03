@@ -2,6 +2,7 @@
 namespace GO\Modules\GroupOffice\Tasks\Model;
 
 use GO\Core\Comments\Model\Comment;
+use GO\Core\Notifications\Model\Notification;
 use IFW\Auth\Permissions\ViaRelation;
 						
 /**
@@ -31,6 +32,21 @@ class TaskComment extends Comment {
 	
 	protected static function internalGetPermissions() {
 		return new ViaRelation('task');
+	}
+	
+	protected function internalSave() {
+		
+		if($this->isNew()) {
+			
+			$data = $this->task->toArray('id,description,dueAt');
+			$data['excerpt'] = \IFW\Util\StringUtil::cutString(strip_tags($this->content), 50);
+			
+			if(!Notification::create('comment', $data, $this->task)){			
+				return false;
+			}
+		}
+		
+		return parent::internalSave();
 	}
 
 }

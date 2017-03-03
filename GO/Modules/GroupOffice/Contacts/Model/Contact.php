@@ -7,7 +7,10 @@
 namespace GO\Modules\GroupOffice\Contacts\Model;
 
 use DateTime;
+use GO\Core\Auth\Permissions\Model\GroupPermissions;
 use GO\Core\Blob\Model\Blob;
+use GO\Core\Blob\Model\BlobNotifierTrait;
+use GO\Core\Notifications\Model\Notification;
 use GO\Core\Orm\Record;
 use GO\Core\Tags\Model\Tag;
 use GO\Core\Users\Model\Group;
@@ -25,7 +28,7 @@ use IFW\Orm\Query;
  * @property Contact[] $organizations
  * @property Contact[] $employees
  * @property ContactTag[] $tags
- * @property GO\Core\Blob\Model\Blob $photoBlob The Blob object representing the contact picture
+ * @property Blob $photoBlob The Blob object representing the contact picture
  *
  */
 class Contact extends Record {
@@ -172,7 +175,7 @@ class Contact extends Record {
 	 */							
 	protected $language;
 
-	use \GO\Core\Blob\Model\BlobNotifierTrait;
+	use BlobNotifierTrait;
 
 	public static function defineRelations(){
 		
@@ -251,14 +254,8 @@ class Contact extends Record {
 		if($this->isModified()) {
 			$logAction = $this->isNew() ? self::LOG_ACTION_CREATE : self::LOG_ACTION_UPDATE;
 			GO()->log($logAction, $this->name.': '.implode(',', $this->getModified()), $this);		
-
-			$notification = new \GO\Core\Notifications\Model\Notification();
-			$notification->iconBlobId = $this->photoBlobId;
-			$notification->type = $logAction;		
-			$notification->data = $this->toArray('id,name');
-			$notification->record = $this;
 			
-			if(!$notification->save()) {
+			if(!Notification::create($logAction, $this->toArray('id,name'), $this, $this->photoBlobId)) {
 				return false;
 			}
 		}
@@ -276,7 +273,7 @@ class Contact extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(ContactGroup::class);
+		return new GroupPermissions(ContactGroup::class);
 	}	
 	
 	public function getLanguage() {
