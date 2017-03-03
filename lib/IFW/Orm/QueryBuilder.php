@@ -154,7 +154,7 @@ class QueryBuilder extends DbQueryBuilder{
 			$joinSql .= ' AND `'.$relation->getName().'`.`deleted` = false';
 		}
 
-		$this->aliasMap[$relation->getName()] = $relatedModelName::getColumns();
+		$this->aliasMap[$relation->getName()] = $relatedModelName::getTable();
 
 		if (isset($relation->query)) {
 			$relation->query->tableAlias($relation->getName());
@@ -190,7 +190,7 @@ class QueryBuilder extends DbQueryBuilder{
 				throw new Exception("Can't fetch model with joinRelation for a has many relation ".$relation->getName());
 			}
 
-			$joinCols = is_array($selectAttributes) ? $selectAttributes : $relatedModelName::getColumns()->getColumnNames();
+			$joinCols = is_array($selectAttributes) ? $selectAttributes : $relatedModelName::getTable()->getColumnNames();
 
 			foreach ($joinCols as $col) {
 				if (!isset($selectCols)) {

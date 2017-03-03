@@ -2,11 +2,8 @@
 
 namespace IFW\Db;
 
-use ArrayAccess;
-use ArrayIterator;
 use Exception;
 use IFW;
-use IteratorAggregate;
 
 /**
  * Class that fetches database column information for the ActiveRecord.
@@ -16,17 +13,32 @@ use IteratorAggregate;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Columns implements ArrayAccess, IteratorAggregate{
+class Table {
+	
+	private static $cache = [];
+	
+	public static function getInstance($tableName) {
+		
+		if(!isset(self::$cache[$tableName])) {
+			self::$cache[$tableName] = new Table($tableName);
+		}
+		
+		return self::$cache[$tableName];	
+	}
 	
 	private $tableName;
 	private $columns;	
 	
-	public function __construct($tableName) {
+	private function __construct($tableName) {
 		$this->tableName = $tableName;
 		
 		$this->createFromDatabase();
 	}	
 	
+	/**
+	 * Get's the name of the table
+	 * @return string
+	 */
 	public function getTableName() {
 		return $this->tableName;
 	}
@@ -60,13 +72,15 @@ class Columns implements ArrayAccess, IteratorAggregate{
 			return $this->columns;
 		}	
 
-		if (!Utils::tableExists($this->tableName)) {
-			throw new Exception("Table '".$this->tableName."' does not exist!");
-		}	
-		
+//		if (!Utils::tableExists($this->tableName)) {
+//			throw new Exception("Table '".$this->tableName."' does not exist!");
+//		}	
+//		
 		$this->columns = [];
 
 		$sql = "SHOW FULL COLUMNS FROM `" . $this->tableName . "`;";
+		IFW::app()->debug($sql, 'sql');
+		
 		$stmt = IFW::app()->getDbConnection()->getPDO()->query($sql);
 		while ($field = $stmt->fetch()) {
 			$this->columns[$field['Field']] = $this->createColumn($field);
@@ -209,25 +223,6 @@ class Columns implements ArrayAccess, IteratorAggregate{
 		}
 	}
 
-	public function offsetExists($offset) {
-		return isset($this->columns[$offset]);
-	}
-
-	public function offsetGet($offset) {		
-		return $this->columns[$offset];
-	}
-
-	public function offsetSet($offset, $value) {
-		throw new Exception("Can't set a column");
-	}
-
-	public function offsetUnset($offset) {		
-		throw new Exception("Can't unset a column");
-	}
-
-	public function getIterator() {
-		return new ArrayIterator($this->columns);
-	}
 	
 	
 	/**
@@ -251,6 +246,15 @@ class Columns implements ArrayAccess, IteratorAggregate{
 		}
 		
 		return $this->columns[$name];
+	}
+	
+	/**
+	 * Get the columns of the table
+	 * 
+	 * @return Column[]
+	 */
+	public function getColumns() {
+		return $this->columns;
 	}
 
 }

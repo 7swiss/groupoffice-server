@@ -119,10 +119,16 @@ class AbstractRecordTest extends TestCase {
 	
 	private function _testCreateUser(){
 		//Set's all groups on test user.
-		$user = User::find(['username' => 'unittest'])->single();
+		$user = User::find(
+						(new Query())
+						->where(['username' => 'unittest'])
+						->withDeleted()
+						)->single();
 		
 		if($user) {		
-			$user->deleteHard();
+			$success = $user->deleteHard();
+			$this->assertEquals(true, $success);
+			
 		}
 		
 		
@@ -214,7 +220,7 @@ class AbstractRecordTest extends TestCase {
 		}
 		
 		$user = new User();
-		$user->email = 'unittest@unittest.dev';
+		$user->email = 'unittest2@unittest.dev';
 		$user->username = 'unittest2';
 		$user->password = 'Test123!';
 		

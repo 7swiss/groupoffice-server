@@ -53,7 +53,7 @@ class CommandTest extends \PHPUnit\Framework\TestCase {
 	}
 	public function testDelete() {
 				
-		echo $command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
+		$command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
 		
 		$this->assertStringStartsWith('DELETE', $command->toString());
 		

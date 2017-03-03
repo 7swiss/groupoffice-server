@@ -17,11 +17,11 @@ use Exception;
  * If you want to override a column parameter then override Record::getColumns():
  * 
  * `````````````````````````````````````````````````````````````````````````````
- * public static function getColumns() {
- * 		$columns = parent::getColumns();		
- * 		$columns['password']->trimInput = false;
+ * public static function getTable() {
+ * 		$table = parent::getTable();		
+ * 		$table->getColumn('password')->trimInput = false;
  * 		
- * 		return $columns;		
+ * 		return $table;		
  * 	}
  * `````````````````````````````````````````````````````````````````````````````
  * 

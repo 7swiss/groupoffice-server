@@ -9,7 +9,7 @@ use GO\Core\CustomFields\Filter\SelectFilter;
 use IFW;
 use IFW\Auth\Permissions\ReadOnly;
 use IFW\Data\Filter\FilterCollection;
-use IFW\Db\Columns;
+use IFW\Db\Table;
 use IFW\Orm\Query;
 use IFW\Orm\Record;
 
@@ -150,7 +150,7 @@ class Field extends Record {
 			}
 
 		//for cached database columns
-			Columns::clearCache($this->fieldSet->modelName);
+			Table::clearCache($this->fieldSet->modelName);
 		}
 		
 		return true;
@@ -318,7 +318,7 @@ class Field extends Record {
 			}
 
 			//for cached database columns
-			$this->fieldSet->getColumns()->clearCache();
+			$this->fieldSet->getTable()->clearCache();
 		}else
 		{
 			var_dump($this->getModifiedAttributes());

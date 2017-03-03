@@ -119,7 +119,7 @@ class Utils {
 	}
 
 	public static function cutAttributesToColumnLength(IFW\Orm\Record $record) {
-		foreach ($record->getColumns() as $column) {
+		foreach ($record->getTable()->getColumns() as $column) {
 			if ($column->pdoType == \PDO::PARAM_STR && $column->length) {
 				$record->{$column->name} = IFW\Util\StringUtil::cutString($record->{$column->name}, $column->length, false, null);
 			}

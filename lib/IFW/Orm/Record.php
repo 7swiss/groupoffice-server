@@ -9,7 +9,7 @@ use IFW\Auth\Permissions\AdminsOnly;
 use IFW\Auth\Permissions\Model as PermissionsModel;
 use IFW\Data\Model as DataModel;
 use IFW\Db\Column;
-use IFW\Db\Columns;
+use IFW\Db\Table;
 use IFW\Db\Exception\DeleteRestrict;
 use IFW\Db\PDO;
 use IFW\Exception\Forbidden;
@@ -219,7 +219,7 @@ abstract class Record extends DataModel {
 	/**
 	 * The columns are stored per class
 	 * 
-	 * @var Columns 
+	 * @var Table 
 	 */
 	private static $columns = [];
 
@@ -379,7 +379,7 @@ abstract class Record extends DataModel {
 	 * @return void
 	 */
 	private function castDatabaseAttributes() {
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			if(isset($this->$colName)) {
 				$this->$colName = $column->dbToRecord($this->$colName);				
 			}
@@ -404,7 +404,7 @@ abstract class Record extends DataModel {
 	 * Set's current column values in the oldAttributes array
 	 */
 	private function setOldAttributes() {
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			if(isset($this->$colName)) {
 				$this->$colName = $this->oldAttributes[$colName] = $this->$colName;				
 			}else
@@ -418,7 +418,7 @@ abstract class Record extends DataModel {
 	 * Clears all modified attributes
 	 */
 	public function clearModified() {
-		foreach ($this->getColumns() as $colName => $column)
+		foreach ($this->getTable()->getColumns() as $colName => $column)
 			$this->oldAttributes[$colName] = null;
 	}
 
@@ -429,7 +429,7 @@ abstract class Record extends DataModel {
 	 */
 	protected function setDefaultAttributes() {
 		
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			$this->$colName = $column->default;			
 		}
 		
@@ -493,20 +493,13 @@ abstract class Record extends DataModel {
 	 *
 	 * <p>Example:</p>
 	 * ```````````````````````````````````````````````````````````````````````````
-	 * $columns = User::getColumns();
+	 * $columns = User::getTable();
 	 * ```````````````````````````````````````````````````````````````````````````
 	 *
-	 * @return Columns|Column[] Array with column name as key
+	 * @return Table
 	 */
-	public static function getColumns() {
-		
-		$calledClass = get_called_class();
-		
-		if(!isset(self::$columns[$calledClass])) {
-			self::$columns[$calledClass] = new Columns(static::tableName());
-		}
-		
-		return self::$columns[$calledClass];
+	public static function getTable() {		
+		return Table::getInstance(static::tableName());		
 	}
 
 	/**
@@ -522,9 +515,7 @@ abstract class Record extends DataModel {
 	 * @return Column
 	 */
 	public static function getColumn($name) {
-		$c = self::getColumns();
-
-		return isset($c[$name]) ? $c[$name] : null;
+		return self::getTable()->getColumn($name);
 	}
 	
 	/**
@@ -552,7 +543,7 @@ abstract class Record extends DataModel {
 		
 		if(!$pk) {
 			$pk = [];
-			foreach(self::getColumns() as $column) {
+			foreach(self::getTable()->getColumns() as $column) {
 				
 				if($column->primary) {				
 					$pk[] = $column->name;
@@ -753,7 +744,7 @@ abstract class Record extends DataModel {
 	public function setValues(array $properties) {
 		
 		//convert client input. For example date string to Datetime object.
-		foreach(self::getColumns() as $name => $column) {
+		foreach(self::getTable()->getColumns() as $name => $column) {
 			if(isset($properties[$name])){
 				$properties[$name]=$column->normalizeInput($properties[$name]);
 			}
@@ -1541,7 +1532,7 @@ abstract class Record extends DataModel {
 		
 		$data = [];
 		
-		foreach ($this->getColumns() as $colName => $col) {
+		foreach ($this->getTable()->getColumns() as $colName => $col) {
 			$data[$colName] = $this->$colName;		
 		}
 		
@@ -1573,7 +1564,7 @@ abstract class Record extends DataModel {
 	 * @return Column
 	 */
 	private function findAutoIncrementColumn() {
-		foreach($this->getColumns() as $col) {
+		foreach($this->getTable()->getColumns() as $col) {
 			if($col->autoIncrement) {
 				return $col;
 			}
@@ -1834,7 +1825,7 @@ abstract class Record extends DataModel {
 		
 		if ($this->isNew()) {
 			//validate all columns
-			$fieldsToCheck = $this->getColumns()->getColumnNames();
+			$fieldsToCheck = $this->getTable()->getColumnNames();
 		} else {
 			//validate modified columns
 			$fieldsToCheck = array_keys($this->getModifiedAttributes());
@@ -2223,7 +2214,7 @@ abstract class Record extends DataModel {
 		}
 		
 		//Always add primary key
-		foreach($this->getColumns() as $column) {
+		foreach($this->getTable()->getColumns() as $column) {
 			if($column->primary && !isset($array[$column->name])) {
 				$array[$column->name] = $this->{$column->name};
 			}
