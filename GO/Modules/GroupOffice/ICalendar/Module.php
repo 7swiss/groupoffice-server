@@ -27,6 +27,10 @@ class Module extends InstallableModule {
 		$cronJob->cronExpression = '/5 * * * * *';
 		$cronJob->save();
 	}
+	
+	public function autoInstall() {
+		return false;
+	}
 
 	public function depends() {
 		return [\GO\Modules\GroupOffice\Tasks\Module::class];

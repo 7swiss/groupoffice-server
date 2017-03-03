@@ -101,12 +101,10 @@ class MessageController extends Controller {
 	 */
 	public function actionCreate($moduleClassName, $returnProperties = "") {
 
-		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
-
 		
 		$message = new Message();		
 		$message->setValues(GO()->getRequest()->body['data']);
-		$message->moduleId = $module->id;
+		$message->setModuleClassName($moduleClassName);
 		$message->save();
 
 		$this->renderModel($message, $returnProperties);

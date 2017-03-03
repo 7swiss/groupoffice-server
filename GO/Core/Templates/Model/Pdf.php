@@ -106,4 +106,9 @@ class Pdf extends Record {
 		
 		return parent::internalSave();
 	}
+	
+	public function setModuleClassName($moduleClassName) {
+		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleClassName])->single();
+		$this->moduleId = $module->id;
+	}
 }

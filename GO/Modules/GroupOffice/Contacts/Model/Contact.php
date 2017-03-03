@@ -29,6 +29,10 @@ use IFW\Orm\Query;
  *
  */
 class Contact extends Record {
+	
+	const GENDER_MALE = 'M'; 
+	
+	const GENDER_FEMALE = 'F'; 
 
 	/**
 	 * The group that owns the contact and can modify permissions.

@@ -106,7 +106,7 @@ class PdfController extends Controller {
 		
 		$pdftemplate = new Pdf();
 		$pdftemplate->setValues(GO()->getRequest()->body['data']);
-		$pdftemplate->moduleId = $module->id;
+		$pdftemplate->setModuleClassName($moduleClassName);
 		$pdftemplate->save();
 
 		$this->renderModel($pdftemplate, $returnProperties);

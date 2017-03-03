@@ -55,6 +55,44 @@ use Sabre\VObject\UUIDUtil;
 class Message extends \GO\Core\Orm\Record {
 	
 	/**
+	 * Messages from the INBOX folder
+	 */
+	const TYPE_INCOMING = 0;
+
+	/**
+	 * Messages from the sent folder
+	 */
+	const TYPE_SENT = 1;
+
+	/**
+	 * Messages from the drafts folder
+	 */
+	const TYPE_DRAFT = 2;
+
+	/**
+	 * Messages with spam flags or from spam folder
+	 */
+	const TYPE_JUNK = 3;
+
+	/**
+	 * Messages that have been trashed by the user
+	 */
+	const TYPE_TRASH = 4;
+
+	/**
+	 * Messages from folders created by the user.
+	 */
+	const TYPE_OUTBOX = 5;
+	
+	
+	const TYPE_ACTIONED = 6;
+	
+	const PRIORITY_LOW = 'low';
+	const PRIORITY_NORMAL = 'normal';
+	const PRIORITY_HIGH = 'high';
+	
+	
+	/**
 	 * 
 	 * @var int
 	 */							
@@ -149,7 +187,7 @@ class Message extends \GO\Core\Orm\Record {
 	 * 
 	 * @var string
 	 */							
-	public $priority = 'normal';
+	public $priority = self::PRIORITY_NORMAL;
 
 	/**
 	 * 
@@ -158,41 +196,6 @@ class Message extends \GO\Core\Orm\Record {
 	public $photoBlobId;
 
 	use BlobNotifierTrait;
-	
-	
-	/**
-	 * Messages from the INBOX folder
-	 */
-	const TYPE_INCOMING = 0;
-
-	/**
-	 * Messages from the sent folder
-	 */
-	const TYPE_SENT = 1;
-
-	/**
-	 * Messages from the drafts folder
-	 */
-	const TYPE_DRAFT = 2;
-
-	/**
-	 * Messages with spam flags or from spam folder
-	 */
-	const TYPE_JUNK = 3;
-
-	/**
-	 * Messages that have been trashed by the user
-	 */
-	const TYPE_TRASH = 4;
-
-	/**
-	 * Messages from folders created by the user.
-	 */
-	const TYPE_OUTBOX = 5;
-	
-	
-	const TYPE_ACTIONED = 6;
-
 	
 	private $isAnswered;
 	

@@ -18,6 +18,11 @@ use IFW\Fs\File;
  * Without a file module Group-Office still has (temp) file
  * The expireAt property is set when a file is uploaded.
  * This is removed when the Blob is link to an object (email, event, contact photo or file in files module.
+ * 
+ * @example
+ * `````````````````````
+ * $blob = \GO\Core\Blob\Model\Blob::fromFile(new \IFW\Fs\File(dirname(__DIR__).'/Resources/intermesh-logo.png'));
+ * `````````````````````````````
  *
  * @property string $id SHA1 40-char hash of the binary data,
  * @property int $ownedBy the PK of the user tha thas uploaded this file,
@@ -95,6 +100,10 @@ class Blob extends Record {
 	/**
 	 * Create a new blob from a given file.
 	 *
+	 * @example 
+	 * ````
+	 * $blob = \GO\Core\Blob\Model\Blob::fromFile(new \IFW\Fs\File(dirname(__DIR__).'/Resources/intermesh-logo.png'));
+	 * ```
 	 * @param File $file
 	 * @return \self
 	 * @throws \Exception

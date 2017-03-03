@@ -19,6 +19,7 @@ abstract class AccountRecord extends Record {
 		
 		if($this->isNew()) {
 			$this->coreAccount = new Account();
+			$this->coreAccount->createdBy  = $this->createdBy;
 			$this->coreAccount->modelName = $this->getClassName();
 		}
 	}

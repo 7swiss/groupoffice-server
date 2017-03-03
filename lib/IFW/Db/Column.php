@@ -171,7 +171,7 @@ class Column {
 			default:
 				if ($this->trimInput) {
 					
-					if(!is_string($value)) {
+					if(!is_string($value)) {						
 						throw new \Exception("No string given for ".$this->name);						
 					}
 					

@@ -110,7 +110,11 @@ class Message extends Record {
 		$this->message = new MessagesMessage();
 		$this->message->accountId = $this->folder->accountId;
 		$this->message->uuid = $uuid;		
-		$this->message->priority = $imapMessage->xPriority;		
+		if($imapMessage->xPriority > ImapMessage::XPRIORITY_NORMAL) {
+			$this->message->priority = MessagesMessage::PRIORITY_LOW;
+		} else if($imapMessage->xPriority < ImapMessage::XPRIORITY_NORMAL) {
+			$this->message->priority = MessagesMessage::PRIORITY_HIGH;
+		} 
 		$this->message->type = $this->folder->getMessageType();					
 		$this->message->sentAt = $imapMessage->date;		
 		

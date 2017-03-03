@@ -51,7 +51,7 @@ class BlobController extends Controller {
 	 * @param int $w width of the image
 	 * @param int $h height of the image
 	 */
-	public function actionThumb($id, $w, $h) {
+	public function actionThumb($id, $w, $h, $zoomCrop = 1) {
 
 		$blob = Blob::findByPk($id);
 		if($blob->getType() != Blob::IMAGE) {
@@ -59,7 +59,12 @@ class BlobController extends Controller {
 			return;
 		}
 		$image = new Image($blob->getPath());
-		$image->zoomcrop($w, $h);
+		if($zoomCrop) {
+			$image->zoomcrop($h, $w);
+		}else
+		{
+			$image->fitBox($w, $h);
+		}
 
 		GO()->getResponse()->setHeader('Content-Type', $blob->contentType);
 		GO()->getResponse()->setHeader('Content-Disposition', 'inline; filename="' . $blob->name . '"');
