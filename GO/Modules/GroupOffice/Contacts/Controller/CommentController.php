@@ -1,23 +1,23 @@
 <?php
-namespace {namespace}\Controller;
+namespace GO\Modules\GroupOffice\Contacts\Controller;
 
 use GO\Core\Controller;
-use {namespace}\Model\{modelUcfirst};
+use GO\Modules\GroupOffice\Contacts\Model\Comment;
 use IFW\Orm\Query;
 use IFW\Exception\NotFound;
 
 /**
- * The controller for the {modelUcfirst} record
+ * The controller for the Comment record
  *
  * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class {modelUcfirst}Controller extends Controller {
+class CommentController extends Controller {
 
 
 	/**
-	 * Fetch {modelLowerCase}s
+	 * Fetch comments
 	 *
 	 * @param string $orderColumn Order by this column
 	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
@@ -34,21 +34,21 @@ class {modelUcfirst}Controller extends Controller {
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
 				->offset($offset)
-				->search($searchQuery, ['t.name']);
+				->search($searchQuery, ['t.content']);
 				
 		if(isset($q)) {
 			$query->setFromClient($q);			
 		}
 
-		${modelLowerCase}s = {modelUcfirst}::find($query);
-		${modelLowerCase}s->setReturnProperties($returnProperties);
+		$comments = Comment::find($query);
+		$comments->setReturnProperties($returnProperties);
 
-		$this->renderStore(${modelLowerCase}s);
+		$this->renderStore($comments);
 	}
 	
 	
 	/**
-	 * Get's the default data for a new {modelLowerCase}
+	 * Get's the default data for a new comment
 	 * 
 	 * 
 	 * 
@@ -57,41 +57,41 @@ class {modelUcfirst}Controller extends Controller {
 	 */
 	protected function actionNew($returnProperties = ""){
 		
-		$user = new {modelUcfirst}();
+		$user = new Comment();
 
 		$this->renderModel($user, $returnProperties);
 	}
 
 	/**
-	 * GET a list of {modelLowerCase}s or fetch a single {modelLowerCase}
+	 * GET a list of comments or fetch a single comment
 	 *
-	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
+	 * The attributes of this comment should be posted as JSON in a comment object
 	 *
 	 * <p>Example for POST and return data:</p>
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
 	 * </code>
 	 * 
-	 * @param int ${modelLowerCase}Id The ID of the {modelLowerCase}
+	 * @param int $commentId The ID of the comment
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead(${modelLowerCase}Id = null, $returnProperties = "") {	
-		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
+	protected function actionRead($commentId = null, $returnProperties = "") {	
+		$comment = Comment::findByPk($commentId);
 
 
-		if (!${modelLowerCase}) {
+		if (!$comment) {
 			throw new NotFound();
 		}
 
-		$this->renderModel(${modelLowerCase}, $returnProperties);
+		$this->renderModel($comment, $returnProperties);
 		
 	}
 
 	/**
-	 * Create a new {modelLowerCase}. Use GET to fetch the default attributes or POST to add a new {modelLowerCase}.
+	 * Create a new comment. Use GET to fetch the default attributes or POST to add a new comment.
 	 *
-	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
+	 * The attributes of this comment should be posted as JSON in a comment object
 	 *
 	 * <p>Example for POST and return data:</p>
 	 * ```````````````````````````````````````````````````````````````````````````
@@ -101,64 +101,65 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function actionCreate($contactId, $returnProperties = "") {
 
-		${modelLowerCase} = new {modelUcfirst}();
-		${modelLowerCase}->setValues(GO()->getRequest()->body['data']);
-		${modelLowerCase}->save();
+		$comment = new Comment();
+		$comment->setValues(GO()->getRequest()->body['data']);
+		$comment->contactId = $contactId;
+		$comment->save();
 
-		$this->renderModel(${modelLowerCase}, $returnProperties);
+		$this->renderModel($comment, $returnProperties);
 	}
 
 	/**
-	 * Update a {modelLowerCase}. Use GET to fetch the default attributes or POST to add a new {modelLowerCase}.
+	 * Update a comment. Use GET to fetch the default attributes or POST to add a new comment.
 	 *
-	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
+	 * The attributes of this comment should be posted as JSON in a comment object
 	 *
 	 * <p>Example for POST and return data:</p>
 	 * ```````````````````````````````````````````````````````````````````````````
-	 * {"data":{"{modelLowerCase}name":"test",...}}
+	 * {"data":{"commentname":"test",...}}
 	 * </code>
 	 * 
-	 * @param int ${modelLowerCase}Id The ID of the {modelLowerCase}
+	 * @param int $commentId The ID of the comment
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate(${modelLowerCase}Id, $returnProperties = "") {
+	public function actionUpdate($commentId, $returnProperties = "") {
 
-		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
+		$comment = Comment::findByPk($commentId);
 
-		if (!${modelLowerCase}) {
+		if (!$comment) {
 			throw new NotFound();
 		}
 
-		${modelLowerCase}->setValues(GO()->getRequest()->body['data']);
-		${modelLowerCase}->save();
+		$comment->setValues(GO()->getRequest()->body['data']);
+		$comment->save();
 
-		$this->renderModel(${modelLowerCase}, $returnProperties);
+		$this->renderModel($comment, $returnProperties);
 	}
 
 	/**
-	 * Delete a {modelLowerCase}
+	 * Delete a comment
 	 *
-	 * @param int ${modelLowerCase}Id
+	 * @param int $commentId
 	 * @throws NotFound
 	 */
-	public function actionDelete(${modelLowerCase}Id) {
-		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
+	public function actionDelete($commentId) {
+		$comment = Comment::findByPk($commentId);
 
-		if (!${modelLowerCase}) {
+		if (!$comment) {
 			throw new NotFound();
 		}
 
-		${modelLowerCase}->delete();
+		$comment->delete();
 
-		$this->renderModel(${modelLowerCase});
+		$this->renderModel($comment);
 	}
 	
 	/**
-	 * Update multiple {modelLowerCase}s at once with a PUT request.
+	 * Update multiple comments at once with a PUT request.
 	 * 
 	 * @example multi delete
 	 * ```````````````````````````````````````````````````````````````````````````
@@ -175,20 +176,20 @@ class {modelUcfirst}Controller extends Controller {
 		foreach(GO()->getRequest()->getBody()['data'] as $values) {
 			
 			if(!empty($contactValues['id'])) {
-				${modelLowerCase} = {modelUcfirst}::findByPk($values['id']);
+				$comment = Comment::findByPk($values['id']);
 
-				if (!${modelLowerCase}) {
+				if (!$comment) {
 					throw new NotFound();
 				}
 			}else
 			{
-				${modelLowerCase} = new {modelUcfirst}();
+				$comment = new Comment();
 			}
 			
-			${modelLowerCase}->setValues($values);
-			${modelLowerCase}->save();
+			$comment->setValues($values);
+			$comment->save();
 			
-			$response['data'][] = ${modelLowerCase}->toArray();
+			$response['data'][] = $comment->toArray();
 		}
 		
 		$this->render($response);

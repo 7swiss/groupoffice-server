@@ -79,6 +79,7 @@ class JobController extends Controller {
 
 		$user = new Job();
 
+
 		$this->renderModel($user, $returnProperties);
 	}
 

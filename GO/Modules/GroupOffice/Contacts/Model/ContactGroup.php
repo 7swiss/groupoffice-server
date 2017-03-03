@@ -17,6 +17,24 @@ class ContactGroup extends GroupAccess {
 	/**
 	 * 
 	 * @var int
+	 */							
+	public $groupId;
+
+	/**
+	 * 
+	 * @var bool
+	 */							
+	public $write = true;
+
+	/**
+	 * 
+	 * @var bool
+	 */							
+	public $delete = true;
+
+	/**
+	 * 
+	 * @var int
 	 */
 	public $contactId;
 
