@@ -33,7 +33,7 @@ class VCardHelper {
 			$vcard->add('EMAIL', $emailAddr->email, ['TYPE'=>[$emailAddr->type]]);
 		}
 		foreach($contact->phoneNumbers as $phoneNb) {
-			$vcard->add('TEL', $phoneNb->number, ['TYPE'=>[$emailAddr->type]]);
+			$vcard->add('TEL', $phoneNb->number, ['TYPE'=>[$phoneNb->type]]);
 		}
 		foreach($contact->dates as $date) {
 			$type = ($date->type === 'birthday') ? 'BDAY' : 'ANNIVERSARY';
@@ -61,7 +61,7 @@ class VCardHelper {
 		empty($contact->notes) ?: $vcard->NOTE = $contact->notes;
 		empty($contact->gender) ?: $vcard->GENDER = $contact->gender;
 
-		if(!empty($contact->photoBlobId)) {
+		if(!empty($contact->photoBlobId) && file_exists($contact->photoBlob->getPath())) {
 			$image = new Image($contact->photoBlob->getPath());
 			$image->fitBox(120, 120);
 			$vcard->add('PHOTO', $image->contents(), ['TYPE'=>$contact->photoBlob->getFormat(), 'ENCODING'=>'b']);
