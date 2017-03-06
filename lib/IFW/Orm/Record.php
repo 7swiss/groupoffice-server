@@ -150,7 +150,7 @@ abstract class Record extends DataModel {
 	/**
 	 * Event fired in the save function.
 	 * 
-	 * Save can be cancelled by returning false or setting validation errors.
+	 * Save can be canceled by returning false or setting validation errors.
 	 * 
 	 * @param self $record
 	 */
@@ -233,7 +233,7 @@ abstract class Record extends DataModel {
 	public $markDeleted = false;
 
 	/**
-	 * Indiciates that the ActiveRecord is being contructed by PDO.
+	 * Indicates that the ActiveRecord is being constructed by PDO.
 	 * Used in setAttribute so it skips fancy features that we know will only
 	 * cause overhead.
 	 *
@@ -311,17 +311,25 @@ abstract class Record extends DataModel {
 	 * @var array 
 	 */
 	private $oldAttributes = [];
+
+
+	private $skipReadPermissions = false;
 	
 	/**
 	 * Constructor
 	 * 
-	 * It checks if the record is new or exisiting in the database. It also sets
+	 * It checks if the record is new or existing in the database. It also sets
 	 * default attributes and casts mysql values to int, floats or booleans as 
 	 * mysql values from PDO are always strings.
+	 * 
+	 * @param bool $isNew Set to false by PDO
+	 * @param bool $skipReadPermissions Set by the permissions object when permissions are already checked by the find() query.
 	 */
 	public function __construct($isNew = true, $skipReadPermissions = false) {
 		
 		parent::__construct();
+		
+		$this->skipReadPermissions = $skipReadPermissions;
 
 		$this->isNew = $isNew;
 
@@ -352,6 +360,10 @@ abstract class Record extends DataModel {
 		}
 		
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
+	}
+	
+	public function readPermissionsSkipped() {
+		return $this->skipReadPermissions;
 	}
 	
 	/**
@@ -633,18 +645,6 @@ abstract class Record extends DataModel {
 	 * @return \IFW\Orm\RelationStore | self | null Returns null if not found
 	 */
 	protected function getRelated($name) {
-		
-//		IFW::app()->debug("Getting relation ".$name);
-		
-		
-		//_isRelational is set by the query object in getRelated
-//		if($this->isRelational && !PermissionsModel::isCheckingPermissions()){
-//			IFW::app()->debug($name);
-//			if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
-//				IFW::app()->debug("Relation ".$name." not returned because this record (".$this->getClassName().") is not readable for current user. It's fetched by relation.");
-//				return null;
-//			}
-//		}
 
 		$relation = $this->getRelation($name);
 
@@ -659,7 +659,6 @@ abstract class Record extends DataModel {
 			$this->applyRelationPermissions($relation, $store);			
 			$this->relations[$name] = $store;		
 		}
-
 		
 		if($relation->hasMany()) {
 			return $this->relations[$name];
@@ -682,7 +681,10 @@ abstract class Record extends DataModel {
 		
 		if(static::relationIsAllowed($relation->getName())) {
 			$store->getQuery()->skipReadPermission();
-		}else{		
+		}else if($relation->hasMany ()) {
+			//only apply query to has many. On single relational records it's better 
+			//to get the permission denied error when the read permissions are checked 
+			//in the constructor.
 			$toRecordName = $relation->getToRecordName();
 			$permissions = $toRecordName::internalGetPermissions();
 			$permissions->setRecordClassName($toRecordName);
@@ -1122,9 +1124,7 @@ abstract class Record extends DataModel {
 							!$parentRelation->hasMany() && 
 							$parentRelation->getToRecordName() == $childRelation->getFromRecordName() && 
 							static::keysMatch($childRelation, $parentRelation)
-				) {
-				
-//				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
+				) {				
 				return $parentRelation;
 			}							
 		}
@@ -1459,8 +1459,8 @@ abstract class Record extends DataModel {
 				foreach($relation->getKeys() as $from => $to) {
 					if(!empty($from) && $this->isModified($from)) {						
 						$record = $this->{$relation->getName()};						
-						if($record && !$record->getPermissions()->can(PermissionsModel::PERMISSION_READ)){
-							throw new Forbidden("You've set a key for ".$this->getClassName().'::'.$from.' that you are not allowed to read');
+						if($record && !$record->isNew() &&  !$record->getPermissions()->can(PermissionsModel::PERMISSION_READ)){
+							throw new Forbidden("You've set a key for ".$this->getClassName().'::'.$from.' (pk: '.var_export($this->pk(), true).') that you are not allowed to read');
 						}						
 					}
 				}
@@ -2408,11 +2408,13 @@ abstract class Record extends DataModel {
 		$parts = explode('.', $relationPath);		
 		self::$allowRelations[static::class][] = $parts[0];
 		
-		$model = static::getRelation(array_shift($parts))->getToRecordName();
-		foreach($parts as $part) {
-			
-			$model::allow($part);
-			$model = $model::getRelation($part)->getToRecordName();			
+		if(count($parts) > 1) {
+			$model = static::getRelation(array_shift($parts))->getToRecordName();
+			foreach($parts as $part) {
+
+				$model::allow($part);
+				$model = $model::getRelation($part)->getToRecordName();			
+			}
 		}
 	}	
 	

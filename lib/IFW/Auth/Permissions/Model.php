@@ -225,9 +225,13 @@ abstract class Model extends DataModel {
 				if($user->isAdmin()){
 					$this->cache[$permissionType.'-'.$user->id()] = true;
 				}else
-				{
-					
-					$can = $this->internalCan($permissionType, $user);
+				{					
+					if($permissionType == self::PERMISSION_READ && $this->record->readPermissionsSkipped()) {
+						$can = true;
+					}else
+					{					
+						$can = $this->internalCan($permissionType, $user);
+					}
 					
 //					if(!$can) {
 //						IFW::app()->debug("User ".$user->id." has no permission for ".$this->record->getClassName().' permissionType:'.var_export($permissionType, true).' '.var_export($this->record->pk(), true));

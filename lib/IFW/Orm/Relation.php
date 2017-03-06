@@ -110,6 +110,11 @@ class Relation {
 	 */
 	private $viaKeys;
 	
+	/**
+	 * Used for __wakeup
+	 * @var bool 
+	 */
+	private $alwaysAllow = false;
 	
 	/**
 	 *
@@ -125,6 +130,31 @@ class Relation {
 		$this->fromRecordName = $fromRecordName;
 		$this->toRecordName = $toRecordName;		
 		$this->many = $many;
+	}
+	
+	/**
+	 * Allow retrieval even if the user doesn't have read permission on the related
+	 * record.
+	 * 
+	 * For example the customer of an invoice should be readable even when you're
+	 * not allowed to read the contact.
+	 * 
+	 * @return self
+	 */
+	public function alwaysAllow() {
+		$this->alwaysAllow = true;
+		
+		$f = $this->fromRecordName;						
+		$f::allow($this->name);
+		
+		return $this;
+	}
+	
+	public function __wakeup() {
+		if($this->alwaysAllow) {
+			$f = $this->fromRecordName;						
+			$f::allow($this->name);
+		}
 	}
 
 	/**
@@ -157,7 +187,7 @@ class Relation {
 	}
 
 	/**
-	 * Set extra query paramaters
+	 * Set extra query parameters
 	 * 
 	 * Typical use case is ordering.
 	 * 
