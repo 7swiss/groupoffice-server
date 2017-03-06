@@ -120,7 +120,7 @@ class Task extends Record {
 	
 //		self::hasOne('customfields', TaskCustomFields::class, ['id' => 'id']);		// TODO: add Customfield support
 		
-		\GO\Modules\GroupOffice\Contacts\Model\Contact::hasMany('tasks', Task::class, ['id'=>'invoiceId'])
+		\GO\Modules\GroupOffice\Contacts\Model\Contact::hasMany('tasks', Task::class, ['id'=>'contactId'])
 							->via(ContactTask::class, ['taskId' => 'id']);
 
 

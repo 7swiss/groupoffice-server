@@ -7,7 +7,7 @@ namespace IFW\Auth\Permissions;
  * Only owner's and admins can do anything. By default the owner is identified
  * byt th column *createdBy* but you can change that bu setting $userIdField.
  */
-class OwnerOnly extends Model {
+class CreatorOnly extends Model {
 	
 	public $userIdField = 'createdBy';
 	

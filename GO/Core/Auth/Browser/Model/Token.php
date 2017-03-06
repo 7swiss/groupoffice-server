@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 use GO\Core\Users\Model\User;
 use IFW;
-use IFW\Auth\Permissions\OwnerOnly;
+use IFW\Auth\Permissions\CreatorOnly;
 use IFW\Fs\Folder;
 use IFW\Orm\Record;
 
@@ -113,7 +113,7 @@ class Token extends Record {
 	}
 	
 	protected  static function internalGetPermissions() {
-		$permissions = new OwnerOnly();
+		$permissions = new CreatorOnly();
 		$permissions->userIdField = 'userId';
 		return $permissions;
 	}

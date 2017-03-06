@@ -128,8 +128,8 @@ class ContactController extends Controller {
 			$query->setFromClient($q);			
 		}
 		
-		$this->getFilterCollection()->apply($query);		
-
+		$this->getFilterCollection()->apply($query);
+		
 		$contacts = Contact::find($query);
 		$contacts->setReturnProperties($returnProperties);
 
@@ -168,7 +168,7 @@ class ContactController extends Controller {
 	 * @return JSON Model data
 	 */
 	protected function actionRead($contactId, $returnProperties = "*"){
-		
+	
 		if($contactId == "current"){
 			$contact = \GO()->getAuth()->user()->contact;
 		}else

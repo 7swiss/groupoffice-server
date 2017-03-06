@@ -41,10 +41,7 @@ class ViaRelation extends Model {
 		return $relatedRecord->permissions->can($permissionType, $user);
 	}
 	
-	public function toArray($properties = null) {
-		return null;
-	}
-	
+
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
 

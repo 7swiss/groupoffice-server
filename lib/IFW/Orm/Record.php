@@ -215,13 +215,6 @@ abstract class Record extends DataModel {
 	 */
 	const EVENT_TO_ARRAY = 10;
 	
-	
-	/**
-	 * The columns are stored per class
-	 * 
-	 * @var Table 
-	 */
-	private static $columns = [];
 
 	/**
 	 * All relations are only fetched once per request and stored in this static
@@ -359,7 +352,6 @@ abstract class Record extends DataModel {
 		}
 		
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
-		
 	}
 	
 	/**
@@ -664,13 +656,7 @@ abstract class Record extends DataModel {
 			
 			//Get't RelationStore
 			$store = $relation->get($this);			
-			
-			//Apply permissions to relational query
-			$toRecordName = $relation->getToRecordName();		
-			$permissions = $toRecordName::internalGetPermissions();
-			$permissions->setRecordClassName($toRecordName);
-			$permissions->applyToQuery($store->getQuery());
-			
+			$this->applyRelationPermissions($relation, $store);			
 			$this->relations[$name] = $store;		
 		}
 
@@ -688,6 +674,21 @@ abstract class Record extends DataModel {
 			}
 		}		
 	}	
+	
+	/**
+	 * Apply permissions to relational query
+	 */
+	private function applyRelationPermissions(Relation $relation, RelationStore $store) {
+		
+		if(static::relationIsAllowed($relation->getName())) {
+			$store->getQuery()->skipReadPermission();
+		}else{		
+			$toRecordName = $relation->getToRecordName();
+			$permissions = $toRecordName::internalGetPermissions();
+			$permissions->setRecordClassName($toRecordName);
+			$permissions->applyToQuery($store->getQuery());
+		}
+	}
 	
 	/**
 	 *
@@ -1276,6 +1277,8 @@ abstract class Record extends DataModel {
 				throw new Forbidden("You're (user ID: ".IFW::app()->getAuth()->user()->id().") not permitted to ".$action." ".$this->getClassName()." ".var_export($this->pk(), true));
 			}
 			
+			$this->checkRelationPermissions();
+			
 			if (!$this->validate()) {
 				$this->isSaving = false;
 				return false;
@@ -1443,6 +1446,27 @@ abstract class Record extends DataModel {
 		
 		return true;
 	}	
+	
+	/**
+	 * When belongs to relations are updated by setting the keys directly.
+	 * For example set $invoice->contactId, we must check if the user is allowed 
+	 * to read this contact
+	 */
+		
+	private function checkRelationPermissions() {
+		foreach($this->getRelations() as $relation) {
+			if($relation->isBelongsTo()) {
+				foreach($relation->getKeys() as $from => $to) {
+					if(!empty($from) && $this->isModified($from)) {						
+						$record = $this->{$relation->getName()};						
+						if($record && !$record->getPermissions()->can(PermissionsModel::PERMISSION_READ)){
+							throw new Forbidden("You've set a key for ".$this->getClassName().'::'.$from.' that you are not allowed to read');
+						}						
+					}
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Belongs to relations that have been set must be saved before saving this record.
@@ -1834,10 +1858,6 @@ abstract class Record extends DataModel {
 		$uniqueKeysToCheck = [];
 
 		foreach ($fieldsToCheck as $colName) {
-			if($colName == 'sortOrder') {
-				continue;
-			}
-			
 			$column = $this->getColumn($colName);
 			if(!$this->validateRequired($column)){
 				//only one error per column
@@ -1886,7 +1906,7 @@ abstract class Record extends DataModel {
 		}
 		
 		return !$this->hasValidationErrors();
-	}
+	}	
 	
 	
 	/**
@@ -2365,6 +2385,45 @@ abstract class Record extends DataModel {
 		return new AdminsOnly();
 	}	
 	
+	private static $allowRelations = [];
+	
+	/**
+	 * Bypass record read permissions for specific relational queries
+	 * 
+	 * @example Allow the customer contact of an invoice to be queried even if 
+	 * the user doesn't have read permissions for the contact.
+	 * 
+	 * ```php
+	 * Invoice::allow('customer');
+	 * ```
+	 * 
+	 * @param string $relationPath "contact" or deeper "contact.organizations"
+	 */
+	public static function allow($relationPath) {
+		
+		if(!isset(self::$allowRelations[static::class])) {
+			self::$allowRelations[static::class] = [];
+		}
+		
+		$parts = explode('.', $relationPath);		
+		self::$allowRelations[static::class][] = $parts[0];
+		
+		$model = static::getRelation(array_shift($parts))->getToRecordName();
+		foreach($parts as $part) {
+			
+			$model::allow($part);
+			$model = $model::getRelation($part)->getToRecordName();			
+		}
+	}	
+	
+	private static function relationIsAllowed($relationName) {
+
+		if(!isset(self::$allowRelations[static::class])) {
+			return false;
+		}
+		
+		return in_array($relationName, self::$allowRelations[static::class]);
+	}
 	
 	/**
 	 * Get the permissions model

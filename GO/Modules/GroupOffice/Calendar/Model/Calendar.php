@@ -8,7 +8,7 @@
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use GO\Core\Orm\Record;
-use IFW\Auth\Permissions\OwnerOnly;
+use IFW\Auth\Permissions\CreatorOnly;
 
 /**
  * Calendar holds the calendar-specific information such as name, color and sync info
