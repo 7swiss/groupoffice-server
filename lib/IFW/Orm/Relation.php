@@ -114,7 +114,7 @@ class Relation {
 	 * Used for __wakeup
 	 * @var bool 
 	 */
-	private $alwaysAllow = false;
+	private $allowedPermissionTypes = [];
 	
 	/**
 	 *
@@ -141,19 +141,23 @@ class Relation {
 	 * 
 	 * @return self
 	 */
-	public function alwaysAllow() {
-		$this->alwaysAllow = true;
+	public function allowPermissionTypes($allowedPermissionTypes = [\IFW\Auth\Permissions\Model::PERMISSION_READ]) {
+		$this->allowedPermissionTypes = $allowedPermissionTypes;	
 		
 		$f = $this->fromRecordName;						
-		$f::allow($this->name);
+		$f::allow($this->name, $allowedPermissionTypes);
 		
 		return $this;
 	}
 	
+	public function getAllowedPermissionTypes() {
+		return $this->allowedPermissionTypes;
+	}
+	
 	public function __wakeup() {
-		if($this->alwaysAllow) {
+		if($this->allowedPermissionTypes) {
 			$f = $this->fromRecordName;						
-			$f::allow($this->name);
+			$f::allow($this->name, $this->allowedPermissionTypes);
 		}
 	}
 
@@ -379,6 +383,10 @@ class Relation {
 		foreach($this->keys as $fromField => $toField) {
 			
 			$from = $fromRecord::getColumn($fromField);			
+			
+			if(!$from) {
+				throw new \Exception($fromRecord.'::'.$fromField.' column not found in table');
+			}
 			
 			if(!$from->primary) {
 				return true;

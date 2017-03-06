@@ -66,10 +66,10 @@ class Owner extends Model {
 						->andWhere('ug.groupId = '.$query->getTableAlias().'.ownedBy')
 						);
 		
-		$query->skipReadPermission()
+		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 						->andWhere(['EXISTS', $subQuery]);
 		
-//		$query->skipReadPermission()
+//		->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 //						->joinRelation('groupPermissions')->debug()
 //						->joinRelation(
 //										'groupPermissions.groupUsers', 

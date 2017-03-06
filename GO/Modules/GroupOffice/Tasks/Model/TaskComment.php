@@ -13,7 +13,7 @@ use IFW\Auth\Permissions\ViaRelation;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class TaskComment extends Comment {
+class TaskComment extends \IFW\Orm\Record {
 
 
 	/**
@@ -21,10 +21,18 @@ class TaskComment extends Comment {
 	 * @var int
 	 */							
 	public $taskId;
+	
+	public $commentId;
 
 	
 	protected static function defineRelations() {
 		parent::defineRelations();
+		
+		self::hasOne('comment', Comment::class, ['commentId' => 'id'])->allowPermissionTypes([
+				\IFW\Auth\Permissions\Model::PERMISSION_READ,
+				\IFW\Auth\Permissions\Model::PERMISSION_CREATE,
+				\IFW\Auth\Permissions\Model::PERMISSION_UPDATE,
+		]);
 		
 		self::hasOne('task', Task::class, ['taskId' => 'id']);
 	}
@@ -39,7 +47,7 @@ class TaskComment extends Comment {
 		if($this->isNew()) {
 			
 			$data = $this->task->toArray('id,description,dueAt');
-			$data['excerpt'] = \IFW\Util\StringUtil::cutString(strip_tags($this->content), 50);
+			$data['excerpt'] = \IFW\Util\StringUtil::cutString(strip_tags($this->comment->content), 50);
 			
 			if(!Notification::create('comment', $data, $this->task)){			
 				return false;

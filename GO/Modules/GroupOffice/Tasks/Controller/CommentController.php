@@ -16,7 +16,10 @@ class CommentController extends Controller {
 		$query = (new Query())
 				->limit($limit)
 				->offset($offset)
-				->where(['taskId' => $taskId]);
+				->where(['taskId' => $taskId])						
+				->joinRelation('comment')
+				->orderBy(['commentId' => 'ASC']);
+				
 
 		if (!empty($searchQuery)) {
 			$query->search($searchQuery, ['description']);

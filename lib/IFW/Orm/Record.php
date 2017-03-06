@@ -313,7 +313,7 @@ abstract class Record extends DataModel {
 	private $oldAttributes = [];
 
 
-	private $skipReadPermissions = false;
+	private $allowedPermissionTypes = [];
 	
 	/**
 	 * Constructor
@@ -323,13 +323,13 @@ abstract class Record extends DataModel {
 	 * mysql values from PDO are always strings.
 	 * 
 	 * @param bool $isNew Set to false by PDO
-	 * @param bool $skipReadPermissions Set by the permissions object when permissions are already checked by the find() query.
+	 * @param bool $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query.
 	 */
-	public function __construct($isNew = true, $skipReadPermissions = false) {
+	public function __construct($isNew = true, $allowPermissionTypes = []) {
 		
 		parent::__construct();
 		
-		$this->skipReadPermissions = $skipReadPermissions;
+		$this->allowedPermissionTypes = $allowPermissionTypes;
 
 		$this->isNew = $isNew;
 
@@ -354,7 +354,7 @@ abstract class Record extends DataModel {
 		}else
 		{
 			//skipReadPermission is selected if you use IFW\Auth\Permissions\Model::query() so permissions have already been checked
-			if(!$skipReadPermissions && !PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
+			if(!PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
 				throw new Forbidden("You're not permitted to read ".$this->getClassName()." ".var_export($this->pk(), true));
 			}			
 		}
@@ -362,8 +362,8 @@ abstract class Record extends DataModel {
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
 	}
 	
-	public function readPermissionsSkipped() {
-		return $this->skipReadPermissions;
+	public function allowedPermissionTypes() {
+		return $this->allowedPermissionTypes;
 	}
 	
 	/**
@@ -678,9 +678,9 @@ abstract class Record extends DataModel {
 	 * Apply permissions to relational query
 	 */
 	private function applyRelationPermissions(Relation $relation, RelationStore $store) {
-		
-		if(static::relationIsAllowed($relation->getName())) {
-			$store->getQuery()->skipReadPermission();
+		$allowedPermissionTypes = static::relationIsAllowed($relation->getName());
+		if($allowedPermissionTypes) {
+			$store->getQuery()->allowPermissionTypes($allowedPermissionTypes);
 		}else if($relation->hasMany ()) {
 			//only apply query to has many. On single relational records it's better 
 			//to get the permission denied error when the read permissions are checked 
@@ -2399,20 +2399,20 @@ abstract class Record extends DataModel {
 	 * 
 	 * @param string $relationPath "contact" or deeper "contact.organizations"
 	 */
-	public static function allow($relationPath) {
+	public static function allow($relationPath, array $permissionTypes = [PermissionsModel::PERMISSION_READ]) {
 		
 		if(!isset(self::$allowRelations[static::class])) {
 			self::$allowRelations[static::class] = [];
 		}
 		
 		$parts = explode('.', $relationPath);		
-		self::$allowRelations[static::class][] = $parts[0];
+		self::$allowRelations[static::class][$parts[0]] = $permissionTypes;
 		
 		if(count($parts) > 1) {
 			$model = static::getRelation(array_shift($parts))->getToRecordName();
 			foreach($parts as $part) {
 
-				$model::allow($part);
+				$model::allow($part, $permissionTypes);
 				$model = $model::getRelation($part)->getToRecordName();			
 			}
 		}
@@ -2420,11 +2420,11 @@ abstract class Record extends DataModel {
 	
 	private static function relationIsAllowed($relationName) {
 
-		if(!isset(self::$allowRelations[static::class])) {
+		if(!isset(self::$allowRelations[static::class][$relationName])) {
 			return false;
 		}
 		
-		return in_array($relationName, self::$allowRelations[static::class]);
+		return self::$allowRelations[static::class][$relationName];
 	}
 	
 	/**

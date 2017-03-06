@@ -96,7 +96,7 @@ class ViaRelation extends Model {
 		$store = $toRecordName::find($subquery);		
 		self::$enablePermissions = false;
 		$query->andWhere(['EXISTS', $store]);
-		$query->skipReadPermission();
+		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ]);
 		
 	}
 

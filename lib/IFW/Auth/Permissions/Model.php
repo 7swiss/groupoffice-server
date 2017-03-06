@@ -226,7 +226,7 @@ abstract class Model extends DataModel {
 					$this->cache[$permissionType.'-'.$user->id()] = true;
 				}else
 				{					
-					if($permissionType == self::PERMISSION_READ && $this->record->readPermissionsSkipped()) {
+					if(in_array($permissionType, $this->record->allowedPermissionTypes())) {
 						$can = true;
 					}else
 					{					

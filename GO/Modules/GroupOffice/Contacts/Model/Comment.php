@@ -10,7 +10,13 @@ use IFW\Util\StringUtil;
 /**
  * @property Contact $contact The contact this comment belongs to
  */
-class Comment extends CoreComment {
+class Comment extends \IFW\Orm\Record {
+	
+	/**
+	 *
+	 * @var int 
+	 */
+	public $commentId;
 
 	/**
 	 *
@@ -22,6 +28,13 @@ class Comment extends CoreComment {
 		parent::defineRelations();
 
 		self::hasOne('contact', Contact::class, ['contactId' => 'id']);
+		
+		self::hasOne('comment', CoreComment::class, ['commentId' => 'id'])->allowPermissionTypes([
+				\IFW\Auth\Permissions\Model::PERMISSION_READ,
+				\IFW\Auth\Permissions\Model::PERMISSION_CREATE,
+				\IFW\Auth\Permissions\Model::PERMISSION_UPDATE,
+		]);
+		
 	}
 
 	/**
@@ -38,7 +51,7 @@ class Comment extends CoreComment {
 		if($this->isNew()) {
 			
 			$data = $this->contact->toArray('id,name');
-			$data['excerpt'] = StringUtil::cutString(strip_tags($this->content), 50);
+			$data['excerpt'] = StringUtil::cutString(strip_tags($this->comment->content), 50);
 			
 			if(!Notification::create('comment', $data, $this->contact)){			
 				return false;

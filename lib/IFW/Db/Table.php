@@ -17,6 +17,12 @@ class Table {
 	
 	private static $cache = [];
 	
+	/**
+	 * Get a table instance
+	 * 
+	 * @param string $tableName
+	 * @return self
+	 */
 	public static function getInstance($tableName) {
 		
 		if(!isset(self::$cache[$tableName])) {

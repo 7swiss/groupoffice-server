@@ -39,7 +39,7 @@ class Query extends Criteria {
 	
 	protected $queryBuilder;
 	
-	private $skipReadPermission = false;
+	private $allowedPermissionTypes = [];
 	
 	
 	private $relation;
@@ -84,8 +84,8 @@ class Query extends Criteria {
 		return $this->fetchMode;
 	}
 	
-	public function getSkipReadPermission(){
-		return $this->skipReadPermission;
+	public function getAllowedPermissionTypes(){
+		return $this->allowedPermissionTypes;
 	}
 	
 	public function getIsRelational(){
@@ -516,11 +516,11 @@ class Query extends Criteria {
 	 * 
 	 * @return static
 	 */
-	public function skipReadPermission() {
+	public function allowPermissionTypes(array $allowedPermissionTypes) {
 		
-		if(!isset($this->fetchMode)) {
-			$this->skipReadPermission = true;
-		}
+//		if(!isset($this->fetchMode)) {
+			$this->allowedPermissionTypes = $allowedPermissionTypes;
+//		}
 		
 		return $this;
 	}

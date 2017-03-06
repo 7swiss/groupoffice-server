@@ -129,7 +129,7 @@ class Query extends DbQuery {
 		
 		if($this->getFetchMode() == null) {
 			//set fetch mode to fetch Record objects
-			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getSkipReadPermission()]); //for new record
+			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
 		}
 		
 		return parent::createCommand();
