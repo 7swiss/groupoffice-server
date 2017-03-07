@@ -123,11 +123,12 @@ class UserProvider implements UserProviderInterface {
 	 * 
 	 * @param callable $callback Code in this function will run as administrator
 	 * @param int $userId The user to run the function as
+	 * @param array $args The method arguments
 	 */
-	public function sudo(callable $callback, $userId = 1) {		
+	public function sudo(callable $callback, $userId = 1, $args = []) {		
 
 		if($this->inSudo || !\IFW\Auth\Permissions\Model::$enablePermissions) {
-			return call_user_func($callback);
+			return call_user_func_array($callback, $args);
 		}
 		
 		\GO()->debug("sudo start");	
@@ -139,7 +140,7 @@ class UserProvider implements UserProviderInterface {
 		\IFW\Auth\Permissions\Model::$enablePermissions = true;
 		
 		try {
-			$ret = call_user_func($callback);
+			$ret = call_user_func_array($callback, $args);
 		} catch (Exception $ex) {			
 			\GO()->debug("sudo exception ".$ex->getMessage());
 			throw $ex;

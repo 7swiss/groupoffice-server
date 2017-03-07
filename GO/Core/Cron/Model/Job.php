@@ -55,6 +55,8 @@ class Job extends Record {
 	 * 
 	 * Remember that all times on the server are in UTC timezone
 	 * 
+	 * If you set this to null you must set nextRun and it will run once. The job will remove itself when done!
+	 * 
 	 * @var string
 	 */							
 	public $cronExpression;
@@ -91,6 +93,8 @@ class Job extends Record {
 	public $runningSince;	
 	
 	
+	protected $params;
+	
 	
 	/**
 	 * Cron job is enabled or not
@@ -103,6 +107,14 @@ class Job extends Record {
 		self::hasOne('module', Module::class, ['moduleId'=>'id']);
 		
 		parent::defineRelations();
+	}
+	
+	public function setParams(array $value) {
+		$this->params = json_encode($value);
+	}
+	
+	public function getParams() {
+		return isset($this->params) ? json_decode($this->params) : [];
 	}
 
 	/**
@@ -128,7 +140,7 @@ class Job extends Record {
 
 	public function internalValidate() {
 
-		if (!CronExpression::isValidExpression($this->cronExpression)) {
+		if (isset($this->cronExpression) && !CronExpression::isValidExpression($this->cronExpression)) {
 			$this->setValidationError('cronExpression', 'INVALIDEXPRESSION');
 		}
 		
@@ -189,6 +201,10 @@ class Job extends Record {
 	
 	private function getNextRunDate() {
 		
+		if(!isset($this->cronExpression)) {
+			return null;
+		}
+		
 		//Convert to local time zone stored in job
 		$now = new \DateTime();
 		$now->setTimezone(new \DateTimeZone($this->timezone));
@@ -219,7 +235,7 @@ class Job extends Record {
 				trigger_error("CRON method: " . $this->cronClassName . "::" . $this->method . " is not callable!");
 			}
 			
-			GO()->getAuth()->sudo($callable, $this->runUserId);
+			GO()->getAuth()->sudo($callable, $this->runUserId, $this->getParams());
 			
 			GO()->log("info", "Finished CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 			
@@ -235,7 +251,9 @@ class Job extends Record {
 		
 		$this->nextRun = $this->getNextRunDate();
 		
-		if(!$this->save()) {
+		if(!isset($this->nextRun)) {
+			$this->delete();
+		}else if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}
 	}

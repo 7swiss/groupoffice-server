@@ -144,7 +144,6 @@ class Attachment extends Record {
 
 	protected static function defineRelations() {
 		self::hasOne('message', Message::class, ['messageId' => 'id']);
-		self::hasOne('imapMessageData', ImapMessageData::class, ['messageId' => 'id']);
 	}
 
 	public static function internalGetPermissions() {
