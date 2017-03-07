@@ -22,7 +22,7 @@ class CommentController extends Controller {
 				
 
 		if (!empty($searchQuery)) {
-			$query->search($searchQuery, ['description']);
+			$query->search($searchQuery, ['comment.content']);
 		}
 
 		if (!empty($q)) {

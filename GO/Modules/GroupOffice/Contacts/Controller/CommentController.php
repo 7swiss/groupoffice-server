@@ -34,8 +34,8 @@ class CommentController extends Controller {
 
 				->limit($limit)
 				->offset($offset)
-				->search($searchQuery, ['t.content'])
-				->joinRelation('comments')
+				->search($searchQuery, ['comment.content'])
+				->joinRelation('comment')
 				->orderBy(['commentId' => 'ASC']);
 				
 		if(isset($q)) {

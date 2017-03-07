@@ -149,7 +149,7 @@ class Notification extends Record {
 	 * 
 	 * @return self
 	 */
-	public static function create($type, $data, Record $record, $iconBlobId = null) {
+	public static function create($type, $data, Record $record, $iconBlobId = null, $forGroupId = null) {
 
 		$notification = new self();
 		$notification->iconBlobId = isset($iconBlobId) ? $iconBlobId : GO()->getAuth()->user()->photoBlobId;
@@ -157,19 +157,32 @@ class Notification extends Record {
 		$notification->setData($data);
 		$notification->record = $record;
 
-		$watches = Watch::find(['recordTypeId' => $notification->recordTypeId, 'recordId' => $notification->recordId]);
-		if (!$watches->getRowCount()) {
-			return true;
+		if(!isset($forGroupId)) {
+			$watches = Watch::find(['recordTypeId' => $notification->recordTypeId, 'recordId' => $notification->recordId]);
+			if (!$watches->getRowCount()) {
+				return true;
+			}
+			foreach ($watches as $watch) {
+				$notification->for[] = ['groupId' => $watch->groupId];
+			}
+		}else
+		{
+			foreach($forGroupId as $groupId) {
+				$notification->for[] = ['groupId' => $groupId];
+			}
 		}
-		foreach ($watches as $watch) {
-			$notification->for[] = ['groupId' => $watch->groupId];
-		}
-
 		if (!$notification->save()) {
 			return false;
 		} else {
 			return true;
 		}
+	}
+	
+	public static function findByRecord(Record $record, $type) {
+		$recordId = implode('-', $record->pk());
+		$recordTypeId = $record->getRecordType()->id;
+		
+		return self::find(['recordId' => $recordId, 'recordTypeId' => $recordTypeId, 'type' => $type]);
 	}
 
 	protected function internalSave() {

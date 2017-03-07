@@ -509,7 +509,7 @@ class Query extends Criteria {
 	}
 	
 	/**
-	 * for internal use only
+	 * Set permission type as allowed when querying records
 	 * 
 	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
 	 * already been checked for read access.
@@ -517,11 +517,7 @@ class Query extends Criteria {
 	 * @return static
 	 */
 	public function allowPermissionTypes(array $allowedPermissionTypes) {
-		
-//		if(!isset($this->fetchMode)) {
-			$this->allowedPermissionTypes = $allowedPermissionTypes;
-//		}
-		
+		$this->allowedPermissionTypes = $allowedPermissionTypes;		
 		return $this;
 	}
 	

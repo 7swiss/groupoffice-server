@@ -1457,7 +1457,7 @@ abstract class Record extends DataModel {
 		foreach($this->getRelations() as $relation) {
 			if($relation->isBelongsTo()) {
 				foreach($relation->getKeys() as $from => $to) {
-					if(!empty($from) && $this->isModified($from)) {						
+					if(!empty($this->{$from}) && $this->isModified($from)) {						
 						$record = $this->{$relation->getName()};						
 						if($record && !$record->isNew() &&  !$record->getPermissions()->can(PermissionsModel::PERMISSION_READ)){
 							throw new Forbidden("You've set a key for ".$this->getClassName().'::'.$from.' (pk: '.var_export($this->pk(), true).') that you are not allowed to read');

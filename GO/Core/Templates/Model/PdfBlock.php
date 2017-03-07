@@ -84,6 +84,13 @@ class PdfBlock extends Record {
 		//allow spacing by enter key
 		$this->getColumn('data')->trimInput = false;
 	}
+	
+	protected static function defineRelations() {
+		self::hasOne('pdf', Pdf::class, ['pdfTemplateId' => 'id']);
+	}
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('pdf');
+	}
 }
 
