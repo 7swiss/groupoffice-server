@@ -28,7 +28,7 @@ class CommentController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	protected function actionStore($contactId, $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 
@@ -36,7 +36,9 @@ class CommentController extends Controller {
 				->offset($offset)
 				->search($searchQuery, ['comment.content'])
 				->joinRelation('comment')
-				->orderBy(['commentId' => 'ASC']);
+				->orderBy(['commentId' => 'ASC'])
+				->where(['contactId' => $contactId]);
+		
 				
 		if(isset($q)) {
 			$query->setFromClient($q);			
