@@ -85,6 +85,10 @@ class Calendar extends Record {
 	public function up() {
 		$this->version++;
 	}
+
+	public function getUri() {
+		return $this->name.'-'.$this->id;
+	}
 	
 	/**
 	 * places an event inside this calendar

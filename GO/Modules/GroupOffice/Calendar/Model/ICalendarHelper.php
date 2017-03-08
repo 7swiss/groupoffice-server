@@ -88,14 +88,14 @@ class ICalendarHelper {
 
 	/**
 	 * Parse a VObject to an Event object
-	 * @param VObject\Component\VCalendar $calendar
+	 * @param VObject\Component\VCalendar $ccalendar
 	 * @return Event
 	 */
-	static public function fromVObject(VObject\Component\VCalendar $calendar) {
+	static public function fromVObject(VObject\Component\VCalendar $vcalendar, $calendarId = null) {
 
 		$events = [];
 
-		foreach($calendar->VEVENT as $vevent) {
+		foreach($vcalendar->VEVENT as $vevent) {
 
 			$event = new Event();
 			$event->uuid = (string)$vevent->UID;
@@ -109,8 +109,8 @@ class ICalendarHelper {
 			$event->title = (string)$vevent->SUMMARY;
 			$event->description = (string)$vevent->DESCRIPTION;
 			$event->location = (string)$vevent->LOCATION;
-			$event->vevent = $calendar->serialize();
-			//$event->sequence = $vevent->SEQUENCE; // TODO
+			$event->vevent = $vevent->serialize();
+			$event->sequence = (string)$vevent->SEQUENCE;
 			$event->visibility = Visibility::fromText($vevent->CLASS);
 
 			$event->organizerEmail = str_replace('mailto:', '',(string)$vevent->ORGANIZER);
@@ -123,6 +123,8 @@ class ICalendarHelper {
 			foreach($vevent->ATTENDEE as $vattendee) {
 				$attendee = new Attendee();
 				//$attendee->name = $vattendee['CN'];
+				if($calendarId !== null)
+					$attendee->calendarId = $calendarId;
 				$attendee->email = str_replace('mailto:', '',(string)$vattendee); // Will link to userId when found
 				$attendee->responseStatus = AttendeeStatus::fromText($vattendee['PARTSTAT']);
 				$attendee->role = Role::fromText($vattendee['ROLE']);
@@ -136,6 +138,7 @@ class ICalendarHelper {
 
 			$events[] = $event;
 		}
+		$vcalendar->destroy();
 		return $events;
 	}
 

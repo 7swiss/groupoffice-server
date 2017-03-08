@@ -66,7 +66,8 @@ class Attendee extends Record {
 		$me = new self();
 		$me->email = \GO()->getAuth()->user()->email;
 		$me->groupId = Group::current()->id;
-		$me->setCalendar(Calendar::find((new Query)->select('id')->where(['ownedBy'=>Group::current()->id]))->single());
+		$defaultCalendar = Calendar::find((new Query)->select('id')->where(['ownedBy'=>Group::current()->id]))->single();
+		$me->setCalendar($defaultCalendar);
 		$me->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
 		$me->event = $event;
@@ -127,6 +128,9 @@ class Attendee extends Record {
 	}
 
 	public function getCanWrite() {
+		if(empty($this->calendarId)) {
+			return false;
+		}
 		return $this->getPermissions()->can("update") && $this->getIsOrganizer();
 	}
 

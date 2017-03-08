@@ -27,7 +27,7 @@ class CalendarGroup extends GroupAccess {
 	 */							
 	public $read = true;
 
-	public $delete = false; //moet er zijn
+	public $delete = true;
 
 	/**
 	 * 
