@@ -66,7 +66,7 @@ class Attendee extends Record {
 		$me = new self();
 		$me->email = \GO()->getAuth()->user()->email;
 		$me->groupId = Group::current()->id;
-		$defaultCalendar = $this->findDefaultCalendar();
+		$defaultCalendar = $me->findDefaultCalendar();
 		$me->setCalendar($defaultCalendar);
 		$me->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
