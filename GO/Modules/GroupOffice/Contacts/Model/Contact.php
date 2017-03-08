@@ -226,6 +226,10 @@ class Contact extends Record {
 		
 		return parent::internalValidate();
 	}
+
+	public function getETag() {
+		return $this->modifiedAt->format('Ymd H:i:s'). '-'.$this->id;
+	}
 	
 	
 	public function internalSave() {

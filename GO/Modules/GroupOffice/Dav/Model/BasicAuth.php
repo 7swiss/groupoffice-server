@@ -3,23 +3,44 @@
 namespace GO\Modules\GroupOffice\Dav\Model;
 
 use Sabre\DAV\Auth\Backend\AbstractBasic;
+use Sabre\HTTP\RequestInterface;
+use Sabre\HTTP\ResponseInterface;
+use GO\Core\Users\Model\User;
+use GO;
 
 class BasicAuth extends AbstractBasic {
-	
+
+	private $_user;
+
+	public function __construct() {
+		$this->setRealm('Group-Office');
+	}
+
 	protected function validateUserPass($username, $password) {
-		$user = \GO\Core\Users\Model\User::find(['username' => $username])->single();
+
+		$this->_user = User::find(['username' => $username])->single();
 		
-		if(!$user) {
+		if(!$this->_user) {
 			return false;
 		}
 		
-		if(!$user->checkPassword($password)){
+		if(!$this->_user->checkPassword($password)){
 			return false;
 		}
-		
-		$user->setCurrent();
-		
-		return $user;
+		GO()->getAuth()->setCurrentUser($this->_user);
+
+		return !empty($this->_user);
+	}
+
+	public function check(RequestInterface $request, ResponseInterface $response) {
+		$result = parent::check($request, $response);
+
+		if($result[0]==true) {
+			GO()->debug("Login basicauth successfull as ".$this->_user->username);
+			GO()->getAuth()->setCurrentUser($this->_user);
+		}
+
+		return $result;
 	}
 
 }

@@ -8,7 +8,7 @@ use IFW\App,
 	GO\Modules\GroupOffice\Contacts\Model\Contact,
 	Sabre\DAVACL\PrincipalBackend\BackendInterface;
 
-class Principal implements BackendInterface {
+class PrincipalBackend implements BackendInterface {
 
 	private function _modelToDAVUser(User $user) {
 		return [
