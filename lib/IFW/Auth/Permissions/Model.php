@@ -291,7 +291,7 @@ abstract class Model extends DataModel {
 	 */
 	public function beforeCreate(Record $record) {
 		if($record->getRelation('groups') && property_exists($record, 'ownedBy') && !$record->isModified('groups')) {
-			$record->groups[] = ['groupId' => $record->ownedBy];
+			$record->groups[] = ['groupId' => $record->ownedBy, 'write'=>true];
 		}
 	}
 }
