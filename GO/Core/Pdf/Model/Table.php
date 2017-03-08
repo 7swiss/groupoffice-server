@@ -72,7 +72,7 @@ class Table {
 		
 		$this->margins = $pdf->getMargins();
 		
-		$this->width = $pdf->getPageWidth() - $this->margins['left'] - $this->margins['right'];		
+		$this->width = $pdf->getPageWidth() - $this->margins['left'] - $this->margins['right'];			
 		
 		$this->pdf->setCellPaddings(0, 2, 0, 2);
 	}

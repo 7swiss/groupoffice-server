@@ -14,7 +14,7 @@ use Traversable;
  * Create a store response with this class.
  *
  * <p>Example</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * public function actionStore($orderColumn='username', $orderDirection='ASC', $limit=10, $offset=0, $searchQuery=""){
 
   $users = User::find((new Query())
@@ -37,7 +37,7 @@ use Traversable;
 
   echo $this->view->render('store', $store);
   }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  */
 class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 
@@ -111,7 +111,7 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 	/**
 	 * Format a record attribute.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $multiplier = 10;
 	 * 
@@ -120,7 +120,7 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 	 *	return $record->someAttribute * $multiplier;
 	 * });
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $storeField Name of the field in all store records
 	 * @param Closure $function The function is called with the {@see Model} as argument

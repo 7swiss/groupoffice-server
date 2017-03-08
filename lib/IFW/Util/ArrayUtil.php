@@ -12,7 +12,7 @@ class ArrayUtil {
 	 * Find the key in an array by a callable function.
 	 * 
 	 * Eg.
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $arr = [3,5,9];
 	 * 
@@ -25,7 +25,7 @@ class ArrayUtil {
 	 * });	
 	 * 
 	 * //$key is 1 (value 5)
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param \IFW\Util\callable $fn
 	 * @return mixed

@@ -28,7 +28,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	protected function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -68,7 +68,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
 	 * </code>
 	 * 
@@ -94,7 +94,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"name":"test",...}}
 	 * </code>
 	 * 
@@ -116,7 +116,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * The attributes of this {modelLowerCase} should be posted as JSON in a {modelLowerCase} object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"{modelLowerCase}name":"test",...}}
 	 * </code>
 	 * 

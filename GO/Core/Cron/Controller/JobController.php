@@ -79,6 +79,7 @@ class JobController extends Controller {
 
 		$user = new Job();
 
+
 		$this->renderModel($user, $returnProperties);
 	}
 
@@ -88,9 +89,9 @@ class JobController extends Controller {
 	 * The attributes of this job should be posted as JSON in a job object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $jobId The ID of the job
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
@@ -113,9 +114,9 @@ class JobController extends Controller {
 	 * The attributes of this job should be posted as JSON in a job object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -135,9 +136,9 @@ class JobController extends Controller {
 	 * The attributes of this job should be posted as JSON in a job object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"jobname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $jobId The ID of the job
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

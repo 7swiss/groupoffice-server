@@ -39,7 +39,7 @@ class Query extends Criteria {
 	
 	protected $queryBuilder;
 	
-	private $skipReadPermission = false;
+	private $allowedPermissionTypes = [];
 	
 	
 	private $relation;
@@ -84,8 +84,8 @@ class Query extends Criteria {
 		return $this->fetchMode;
 	}
 	
-	public function getSkipReadPermission(){
-		return $this->skipReadPermission;
+	public function getAllowedPermissionTypes(){
+		return $this->allowedPermissionTypes;
 	}
 	
 	public function getIsRelational(){
@@ -423,7 +423,7 @@ class Query extends Criteria {
 	 * Make a join where you can specify the join criteria yourself.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $query = (new Query())
 	 *  ->orderBy([$orderColumn => $orderDirection])
 	 *  ->limit($limit)
@@ -445,7 +445,7 @@ class Query extends Criteria {
 	 *  }
 	 * 
 	 *  $groups = Group::find($query);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string|\IFW\Orm\Store $tableName The record class name or sub query to join
 	 * @param string $joinTableAlias Leave empty for none.
@@ -509,19 +509,15 @@ class Query extends Criteria {
 	}
 	
 	/**
-	 * for internal use only
+	 * Set permission type as allowed when querying records
 	 * 
 	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
 	 * already been checked for read access.
 	 * 
 	 * @return static
 	 */
-	public function skipReadPermission() {
-		
-		if(!isset($this->fetchMode)) {
-			$this->skipReadPermission = true;
-		}
-		
+	public function allowPermissionTypes(array $allowedPermissionTypes) {
+		$this->allowedPermissionTypes = $allowedPermissionTypes;		
 		return $this;
 	}
 	
@@ -625,8 +621,7 @@ class Query extends Criteria {
 				'orderBy',
 				'limit',
 				'offset',
-				'search',
-				'debug'
+				'search'
 				];
 		
 		$data = json_decode($json, true);

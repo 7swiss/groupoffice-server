@@ -67,9 +67,9 @@ class TaskController extends Controller {
 	 * The attributes of this task should be posted as JSON in a group object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $taskId The ID of the group
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
@@ -93,9 +93,9 @@ class TaskController extends Controller {
 	 * The attributes of this field should be posted as JSON in a field object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"field":{"attributes":{"fieldname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -115,9 +115,9 @@ class TaskController extends Controller {
 	 * The attributes of this field should be posted as JSON in a field object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"field":{"attributes":{"fieldname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $taskId The ID of the field
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

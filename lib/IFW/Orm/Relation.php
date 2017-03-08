@@ -110,6 +110,11 @@ class Relation {
 	 */
 	private $viaKeys;
 	
+	/**
+	 * Used for __wakeup
+	 * @var bool 
+	 */
+	private $allowedPermissionTypes = [];
 	
 	/**
 	 *
@@ -125,6 +130,35 @@ class Relation {
 		$this->fromRecordName = $fromRecordName;
 		$this->toRecordName = $toRecordName;		
 		$this->many = $many;
+	}
+	
+	/**
+	 * Allow retrieval even if the user doesn't have read permission on the related
+	 * record.
+	 * 
+	 * For example the customer of an invoice should be readable even when you're
+	 * not allowed to read the contact.
+	 * 
+	 * @return self
+	 */
+	public function allowPermissionTypes($allowedPermissionTypes = [\IFW\Auth\Permissions\Model::PERMISSION_READ]) {
+		$this->allowedPermissionTypes = $allowedPermissionTypes;	
+		
+		$f = $this->fromRecordName;						
+		$f::allow($this->name, $allowedPermissionTypes);
+		
+		return $this;
+	}
+	
+	public function getAllowedPermissionTypes() {
+		return $this->allowedPermissionTypes;
+	}
+	
+	public function __wakeup() {
+		if($this->allowedPermissionTypes) {
+			$f = $this->fromRecordName;						
+			$f::allow($this->name, $this->allowedPermissionTypes);
+		}
 	}
 
 	/**
@@ -157,18 +191,18 @@ class Relation {
 	}
 
 	/**
-	 * Set extra query paramaters
+	 * Set extra query parameters
 	 * 
 	 * Typical use case is ordering.
 	 * 
 	 * You can also set extra where parameters but please be aware that they are not 
 	 * applied when setting the relation.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * self::has('tags',Tag::class, ['id'=>'contactId'], true)
 	 *						->via(ContactTag::class,['tagId'=>'id'])
 	 *						->setQuery((new Query())->orderBy(['name'=>'ASC']));
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * 
 	 * For example in {@see GO\Modules\Messages\Model\Message} we have a relation 
@@ -276,10 +310,10 @@ class Relation {
 	 *
 	 * is UserGroup in this case. It connects the User and Group records.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * self::hasMany('groups', Group::class, ["id"=>"userId"])
 	 *		->via(UserGroup::class, ['groupId'=> "id"]);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * 
 	 * The table alias assigned in the query is {RelationName}Link.
@@ -349,6 +383,10 @@ class Relation {
 		foreach($this->keys as $fromField => $toField) {
 			
 			$from = $fromRecord::getColumn($fromField);			
+			
+			if(!$from) {
+				throw new \Exception($fromRecord.'::'.$fromField.' column not found in table');
+			}
 			
 			if(!$from->primary) {
 				return true;

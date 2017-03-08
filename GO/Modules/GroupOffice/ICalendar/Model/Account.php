@@ -4,7 +4,7 @@ namespace GO\Modules\GroupOffice\ICalendar\Model;
 
 use DateTime;
 use IFW;
-use IFW\Auth\Permissions\OwnerOnly;
+use IFW\Auth\Permissions\CreatorOnly;
 use IFW\Data\Filter\FilterCollection;
 use IFW\Data\Store;
 use IFW\Orm\Record;
@@ -53,7 +53,7 @@ class Account extends Record {
 	public $url;
 
 	public static function internalGetPermissions() {
-		return new OwnerOnly();
+		return new CreatorOnly();
 	}
 
 	public static function syncAll() {

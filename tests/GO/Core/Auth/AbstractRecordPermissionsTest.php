@@ -4,13 +4,13 @@ namespace IFW\Db;
 
 use GO\Core\Users\Model\User;
 use GO\Modules\Contacts\Model\Contact;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class AbstractRecordPermissionsTest extends PHPUnit_Framework_TestCase {
+class AbstractRecordPermissionsTest extends \PHPUnit\Framework\TestCase {
 
 	private function _testCreateUser(){
 		//Set's all roles on test user.

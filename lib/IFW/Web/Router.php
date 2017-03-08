@@ -84,7 +84,7 @@ class Router extends IFW\Router {
 	 * @var array
 	 */
 	private $routeParams = [];
-	private $routeParts;
+//	private $routeParts;
 
 	/**
 	 * When building the route table this is set to the module currently processed
@@ -100,7 +100,7 @@ class Router extends IFW\Router {
 	 * This function returns a RouteCollection object so you can add 
 	 * route mappings to controller methods.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $router->addController(AuthController::class)				
 	 * 			->get('auth', 'isLoggedIn')
@@ -108,7 +108,7 @@ class Router extends IFW\Router {
 	 * 			->delete('auth', 'logout')						
 	 * 			->post('auth/users/:userId/switch-to', 'switchTo');
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param $controllerName
 	 * @return RouteCollection 
@@ -301,9 +301,9 @@ class Router extends IFW\Router {
 
 				if (substr($routeParamName, 0, 1) == '*') {
 					//this parameter will swallow the whole route and pass it as a aprameter
-					if (!empty($this->routeParts)) {
+					if (!empty($routeParts)) {
 						$routePart .= '/' . implode('/', $routeParts);
-						$this->routeParts = [];
+						$routeParts = [];
 					}
 				}
 

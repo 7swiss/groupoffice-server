@@ -22,19 +22,19 @@
 
 		"flowjs/flow-php-server": "@stable",
 		"sabre/dav": "@stable",
-		
-		"bshaffer/oauth2-server-php": "@stable",
 		"swiftmailer/swiftmailer": "@stable",
 		"dropbox/dropbox-sdk": "@stable",
 		"html2text/html2text": "@stable",
 		"mtdowling/cron-expression": "@stable",
 		"ralouphie/mimey": "dev-master",
 		"setasign/fpdi-tcpdf": "*"	,
-		"donatj/phpuseragentparser": "*"
+		"donatj/phpuseragentparser": "*",
+		"phpdocumentor/reflection-docblock": "~2.0"
 		
 	},
 	"require-dev": {
-		"phpunit/phpunit": "@stable"
+		"phpunit/phpunit": "^6.0",
+		"phpdocumentor/phpdocumentor": "^2.9"
 	},
 	"autoload": {
 		"psr-4": {

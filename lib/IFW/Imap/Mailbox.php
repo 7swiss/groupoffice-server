@@ -15,7 +15,7 @@ use Swift_Message;
  * 
  * Handles all mailbox related IMAP functions
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * //Get root folders
  * $mailbox = new \IFW\Imap\Mailbox($connection);
@@ -42,7 +42,7 @@ use Swift_Message;
   $response['data'] = $message->toArray('subject,from,to,body,attachments');
  * 	}
  * 
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * @property boolean $noSelect Mailbox is virtual and can't be selected
  * @property-read Connection $connection

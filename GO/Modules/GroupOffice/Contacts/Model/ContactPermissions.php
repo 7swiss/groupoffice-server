@@ -74,10 +74,10 @@ class ContactPermissions extends Model {
 						->andWhere('groupAccess.contactId = t.id')
 						);
 		
-		$query->skipReadPermission()
+		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 						->andWhere(['EXISTS', $groupAccess]);
 		
-//		$query->skipReadPermission()
+//		->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 //						->joinRelation('groupPermissions')->debug()
 //						->joinRelation(
 //										'groupPermissions.groupUsers', 

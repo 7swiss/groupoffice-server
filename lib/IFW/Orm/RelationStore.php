@@ -16,7 +16,7 @@ use Exception;
  * 
  * Example:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * //Array with hasmany relation of the contact model
  * $contactAttr = [
  *   'firstName' => 'Test', 
@@ -43,7 +43,7 @@ use Exception;
  *	$contact->emailAddresses[] = $firstEmail;
  *	
  *	$contact->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @method Query getQuery() 
  * Use this function with caution. Because when you modify the query you also 
@@ -374,7 +374,7 @@ class RelationStore extends Store implements ArrayAccess {
 		//isNew = false is selected with Query::joinRelation 
 		//(set in Record::extractJoinedRelations). We can instantiate an existing record this way.
 		if(isset($propArray['isNew'])) {
-			$newToRecord = new $toRecordName;
+			$newToRecord = new $toRecordName(true, $this->relation->getAllowedPermissionTypes());
 			$newToRecord->setValues($propArray);
 			
 			return $newToRecord;
@@ -383,11 +383,11 @@ class RelationStore extends Store implements ArrayAccess {
 		//try to find an existing record.
 		$pk = $this->buildPk($toPks, $propArray);		
 		$query = new Query();		
-		$query->where($pk)->setRelation($this->relation, $this->record); //for propery record
+		$query->where($pk)->setRelation($this->relation, $this->record)->allowPermissionTypes($this->relation->getAllowedPermissionTypes()); //for propery record
 
 		$newToRecord = $pk ? $toRecordName::find($query)->single() : false;
 		if (!$newToRecord) {
-			$newToRecord = new $toRecordName;
+			$newToRecord = new $toRecordName(true, $this->relation->getAllowedPermissionTypes());
 		}		
 
 		$newToRecord->setValues($propArray);

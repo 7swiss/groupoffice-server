@@ -64,9 +64,9 @@ class AnnouncementController extends Controller {
 	 * The attributes of this announcement should be posted as JSON in a announcement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $announcementId The ID of the announcement
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
@@ -90,9 +90,9 @@ class AnnouncementController extends Controller {
 	 * The attributes of this announcement should be posted as JSON in a announcement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -112,9 +112,9 @@ class AnnouncementController extends Controller {
 	 * The attributes of this announcement should be posted as JSON in a announcement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"announcementname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $announcementId The ID of the announcement
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

@@ -105,7 +105,7 @@ abstract class Model extends Object implements ArrayableInterface {
 	 * 
 	 * Use brackets to specify specific attributes of the relational models.
 	 *
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(1);
 	 *
 	 * $allOfTheModel = $model->toArray();
@@ -120,13 +120,13 @@ abstract class Model extends Object implements ArrayableInterface {
 	 * 				'*,contact[*,company[name,addresses[formatted]]'	
 	 * 				);
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Recursion is also possible with the & operator:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * "id,description,computedStartTime,executor[username],completedAt,sortOrder,parentTaskId,tasks[&]"
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string|ReturnProperties|array $properties
 	 * @return array
@@ -219,11 +219,11 @@ abstract class Model extends Object implements ArrayableInterface {
 	 * 
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(1);
 	 * $model->setValues(['username' => 'admin']);
 	 * $model->save();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * 
 	 * @param array $properties

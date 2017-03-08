@@ -19,7 +19,7 @@ class Pdf extends FPDI {
 	 * 
 	 * @var float
 	 */
-	public $defaultFontSize = 10;	
+	public $defaultFontSize = 9;	
 	
 	/**
 	 * Line height

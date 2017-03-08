@@ -9,19 +9,19 @@ use Exception;
  * Represents a Record database column attribute.
  * 
  * <p>Example:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $model = User::findByPk(1);
  * echo $model->getColumn('username')->length;
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * If you want to override a column parameter then override Record::getColumns():
  * 
  * `````````````````````````````````````````````````````````````````````````````
- * public static function getColumns() {
- * 		$columns = parent::getColumns();		
- * 		$columns['password']->trimInput = false;
+ * public static function getTable() {
+ * 		$table = parent::getTable();		
+ * 		$table->getColumn('password')->trimInput = false;
  * 		
- * 		return $columns;		
+ * 		return $table;		
  * 	}
  * `````````````````````````````````````````````````````````````````````````````
  * 
@@ -171,7 +171,7 @@ class Column {
 			default:
 				if ($this->trimInput) {
 					
-					if(!is_string($value)) {
+					if(!is_string($value)) {						
 						throw new \Exception("No string given for ".$this->name);						
 					}
 					

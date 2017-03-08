@@ -11,12 +11,12 @@ use IFW;
  * 
  * Example:
  * 
- * <code>  
+ * ```````````````````````````````````````````````````````````````````````````  
  * $data = ['success' => true];
  * 
  * $view = new Api();		
  * $output = $view->render($data);	
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

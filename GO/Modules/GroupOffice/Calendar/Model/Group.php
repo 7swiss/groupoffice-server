@@ -10,7 +10,7 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use GO\Core\Users\Model\Group as FWGroup;
 use IFW\Orm\Query;
-use IFW\Auth\Permissions\OwnerOnly;
+use IFW\Auth\Permissions\CreatorOnly;
 /**
  * Make sure the GroupOffice user implements the needed functions for the calendar.
  * 

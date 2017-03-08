@@ -7,7 +7,7 @@ use IFW;
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class AppTest extends \PHPUnit_Framework_TestCase{
+class AppTest extends \PHPUnit\Framework\TestCase{
 	function testInit(){
 
 		//\IFW::app()->init(require('config.php'));

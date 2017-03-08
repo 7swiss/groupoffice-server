@@ -56,9 +56,9 @@ class TagController extends Controller {
 	 * The attributes of this tag should be posted as JSON in a tag object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"tag":{"attributes":{"tagname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -76,9 +76,9 @@ class TagController extends Controller {
 	 * The attributes of this tag should be posted as JSON in a tag object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"tag":{"attributes":{"tagname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -109,9 +109,9 @@ class TagController extends Controller {
 	 * The attributes of this tag should be posted as JSON in a tag object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"tag":{"attributes":{"tagname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $tagId The ID of the tag
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

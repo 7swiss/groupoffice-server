@@ -6,13 +6,13 @@ use GO\Core\Users\Model\Acl;
 use GO\Core\Users\Model\AclRole;
 use GO\Core\Users\Model\Permissions;
 use GO\Core\Users\Model\Role;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class ParentAclTest extends PHPUnit_Framework_TestCase {
+class ParentAclTest extends \PHPUnit\Framework\TestCase {
 	public function testParentAcl() {
 		
 //

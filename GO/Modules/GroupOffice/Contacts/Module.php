@@ -21,6 +21,9 @@ class Module extends InstallableModule{
 				->get('contacts/import/:blobId','import')
 				->get('contacts/filters', 'filters')
 				->get('contacts/byuser/:userId','readByUser');
+		
+		$router->addRoutesFor(Controller\CommentController::class)
+						->crud('contacts/:contactId/comments', 'commentId');
 	}
 	
 	

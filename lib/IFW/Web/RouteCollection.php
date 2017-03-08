@@ -51,10 +51,10 @@ class RouteCollection {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * BrowserController::routes()
 	 *			->get('auth/users', 'store');
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string $route eg. auth/users
 	 * @param string $action The controller action without the "action" prefix. eg. "store" leads to method actionStore. The actions are case-insensitive.
@@ -69,10 +69,10 @@ class RouteCollection {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * BrowserController::routes()
 	 *			->get('auth/users', 'create');
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string $route eg. auth/users
 	 * @param string $action The controller action without the "action" prefix. eg. "store" leads to method actionStore. The actions are case-insensitive.
@@ -87,10 +87,10 @@ class RouteCollection {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * AuthController::routes()
 	 *			->get('auth/users/:userId', 'update');
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string $route eg. auth/users
 	 * @param string $action The controller action without the "action" prefix. eg. "store" leads to method actionStore. The actions are case-insensitive.
@@ -105,10 +105,10 @@ class RouteCollection {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * AuthController::routes()
 	 *			->delete('auth/users/:userId', 'delete');
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string $route eg. auth/users
 	 * @param string $action The controller action without the "action" prefix. eg. "store" leads to method actionStore. The actions are case-insensitive.
@@ -124,14 +124,14 @@ class RouteCollection {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * ContactController::routes()
 	 *	->crud('contacts', 'contactId');
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Is short for:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * ContactController::routes()
 				->get('contacts', 'store')
 				->get('contacts/0','new')
@@ -139,7 +139,7 @@ class RouteCollection {
 				->put('contacts/:contactId', 'update')
 				->post('contacts', 'create')
 				->delete('contacts/:contactId','delete')
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string $route eg. 'contacts'
 	 * @return self

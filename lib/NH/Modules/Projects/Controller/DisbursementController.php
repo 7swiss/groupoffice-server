@@ -77,9 +77,9 @@ class DisbursementController extends Controller {
 	 * The attributes of this disbursement should be posted as JSON in a disbursement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $disbursementId The ID of the disbursement
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
@@ -102,9 +102,9 @@ class DisbursementController extends Controller {
 	 * The attributes of this disbursement should be posted as JSON in a disbursement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
@@ -125,9 +125,9 @@ class DisbursementController extends Controller {
 	 * The attributes of this disbursement should be posted as JSON in a disbursement object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"disbursementname":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $disbursementId The ID of the disbursement
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

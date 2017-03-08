@@ -16,7 +16,7 @@ class XmlEncoder implements EncoderInterface {
 	 * 
 	 * eg:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * <?xml version="1.0"?>
 	  <message>
@@ -49,7 +49,7 @@ class XmlEncoder implements EncoderInterface {
 	  </message>
 
 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * @param Response $responseData
 	 * @return type
 	 * @throws Exception
@@ -103,7 +103,7 @@ class XmlEncoder implements EncoderInterface {
 	 * 
 	 * Example:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * <?xml version="1.0"?>
 	  <message>
@@ -112,7 +112,7 @@ class XmlEncoder implements EncoderInterface {
 	  </message>
 
 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param Request $requestBody
 	 * @return type

@@ -310,13 +310,13 @@ class Connection extends Object {
 	 * @param Streamer Optionally a Streamer object can be passed to stream it to a file or output for memory efficiency.
 	 * @return array IMAP server response
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * [
 	 *   'success'=>true, //Was the command successful?
 	 *   'status'=>'A3 OK Status completed'
 	 *   'responses'=>[] //lines returned by IMAP
 	 * ]
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 */
 	public function getResponse(Streamer $streamer = null) {

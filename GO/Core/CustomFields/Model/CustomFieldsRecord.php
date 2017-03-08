@@ -45,6 +45,6 @@ abstract class CustomFieldsRecord extends Record {
 	}
 	
 	public static function getDefaultReturnProperties() {
-		return implode(',', self::getColumns()->getColumnNames());
+		return implode(',', self::getTable()->getColumnNames());
 	}
 }

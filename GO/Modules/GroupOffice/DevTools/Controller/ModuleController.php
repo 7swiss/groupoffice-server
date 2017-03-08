@@ -270,6 +270,11 @@ EOD;
 	}
 
 	protected function convertClass($className, $file) {
+		
+		if(is_a($className, CustomFieldsRecord::class, true)) {
+			echo "Skipping custom fields record ".$className."\n";
+			return;
+		}
 
 		echo "Converting $className\n";
 
@@ -284,11 +289,16 @@ EOD;
 		$vars = '';
 
 		foreach ($columns as $column) {
+			
+			//skip comment commentId
+			if($column->name == 'commentId' && is_a($className, \GO\Core\Comments\Model\Comment::class, true)) {
+				continue;
+			}
 
 			//check if property is already defined
 			if (preg_match('/(protected|public)\s+\$' . preg_quote($column->name, '/') . '[;\s]/', $source)) {
 
-				echo $column->name . " found\n";
+//				echo $column->name . " found\n";
 				continue;
 			}
 

@@ -90,7 +90,7 @@ class QueryBuilder {
 	
 	/**
 	 *
-	 * @var Columns 
+	 * @var Table 
 	 */
 	private $columns;
 
@@ -102,7 +102,7 @@ class QueryBuilder {
 	public function __construct($tableName) {		
 		$this->tableName = $this->defaultRecordForEmptyAlias = $tableName;
 		
-		$this->columns = new Columns($tableName);
+		$this->columns = Table::getInstance($tableName);
 	}
 
 	/**
@@ -212,7 +212,7 @@ class QueryBuilder {
 		
 		$this->query = $query;
 		$this->tableAlias = $this->query->getTableAlias();
-		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+		$this->aliasMap[$this->tableAlias] = Table::getInstance($this->tableName);
 		
 		foreach($data as $colName => $value) {
 			$paramTag = $this->getParamTag();
@@ -239,7 +239,7 @@ class QueryBuilder {
 		
 		$this->query = $query;
 		$this->tableAlias = $this->query->getTableAlias();
-		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+		$this->aliasMap[$this->tableAlias] = Table::getInstance($this->tableName);
 		
 		
 		$sql = "DELETE FROM `" . $this->tableAlias . "` USING `" . $this->tableName . "` AS `" . $this->tableAlias . "` ";
@@ -261,7 +261,7 @@ class QueryBuilder {
 		$this->buildBindParameters = [];
 
 		$this->aliasMap = [];
-		$this->aliasMap[$this->tableName] = new Columns($this->tableName);
+		$this->aliasMap[$this->tableName] = Table::getInstance($this->tableName);
 		$this->tableAlias = $this->tableName;
 	}
 
@@ -278,7 +278,7 @@ class QueryBuilder {
 		
 		$this->query = $query;
 		$this->tableAlias = $this->query->getTableAlias();
-		$this->aliasMap[$this->tableAlias] = new Columns($this->tableName);
+		$this->aliasMap[$this->tableAlias] = Table::getInstance($this->tableName);
 
 //		if (!isset($this->sql)) {
 			$this->fireEvent(self::EVENT_BUILD_QUERY, $this);
@@ -383,10 +383,10 @@ class QueryBuilder {
 			throw new Exception("Alias '" . $tableAlias . "'  not found in the aliasMap: " . var_export($this->aliasMap, true) . ' for ' . $column);
 		}
 		
-		if (!isset($this->aliasMap[$tableAlias][$column])) {
+		if ($this->aliasMap[$tableAlias]->getColumn($column) == null) {
 			throw new Exception("Column '" . $column . "' not found in table " . $this->aliasMap[$tableAlias]->getTableName());
 		}
-		return $this->aliasMap[$tableAlias][$column];
+		return $this->aliasMap[$tableAlias]->getColumn($column);
 	}
 
 	
@@ -792,7 +792,7 @@ class QueryBuilder {
 				$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			}
 		} else {
-			$this->aliasMap[$config['joinTableAlias']] = new Columns($config['src']);
+			$this->aliasMap[$config['joinTableAlias']] = Table::getInstance($config['src']);
 			$joinTableName = '`' . $config['src'] . '`';
 		}
 

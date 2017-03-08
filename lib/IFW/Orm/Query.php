@@ -37,7 +37,7 @@ class Query extends DbQuery {
 	 * 3 An array can specify the columns (recommended for performance)
 	 * 
 	 * Example:
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $query = (new Query())->joinRelation('group', ['name']);
 	 *	
 	 * $usersWithGroup = User::find($query);
@@ -45,7 +45,7 @@ class Query extends DbQuery {
 	 * foreach($usersWithGroup as $user){
 	 *		echo $user->username.":".$user->group->name."\n";
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $user->group Does not need an additional select query now.
 	 * 
@@ -129,7 +129,7 @@ class Query extends DbQuery {
 		
 		if($this->getFetchMode() == null) {
 			//set fetch mode to fetch Record objects
-			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getSkipReadPermission()]); //for new record
+			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
 		}
 		
 		return parent::createCommand();

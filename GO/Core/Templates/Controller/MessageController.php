@@ -66,9 +66,9 @@ class MessageController extends Controller {
 	 * The attributes of this message should be posted as JSON in a message object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $templateMessageId The ID of the message
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
@@ -92,21 +92,19 @@ class MessageController extends Controller {
 	 * The attributes of this message should be posted as JSON in a message object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"name":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
 	public function actionCreate($moduleClassName, $returnProperties = "") {
 
-		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
-
 		
 		$message = new Message();		
 		$message->setValues(GO()->getRequest()->body['data']);
-		$message->moduleId = $module->id;
+		$message->setModuleClassName($moduleClassName);
 		$message->save();
 
 		$this->renderModel($message, $returnProperties);
@@ -118,9 +116,9 @@ class MessageController extends Controller {
 	 * The attributes of this message should be posted as JSON in a message object
 	 *
 	 * <p>Example for POST and return data:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * {"data":{"attributes":{"messagename":"test",...}}}
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param int $templateMessageId The ID of the message
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.

@@ -106,4 +106,13 @@ class Pdf extends Record {
 		
 		return parent::internalSave();
 	}
+	
+	public function setModuleClassName($moduleClassName) {
+		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleClassName])->single();
+		$this->moduleId = $module->id;
+	}
+	
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone();
+	}
 }

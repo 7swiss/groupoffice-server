@@ -7,7 +7,7 @@ namespace IFW\Auth\Permissions;
  * Only owner's and admins can do anything. By default the owner is identified
  * byt th column *createdBy* but you can change that bu setting $userIdField.
  */
-class OwnerOnly extends Model {
+class CreatorOnly extends Model {
 	
 	public $userIdField = 'createdBy';
 	
@@ -20,6 +20,6 @@ class OwnerOnly extends Model {
 	}
 	
 	protected function internalApplyToQuery(\IFW\Orm\Query $query, \IFW\Auth\UserInterface $user) {
-		$query->andWhere([$this->userIdField => $user->id()])->skipReadPermission();	
+		$query->andWhere([$this->userIdField => $user->id()])->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ]);	
 	}
 }

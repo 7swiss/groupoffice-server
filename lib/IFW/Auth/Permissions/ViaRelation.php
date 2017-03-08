@@ -41,10 +41,7 @@ class ViaRelation extends Model {
 		return $relatedRecord->permissions->can($permissionType, $user);
 	}
 	
-	public function toArray($properties = null) {
-		return null;
-	}
-	
+
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
 
@@ -99,7 +96,7 @@ class ViaRelation extends Model {
 		$store = $toRecordName::find($subquery);		
 		self::$enablePermissions = false;
 		$query->andWhere(['EXISTS', $store]);
-		$query->skipReadPermission();
+		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ]);
 		
 	}
 

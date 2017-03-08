@@ -2,14 +2,14 @@
 namespace IFW\Db;
 
 use DateTime;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use function GO;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class CommandTest extends PHPUnit_Framework_TestCase {
+class CommandTest extends \PHPUnit\Framework\TestCase {
 	public function testSelect() {
 		
 		$query = (new Query())
@@ -53,7 +53,7 @@ class CommandTest extends PHPUnit_Framework_TestCase {
 	}
 	public function testDelete() {
 				
-		echo $command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
+		$command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
 		
 		$this->assertStringStartsWith('DELETE', $command->toString());
 		

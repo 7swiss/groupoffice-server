@@ -161,7 +161,9 @@ class Message extends Model {
 	public $inReplyTo;
 
 	/**
-	 * Priority header
+	 * X Priority header
+	 * 
+	 * 
 	 * 
 	 * @var string 
 	 */

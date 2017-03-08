@@ -241,7 +241,7 @@ class Event extends Record {
 
 	public function applyException(RecurrenceException $exception) {
 		$this->exception = $exception;
-		foreach($exception->getColumns() as $colName => $name) {
+		foreach($exception->getTable()->getColumns() as $colName => $name) {
 			if($exception->{$colName} !== null && !in_array($colName, ['id', 'eventId', 'isRemoved', 'classification'])) {
 				$this->{$colName} = $exception->{$colName};
 			}

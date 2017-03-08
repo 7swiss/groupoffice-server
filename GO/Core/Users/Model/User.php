@@ -159,11 +159,10 @@ class User extends Record implements UserInterface {
 	}
 	
 
-	public static function getColumns() {
-		$columns = parent::getColumns();		
-		$columns['password']->trimInput = false;
+	public static function getTable() {
+		parent::getTable()->getColumn('password')->trimInput = false;		
 		
-		return $columns;		
+		return parent::getTable();		
 	}
 	
 	protected static function internalGetPermissions() {

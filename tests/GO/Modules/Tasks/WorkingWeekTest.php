@@ -5,13 +5,13 @@ namespace IFW\Db;
 use DateTime;
 use GO\Modules\Tasks\Model\WorkingPeriod;
 use GO\Modules\Tasks\Model\WorkingWeek;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class WorkingWeekTest extends PHPUnit_Framework_TestCase {
+class WorkingWeekTest extends \PHPUnit\Framework\TestCase {
 
 //	
 //	public function testTimes() {

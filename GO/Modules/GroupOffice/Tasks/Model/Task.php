@@ -120,7 +120,7 @@ class Task extends Record {
 	
 //		self::hasOne('customfields', TaskCustomFields::class, ['id' => 'id']);		// TODO: add Customfield support
 		
-		\GO\Modules\GroupOffice\Contacts\Model\Contact::hasMany('tasks', Task::class, ['id'=>'invoiceId'])
+		\GO\Modules\GroupOffice\Contacts\Model\Contact::hasMany('tasks', Task::class, ['id'=>'contactId'])
 							->via(ContactTask::class, ['taskId' => 'id']);
 
 
@@ -152,23 +152,18 @@ class Task extends Record {
 		}
 		
 		if($this->isModified('assignedTo') && $this->assignedTo != $this->createdBy) {			
-			GO()->debug("Watch for assigned ". $this->assignedTo);
 			Watch::create($this, $this->assignee->group->id);
 		}
 		
 		if($isNew) {			
-			GO()->debug("Watch for creator ". $this->createdBy);
 			Watch::create($this, $this->creator->group->id);			
 		}
-
-		$notification = new Notification();
-		$notification->iconBlobId = GO()->getAuth()->user()->photoBlobId;
-		$notification->type = $notifyType;		
-		$notification->data = $this->toArray('id,description,dueAt');
-		$notification->record = $this;
-		if(!$notification->save()) {
+		
+		
+		if(!Notification::create($notifyType, $this->toArray('id,description,dueAt'), $this)) {
 			return false;
 		}
+
 		
 		return true;
 	}

@@ -5,7 +5,8 @@ use IFW\Auth\Permissions\ViaRelation;
 use GO\Core\CustomFields\Model\CustomFieldsRecord;
 
 class CustomFields extends CustomFieldsRecord{	
-	
+
+
 	/**
 	 * 
 	 * @var int

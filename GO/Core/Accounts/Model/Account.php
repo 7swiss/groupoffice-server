@@ -54,7 +54,7 @@ class Account extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\OwnerOnly();
+		return new \IFW\Auth\Permissions\CreatorOnly();
 	}
 	
 	/**

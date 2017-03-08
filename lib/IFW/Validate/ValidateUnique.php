@@ -15,7 +15,7 @@ use IFW\Orm\Query;
  * 
  * <p>eg. in ActiveRecord do:</p>
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * protected static function defineValidationRules() {
  * 	
  * 		self::getColumn('username')->required=true;
@@ -27,7 +27,7 @@ use IFW\Orm\Query;
  *        new ValidatePassword('password', 'passwordConfirm') //Also encrypts it on success
  * 		);
  * 	}
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>

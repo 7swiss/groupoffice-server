@@ -9,7 +9,7 @@ use Exception;
  * Create "where" part of the query for {@see \IFW\Orm\Record}
  * 
  * <p>Example with finding users with a checkbox if the given group is enabled:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * $query = (new Query())
  * 					->join(
@@ -25,7 +25,7 @@ use Exception;
  * 
  * $users = User::find($query);
  * 
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * @property-read array $bindParameters
  * @property-read array $where
@@ -110,7 +110,7 @@ class Criteria extends Object {
 	 * 
 	 * <p>Examples:</p>
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * (new Query())
 	 * ->where(['id'=>'1','name'=>'merijn'])  // (id=1 AND name=merijn)
 	 * 
@@ -125,7 +125,7 @@ class Criteria extends Object {
 	 * ->andWhere(Criteria $c)
 	 * 	 
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Subquery examples:
 	 * 
@@ -249,20 +249,20 @@ class Criteria extends Object {
 	/**
 	 * Add a parameter to bind to the SQL query
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $query->where("userId = :userId")
 	 *   ->bind(':userId', $userId, \PDO::PARAM_INT);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * OR as array:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $contact = Contact::find(
 	 *   (new Query())
 	 *     ->where("name = :name1 OR name = :name2")
 	 *     ->bind([':name1' => 'Pete', ':name2' => 'John'])
 	 * );
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * @param string|array $tag eg. ":userId" or [':userId' => 1]
 	 * @param mixed $value

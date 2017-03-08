@@ -100,6 +100,10 @@ class Account extends AccountRecord {
 
 		return true;
 	}
+	
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone();
+	}
 
 	
 	/**

@@ -9,7 +9,7 @@ use IFW\Auth\Permissions\AdminsOnly;
 use IFW\Auth\Permissions\Model as PermissionsModel;
 use IFW\Data\Model as DataModel;
 use IFW\Db\Column;
-use IFW\Db\Columns;
+use IFW\Db\Table;
 use IFW\Db\Exception\DeleteRestrict;
 use IFW\Db\PDO;
 use IFW\Exception\Forbidden;
@@ -18,9 +18,9 @@ use IFW\Util\ClassFinder;
 use IFW\Util\StringUtil;
 
 /**
- * Record model
+ * Record model.
  * 
- * Records are {@see DataModel}s that are stored in the database. Database columns are 
+ * Records are models that are stored in the database. Database columns are 
  * automatically converted into properties and relational data can be accessed
  * easily.
  *
@@ -48,33 +48,34 @@ use IFW\Util\StringUtil;
  * Basic usage
  * -----------
  *
- * <p>Create a new model:</p>
- * <code>
+ * Create a new model:
+ * 
+ * ```
  * $user = new User();
  * $user->username="merijn";
  * $user->email="merijn@intermesh.nl";
  * $user->modifiedAt='2014-07-22T16:10:15Z'; //makes no sense but just for showing how to format the time.
  * $user->createdAt = new \DateTime(); //makes no sense but just for showing how to set dates.
  * $user->save();
- * </code>
+ * ```
  *
  * <p>Updating a model:</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user = User::find(['username' => 'merijn'])->single();
  *
  * if($user){
  *    $user->email="merijn@intermesh.nl";
  *    $user->save();
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * <p>Find all users ({@see find()}):</p>
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $users = User::find();
  * foreach($users as $user){
  *     echo $user->username.'<br />';
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * 
  * Relations
@@ -85,13 +86,13 @@ use IFW\Util\StringUtil;
  * 
  * To get the "groups" relation of a user simply do:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * //$user->groups returns a RelationStore because it's a has many relation
  * foreach($user->groups as $group){
  *    echo $group->name;
  * }
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * 
  * If you'd like to query a subset of the relation you can adjust the relation 
@@ -99,31 +100,31 @@ use IFW\Util\StringUtil;
  * you are adjusting the actual relation of the model that might be needed in 
  * other parts of the code:
  * 
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $attachments = clone $message->attachments;
  * $attachments->getQuery()->where(['AND','!=', ['contentId' => null]]);
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * You can also set relations:
  * 
  * With models:
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user->groups = [$groupModel1, $groupModel2]; 
  * $user->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * Or with arrays of attributes. (This is the API way when  posting JSON):
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $user->groups = [['groupId' => 1]), ['groupId' => 2]]; 
  * $user->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  * 
  * Or modify relations directly:
- * <code>
+ * ```````````````````````````````````````````````````````````````````````````
  * $contact = Contact::findByPk($id);
  * $contact->emailAddresses[0]->type = 'work';
  * $contact->save();
- * </code>
+ * ```````````````````````````````````````````````````````````````````````````
  *
  * 
  * See also {@see RelationStore} for more information about how the has many relation collection works.
@@ -149,7 +150,7 @@ abstract class Record extends DataModel {
 	/**
 	 * Event fired in the save function.
 	 * 
-	 * Save can be cancelled by returning false or setting validation errors.
+	 * Save can be canceled by returning false or setting validation errors.
 	 * 
 	 * @param self $record
 	 */
@@ -214,13 +215,6 @@ abstract class Record extends DataModel {
 	 */
 	const EVENT_TO_ARRAY = 10;
 	
-	
-	/**
-	 * The columns are stored per class
-	 * 
-	 * @var Columns 
-	 */
-	private static $columns = [];
 
 	/**
 	 * All relations are only fetched once per request and stored in this static
@@ -239,7 +233,7 @@ abstract class Record extends DataModel {
 	public $markDeleted = false;
 
 	/**
-	 * Indiciates that the ActiveRecord is being contructed by PDO.
+	 * Indicates that the ActiveRecord is being constructed by PDO.
 	 * Used in setAttribute so it skips fancy features that we know will only
 	 * cause overhead.
 	 *
@@ -317,17 +311,25 @@ abstract class Record extends DataModel {
 	 * @var array 
 	 */
 	private $oldAttributes = [];
+
+
+	private $allowedPermissionTypes = [];
 	
 	/**
 	 * Constructor
 	 * 
-	 * It checks if the record is new or exisiting in the database. It also sets
+	 * It checks if the record is new or existing in the database. It also sets
 	 * default attributes and casts mysql values to int, floats or booleans as 
 	 * mysql values from PDO are always strings.
+	 * 
+	 * @param bool $isNew Set to false by PDO
+	 * @param bool $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query.
 	 */
-	public function __construct($isNew = true, $skipReadPermissions = false) {
+	public function __construct($isNew = true, $allowPermissionTypes = []) {
 		
 		parent::__construct();
+		
+		$this->allowedPermissionTypes = $allowPermissionTypes;
 
 		$this->isNew = $isNew;
 
@@ -352,13 +354,16 @@ abstract class Record extends DataModel {
 		}else
 		{
 			//skipReadPermission is selected if you use IFW\Auth\Permissions\Model::query() so permissions have already been checked
-			if(!$skipReadPermissions && !PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
+			if(!PermissionsModel::isCheckingPermissions() && !$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
 				throw new Forbidden("You're not permitted to read ".$this->getClassName()." ".var_export($this->pk(), true));
 			}			
 		}
 		
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
-		
+	}
+	
+	public function allowedPermissionTypes() {
+		return $this->allowedPermissionTypes;
 	}
 	
 	/**
@@ -378,7 +383,7 @@ abstract class Record extends DataModel {
 	 * @return void
 	 */
 	private function castDatabaseAttributes() {
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			if(isset($this->$colName)) {
 				$this->$colName = $column->dbToRecord($this->$colName);				
 			}
@@ -403,7 +408,7 @@ abstract class Record extends DataModel {
 	 * Set's current column values in the oldAttributes array
 	 */
 	private function setOldAttributes() {
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			if(isset($this->$colName)) {
 				$this->$colName = $this->oldAttributes[$colName] = $this->$colName;				
 			}else
@@ -417,7 +422,7 @@ abstract class Record extends DataModel {
 	 * Clears all modified attributes
 	 */
 	public function clearModified() {
-		foreach ($this->getColumns() as $colName => $column)
+		foreach ($this->getTable()->getColumns() as $colName => $column)
 			$this->oldAttributes[$colName] = null;
 	}
 
@@ -428,7 +433,7 @@ abstract class Record extends DataModel {
 	 */
 	protected function setDefaultAttributes() {
 		
-		foreach ($this->getColumns() as $colName => $column) {			
+		foreach ($this->getTable()->getColumns() as $colName => $column) {			
 			$this->$colName = $column->default;			
 		}
 		
@@ -491,39 +496,30 @@ abstract class Record extends DataModel {
 	 * Get the database columns
 	 *
 	 * <p>Example:</p>
-	 * <code>
-	 * $columns = User::getColumns();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $columns = User::getTable();
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
-	 * @return Columns|Column[] Array with column name as key
+	 * @return Table
 	 */
-	public static function getColumns() {
-		
-		$calledClass = get_called_class();
-		
-		if(!isset(self::$columns[$calledClass])) {
-			self::$columns[$calledClass] = new Columns(static::tableName());
-		}
-		
-		return self::$columns[$calledClass];
+	public static function getTable() {		
+		return Table::getInstance(static::tableName());		
 	}
 
 	/**
 	 * Get the database column definition
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $column = User::getColumn('username);
 	 * echo $column->length;
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $name
 	 * @return Column
 	 */
 	public static function getColumn($name) {
-		$c = self::getColumns();
-
-		return isset($c[$name]) ? $c[$name] : null;
+		return self::getTable()->getColumn($name);
 	}
 	
 	/**
@@ -551,7 +547,7 @@ abstract class Record extends DataModel {
 		
 		if(!$pk) {
 			$pk = [];
-			foreach(self::getColumns() as $column) {
+			foreach(self::getTable()->getColumns() as $column) {
 				
 				if($column->primary) {				
 					$pk[] = $column->name;
@@ -649,18 +645,6 @@ abstract class Record extends DataModel {
 	 * @return \IFW\Orm\RelationStore | self | null Returns null if not found
 	 */
 	protected function getRelated($name) {
-		
-//		IFW::app()->debug("Getting relation ".$name);
-		
-		
-		//_isRelational is set by the query object in getRelated
-//		if($this->isRelational && !PermissionsModel::isCheckingPermissions()){
-//			IFW::app()->debug($name);
-//			if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_READ)) {
-//				IFW::app()->debug("Relation ".$name." not returned because this record (".$this->getClassName().") is not readable for current user. It's fetched by relation.");
-//				return null;
-//			}
-//		}
 
 		$relation = $this->getRelation($name);
 
@@ -672,16 +656,9 @@ abstract class Record extends DataModel {
 			
 			//Get't RelationStore
 			$store = $relation->get($this);			
-			
-			//Apply permissions to relational query
-			$toRecordName = $relation->getToRecordName();		
-			$permissions = $toRecordName::internalGetPermissions();
-			$permissions->setRecordClassName($toRecordName);
-			$permissions->applyToQuery($store->getQuery());
-			
+			$this->applyRelationPermissions($relation, $store);			
 			$this->relations[$name] = $store;		
 		}
-
 		
 		if($relation->hasMany()) {
 			return $this->relations[$name];
@@ -696,6 +673,24 @@ abstract class Record extends DataModel {
 			}
 		}		
 	}	
+	
+	/**
+	 * Apply permissions to relational query
+	 */
+	private function applyRelationPermissions(Relation $relation, RelationStore $store) {
+		$allowedPermissionTypes = static::relationIsAllowed($relation->getName());
+		if($allowedPermissionTypes) {
+			$store->getQuery()->allowPermissionTypes($allowedPermissionTypes);
+		}else if($relation->hasMany ()) {
+			//only apply query to has many. On single relational records it's better 
+			//to get the permission denied error when the read permissions are checked 
+			//in the constructor.
+			$toRecordName = $relation->getToRecordName();
+			$permissions = $toRecordName::internalGetPermissions();
+			$permissions->setRecordClassName($toRecordName);
+			$permissions->applyToQuery($store->getQuery());
+		}
+	}
 	
 	/**
 	 *
@@ -752,7 +747,7 @@ abstract class Record extends DataModel {
 	public function setValues(array $properties) {
 		
 		//convert client input. For example date string to Datetime object.
-		foreach(self::getColumns() as $name => $column) {
+		foreach(self::getTable()->getColumns() as $name => $column) {
 			if(isset($properties[$name])){
 				$properties[$name]=$column->normalizeInput($properties[$name]);
 			}
@@ -872,7 +867,7 @@ abstract class Record extends DataModel {
 	 * Check if this record or record attribute has modifications not saved to
 	 * the database yet.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * if($record->isModified()) {
 	 *	//the record has at least one modified attribute
@@ -886,7 +881,7 @@ abstract class Record extends DataModel {
 	 *	//foo or bar is modified
 	 * }
 	 * 
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string|array $attributeOrRelationName If you pass an array then they are all checked
 	 * @return boolean
@@ -1006,14 +1001,14 @@ abstract class Record extends DataModel {
 	 * Get the old value for a modified attribute.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * $model = User::findByPk(1);
 	 * $model->username='newValue':
 	 *
 	 * $oldValue = $model->getOldAttributeValue('username');
 	 *
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * @param string $attributeName
 	 * @return mixed
 	 */
@@ -1032,7 +1027,7 @@ abstract class Record extends DataModel {
 	 * that are not saved to the database yet.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * $model = User::findByPk(1);
 	 * $model->username='newValue':
@@ -1041,7 +1036,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * $modifiedAtttibutes = ['username' => 'oldusername'];
 	 *
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return array eg. ['attributeName' => 'oldValue]
 	 */
@@ -1065,7 +1060,7 @@ abstract class Record extends DataModel {
 	 * * {@see hasMany()}
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations(){
 	 *	
 	 *  self::hasOne('owner', User::class, ['ownerUserId' => 'id]);
@@ -1077,17 +1072,17 @@ abstract class Record extends DataModel {
 	 *	
 	 *	self::hasOne('customfields', ContactCustomFields::class, ['id' => 'id']);
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * It's also possible to add relations to other models:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations(){
 	 *  
 	 *	GO\Core\Auth\DataModel\User::hasOne('contact', Contact::class, ['id' => 'userId']);
 	 *	
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 */
 	protected static function defineRelations() {
 		
@@ -1129,9 +1124,7 @@ abstract class Record extends DataModel {
 							!$parentRelation->hasMany() && 
 							$parentRelation->getToRecordName() == $childRelation->getFromRecordName() && 
 							static::keysMatch($childRelation, $parentRelation)
-				) {
-				
-//				GO()->debug($this->getClassName().'::'.$relation->getName().' set by parent '.$parentRecord->getClassName());
+				) {				
 				return $parentRelation;
 			}							
 		}
@@ -1245,14 +1238,14 @@ abstract class Record extends DataModel {
 	 * Save changes to database
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(1);
 	 * $model->setAttibutes(['username'=>'admin']);
 	 * if(!$model->save())	{
 	 *  //oops, validation must have failed
 	 *   var_dump($model->getValidationErrors();
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Don't override this method. Override {@see internalSave()} instead.
 	 *
@@ -1283,6 +1276,8 @@ abstract class Record extends DataModel {
 				$this->isSaving = false;
 				throw new Forbidden("You're (user ID: ".IFW::app()->getAuth()->user()->id().") not permitted to ".$action." ".$this->getClassName()." ".var_export($this->pk(), true));
 			}
+			
+			$this->checkRelationPermissions();
 			
 			if (!$this->validate()) {
 				$this->isSaving = false;
@@ -1453,6 +1448,27 @@ abstract class Record extends DataModel {
 	}	
 	
 	/**
+	 * When belongs to relations are updated by setting the keys directly.
+	 * For example set $invoice->contactId, we must check if the user is allowed 
+	 * to read this contact
+	 */
+		
+	private function checkRelationPermissions() {
+		foreach($this->getRelations() as $relation) {
+			if($relation->isBelongsTo()) {
+				foreach($relation->getKeys() as $from => $to) {
+					if(!empty($this->{$from}) && $this->isModified($from)) {						
+						$record = $this->{$relation->getName()};						
+						if($record && !$record->isNew() &&  !$record->getPermissions()->can(PermissionsModel::PERMISSION_READ)){
+							throw new Forbidden("You've set a key for ".$this->getClassName().'::'.$from.' (pk: '.var_export($this->pk(), true).') that you are not allowed to read');
+						}						
+					}
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Belongs to relations that have been set must be saved before saving this record.
 	 * 
 	 * @return boolean
@@ -1540,7 +1556,7 @@ abstract class Record extends DataModel {
 		
 		$data = [];
 		
-		foreach ($this->getColumns() as $colName => $col) {
+		foreach ($this->getTable()->getColumns() as $colName => $col) {
 			$data[$colName] = $this->$colName;		
 		}
 		
@@ -1572,7 +1588,7 @@ abstract class Record extends DataModel {
 	 * @return Column
 	 */
 	private function findAutoIncrementColumn() {
-		foreach($this->getColumns() as $col) {
+		foreach($this->getTable()->getColumns() as $col) {
 			if($col->autoIncrement) {
 				return $col;
 			}
@@ -1635,15 +1651,15 @@ abstract class Record extends DataModel {
 	 * Find a Record by primary key
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $user = User::findByPk(1);
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * The primary key can also be an array:
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $user = User::find(['groupId'=>1,'userId'=>2])->single();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param int|array $pk
 	 * @return static
@@ -1660,7 +1676,7 @@ abstract class Record extends DataModel {
 	}
 
 	/**
-	 * Find records
+	 * Find records.
 	 * 
 	 * Finds records based on the {@see Query} Object you pass. It returns a
 	 * {@see Store} object. The documentation tells that it returns an instance
@@ -1668,8 +1684,8 @@ abstract class Record extends DataModel {
 	 * 
 	 * Basic usage
 	 * -----------
-	 * 
-	 * <code>
+	 *
+	 * ```php
 	 * 
 	 * //Single user by attributes.
 	 * $user = User::find(['username' => 'admin'])->single(); 
@@ -1686,14 +1702,15 @@ abstract class Record extends DataModel {
 	 * foreach ($users as $user) {
 	 *   echo $user->username."<br />";
 	 * }
-	 * </code>
+	 * 
+	 * ```
 	 * 
 	 * Join relations
 	 * --------------
 	 * 
 	 * With {@see Query::joinRelation()} it's possible to join a relation so that later calls to that relation don't need to be fetched from the database separately.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $contacts = Contact::find(
 	 *         (new Query())
 	 *           ->joinRelation('addressbook', true)
@@ -1702,11 +1719,11 @@ abstract class Record extends DataModel {
 	 * foreach ($contacts as $contact) {
 	 *   echo $contact->addressbook->name."<br />"; //no query needed for the addressbook relation.
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * Complex join {@see Query::join()}
 	 * ------------
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * $groups = Group::find((new Query())
 	 *         ->orderBy([$orderColumn => $orderDirection])
@@ -1723,29 +1740,29 @@ abstract class Record extends DataModel {
    *              'LEFT')
    *          ->where(['userGroup.groupId'=>null])
    *          );
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * More features
 	 * -------------
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $finder = Contact::find(
-						(new Query())
-								->select('t.*, count(emailAddresses.id)')
-								->joinRelation('emailAddresses', false)								
-								->groupBy(['t.id'])
-								->having("count(emailAddresses.id) > 0")
-						->where(['!=',['lastName'=>null]])
-						->andWhere((new Criteria())
-							->where(['firstName', => ['Merijn', 'Wesley']]) //IN condition with array
-							->orWhere(['emailAddresses.email'=>'test@intermesh.nl'])
-						)
-		);
-	 * </code>
+	 * 						(new Query())
+	 * 								->select('t.*, count(emailAddresses.id)')
+	 * 								->joinRelation('emailAddresses', false)								
+	 * 								->groupBy(['t.id'])
+	 * 								->having("count(emailAddresses.id) > 0")
+	 * 						->where(['!=',['lastName'=>null]])
+	 * 						->andWhere((new Criteria())
+	 * 							->where(['firstName', => ['Merijn', 'Wesley']]) //IN condition with array
+	 * 							->orWhere(['emailAddresses.email'=>'test@intermesh.nl'])
+	 * 						)
+	 * 		);
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 * <p>Produces:</p>
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * SELECT t.*, count(emailAddresses.id) FROM `contactsContact` t
 	 * INNER JOIN `contactsContactEmailAddress` emailAddresses ON (`t`.`id` = `emailAddresses`.`contactId`)
 	 * WHERE
@@ -1771,7 +1788,7 @@ abstract class Record extends DataModel {
 	 * (
 	 *		count(emailAddresses.id) > 0
 	 * )
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param Query|array|StringUtil $query Query object. When you pass an array a new 
 	 * Query object will be autocreated and the array will be passed to 
@@ -1832,7 +1849,7 @@ abstract class Record extends DataModel {
 		
 		if ($this->isNew()) {
 			//validate all columns
-			$fieldsToCheck = $this->getColumns()->getColumnNames();
+			$fieldsToCheck = $this->getTable()->getColumnNames();
 		} else {
 			//validate modified columns
 			$fieldsToCheck = array_keys($this->getModifiedAttributes());
@@ -1841,10 +1858,6 @@ abstract class Record extends DataModel {
 		$uniqueKeysToCheck = [];
 
 		foreach ($fieldsToCheck as $colName) {
-			if($colName == 'sortOrder') {
-				continue;
-			}
-			
 			$column = $this->getColumn($colName);
 			if(!$this->validateRequired($column)){
 				//only one error per column
@@ -1893,7 +1906,7 @@ abstract class Record extends DataModel {
 		}
 		
 		return !$this->hasValidationErrors();
-	}
+	}	
 	
 	
 	/**
@@ -2027,10 +2040,10 @@ abstract class Record extends DataModel {
 	 * deleted models.
 	 *
 	 * <p>Example:</p>
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * $model = User::findByPk(2);
 	 * $model->deleteHard();
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @return boolean
 	 */
@@ -2047,11 +2060,12 @@ abstract class Record extends DataModel {
 	 * Delete's the model from the database or set's it to deleted if soft delete 
 	 * is supported.
 	 *
-	 * <p>Example:</p>
-	 * <code>
+	 * Example:
+	 * 
+	 * ```php
 	 * $model = User::findByPk(2);
 	 * $model->delete();
-	 * </code>
+	 * ```
 	 * 
 	 * Don't override this method. Override {@see internalDelete()} instead. The 
 	 * internalDelete function is called after permission checks and validation.
@@ -2220,7 +2234,7 @@ abstract class Record extends DataModel {
 		}
 		
 		//Always add primary key
-		foreach($this->getColumns() as $column) {
+		foreach($this->getTable()->getColumns() as $column) {
 			if($column->primary && !isset($array[$column->name])) {
 				$array[$column->name] = $this->{$column->name};
 			}
@@ -2250,7 +2264,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * For example a contact has many email addresses.
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations() {
 	 *	...
 	 * 
@@ -2258,7 +2272,7 @@ abstract class Record extends DataModel {
 	 * 
 	 *	...
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $relatedModelName The class name of the related model. eg. UserGroup::class
 	 * @param string $keys The relation keys. eg ['id'=>'userId']
@@ -2279,7 +2293,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * For example a user has one contact
 	 * 
-	 * <code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 * public static function defineRelations() {
 	 *	...
 	 * 
@@ -2287,7 +2301,7 @@ abstract class Record extends DataModel {
 	 * 
 	 *	...
 	 * }
-	 * </code>
+	 * ```````````````````````````````````````````````````````````````````````````
 	 *
 	 * @param string $name The name of the relation
 	 * @param string $relatedModelName The class name of the related model. eg. UserGroup::class
@@ -2311,9 +2325,9 @@ abstract class Record extends DataModel {
 //	 * It only copies the database attributes and relations that are 
 //	 * {@see Relation::isIdentifying()} and not {@see Relation::isBelongsTo()}.
 //	 * 
-//	 * <code>
+//	 * ```````````````````````````````````````````````````````````````````````````
 //	 * $model = $model->copy();	
-//	 * </code>
+//	 * ```````````````````````````````````````````````````````````````````````````
 //	 * 
 //	 * 
 //	 * @param array $attributes
@@ -2371,6 +2385,47 @@ abstract class Record extends DataModel {
 		return new AdminsOnly();
 	}	
 	
+	private static $allowRelations = [];
+	
+	/**
+	 * Bypass record read permissions for specific relational queries
+	 * 
+	 * @example Allow the customer contact of an invoice to be queried even if 
+	 * the user doesn't have read permissions for the contact.
+	 * 
+	 * ```php
+	 * Invoice::allow('customer');
+	 * ```
+	 * 
+	 * @param string $relationPath "contact" or deeper "contact.organizations"
+	 */
+	public static function allow($relationPath, array $permissionTypes = [PermissionsModel::PERMISSION_READ]) {
+		
+		if(!isset(self::$allowRelations[static::class])) {
+			self::$allowRelations[static::class] = [];
+		}
+		
+		$parts = explode('.', $relationPath);		
+		self::$allowRelations[static::class][$parts[0]] = $permissionTypes;
+		
+		if(count($parts) > 1) {
+			$model = static::getRelation(array_shift($parts))->getToRecordName();
+			foreach($parts as $part) {
+
+				$model::allow($part, $permissionTypes);
+				$model = $model::getRelation($part)->getToRecordName();			
+			}
+		}
+	}	
+	
+	private static function relationIsAllowed($relationName) {
+
+		if(!isset(self::$allowRelations[static::class][$relationName])) {
+			return false;
+		}
+		
+		return self::$allowRelations[static::class][$relationName];
+	}
 	
 	/**
 	 * Get the permissions model

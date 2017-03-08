@@ -42,12 +42,16 @@ class Attachment extends Record{
 	
 	protected static function defineRelations() {
 		self::hasOne('comment', Comment::class, ['commentId' => 'id']);
-		self::hasOne('blob', \GO\Core\Blob\Model\Blob::class, ['blobId' =>' blobId']);
+		self::hasOne('blob', \GO\Core\Blob\Model\Blob::class, ['blobId' => 'blobId']);
 	}
 	
 	protected function internalSave() {
 		$this->saveBlob('blobId');
 		return parent::internalSave();
+	}
+	
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('comment');
 	}
 
 }
