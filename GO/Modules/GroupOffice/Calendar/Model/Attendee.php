@@ -129,7 +129,7 @@ class Attendee extends Record {
 
 	public function getCanWrite() {
 		if(empty($this->calendarId)) {
-			return false;
+			return false; // when user has no calendar
 		}
 		return $this->getPermissions()->can("update") && $this->getIsOrganizer();
 	}
