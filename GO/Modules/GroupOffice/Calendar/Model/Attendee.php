@@ -66,7 +66,7 @@ class Attendee extends Record {
 		$me = new self();
 		$me->email = \GO()->getAuth()->user()->email;
 		$me->groupId = Group::current()->id;
-		$defaultCalendar = Calendar::find((new Query)->select('id')->where(['ownedBy'=>Group::current()->id]))->single();
+		$defaultCalendar = $this->findDefaultCalendar();
 		$me->setCalendar($defaultCalendar);
 		$me->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
@@ -74,6 +74,15 @@ class Attendee extends Record {
 		//$me->event->attendees[] = $me;
 		$me->event->organizerEmail = $me->email;
 		return $me;
+	}
+
+	/**
+	 * For now just the first this attendee owns
+	 * @return type
+	 */
+	private function findDefaultCalendar() {
+		$groupId = empty($this->groupId) ? Group::current()->id : $this->groupId;
+		return Calendar::find((new Query)->select('id')->where(['ownedBy'=>$groupId]))->single();
 	}
 
 	// OVERRIDES
@@ -105,7 +114,10 @@ class Attendee extends Record {
 				$user = User::find(['email'=>$this->email])->single();
 				if(!empty($user)) {
 					$this->groupId = $user->group->id;
-					$this->calendarId = $user->getDefaultCalendar()->id;
+					$defaultCalendar = $this->findDefaultCalendar();
+					if(!empty($defaultCalendar)) {
+						$this->calendarId = $defaultCalendar->id;
+					}
 				}
 
 			});
