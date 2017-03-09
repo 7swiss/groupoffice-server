@@ -1,7 +1,5 @@
 <?php
 
-declare (strict_types = 1);
-
 namespace GO\Modules\GroupOffice\Dav\Model;
 
 use Sabre\CalDAV;
