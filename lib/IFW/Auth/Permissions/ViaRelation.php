@@ -28,11 +28,12 @@ class ViaRelation extends Model {
 	
 	protected function internalCan($permissionType, UserInterface $user) {		
 		
-		$relationName = $this->relationName;
-		
-		$permissionType = $permissionType == self::PERMISSION_READ ? self::PERMISSION_READ : self::PERMISSION_UPDATE;		
-		
+		$relationName = $this->relationName;	
 		$relatedRecord = $this->record->{$relationName};
+		
+		if($permissionType != self::PERMISSION_READ) {
+			$permissionType = $relatedRecord->isNew() ? self::PERMISSION_CREATE : self::PERMISSION_UPDATE;		
+		}
 
 		if(!isset($relatedRecord)) {
 			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select or set the key?");
