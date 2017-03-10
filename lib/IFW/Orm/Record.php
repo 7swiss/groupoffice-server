@@ -2088,7 +2088,7 @@ abstract class Record extends DataModel {
 	
 	private function processDelete($hard = false) {
 		
-		if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_DELETE)) {
+		if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_UPDATE)) {
 			throw new Forbidden("You're not permitted to delete ".$this->getClassName()." ".var_export($this->pk(), true));
 		}
 

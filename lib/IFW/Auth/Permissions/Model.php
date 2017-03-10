@@ -65,11 +65,6 @@ abstract class Model extends DataModel {
 	const PERMISSION_CREATE = "create";
 
 	/**
-	 * Checked in delete() function of {@see AbstractRecord}
-	 */
-	const PERMISSION_DELETE = "delete";
-
-	/**
 	 * Checked in validate() function of {@see AbstractRecord}
 	 */
 	const PERMISSION_CHANGE_PERMISSIONS = 'changePermissions';
@@ -130,7 +125,6 @@ abstract class Model extends DataModel {
 				self::PERMISSION_READ,
 				self::PERMISSION_UPDATE,
 				self::PERMISSION_CREATE,
-				self::PERMISSION_DELETE,
 				self::PERMISSION_CHANGE_PERMISSIONS,
 		];
 	}
