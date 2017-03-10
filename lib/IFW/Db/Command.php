@@ -12,6 +12,7 @@ class Command {
 	const TYPE_UPDATE = 1;
 	const TYPE_DELETE = 2;
 	const TYPE_SELECT = 4;
+	const TYPE_INSERT_IGNORE = 5;
 	
 	/**
 	 *
@@ -39,6 +40,7 @@ class Command {
 	 * @var Query
 	 */
 	private $query;
+	
 
 	
 	/**
@@ -50,10 +52,11 @@ class Command {
 	 * @param array|Query $data Key value array or select query
 	 * @return $this
 	 */
-	public function insert($tableName, $data) {
-		$this->type = self::TYPE_INSERT;
+	public function insert($tableName, $data, $ignore = false) {
+		$this->type = $ignore ? self::TYPE_INSERT_IGNORE : self::TYPE_INSERT;
 		$this->tableName = $tableName;
 		$this->data = $data;
+		
 	
 		return $this;
 	}
@@ -164,6 +167,10 @@ class Command {
 			case self::TYPE_INSERT:				
 				$queryBuilder = new QueryBuilder($this->tableName);
 				return  $queryBuilder->buildInsert($this->data);
+				
+			case self::TYPE_INSERT_IGNORE:				
+				$queryBuilder = new QueryBuilder($this->tableName);
+				return  $queryBuilder->buildInsert($this->data, true);
 				
 			case self::TYPE_UPDATE:				
 				$queryBuilder = new QueryBuilder($this->tableName);

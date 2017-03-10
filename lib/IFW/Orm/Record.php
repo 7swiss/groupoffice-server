@@ -1134,7 +1134,7 @@ abstract class Record extends DataModel {
 	}
 	
 	
-	private static function keysMatch(Relation $parentRelation, Relation $childRelation) {
+	public static function keysMatch(Relation $parentRelation, Relation $childRelation) {
 		
 		$childKeys = $childRelation->getKeys();
 		
@@ -1258,7 +1258,7 @@ abstract class Record extends DataModel {
 			return true;
 		}
 		
-//		GO()->debug("Save ".$this->getClassName(), 'general', 1);
+		//GO()->debug("Save ".$this->getClassName());
 		
 		$this->isSaving = true;
 		$success = false;
@@ -1355,10 +1355,10 @@ abstract class Record extends DataModel {
 		//Unset the accessed relations so user set relations are queried from the db after save.
 		foreach($this->relations as $relationName => $relationStore) {
 			foreach($relationStore as $record) {
-				if(!is_a($record, self::class)) {					
-					GO()->debug($relationStore);
-					throw new \Exception("Not a record in ".$this->getClassName()."::".$relationName."?");
-				}
+//				if(!is_a($record, self::class)) {					
+//					GO()->debug($relationStore);
+//					throw new \Exception("Not a record in ".$this->getClassName()."::".$relationName."?");
+//				}
 				if($record->isSaving && !$this->isSavedByRelation) {
 					$record->commit();
 				}

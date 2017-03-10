@@ -163,11 +163,17 @@ class QueryBuilder {
 	/**
 	 * @return bool
 	 */
-	public function buildInsert($data) {
+	public function buildInsert($data, $ignore = false) {
 		
 		$this->reset();
 		
-		$sql = "INSERT INTO `{$this->tableName}`";
+		$sql = "INSERT ";
+		
+		if($ignore) {
+			$sql .= "IGNORE ";							
+		}
+		
+		$sql .= "INTO `{$this->tableName}`";
 		
 		if($data instanceof \IFW\Db\Query) {
 			$build = $data->createCommand()->build();

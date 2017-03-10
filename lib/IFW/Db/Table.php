@@ -85,7 +85,7 @@ class Table {
 		$this->columns = [];
 
 		$sql = "SHOW FULL COLUMNS FROM `" . $this->tableName . "`;";
-		IFW::app()->debug($sql, 'sql');
+//		IFW::app()->debug($sql, 'sql');
 		
 		$stmt = IFW::app()->getDbConnection()->getPDO()->query($sql);
 		while ($field = $stmt->fetch()) {

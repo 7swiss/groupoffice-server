@@ -232,8 +232,9 @@ class RelationStore extends Store implements ArrayAccess {
 	 * @param \IFW\Orm\Record $value
 	 * @return type
 	 */
-	private function setParentRelation(Record $value) {		
-		$relation = $value::findParentRelation($this->getRelation());
+	private function setParentRelation(Record $value) {				
+		$relation = $value::findParentRelation($this->getRelation());		
+		
 		//check if it hasn't been fetched or set already to prevent loops
 		if($relation && !$value->relationIsFetched($relation->getName())) {			
 			$value->{$relation->getName()} = $this->record;			
@@ -544,17 +545,43 @@ class RelationStore extends Store implements ArrayAccess {
 		
 		$primaryKey = $this->buildViaPk($relatedRecord);
 		
-
-		$viaRecord = $viaRecordName::find($primaryKey)->single();
-
-		if (!$viaRecord) {
-			$viaRecord = new $viaRecordName;
-			$viaRecord->setValues($primaryKey);
-			if (!$viaRecord->save()) {
-				throw new Exception("Could not create viaModel " . $viaRecordName.' validation errors: '.var_export($viaRecord->getValidationErrors(), true));
-			}
+		
+		if(!GO()->getDbConnection()->createCommand()->insert($viaRecordName::tableName(), $primaryKey, true)->execute()) {
+			throw new Exception("Could not create viaModel " . $viaRecordName);
 		}
+		
+
+//		$viaRecord = $viaRecordName::find((new Query())->where($primaryKey)->allowPermissionTypes(['*']))->single();
+//
+//		if (!$viaRecord) {
+//			$viaRecord = new $viaRecordName();			
+//			$viaRecord->setValues($primaryKey);
+//			$this->setParentForViaRecord($viaRecord);
+//			if (!$viaRecord->save()) {
+//				throw new Exception("Could not create viaModel " . $viaRecordName.' validation errors: '.var_export($viaRecord->getValidationErrors(), true));
+//			}
+//		}else
+//		{
+//			$this->setParentForViaRecord($viaRecord);
+//		}
 	}
+//	
+//	private function setParentForViaRecord($viaRecord) {
+//		foreach($viaRecord::getRelations() as $parentRelation) { //eg. contact
+//			if(
+//							!$parentRelation->hasMany() && 
+//							$parentRelation->getToRecordName() == $this->relation->getFromRecordName() && 
+//							$viaRecord::KeysMatch($this->relation, $parentRelation)
+//				) {			
+//				
+//				GO()->debug("FOUND VIA PARENT");
+//				$viaRecord->{$parentRelation->getName()} = $this->record;
+//				return true;
+//			}							
+//		}
+//		return false;
+//	}
+	
 	
 	
 	private function deleteViaRecord(Record $relatedModel) {
@@ -571,15 +598,19 @@ class RelationStore extends Store implements ArrayAccess {
 		foreach($this->relation->getViaKeys() as $fromField => $toField) {
 			$primaryKey[$fromField] = $relatedModel->$toField;
 		}
-
-		$viaRecord = $viaRecordName::find($primaryKey)->single();
-		if(!$viaRecord) {
-			return true;
-		}
 		
-		if(!$viaRecord->delete()) {
+		if(!GO()->getDbConnection()->createCommand()->delete($viaRecordName::tableName(), $primaryKey)->execute()) {
 			throw new Exception("Could not delete viaModel " . $viaRecordName);
 		}
+
+//		$viaRecord = $viaRecordName::find($primaryKey)->single();
+//		if(!$viaRecord) {
+//			return true;
+//		}
+//		
+//		if(!$viaRecord->delete()) {
+//			throw new Exception("Could not delete viaModel " . $viaRecordName);
+//		}
 	}
 	
 	/**
