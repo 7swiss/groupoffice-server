@@ -280,9 +280,9 @@ abstract class Record extends DataModel {
 	 * 
 	 * Only then will resetModified() be called and it will bubble down the tree.
 	 * 
-	 * @var boolean 
+	 * @var Record 
 	 */
-	private $isSavedByRelation = false;
+	private $isSavedBy = null;
 	
 	/**
 	 * When the record is saved this is set to true.
@@ -1261,10 +1261,9 @@ abstract class Record extends DataModel {
 		//GO()->debug("Save ".$this->getClassName());
 		
 		$this->isSaving = true;
+		
 		$success = false;
-		try{
-			
-					
+		try{					
 			if($this->markDeleted) {
 				$this->isSaving = false;
 				return $this->delete();
@@ -1305,6 +1304,7 @@ abstract class Record extends DataModel {
 			if(!$this->fireEvent(self::EVENT_AFTER_SAVE, $this, $success)){			
 				$success = false;
 			}			
+						
 			return $success;			
 			
 		} finally {
@@ -1312,12 +1312,13 @@ abstract class Record extends DataModel {
 				\IFW::app()->debug("Save of ".$this->getClassName()." failed. Validation errors: ".var_export($this->getValidationErrors(), true));
 				$this->rollBack();								
 			}else {			
-				if(!$this->isSavedByRelation) {
+				if(!$this->isSavedBy) {
 					$this->commit();
 				}
 			}
 		}
 	}
+
 	
 	/**
 	 * Rollback changes and database transaction after failed save operation
@@ -1341,7 +1342,8 @@ abstract class Record extends DataModel {
 	 * Clears the modified state of the object and commits database transaction 
 	 * after successful save operation.
 	 */
-	private function commit() {
+	private function commit() {		
+		
 		if($this->saveStartedTransaction) {
 			$this->getDbConnection()->commit();
 			$this->saveStartedTransaction = false;
@@ -1349,17 +1351,14 @@ abstract class Record extends DataModel {
 		
 		$this->isNew = false;
 		$this->setOldAttributes();
-		$this->isSavedByRelation = false;
+		$this->isSavedBy = null;
 		$this->isSaving = false;
 		
 		//Unset the accessed relations so user set relations are queried from the db after save.
-		foreach($this->relations as $relationName => $relationStore) {
+		foreach($this->relations as $relationStore) {
 			foreach($relationStore as $record) {
-//				if(!is_a($record, self::class)) {					
-//					GO()->debug($relationStore);
-//					throw new \Exception("Not a record in ".$this->getClassName()."::".$relationName."?");
-//				}
-				if($record->isSaving && !$this->isSavedByRelation) {
+				//only commit if this record initated the save of this relation
+				if($record->isSaving && $record->isSavedBy == $this) {
 					$record->commit();
 				}
 			}
@@ -1434,7 +1433,7 @@ abstract class Record extends DataModel {
 			foreach($relationStore as $record) {
 				//don't set this if the record was already saving. Loops.
 				if(!$record->isSaving) {
-					$record->isSavedByRelation = true;
+					$record->isSavedBy = $this;
 				}
 			}
 
@@ -1513,7 +1512,7 @@ abstract class Record extends DataModel {
 			foreach($relationStore as $record) {
 				//don't set this if the record was already saving. Loops.
 				if(!$record->isSaving) {
-					$record->isSavedByRelation = true;
+					$record->isSavedBy = $this;
 				}
 			}
 			
@@ -1532,7 +1531,7 @@ abstract class Record extends DataModel {
 	 * @return boolean
 	 */
 	protected function isSavedByRelation() {
-		return $this->isSavedByRelation;
+		return $this->isSavedBy;
 	}
 
 	/**

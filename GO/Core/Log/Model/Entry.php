@@ -80,13 +80,6 @@ class Entry extends Record {
 	
 	private $parsedUserAgent;
 	
-	protected static function defineRelations() {
-		
-		self::hasOne('creator', User::class, ['createdBy' => 'id']);
-//		self::hasOne('aboutRecordType', RecordType::class, ['recordTypeId'=>'id']);
-		parent::defineRelations();
-	}
-	
 	protected static function internalGetPermissions() {
 		return new \IFW\Auth\Permissions\Everyone();
 	}
