@@ -235,7 +235,7 @@ class Contact extends Record {
 	}
 
 	public function getETag() {
-		return $this->modifiedAt->format('Ymd H:i:s'). '-'.$this->id;
+		return $this->isNew() ? null : $this->modifiedAt->format('Ymd H:i:s'). '-'.$this->id;
 	}
 	
 	
