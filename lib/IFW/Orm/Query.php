@@ -115,6 +115,7 @@ class Query extends DbQuery {
 		return false;
 	}
 	
+	private $recordClassName;
 	
 	public function setRecordClassName($recordClassName) {
 		$this->recordClassName = $recordClassName;
@@ -127,7 +128,7 @@ class Query extends DbQuery {
 	
 	public function createCommand() {
 		
-		if($this->getFetchMode() == null) {
+		if($this->getFetchMode() == null && isset($this->recordClassName)) {
 			//set fetch mode to fetch Record objects
 			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
 		}
@@ -146,6 +147,9 @@ class Query extends DbQuery {
 	 * @return QueryBuilder
 	 */
 	public function getBuilder() {		
+		if(!isset($this->recordClassName)) {
+			return parent::getBuilder();
+		}
 		return new QueryBuilder($this->recordClassName);
 		
 	}
