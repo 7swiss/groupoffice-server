@@ -73,6 +73,8 @@ class Address extends Record {
 
 	const TYPE_POST = 'post';
 	
+	const TYPE_INVOICE = 'invoice';
+	
 	public static function internalGetPermissions() {
 		return new ViaRelation('contact');
 	}
