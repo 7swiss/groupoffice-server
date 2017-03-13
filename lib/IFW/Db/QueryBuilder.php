@@ -296,7 +296,7 @@ class QueryBuilder {
 			
 			foreach ($this->query->getJoins() as $join) {
 				$method = 'join' . $join[0];
-				$joins .= "\n".$prefix.$this->$method($join[1]);
+				$joins .= "\n".$prefix.$this->$method($join[1], $prefix);
 			}
 			
 			$select = "\n".$prefix.$this->buildSelectFields();
@@ -386,7 +386,9 @@ class QueryBuilder {
 	private function findColumn($tableAlias, $column) {
 
 		if (!isset($this->aliasMap[$tableAlias])) {
-			throw new Exception("Alias '" . $tableAlias . "'  not found in the aliasMap: " . var_export($this->aliasMap, true) . ' for ' . $column);
+			
+//			var_dump($this);
+			throw new Exception("Alias '" . $tableAlias . "'  not found in the aliasMap for " . $column);
 		}
 		
 		if ($this->aliasMap[$tableAlias]->getColumn($column) == null) {
@@ -485,7 +487,7 @@ class QueryBuilder {
 		$c = $prefix . "(\n";
 
 		if (is_string($condition)) {
-			$c .= $prefix . "\t" . $condition . "\n";
+			$c .= $prefix . "\t" . $condition ;
 		} elseif (is_array($condition)) {
 			$c .= $this->arrayConditionToString($condition, $prefix . "\t");
 		} elseif (is_a($condition, Criteria::class)) {
@@ -786,14 +788,14 @@ class QueryBuilder {
 		return self::$paramPrefix . self::$paramCount;
 	}
 
-	private function joinManual($config) {
+	private function joinManual($config, $prefix) {
 		$join = "";
 
 		if ($config['src'] instanceof \IFW\Orm\Store) {
 			$builder = $config['src']->getQuery()->getBuilder($config['src']->getRecordClassName());
 			$this->mergeAliasMap($builder->aliasMap);
-			$build = $builder->buildSelect($config['src']->getQuery());
-			$joinTableName = '(' . $build['sql'] . ')';
+			$build = $builder->buildSelect($config['src']->getQuery(), $prefix."\t");
+			$joinTableName = "(\n".$prefix."\t" . $build['sql'] . "\n".$prefix.')';
 			foreach ($build['params'] as $v) {
 				$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 			}
@@ -808,7 +810,7 @@ class QueryBuilder {
 			$join .= '`' . $config['joinTableAlias'] . '` ';
 		}
 
-		$join .= 'ON (' . $this->buildWhere($config['on'], "\t") . ")";
+		$join .= 'ON ' . $this->buildWhere($config['on'], $prefix) ;
 
 
 		return $join;

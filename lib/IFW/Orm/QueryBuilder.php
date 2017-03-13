@@ -119,7 +119,7 @@ class QueryBuilder extends DbQueryBuilder{
 			//ContactTag.tagId -> tag.id
 			
 			foreach($relation->getKeys() as $fromField => $toField) {
-				$joinSql .= '`'.$primaryTableAlias.'`.`'.$fromField.'`=`'.$linkTableAlias.'`.`'.$toField."`)\n"; 
+				$joinSql .= '`'.$primaryTableAlias.'`.`'.$fromField.'` = `'.$linkTableAlias.'`.`'.$toField."`)\n"; 
 			}
 			
 			$joinSql .= $joinType . ' JOIN `'.$relatedModelName::tableName().'` `'.$relation->getName().'` ON (';		
@@ -129,7 +129,7 @@ class QueryBuilder extends DbQueryBuilder{
 				if($moreThanOne){
 					$joinSql .= ' AND ';
 				}
-				$joinSql .= '`'.$linkTableAlias.'`.`'.$fromField.'`=`'.$relation->getName().'`.`'.$toField.'`'; 
+				$joinSql .= '`'.$linkTableAlias.'`.`'.$fromField.'` = `'.$relation->getName().'`.`'.$toField.'`'; 
 				$moreThanOne = true;
 			}
 			
@@ -143,7 +143,7 @@ class QueryBuilder extends DbQueryBuilder{
 				if($moreThanOne){
 					$joinSql .= ' AND ';
 				}
-				$joinSql .= '`'.$primaryTableAlias.'`.`'.$fromField.'`=`'.$relation->getName().'`.`'.$toField.'`';
+				$joinSql .= '`'.$primaryTableAlias.'`.`'.$fromField.'` = `'.$relation->getName().'`.`'.$toField.'`';
 				
 				$moreThanOne = true;
 			}
