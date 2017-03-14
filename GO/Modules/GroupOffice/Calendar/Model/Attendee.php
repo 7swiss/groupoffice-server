@@ -92,7 +92,7 @@ class Attendee extends Record {
 	}
 
 	public static function internalGetPermissions() {
-		return new ViaRelation('calendar');
+		return new EventPermission();
 	}
 	
 	protected static function defineRelations() {
@@ -141,7 +141,7 @@ class Attendee extends Record {
 
 	public function getCanWrite() {
 		if(empty($this->calendarId)) {
-			return false; // when user has no calendar
+			return false; // when attendee has no calendar
 		}
 		return $this->getPermissions()->can("update") && $this->getIsOrganizer();
 	}
