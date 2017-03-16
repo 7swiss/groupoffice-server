@@ -305,7 +305,7 @@ class Account extends AccountRecord implements SyncableInterface{
 				GO()->debug("Creating new thread");
 				
 				$message->thread = new Thread();			
-				$message->thread->setLatestMessage($message);
+				$message->thread->setLatestMessage($message, false);
 				$message->thread->accountId = $this->id;				
 			}
 			
