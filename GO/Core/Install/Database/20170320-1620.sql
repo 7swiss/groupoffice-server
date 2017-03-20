@@ -1,0 +1,3 @@
+ALTER TABLE `templates_message` ADD `deleted` BOOLEAN NOT NULL DEFAULT FALSE AFTER `id`;
+ALTER TABLE `templates_pdf` ADD `deleted` BOOLEAN NOT NULL DEFAULT FALSE AFTER `id`;
+ALTER TABLE `cron_job` ADD `deleted` BOOLEAN NOT NULL DEFAULT FALSE AFTER `id`;

@@ -43,6 +43,13 @@ class Message extends Record {
 	 * @var int
 	 */
 	public $id;
+	
+	/**
+	 * 
+	 * @var bool
+	 */							
+	public $deleted;
+
 
 	/**
 	 * 

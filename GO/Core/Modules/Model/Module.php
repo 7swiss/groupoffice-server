@@ -252,7 +252,11 @@ class Module extends Record {
 			require($file->path());
 		} catch (\Exception $e) {
 			if (!$skipFirstError) {
-				$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage();
+				$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
+								"\nIf you're a developer, you might need to skip this file "
+								. "because you already applied the changes to your database. "
+								. "Empty the file temporarily and rerun the upgrade.\n\n"
+							. "PDO ERROR: \n\n" . $e->getMessage();
 				throw new \Exception($msg);
 			}else
 			{
@@ -270,7 +274,11 @@ class Module extends Record {
 				IFW::app()->getDbConnection()->query($query);
 			} catch (\Exception $e) {
 				if (!$skipFirstError) {
-					$msg = "An exception ocurred in upgrade file " . $file->getPath() . "\nIf you're a developer, you might need to skip this file because you already applied the changes to your database. Rerun the upgrade with skipFirstError=1 as parameter.\n\nPDO ERROR: \n\n" . $e->getMessage().' FULL Query: '.$query;
+					$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
+									"\nIf you're a developer, you might need to skip this file "
+									. "because you already applied the changes to your database."
+									. "Empty the file temporarily and rerun the upgrade.\n\n"
+									. "PDO ERROR: \n\n" . $e->getMessage();
 					throw new \Exception($msg);
 				}
 				$skipFirstError = false;

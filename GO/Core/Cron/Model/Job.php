@@ -25,6 +25,12 @@ class Job extends Record {
 	 * @var int
 	 */							
 	public $id;
+	
+	/**
+	 * 
+	 * @var bool
+	 */							
+	public $deleted;
 
 	/**
 	 * Set if this cron job belongs to a module and will be deinstalled along with a module.

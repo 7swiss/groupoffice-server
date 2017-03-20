@@ -143,5 +143,6 @@ class Utils {
 			return PDO::PARAM_STR;
 		}
 	}
+	
 
 }

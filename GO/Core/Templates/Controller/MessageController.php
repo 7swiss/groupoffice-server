@@ -1,4 +1,5 @@
 <?php
+
 namespace GO\Core\Templates\Controller;
 
 use GO\Core\Controller;
@@ -15,7 +16,6 @@ use IFW\Orm\Query;
  */
 class MessageController extends Controller {
 
-
 	/**
 	 * Fetch messages
 	 *
@@ -28,23 +28,22 @@ class MessageController extends Controller {
 	 * @return array JSON Model data
 	 */
 	protected function actionStore($moduleClassName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
-		
-		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
+
+		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleClassName])->single();
 
 		$query = (new Query())
-				->orderBy([$orderColumn => $orderDirection])
-				->limit($limit)
-				->offset($offset)
-				->search($searchQuery, ['t.name'])
-				->where(['moduleId' => $module->id]);
+						->orderBy([$orderColumn => $orderDirection])
+						->limit($limit)
+						->offset($offset)
+						->search($searchQuery, ['t.name'])
+						->where(['moduleId' => $module->id]);
 
 		$messages = Message::find($query);
 		$messages->setReturnProperties($returnProperties);
 
 		$this->renderStore($messages);
 	}
-	
-	
+
 	/**
 	 * Get's the default data for a new message
 	 * 
@@ -53,8 +52,8 @@ class MessageController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
-		
+	protected function actionNew($returnProperties = "") {
+
 		$user = new Message();
 
 		$this->renderModel($user, $returnProperties);
@@ -74,7 +73,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($templateMessageId = null, $returnProperties = "") {	
+	protected function actionRead($templateMessageId = null, $returnProperties = "") {
 		$message = Message::findByPk($templateMessageId);
 
 
@@ -83,7 +82,6 @@ class MessageController extends Controller {
 		}
 
 		$this->renderModel($message, $returnProperties);
-		
 	}
 
 	/**
@@ -101,8 +99,8 @@ class MessageController extends Controller {
 	 */
 	public function actionCreate($moduleClassName, $returnProperties = "") {
 
-		
-		$message = new Message();		
+
+		$message = new Message();
 		$message->setValues(GO()->getRequest()->body['data']);
 		$message->setModuleClassName($moduleClassName);
 		$message->save();
@@ -156,4 +154,18 @@ class MessageController extends Controller {
 
 		$this->renderModel($message);
 	}
+
+	public function actionDuplicate($templateMessageId) {
+		$message = Message::findByPk($templateMessageId);
+
+		if (!$message) {
+			throw new NotFound();
+		}
+
+		$name = \IFW\Orm\Utils::findUniqueValue($message->tableName(), 'name', $message->name);
+		$duplicate = \IFW\Orm\Utils::duplicate($message, ['name' => $name]);
+	
+		$this->renderModel($duplicate);
+	}
+
 }

@@ -28,6 +28,12 @@ class Pdf extends Record {
 
 	/**
 	 * 
+	 * @var bool
+	 */							
+	public $deleted;
+
+	/**
+	 * 
 	 * @var int
 	 */							
 	public $moduleId;
