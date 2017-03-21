@@ -25,6 +25,12 @@ class Job extends Record {
 	 * @var int
 	 */							
 	public $id;
+	
+	/**
+	 * 
+	 * @var bool
+	 */							
+	public $deleted;
 
 	/**
 	 * Set if this cron job belongs to a module and will be deinstalled along with a module.
@@ -123,18 +129,24 @@ class Job extends Record {
 	 * It also finds cron jobs that are not scheduled yet and it will calculate the
 	 * scheduled date for the jobs.
 	 * 
-	 * @return self[]
+	 * @return bool true if a job was ran
 	 */
 	public static function runNext() {
 		
 		$query = (new Query())
-						->where(['enabled'=>1])
-						->andWhere(['<=', ['nextRun' => new DateTime()]]);							
+						->where(['enabled' => 1])
+						->andWhere(['<=', ['nextRun' => new DateTime()]])
+						->orderBy(['nextRun' => 'ASC']);
 		
 		$job = self::find($query)->single();
 
 		if($job) {
 			$job->run();
+			
+			return true;
+		}else
+		{
+			return false;
 		}
 	}
 

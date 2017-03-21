@@ -38,7 +38,8 @@ class DemoDataController extends Controller {
 				}
 
 				$contact = new Contact();
-				$contact->userId = $user->id;
+				$contact->ownedBy = $user->group->id;
+				$contact->createdBy = $user->id;
 				$contact->firstName = 'Test';
 				$contact->lastName = 'User';
 				$contact->emailAddresses = [['email' => 'test@intermesh.nl']];

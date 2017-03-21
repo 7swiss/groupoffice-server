@@ -41,9 +41,6 @@ class ContactPermissions extends Model {
 				
 			case self::PERMISSION_UPDATE:
 				return $this->getContactGroup($user) != false && $this->getContactGroup($user)->write;
-				
-			case self::PERMISSION_DELETE:
-				return $this->getContactGroup($user) != false && $this->getContactGroup($user)->delete;
 					
 			default:
 				return false;

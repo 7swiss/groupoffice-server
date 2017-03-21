@@ -87,7 +87,7 @@ class Thread extends Record {
 	 * Excerpt of the latest message in the thread
 	 * @var string
 	 */							
-	public $excerpt;
+	protected $excerpt;
 
 	/**
 	 * 
@@ -153,6 +153,14 @@ class Thread extends Record {
 	}
 	
 	
+	public function getExcerpt() {
+		if(!isset($this->excerpt)) {
+			$this->excerpt = $this->findLatestMessage()->getExcerpt();
+			$this->update();
+		}
+		return $this->excerpt;
+	}
+	
 	
 	private $latestMessage;
 	/**
@@ -191,7 +199,7 @@ class Thread extends Record {
 		GO()->debug($threads->getRowCount().' threads out of sync');
 		
 		foreach($threads as $thread) {			
-			if(!$thread->sync()) {
+			if(!$thread->sync(false)) {
 				throw new Exception("Could not save thread");
 			}
 		}
@@ -218,19 +226,23 @@ class Thread extends Record {
 		}
 	}
 	
-	public function setLatestMessage(Message $latest) {
+	/**
+	 * Set the thread properties by giving it the latest thread message
+	 * 
+	 * @param \GO\Modules\GroupOffice\Messages\Model\Message $latest
+	 * @param bool $getExcerpt Get the body too. When doing a first index it's way faster not to get the bodies. We do that lazy.
+	 */
+	public function setLatestMessage(Message $latest, $getExcerpt = true) {
 		$this->photoBlobId = $latest->photoBlobId;
 		
 		$this->subject = $latest->subject;			
 		$this->answered = $latest->type == Message::TYPE_SENT || $latest->type == Message::TYPE_OUTBOX;
 		
 		//prevent double fetch of body with this if
-		if($latest->sentAt != $this->lastMessageSentAt) {
-			GO()->debug("Fetching IMAP message body");
-			$this->excerpt = $latest->getExcerpt();
-			GO()->debug("Done fetching IMAP message body");
-			$this->lastMessageSentAt = $latest->sentAt;
+		if($getExcerpt && (!isset($this->excerpt) || $latest->sentAt != $this->lastMessageSentAt)) {
+			$this->excerpt = $latest->getExcerpt();			
 		}
+		$this->lastMessageSentAt = $latest->sentAt;
 		$this->seen = $latest->seen;
 		$this->answered = $latest->answered;
 		
@@ -240,11 +252,11 @@ class Thread extends Record {
 		
 	}
 	
-	public function sync() {
+	public function sync($getExcerpt = true) {
 		
 		$latest = $this->findLatestMessage();		
 		
-		$this->setLatestMessage($latest);
+		$this->setLatestMessage($latest, $getExcerpt);
 		
 		$q = (new Query())
 				->select('count(*) as messageCount, min(seen) AS seen, max(flagged) AS flagged, min(inReplyToId) as minReplyToId')						

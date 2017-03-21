@@ -65,11 +65,6 @@ abstract class Model extends DataModel {
 	const PERMISSION_CREATE = "create";
 
 	/**
-	 * Checked in delete() function of {@see AbstractRecord}
-	 */
-	const PERMISSION_DELETE = "delete";
-
-	/**
 	 * Checked in validate() function of {@see AbstractRecord}
 	 */
 	const PERMISSION_CHANGE_PERMISSIONS = 'changePermissions';
@@ -130,7 +125,6 @@ abstract class Model extends DataModel {
 				self::PERMISSION_READ,
 				self::PERMISSION_UPDATE,
 				self::PERMISSION_CREATE,
-				self::PERMISSION_DELETE,
 				self::PERMISSION_CHANGE_PERMISSIONS,
 		];
 	}
@@ -226,7 +220,7 @@ abstract class Model extends DataModel {
 					$this->cache[$permissionType.'-'.$user->id()] = true;
 				}else
 				{					
-					if(in_array($permissionType, $this->record->allowedPermissionTypes())) {
+					if(in_array($permissionType, $this->record->allowedPermissionTypes()) || in_array('*', $this->record->allowedPermissionTypes())) {
 						$can = true;
 					}else
 					{					
@@ -265,7 +259,7 @@ abstract class Model extends DataModel {
 			throw new IFW\Exception\NotAuthenticated();
 		}
 				
-		if($user->isAdmin()) {		
+		if($user && $user->isAdmin()) {		
 			self::$enablePermissions = true;
 			return;
 		}

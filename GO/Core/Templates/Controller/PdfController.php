@@ -177,4 +177,20 @@ class PdfController extends Controller {
 		
 		echo $pdfRenderer->render();
 	}
+	
+	public function actionDuplicate($pdfTemplateId) {
+		$pdf = Pdf::findByPk($pdfTemplateId);
+
+		if (!$pdf) {
+			throw new NotFound();
+		}
+
+		$name = \IFW\Orm\Utils::findUniqueValue($pdf->tableName(), 'name', $pdf->name);
+		$duplicate = \IFW\Orm\Utils::duplicate($pdf, ['name' => $name]);
+		foreach($pdf->blocks as $block) {
+			\IFW\Orm\Utils::duplicate($block, ['pdfTemplateId' => $duplicate->id]);
+		}						
+
+		$this->renderModel($duplicate);
+	}
 }

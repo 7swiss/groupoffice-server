@@ -29,14 +29,11 @@ class JobController extends Controller {
 	
 	
 	protected function actionRun() {
-		Job::runNext();
 		
-////		$return = ['success' => true, 'jobs' => []];
-////		foreach($jobs as $job) {
-////			$return['jobs'][]=$job->toArray();
-////		}
-//		
-//		$this->render($return);
+		//Will run all jobs sequentially. Maybe it should spawn a new cron process to run simultanuously?
+		while(Job::runNext()){
+		}
+	
 	}
 	
 

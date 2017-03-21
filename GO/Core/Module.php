@@ -171,11 +171,13 @@ class Module extends BaseModule {
 		
 		
 		$router->addRoutesFor(MessageController::class)
-						->crud('templates/messages/:moduleClassName', 'templateMessageId');
+						->crud('templates/messages/:moduleClassName', 'templateMessageId')
+						->post('templates/messages/:moduleClassName/:templateMessageId/duplicate', 'duplicate');
 		
 		$router->addRoutesFor(PdfController::class)
 						->crud('templates/pdf/:moduleClassName', 'pdfTemplateId')
-						->get('templates/pdf/:moduleClassName/:pdfTemplateId/preview', 'preview');
+						->get('templates/pdf/:moduleClassName/:pdfTemplateId/preview', 'preview')
+						->post('templates/pdf/:moduleClassName/:pdfTemplateId/duplicate', 'duplicate');
 		
 		
 		$router->addRoutesFor(Comments\Controller\CommentController::class)

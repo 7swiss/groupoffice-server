@@ -103,7 +103,7 @@ class Tag extends Record{
 		
 //		$query->joinModel($tagLinkModelName, 'id', 'link', 'tagId');
 		$viaRecordName = $relation->getViaRecordName();
-		$query->join($viaRecordName::tableName(),'link', 't.id=link.tagId');
+		$query->join($viaRecordName::tableName(),'link', 't.id = link.tagId');
 			
 		if($countItems)
 		{

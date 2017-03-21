@@ -64,9 +64,6 @@ class GroupPermissions extends Model {
 			case self::PERMISSION_UPDATE:
 				return $this->getGroupAccess($user) != false && $this->getGroupAccess($user)->write;
 				
-			case self::PERMISSION_DELETE:
-				return $this->getGroupAccess($user) != false && $this->getGroupAccess($user)->delete;
-				
 			case self::PERMISSION_CHANGE_PERMISSIONS:
 				return $this->record->ownedBy == $user->group->id; //owner
 					

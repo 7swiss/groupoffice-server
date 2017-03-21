@@ -279,7 +279,7 @@ EOD;
 		echo "Converting $className\n";
 
 
-		$columns = $className::getColumns();
+		$columns = $className::getTable()->getColumns();
 
 		/* @var $columns Column */
 
