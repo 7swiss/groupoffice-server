@@ -26,5 +26,16 @@ class File extends Node {
 		
 	}
 
+	/**
+	 * User by WebDAV
+	 * @param string $data
+	 * @return File
+	 */
+	public static function create($data) {
+		$blob = \GO\Core\Blob\Model\Blob::fromString($data);
+		$file = new self();
+		$file->blob = $blob;
+		return $file;
+	}
 
 }

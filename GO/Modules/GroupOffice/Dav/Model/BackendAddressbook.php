@@ -19,7 +19,7 @@ use GO\Modules\GroupOffice\Contacts\Model\VCardHelper;
  * - create UIDs
  * - multiple addressbooks?
  */
-class CardBackend extends AbstractBackend implements SyncSupport {
+class BackendAddressbook extends AbstractBackend implements SyncSupport {
 
 	private function userByUri($uri) {
 		return User::find(['username' => basename($uri)])->single();

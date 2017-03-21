@@ -95,6 +95,12 @@ class Node extends Record {
 	 * @var int
 	 */							
 	public $parentId;
+	/**
+	 * ParentID from setRelativePath
+	 * Use this as parentId if set
+	 * @var int 
+	 */
+	private $relParentId;
 
 	/**
 	 * These directories do not exist and need to be created to save the node
@@ -107,11 +113,33 @@ class Node extends Record {
 		$this->storageId = 1; //TODO: multiple storage providers
 	}
 
+	public static function findByPath($path) {
+		$dirnames = explode('/', $path);
+		$query = (new Query())->where(['parentId'=>null, 'deleted'=>0]);
+		$alias = $prevAlias = 't';
+		$count=0;
+		foreach($dirnames as $i => $dir) {
+			$count++;
+			$alias = 't'.$i;
+			if($count == 1) {
+				$parentMatch = $alias.'.parentId IS NULL';
+			} else {
+				$parentMatch = $alias.'.parentId = '.$prevAlias.'.id';
+			}
+			$query->join(self::tableName(), $alias, $parentMatch. ' AND '. $alias.'.name = "'.$dir.'" AND '.$alias.'.deleted = 0');
+			$prevAlias = $alias;
+		}
+		$query->select($alias.'.*');
+		$store = self::find($query);
+		//var_dump($store->getQuery()->createCommand()->toString());
+		return $store->single();
+	}
+
 	protected static function defineRelations() {
 
 		self::hasMany('groups', NodeGroup::class, ['id' => 'nodeId']);
 		self::hasOne('nodeUser', NodeUser::class, ['id' => 'nodeId']); //Current user is added in getRelations() override below. This is because relations are cached.
-		self::hasMany('children', Node::class, ['id' => 'parentid']);
+		self::hasMany('children', Node::class, ['id' => 'parentId']);
 		self::hasOne('parent', Node::class, ['parentId' => 'id']);
 		self::hasOne('storage', Storage::class, ['storageId' => 'id']);
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
@@ -133,6 +161,9 @@ class Node extends Record {
 	protected function internalSave() {
 
 		if ($this->isNew()) {
+			if(!empty($this->relParentId)) {
+				$this->parentId = $this->relParentId;
+			}
 			$nodeUser = new NodeUser();
 			$nodeUser->userId = \GO()->getAuth()->user()->id;
 			$this->nodeUser = $nodeUser;
@@ -148,7 +179,7 @@ class Node extends Record {
 	public function setRelativePath($path) {
 		$parts = explode('/', $path);
 		array_pop($parts);
-		$parentId = isset(\IFW::app()->getRequest()->body['data']['parentId']) ? \IFW::app()->getRequest()->body['data']['parentId'] : null;
+		$parentId = $this->parentId;
 		while ($dirName = array_shift($parts)) {
 			$folder = Node::find((new Query)->where(['parentId' => $parentId, 'name' => $dirName]))->single();
 			if (empty($folder)) {
@@ -160,16 +191,28 @@ class Node extends Record {
 			}
 			$parentId = $folder->id;
 		}
+		$this->relParentId = $parentId;
 		$this->parentId = $parentId;
 	}
 
 	public function getPath() {
+
+		return GO()->getAuth()->sudo(function() {
 		$dir = $this;
 		$path = '';
 		while ($dir = $dir->parent) {
-			$path .= $dir->name . '/';
+			$path = $dir->name . '/'. $path;
 		}
 		return $path . $this->name;
+		});
+	}
+
+	/**
+	 * @param string $name
+	 * @return Node
+	 */
+	public function getChild($name) {
+		return self::find(['parentId'=>$this->id,'name'=>$name])->single();
 	}
 
 	public function getSize() {

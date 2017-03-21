@@ -15,7 +15,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `files_node` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `createdAt` DATETIME NOT NULL,
   `modifiedAt` DATETIME NOT NULL,
   `versionUntil` DATETIME NULL,
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `files_node` (
   INDEX `fk_files_node_blob_blob1_idx` (`blobId` ASC),
   INDEX `fk_files_node_auth_user1_idx` (`ownedBy` ASC),
   INDEX `fk_files_node_files_node1_idx` (`parentId` ASC),
+  UNIQUE KEY `name_parent_unique` (`parentId`,`name`),
   CONSTRAINT `fk_files_node_files_storage1`
     FOREIGN KEY (`storageId`)
     REFERENCES `files_storage` (`id`)
@@ -49,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `files_node` (
   CONSTRAINT `fk_files_node_files_node1`
     FOREIGN KEY (`parentId`)
     REFERENCES `files_node` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 

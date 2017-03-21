@@ -24,7 +24,7 @@ use GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper;
  * - fix delete instance
  * - getChangesForCalendar implementation
  */
-class CalendarBackend extends AbstractBackend implements SyncSupport {
+class BackendCalendar extends AbstractBackend implements SyncSupport {
 
 	/**
 	 * We need to specify a max date, because we need to stop *somewhere*
@@ -108,16 +108,15 @@ class CalendarBackend extends AbstractBackend implements SyncSupport {
 		GO()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
 
 		$events = Event::find((new Query)->select('t.*')
-				  ->join('calendar_attendee', 'a', ['id'=>'eventId'])
+				  ->join('calendar_attendee', 'a', 't.id = a.eventId')
 				  ->where(['a.calendarId'=>$calendarId, 'a.groupId' => $calendar->ownedBy]));
-var_dump($events->getQuery());
-throw new \Exception();
-
+//var_dump($events->getQuery());
+//var_dump($calendar->ownedBy);
 		$result = [];
 		foreach ($events as $event) {
 			$result[] = [
-				 'id' => $event->id.'-'.$event->groupId,
-				 'uri' => $event->name.'-'.$event->id.'-'.$event->groupId,
+				 'id' => $event->id.'-'.$calendar->ownedBy,
+				 'uri' => $event->uuid.'-'.$event->id.'-'.$calendar->ownedBy,
 				 'lastmodified' => $event->modifiedAt->getTimestamp(),
 				 'etag' => '"' . $event->modifiedAt->getTimestamp() . '"',
 				 'calendarid' => $calendarId
@@ -136,24 +135,26 @@ throw new \Exception();
 	 */
 	function getCalendarObject($calendarId, $objectUri) {
 
-		if (!is_array($calendarId)) {
-			throw new \InvalidArgumentException('The value passed to $calendarId is expected to be an array with a calendarId and an instanceId');
-		}
-		list($calendarId, $instanceId) = $calendarId;
-		list($eventId, $groupId) = explode('-', $objectUri);
-
+//		if (!is_array($calendarId)) {
+//			throw new \InvalidArgumentException('The value passed to $calendarId is expected to be an array with a calendarId and an instanceId');
+//		}
+//		list($calendarId, $instanceId) = $calendarId;
+		$uriParts = explode('-', $objectUri);
+		$groupId = array_pop($uriParts);
+		$eventId = array_pop($uriParts);
+		
 		$event = Event::find((new Query)
-				  ->join('calendar_attendee', 'a',['id'=>'eventId'])
-				  ->where(['a.calendarId'=>$calendarId, 'a.groupId' => $groupId, 'id'=>$eventId]))->single();
+				  ->join('calendar_attendee', 'a', 't.id = a.eventId')
+				  ->where(['a.calendarId'=>$calendarId, 'a.groupId' => $groupId, 't.id'=>$eventId]))->single();
 
 		if (!$event)
 			return null;
 
-		$calendarData = ICalendarHelper::toVObject($event);
+		$calendarData = ICalendarHelper::toVObject($event)->serialize();
 
 		return [
-			'id' => $event->id.'-'.$event->groupId,
-			'uri' => $event->name.'-'.$event->id.'-'.$event->groupId,
+			'id' => $event->id.'-'.$groupId,
+			'uri' => $event->uuid.'-'.$event->id.'-'.$groupId,
 			'lastmodified' => $event->modifiedAt->getTimestamp(),
 			'etag' => '"' . $event->modifiedAt->getTimestamp() . '"',
 			'calendardata' => $calendarData,
