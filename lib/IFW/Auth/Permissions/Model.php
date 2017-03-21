@@ -259,7 +259,7 @@ abstract class Model extends DataModel {
 			throw new IFW\Exception\NotAuthenticated();
 		}
 				
-		if($user->isAdmin()) {		
+		if($user && $user->isAdmin()) {		
 			self::$enablePermissions = true;
 			return;
 		}
