@@ -7,36 +7,39 @@
 namespace GO\Modules\GroupOffice\Files\Model;
 
 use GO\Core\Orm\Record;
+use GO\Core\Users\Model\Group;
+use GO\Core\Auth\Permissions\Model\GroupAccess;
 
 /**
  * A Node can be a File or a Folder
  * The time depends on the object it is attached to
  *
  */
-class Storage extends Record {
+class DriveGroup extends GroupAccess {
 
 	/**
 	 * PK
 	 * @var int
 	 */							
-	public $id;
+	public $driveId;
 
 	/**
 	 * PK
-	 * @var string
+	 * @var int
 	 */							
-	public $name;
+	public $groupId;
 
 	/**
 	 * 
-	 * @var int
+	 * @var bool
 	 */							
-	public $quota;
+	public $write = false;
 
-	/**
-	 * 
-	 * @var int
-	 */							
-	public $usage = 0;
+	public $manage = false;
+
+	protected static function groupsFor() {
+		return self::hasOne('drive', Drive::class, ['driveId' => 'id']);
+	}
+	
 
 }

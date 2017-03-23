@@ -67,12 +67,6 @@ class Node extends Record {
 	public $deleted = false;
 
 	/**
-	 * FK to the storage object
-	 * @var int
-	 */							
-	public $storageId;
-
-	/**
 	 * 
 	 * @var string
 	 */							
@@ -90,11 +84,15 @@ class Node extends Record {
 	 */							
 	public $ownedBy;
 
+	public $driveId;
+
+	private $isDrive = false;
+
 	/**
 	 * 
 	 * @var int
 	 */							
-	public $parentId;
+	protected $parentId;
 	/**
 	 * ParentID from setRelativePath
 	 * Use this as parentId if set
@@ -110,7 +108,6 @@ class Node extends Record {
 
 	protected function init() {
 		$this->ownedBy = GO()->getAuth()->user()->group->id;
-		$this->storageId = 1; //TODO: multiple storage providers
 	}
 
 	public static function findByPath($path) {
@@ -137,11 +134,11 @@ class Node extends Record {
 
 	protected static function defineRelations() {
 
-		self::hasMany('groups', NodeGroup::class, ['id' => 'nodeId']);
 		self::hasOne('nodeUser', NodeUser::class, ['id' => 'nodeId']); //Current user is added in getRelations() override below. This is because relations are cached.
 		self::hasMany('children', Node::class, ['id' => 'parentId']);
-		self::hasOne('parent', Node::class, ['parentId' => 'id']);
-		self::hasOne('storage', Storage::class, ['storageId' => 'id']);
+//		/self::hasMany('rootOf', Drive::class, ['id' => 'directoryId']);
+		self::hasOne('drive', Drive::class, ['driveId' => 'id']);
+		self::hasOne('parent', Directory::class, ['parentId' => 'id']);//->setQuery((new Query())->where('parentId IS NOT NULL'));
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
 		self::hasOne('owner', Group::class, ['ownedBy' => 'id']);
 	}
@@ -154,15 +151,15 @@ class Node extends Record {
 		return $relations;
 	}
 
-	protected static function internalGetPermissions() {
-		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(NodeGroup::class);
-	}
+	
 
 	protected function internalSave() {
 
 		if ($this->isNew()) {
 			if(!empty($this->relParentId)) {
-				$this->parentId = $this->relParentId;
+				$this->setParentId($this->relParentId);
+			} else {
+				$this->setParentId($this->parentId);
 			}
 			$nodeUser = new NodeUser();
 			$nodeUser->userId = \GO()->getAuth()->user()->id;
@@ -186,25 +183,39 @@ class Node extends Record {
 				$folder = new Node();
 				$folder->isDirectory = true;
 				$folder->name = $dirName;
-				$folder->parentId = $parentId;
+				$folder->setParentId($parentId);
 				$folder->save(); // if not saved then it is not found when saving the second uploaded file
 			}
 			$parentId = $folder->id;
 		}
-		$this->relParentId = $parentId;
-		$this->parentId = $parentId;
+		if(isset($parentId)) {
+			$this->relParentId = $parentId;
+			$this->parentId = $parentId;
+		}
 	}
 
 	public function getPath() {
 
 		return GO()->getAuth()->sudo(function() {
-		$dir = $this;
-		$path = '';
-		while ($dir = $dir->parent) {
-			$path = $dir->name . '/'. $path;
-		}
-		return $path . $this->name;
+			$dir = $this;
+			$path = '';
+			while ($dir = $dir->parent) {
+				$path = $dir->name . '/'. $path;
+			}
+			return $path . $this->name;
 		});
+	}
+
+	public function setParentId($id) {
+		$this->parentId = $id;
+		if($this->isModified('parentId')) {
+			$this->driveId = $this->parent->driveId;
+		}
+		
+	}
+
+	public function getParentId() {
+		return $this->parentId;
 	}
 
 	/**
@@ -219,9 +230,18 @@ class Node extends Record {
 		return isset($this->blob) ? $this->blob->size : null;
 	}
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('drive');
+	}
+
 	public function getType() {
-		if (empty($this->blob))
+		if($this->isDrive) {
+			return FileType::Drive;
+		}
+		if (empty($this->blob)) {
 			return FileType::Folder;
+		}
+		
 		return FileType::fromContentType($this->blob->contentType);
 	}
 
@@ -235,14 +255,6 @@ class Node extends Record {
 		$node->setValues($this->toArray());
 		$node->parentId = $to->id;
 		return $node;
-	}
-
-	public function share($groupId, $canRead = true, $canWrite = false) {
-		$nodeAccess = new NodeAccess();
-		$nodeAccess->groupId = $groupId;
-		$nodeAccess->canRead = $canRead;
-		$nodeAccess->canWrite = $canWrite;
-		return $nodeAccess->save();
 	}
 
 }

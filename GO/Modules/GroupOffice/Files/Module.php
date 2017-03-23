@@ -4,6 +4,7 @@ namespace GO\Modules\GroupOffice\Files;
 
 use GO\Core\Modules\Model\InstallableModule;
 use GO\Modules\GroupOffice\Files\Controller\NodeController;
+use GO\Modules\GroupOffice\Files\Controller\DriveController;
 use IFW\Web\Router;
 
 class Module extends InstallableModule {
@@ -27,6 +28,9 @@ class Module extends InstallableModule {
 				  ->post('files', 'create')
 				  ->delete('files/:id', 'delete');
 		//->get("files/*path", 'store');
+
+		$router->addRoutesFor(DriveController::class)
+				  ->get('drives', 'store');
 	}
 
 }

@@ -5,6 +5,8 @@ namespace GO\Modules\GroupOffice\Files\Controller;
 use IFW;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\Files\Model\Node;
+use GO\Modules\GroupOffice\Files\Model\Directory;
+use GO\Modules\GroupOffice\Files\Model\Drive;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 
@@ -49,6 +51,14 @@ class NodeController extends Controller {
 			$query->setFromClient($q);
 			$flat = true;
 		}
+		if(empty($directory) || $directory === "home") {
+			$directory = Drive::home()->getRoot()->id;
+		}
+		if(!empty($filter['locations'])) {
+			$query->join(Drive::tableName(),'d', 't.id = d.rootId');
+			$query->select('t.*, 1 as isDrive');
+			$flat = true;
+		}
 
 		if(empty($flat) && empty($filter['trash']) && empty($filter['shared'])) {
 			$query->where(['parentId' => $directory]);
@@ -56,18 +66,13 @@ class NodeController extends Controller {
 		if (!empty($filter['starred'])) {
 			$query->andWhere('nodeUser.starred = 1');
 		}
-		if (!empty($filter['shared'])) {
-			$query->andWhere('ownedBy != '.\GO()->getAuth()->user()->group->id);
-		} else {
-			$query->andWhere('ownedBy = '.\GO()->getAuth()->user()->group->id);
-		}
 		if (!empty($filter['trash'])) {
 			$query->withDeleted()->andWhere('t.deleted = 1');
 		}
 		if (!empty($filter['recent'])) {
 			$query
-					  ->orderBy(['isDirectory' => 'DESC', 'nodeUser.touchedAt' => 'ASC'])
-					  ->andWhere('nodeUser.touchedAt IS NOT NULL');
+				->orderBy(['isDirectory' => 'DESC', 'nodeUser.touchedAt' => 'ASC'])
+				->andWhere('nodeUser.touchedAt IS NOT NULL');
 		}
 
 		$nodes = Node::find($query);
@@ -75,10 +80,10 @@ class NodeController extends Controller {
 
 		$this->responseData['path'] = [];
 		if(!empty($directory)){
-			$dir = Node::findByPk($directory);
-			$this->responseData['path'][] = $dir;
+			$dir = Directory::findByPk($directory);
+			$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
 			while ($dir = $dir->parent) {
-				$this->responseData['path'][] = $dir;
+				$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
 			}
 		}
 		$this->renderStore($nodes);
@@ -139,7 +144,7 @@ class NodeController extends Controller {
 		$node->setValues(IFW::app()->getRequest()->body['data']);
 		$node->save();
 
-		$returnProperties .= ',groups,nodeUser';
+		$returnProperties .= ',nodeUser';
 
 		$this->renderModel($node, $returnProperties);
 	}

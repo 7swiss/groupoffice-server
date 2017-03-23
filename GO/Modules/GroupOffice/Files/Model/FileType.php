@@ -19,6 +19,7 @@ class FileType {
 	const Video = 3;
 	const Audio = 4;
 	const Folder = 1000;
+	const Drive = 1001;
 
 	static public $byType = [
 		 'text' => self::Document,

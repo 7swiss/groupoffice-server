@@ -22,8 +22,11 @@ class File extends Node {
 	protected static function defineRelations() {
 		self::hasOne('blob', Blob::class, ['blobId'=>'blobId']);
 		self::hasMany('versions', Version::class, ['id'=>'nodeId']);
-		parent::defineRelations();
-		
+		parent::defineRelations();	
+	}
+
+	public static function tableName() {
+		return 'files_node';
 	}
 
 	/**
