@@ -435,7 +435,7 @@ class RelationStore extends Store implements ArrayAccess {
 //		}
 		
 		foreach($this->modified as $record) {
-			if($record->isModified() || $record->markDeleted) {
+			if($record->markDeleted) {
 				return true;
 			}
 			
@@ -443,6 +443,17 @@ class RelationStore extends Store implements ArrayAccess {
 			if ($this->relation->getViaRecordName()) {				
 				$delete = $record->markDeleted;
 				if($delete == $this->hasViaRecord($record)) {
+					return true;
+				}
+			}
+			
+			//check if keys we're modified
+			foreach($this->getRelation()->getKeys() As $from => $to) {
+				if(!isset($this->record->$from) || $this->record->isModified($from, false)) {
+					return true;
+				}
+				
+				if(!isset($record->$to) || $record->isModified($to, false)) {
 					return true;
 				}
 			}

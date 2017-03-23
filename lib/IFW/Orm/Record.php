@@ -886,24 +886,28 @@ abstract class Record extends DataModel {
 	 * @param string|array $attributeOrRelationName If you pass an array then they are all checked
 	 * @return boolean
 	 */
-	public function isModified($attributeOrRelationName = null) {
+	public function isModified($attributeOrRelationName = null, $withRelations = true) {
 		
 		//prevent infinite loop
-		if($this->isCheckingModified) {
-			return false;
+		if($withRelations) {
+			if($this->isCheckingModified) {
+				return false;
+			}
+			$this->isCheckingModified = $withRelations;
 		}
-		$this->isCheckingModified = true;
 		
 		try {
-			$ret = $this->internalIsModified($attributeOrRelationName);
+			$ret = $this->internalIsModified($attributeOrRelationName, $withRelations);
 		} finally {
-			$this->isCheckingModified = false;
+			if($withRelations) {
+				$this->isCheckingModified = false;
+			}
 		}		
 		
 		return $ret;
 	}
 	
-	private function internalIsModified($attributeOrRelationName) {
+	private function internalIsModified($attributeOrRelationName, $withRelations) {
 		if (!isset($attributeOrRelationName)) {
 			
 			foreach($this->oldAttributes as $colName => $loadedValue) {
@@ -914,9 +918,11 @@ abstract class Record extends DataModel {
 				}
 			}
 			
-			foreach($this->relations as $store) {
-				if($store->isModified()) {
-					return true;
+			if($withRelations) {
+				foreach($this->relations as $store) {
+					if($store->isModified()) {
+						return true;
+					}
 				}
 			}
 			

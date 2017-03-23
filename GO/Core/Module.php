@@ -48,11 +48,12 @@ class Module extends BaseModule {
 						->get('accounts/sync', 'syncAll')
 						->get('accounts/:accountId/sync', 'sync');
 
-		$router->addRoutesFor(FlowController::class)
-						->get('upload', 'upload');
-//						->post('upload', 'upload')
+//		$router->addRoutesFor(FlowController::class)
+//						->get('upload', 'upload');
+////						->post('upload', 'upload')
 						
 		$router->addRoutesFor(BlobController::class)
+				->get('upload', 'upload')
 				->post('upload', 'upload')
 				->get('download/:id', 'download')
 				->get('thumb/:id', 'thumb');
