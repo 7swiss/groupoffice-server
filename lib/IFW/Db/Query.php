@@ -54,8 +54,6 @@ class Query extends Criteria {
 		return $this->withDeleted;
 	}
 	
-	public $withDeleteAlreadyDone = false;
-	
 	public function getHaving() {
 		return $this->having;
 	}

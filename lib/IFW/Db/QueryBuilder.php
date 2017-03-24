@@ -519,7 +519,18 @@ class QueryBuilder {
 		$comparator = array_pop($condition);
 		$type = array_pop($condition);
 
-		if ($values instanceof \IFW\Orm\Store) {
+		if($values instanceof \IFW\Db\Query) {
+			$build = $values->createCommand()->build($prefix . "\t");
+			
+			$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $build['sql'] ."\n". $prefix . ")";
+			//import subquery bind params
+			foreach ($build['params'] as $v) {
+				$this->buildBindParameters[] = $v;
+			}
+			
+			return $str;
+			
+		}else if ($values instanceof \IFW\Orm\Store) {
 			//subquery passed ['EXISTS", $subquery]
 			return $this->buildSubQuery($comparator, $values, $prefix);
 		} else {
