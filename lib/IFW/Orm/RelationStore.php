@@ -447,15 +447,15 @@ class RelationStore extends Store implements ArrayAccess {
 				}
 			}
 			
+			if($record->isModified()) {
+				return true;
+			}
+			
 			//check if keys we're modified
-			foreach($this->getRelation()->getKeys() As $from => $to) {
+			foreach($this->getRelation()->getKeys() as $from => $to) {
 				if(!isset($this->record->$from) || $this->record->isModified($from, false)) {
 					return true;
-				}
-				
-				if(!isset($record->$to) || $record->isModified($to, false)) {
-					return true;
-				}
+				}				
 			}
 		}
 		

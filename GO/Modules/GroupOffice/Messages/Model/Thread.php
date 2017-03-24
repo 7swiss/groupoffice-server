@@ -84,6 +84,12 @@ class Thread extends Record {
 	public $lastMessageSentAt;
 
 	/**
+	 * 
+	 * @var \DateTime
+	 */							
+	public $modifiedAt;
+	
+	/**
 	 * Excerpt of the latest message in the thread
 	 * @var string
 	 */							
@@ -193,7 +199,7 @@ class Thread extends Record {
 						->select('t.id')
 						->joinRelation('messages')
 						->where(['accountId'=>$accountId])
-						->andWhere('t.messageCount IS NUll OR t.lastMessageSentAt < messages.sentAt')						
+						->andWhere('t.messageCount IS NUll OR t.modifiedAt < messages.modifiedAt')						
 						);		
 		
 		GO()->debug($threads->getRowCount().' threads out of sync');

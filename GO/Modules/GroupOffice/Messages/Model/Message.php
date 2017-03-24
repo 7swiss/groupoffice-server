@@ -211,6 +211,7 @@ class Message extends \GO\Core\Orm\Record {
 		//self::hasOne('message', Message::class, ['messageId' => 'id']);		
 		self::hasOne('thread', Thread::class, ['threadId' => 'id']);		
 		self::hasOne('account', \GO\Modules\GroupOffice\Imap\Model\Account::class, ['accountId' => 'id']);
+		self::hasOne('coreAccount', \GO\Core\Accounts\Model\Account::class, ['accountId' => 'id']);
 		self::hasMany('messages', self::class, ['threadId' => 'threadId']);	
 		
 		self::hasMany('attachments', Attachment::class, ['id' => 'messageId']);
@@ -227,7 +228,7 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	public static function internalGetPermissions() {
-		return new ViaRelation('account');
+		return new ViaRelation('coreAccount');
 	}	
 	
 	

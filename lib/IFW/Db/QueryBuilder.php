@@ -92,7 +92,7 @@ class QueryBuilder {
 	 *
 	 * @var Table 
 	 */
-	private $columns;
+	private $table;
 
 	/**
 	 * Constructor
@@ -102,7 +102,7 @@ class QueryBuilder {
 	public function __construct($tableName) {		
 		$this->tableName = $this->defaultRecordForEmptyAlias = $tableName;
 		
-		$this->columns = Table::getInstance($tableName);
+		$this->table = Table::getInstance($tableName);
 	}
 
 	/**
@@ -146,13 +146,18 @@ class QueryBuilder {
 			return;
 		}
 
-		if ($this->columns->getColumn('deleted')) {
+		if ($this->table->getColumn('deleted')) {
+			
+			
 
 			//Group all existing where criteria. For example WHERE id=1 OR id=2 will become WHERE (id=1 OR id=2)
 			$criteria = $this->query->getWhereAsCriteria();
 			$this->query->resetCriteria();
 			$this->query->andWhere(['!=', ['deleted' => true]]);
-
+			
+			//when query is cloned we don't want this to happen again
+			$this->query->withDeleted();
+			
 			if (isset($criteria)) {
 				$this->query->andWhere($criteria);
 			}

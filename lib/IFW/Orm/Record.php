@@ -458,7 +458,7 @@ abstract class Record extends DataModel {
 	 */
 	public static function tableName() {
 		return self::classToTableName(get_called_class());
-	}
+	}	
 
 	/**
 	 * Get the table name from a record class name
@@ -1362,10 +1362,12 @@ abstract class Record extends DataModel {
 		
 		//Unset the accessed relations so user set relations are queried from the db after save.
 		foreach($this->relations as $relationStore) {
-			foreach($relationStore as $record) {
-				//only commit if this record initated the save of this relation
-				if($record->isSaving && $record->isSavedBy == $this) {
-					$record->commit();
+			if($relationStore->isModified()) {
+				foreach($relationStore as $record) {
+					//only commit if this record initated the save of this relation
+					if($record->isSaving && $record->isSavedBy == $this) {
+						$record->commit();
+					}
 				}
 			}
 			$relationStore->reset();

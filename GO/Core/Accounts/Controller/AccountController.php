@@ -159,8 +159,10 @@ class AccountController extends Controller {
 	public function actionSync($accountId) {
 		$account = Account::findByPk($accountId);
 
-		$moduleAccount = call_user_func([$account->modelName, 'findByPk'], $accountId);
+		GO()->getAuth()->sudo(function() use($account) {
+		$moduleAccount = call_user_func([$account->modelName, 'findByPk'], $account->id);
 		$moduleAccount->sync();
+		});
 		
 		$this->render(['data' => GO()->getProcess()->toArray()]);
 	}
