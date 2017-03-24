@@ -160,7 +160,7 @@ class Thread extends Record {
 	
 	
 	public function getExcerpt() {
-		if(!isset($this->excerpt)) {
+		if(!$this->isNew() && !isset($this->excerpt)) {			
 			$this->excerpt = $this->findLatestMessage()->getExcerpt();
 			$this->update();
 		}
