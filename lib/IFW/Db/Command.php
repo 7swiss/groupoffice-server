@@ -162,7 +162,7 @@ class Command {
 	 * @return array ['sql' => 'SELECT...', 'params' => [':ifw1' => 'value']]
 	 * @throws Exception
 	 */
-	public function build() {
+	public function build($prefix = '') {
 		switch($this->type) {
 			case self::TYPE_INSERT:				
 				$queryBuilder = new QueryBuilder($this->tableName);
@@ -183,7 +183,7 @@ class Command {
 			case self::TYPE_SELECT:			
 				$queryBuilder = $this->query->getBuilder();
 		
-				return $queryBuilder->buildSelect($this->query);
+				return $queryBuilder->buildSelect($this->query, $prefix);
 			
 			default:				
 				throw new Exception("Please call insert, update or delete first");

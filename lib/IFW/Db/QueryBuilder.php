@@ -706,7 +706,16 @@ class QueryBuilder {
 //					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 					$this->buildBindParameters[] = $v;
 				}
-			} else {
+			} else if ($value instanceof \IFW\Db\Query) {
+				
+				$build = $value->createCommand()->build($prefix . "\t");
+				
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";
+				foreach ($build['params'] as $v) {
+//					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+					$this->buildBindParameters[] = $v;
+				}
+			}else {
 				$paramTag = $this->getParamTag();
 
 				$this->addBuildBindParameter($paramTag, $value, $columnParts[0], $columnParts[1]);
