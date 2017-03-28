@@ -19,4 +19,11 @@ class Module extends InstallableModule {
 						->get('webclient/settings', 'read')
 						->put('webclient/settings', 'update');
 	}
+	
+	public static function defineCliRoutes(\IFW\Cli\Router $router) {
+		$router->addRoutesFor(Controller\LanguageController::class)
+						->set('webclient/language/update-all', 'updateAll')
+						->set('webclient/language/export-csv', 'exportCsv')
+						->set('webclient/language/import-csv', 'importCsv');
+	}
 }
