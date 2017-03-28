@@ -137,7 +137,7 @@ class Thread extends Record {
 		$q = (new Query())
 //				->distinct()
 				->joinRelation('message.messages', false)
-				->select('t.personal, t.address')
+				->select('ANY_VALUE(t.personal) AS personal, t.address')
 				->where(['message.messages.threadId' => $this->id])
 				->groupBy(['address']);
 		
