@@ -102,7 +102,7 @@ use XMLWriter;
  * @license http://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  */
-class CardDAV {
+class Client {
 
 	/**
 	 * CardDAV PHP Version
@@ -130,7 +130,7 @@ class CardDAV {
 	 *
 	 * @var	array
 	 */
-	private $urlParts = null;
+	public $urlParts = null;
 
 	/**
 	 * Authentication string
@@ -205,15 +205,6 @@ class CardDAV {
 		}
 	}
 
-	/**
-	 * Sets debug information
-	 *
-	 * @param	array	$debug_information		Debug information
-	 * @return	void
-	 */
-	public function setDebug(array $debug_information) {
-		$this->debugInfo[] = $debug_information;
-	}
 
 	/**
 	 * Sets the CardDAV server url
@@ -244,14 +235,7 @@ class CardDAV {
 		$this->auth = $username . ':' . $password;
 	}
 
-	/**
-	 * Gets all available debug information
-	 *
-	 * @return	array	$this->debug_information	All available debug information
-	 */
-	public function getDebug() {
-		return $this->debugInfo;
-	}
+
 	
 	public function propFind($path, $properties, $depth = "0") {
 		$dom = new \DOMDocument('1.0', 'UTF-8');
@@ -293,6 +277,13 @@ class CardDAV {
 	}
 	
 	
+	/**
+	 * 
+	 * @param type $path
+	 * @param type $properties
+	 * @param type $depth
+	 * @return Response
+	 */
 	public function report($path, $properties, $depth = "0") {
 		$dom = new \DOMDocument('1.0', 'UTF-8');
 		$dom->formatOutput = true;
@@ -335,100 +326,56 @@ class CardDAV {
 				'Prefer: return-minimal'
 		]);
 	}
-
+	
 	/**
-	 * Gets all vCards including additional information from the CardDAV server
-	 *
-	 * @param	boolean	$include_vcards		Include vCards within the response (simplified only)
-	 * @param	boolean	$raw				Get response raw or simplified
-	 * @return	string						Raw or simplified XML response
+	 * REPORT /addressbooks/johndoe/contacts/ HTTP/1.1
+Depth: 1
+Content-Type: application/xml; charset=utf-8
+
+<card:addressbook-multiget xmlns:d="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+    <d:prop>
+        <d:getetag />
+        <c:addressbook-data />
+    </d:prop>
+    <d:href>/addressbooks/johndoe/contacts/abc-def-fez-123454657.vcf</d:href>
+    <d:href>/addressbooks/johndoe/contacts/acme-12345.vcf</d:href>
+</card:addressbook-multiget>
 	 */
-	public function get($include_vcards = true, $raw = false) {
-		$result = $this->request($this->url, 'PROPFIND');
-
-		switch ($result['http_code']) {
-			case 200:
-			case 207:
-				if ($raw === true) {
-					return $result['response'];
-				} else {
-					return $this->simplify($result['response'], $include_vcards);
-				}
-				break;
-
-			default:
-				throw new Exception('Woops, something\'s gone wrong! The CardDAV server returned the http status code ' . $result['http_code'] . '.', self::EXCEPTION_WRONG_HTTP_STATUS_CODE_GET);
-		}
-	}
-
-	/**
-	 * Gets a clean vCard from the CardDAV server
-	 *
-	 * @param	string	$vcard_id	vCard id on the CardDAV server
-	 * @return	string				vCard (text/vcard)
-	 */
-	public function getVcard($vcard_id) {
+	public function multiget($path, $properties = [] , $uris = []) {
+		$dom = new \DOMDocument('1.0', 'UTF-8');
+		$dom->formatOutput = true;
+		$root = $dom->createElement('card:addressbook-multiget');
+		$root->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:d', 'DAV:');
+//		$root->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:cs', 'http://calendarserver.org/ns/');
+		$root->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:card', 'urn:ietf:params:xml:ns:carddav');
 		
-		$result = $this->request($this->url . $vcard_id , 'GET');
+		$dom->appendChild($root);
+						
+		$prop = $dom->createElement('d:prop');
 
-		switch ($result['http_code']) {
-			case 200:
-			case 207:
-				return $result['response'];
-				break;
-
-			default:
-				throw new Exception('Woops, something\'s gone wrong! The CardDAV server returned the http status code ' . $result['http_code'] . '.', self::EXCEPTION_WRONG_HTTP_STATUS_CODE_GET_VCARD);
-				break;
+		foreach ($properties as $property) {
+			$element = $dom->createElement($property);				
+			$prop->appendChild($element);
 		}
-	}
-
-	/**
-	 * Gets a vCard + XML from the CardDAV Server
-	 *
-	 * @param	string		$vcard_id	vCard id on the CardDAV Server
-	 * @return	string					Raw or simplified vCard (text/xml)
-	 */
-	public function getXmlVcard($vcard_id) {
-		$vcard_id = str_replace('.vcf', null, $vcard_id);
-
-		$xml = new XMLWriter();
-		$xml->openMemory();
-		$xml->setIndent(4);
-		$xml->startDocument('1.0', 'utf-8');
-		$xml->startElement('C:addressbook-multiget');
-		$xml->writeAttribute('xmlns:D', 'DAV:');
-		$xml->writeAttribute('xmlns:C', 'urn:ietf:params:xml:ns:carddav');
-		$xml->startElement('D:prop');
-		$xml->writeElement('D:getetag');
-		$xml->writeElement('D:getlastmodified');
-		$xml->endElement();
-		$xml->writeElement('D:href', $this->urlParts['path'] . $vcard_id . '.vcf');
-		$xml->endElement();
-		$xml->endDocument();
-
-		$result = $this->request($this->url, 'REPORT', $xml->outputMemory(), 'text/xml');
-
-		switch ($result['http_code']) {
-			case 200:
-			case 207:
-				return $this->simplify($result['response'], true);
-				break;
-
-			default:
-				throw new Exception('Woops, something\'s gone wrong! The CardDAV server returned the http status code ' . $result['http_code'] . '.', self::EXCEPTION_WRONG_HTTP_STATUS_CODE_GET_XML_VCARD);
-				break;
+		
+		$root->appendChild($prop);
+		
+		foreach($uris as $uri) {
+			$element = $dom->createElement('d:href', $uri);				
+			$root->appendChild($element);
 		}
+
+		
+		$body = $dom->saveXML();
+		
+		return $this->request($this->url.$path, 'REPORT', $body, [
+				'Content-Type: application/xml',
+				'Depth: 1'
+		]);
 	}
 
-	/**
-	 * Enables the debug mode
-	 *
-	 * @return	void
-	 */
-	public function enableDebug() {
-		$this->debug = true;
-	}
+
+
 
 	/**
 	 * Checks if the CardDAV server is reachable
@@ -445,165 +392,13 @@ class CardDAV {
 		}
 	}
 
-	/**
-	 * Cleans the vCard
-	 *
-	 * @param	string	$vcard	vCard
-	 * @return	string	$vcard	vCard
-	 */
-	private function cleanVcard($vcard) {
-		$vcard = str_replace("\t", null, $vcard);
-
-		return $vcard;
-	}
-
-	/**
-	 * Deletes an entry from the CardDAV server
-	 *
-	 * @param	string	$vcard_id	vCard id on the CardDAV server
-	 * @return	boolean
-	 */
-	public function delete($vcard_id) {
-		$result = $this->request($this->url . $vcard_id . '.vcf', 'DELETE');
-
-		switch ($result['http_code']) {
-			case 204:
-				return true;
-				break;
-
-			default:
-				throw new Exception('Woops, something\'s gone wrong! The CardDAV server returned the http status code ' . $result['http_code'] . '.', self::EXCEPTION_WRONG_HTTP_STATUS_CODE_DELETE);
-				break;
-		}
-	}
-
-	/**
-	 * Adds an entry to the CardDAV server
-	 *
-	 * @param	string	$vcard		vCard
-	 * @param	string	$vcard_id	vCard id on the CardDAV server
-	 * @return	string			The new vCard id
-	 */
-	public function add($vcard, $vcard_id = null) {
-		if ($vcard_id === null) {
-			$vcard_id = $this->generateVcardId();
-		}
-		$vcard = $this->cleanVcard($vcard);
-		$result = $this->request($this->url . $vcard_id . '.vcf', 'PUT', $vcard, 'text/vcard');
-
-		switch ($result['http_code']) {
-			case 201:
-				return $vcard_id;
-				break;
-
-			default:
-				throw new Exception('Woops, something\'s gone wrong! The CardDAV server returned the http status code ' . $result['http_code'] . '.', self::EXCEPTION_WRONG_HTTP_STATUS_CODE_ADD);
-				break;
-		}
-	}
-
-	/**
-	 * Updates an entry to the CardDAV server
-	 *
-	 * @param	string	$vcard		vCard
-	 * @param	string	$vcard_id	vCard id on the CardDAV server
-	 * @return	boolean
-	 */
-	public function update($vcard, $vcard_id) {
-		try {
-			return $this->add($vcard, $vcard_id);
-		} catch (Exception $e) {
-			throw new Exception($e->getMessage(), self::EXCEPTION_WRONG_HTTP_STATUS_CODE_UPDATE);
-		}
-	}
-
-	/**
-	 * Simplify CardDAV XML response
-	 *
-	 * @param	string	$response			CardDAV XML response
-	 * @param	boolean	$include_vcards		Include vCards or not
-	 * @return	string						Simplified CardDAV XML response
-	 */
-	private function simplify($response, $include_vcards = true) {
-		$response = $this->cleanResponse($response);
-//var_dump($response);
-		try {
-			$xml = new SimpleXMLElement($response);
-		} catch (Exception $e) {
-			throw new Exception('The XML response seems to be malformed and can\'t be simplified!', self::EXCEPTION_MALFORMED_XML_RESPONSE, $e);
-		}
-
-		$simplified_xml = new XMLWriter();
-		$simplified_xml->openMemory();
-		$simplified_xml->setIndent(4);
-
-		$simplified_xml->startDocument('1.0', 'utf-8');
-		$simplified_xml->startElement('response');
-
-		if (!empty($xml->response)) {
-			foreach ($xml->response as $response) {
-				if (preg_match('/vcard/', $response->propstat->prop->getcontenttype) || preg_match('/vcf/', $response->href)) {
-					$id = basename($response->href);
-					$id = str_replace('.vcf', null, $id);
-
-					if (!empty($id)) {
-						$simplified_xml->startElement('element');
-						$simplified_xml->writeElement('id', $id);
-						$simplified_xml->writeElement('etag', str_replace('"', null, $response->propstat->prop->getetag));
-						$simplified_xml->writeElement('last_modified', $response->propstat->prop->getlastmodified);
-
-						if ($include_vcards === true) {
-							$simplified_xml->writeElement('vcard', $this->getVcard($id));
-						}
-						$simplified_xml->endElement();
-					}
-				} else if (preg_match('/unix-directory/', $response->propstat->prop->getcontenttype)) {
-					if (isset($response->propstat->prop->href)) {
-						$href = $response->propstat->prop->href;
-					} else if (isset($response->href)) {
-						$href = $response->href;
-					} else {
-						$href = null;
-					}
-
-					$url = str_replace($this->urlParts['path'], null, $this->url) . $href;
-					$simplified_xml->startElement('addressbook_element');
-					$simplified_xml->writeElement('display_name', $response->propstat->prop->displayname);
-					$simplified_xml->writeElement('url', $url);
-					$simplified_xml->writeElement('last_modified', $response->propstat->prop->getlastmodified);
-					$simplified_xml->endElement();
-				}
-			}
-		}
-
-		$simplified_xml->endElement();
-		$simplified_xml->endDocument();
-
-		return $simplified_xml->outputMemory();
-	}
-
-	/**
-	 * Cleans CardDAV XML response
-	 *
-	 * @param	string	$response	CardDAV XML response
-	 * @return	string	$response	Cleaned CardDAV XML response
-	 */
-	private function cleanResponse($response) {
-		$response = utf8_encode($response);
-		$response = str_replace('D:', null, $response);
-		$response = str_replace('d:', null, $response);
-		$response = str_replace('C:', null, $response);
-		$response = str_replace('c:', null, $response);
-
-		return $response;
-	}
 
 	/**
 	 * Curl initialization
 	 *
 	 * @return void
 	 */
-	public function curlInit() {
+	private function curlInit() {
 		if (empty($this->curl)) {
 			$this->curl = curl_init();
 			curl_setopt($this->curl, CURLOPT_HEADER, true);
@@ -655,52 +450,27 @@ class CardDAV {
 
 		$requestHeaders = curl_getinfo($this->curl, CURLINFO_HEADER_OUT);
 		$header_size = curl_getinfo($this->curl, CURLINFO_HEADER_SIZE);
-		$http_code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+		$status = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
 //		$header = trim(substr($complete_response, 0, $header_size));
 		$response = substr($completeResponse, $header_size);
 		
+		$responseHeaders = [];
+		curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($responseHeaders) {
+			if (preg_match('/([\w-]+): (.*)/i', $header, $matches)) {
+				$responseHeaders[strtolower($matches[1])] = $matches[2];
+			}
+			return strlen($header);
+		});
+		
 		
 		$completeRequest =  $method.' '.$url."\n".$requestHeaders."\n\n".$body;
-		var_dump($completeRequest);
 		
-		var_dump($completeResponse);
-		return [
-				'response' => $response,
-				'http_code' => $http_code
-		];
+		\IFW::app()->debug($completeRequest, 'dav');
+		\IFW::app()->debug($completeResponse, 'dav');
+		
+		return new Response($status, $response, $responseHeaders);
+		
 
-	}
-
-	/**
-	 * Returns a valid and unused vCard id
-	 *
-	 * @return	string	$vcard_id	Valid vCard id
-	 */
-	private function generateVcardId() {
-		$vcard_id = null;
-
-		for ($number = 0; $number <= 25; $number ++) {
-			if ($number == 8 || $number == 17) {
-				$vcard_id .= '-';
-			} else {
-				$vcard_id .= $this->vcardIdChars[mt_rand(0, (count($this->vcardIdChars) - 1))];
-			}
-		}
-
-		try {
-			$carddav = new self($this->url);
-			$carddav->setAuth($this->username, $this->password);
-
-			$result = $carddav->request($this->url . $vcard_id . '.vcf', 'GET');
-
-			if ($result['http_code'] !== 404) {
-				$vcard_id = $this->generateVcardId();
-			}
-
-			return $vcard_id;
-		} catch (Exception $e) {
-			throw new Exception($e->getMessage(), self::EXCEPTION_COULD_NOT_GENERATE_NEW_VCARD_ID);
-		}
 	}
 
 	/**

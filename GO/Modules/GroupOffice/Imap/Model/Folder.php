@@ -256,7 +256,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 
 			while ($imapMessage = array_shift($messages)) {
 				
-				if($imapMessage->uid == $this->getHighestSyncedUid()) {
+				if($imapMessage->uid <= $this->getHighestSyncedUid()) {
 					/**
 					 * 
 					 * https://tools.ietf.org/html/rfc3501#page-61

@@ -74,10 +74,9 @@ class VCardHelper {
 	 * @param VObject\Component\VCard $vcard
 	 * @return Contact[]
 	 */
-	static public function fromVCard(VObject\Splitter\VCard $vcards) {
+	static public function fromVCard($vcard) {
 
-		$contacts = [];
-		while($vcard = $vcards->getNext()) {
+	
 			$contact = new Contact();
 			//$contact->uuid = (string)$vcard->UID; todo
 			
@@ -122,9 +121,8 @@ class VCardHelper {
 					$contact->photoBlobId = $blob->blobId;
 				}
 			}
-			$contacts[] = $contact;
-		}
-		return $contacts;
+		
+		return $contact;
 	}
 
 	private static function convertType($vCardType) {

@@ -121,6 +121,7 @@ class Module extends BaseModule {
 
 		$router->addRoutesFor(AuthController::class)
 						->get('auth', 'isLoggedIn')
+						->get('auth/login-by-token/:token', 'loginByToken')
 						->post('auth', 'login')
 						->delete('auth', 'logout')
 						->post('auth/users/:userId/switch-to', 'switchTo');

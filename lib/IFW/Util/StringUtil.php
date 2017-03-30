@@ -29,7 +29,7 @@ class StringUtil {
 	 * @param string
 	 */
 	public static function camelCaseToUnderscore($camelCasedString) {
-		return strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\\1', $camelCasedString));
+		return strtolower(preg_replace('/(?<=\\w)([A-Z][a-z])/', '_\\1', $camelCasedString));
 	}
 
 	/**
