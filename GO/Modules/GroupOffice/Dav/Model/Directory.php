@@ -22,6 +22,9 @@ class Directory extends Node implements DAV\ICollection, DAV\IQuota {
 	}
 
 	function getChild($name) {
+//		if(empty($this->node)) {
+//			throw new DAV\Exception\NotFound('Node not found for "' . $name . '"');
+//		}
 		$node = $this->node->getChild(basename($name));
 		if (empty($node)) {
 			throw new DAV\Exception\NotFound('Node with name "' . $name . '" could not be located in '.$this->node->path);
@@ -40,7 +43,7 @@ class Directory extends Node implements DAV\ICollection, DAV\IQuota {
 	}
 
 	function childExists($name) {
-		return !empty($this->node->getChild($name));
+		return !empty($this->node) && !empty($this->node->getChild($name));
 	}
 
 	function delete() {

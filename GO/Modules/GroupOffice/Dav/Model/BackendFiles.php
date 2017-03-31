@@ -23,16 +23,21 @@ use GO\Modules\GroupOffice\Files\Model\Mount;
 
 class BackendFiles extends Directory {
 
-	const rootDirs = ['Mine','Shared','Starred','Recent'];
 	private static $home = 'Home';
 
 	public function __construct($path) {
 		$this->path = $path;
-		$this->node = new NodeRecord();
-		$this->node->name = $path;
-		if ($path == '/') {
-			$this->node->name = 'storage';
+		if(\GO()->getAuth()->isLoggedIn()) {
+			$this->node = new NodeRecord();
+			$this->node->name = $path;
 		}
+	}
+
+	function getName() {
+		if(empty($this->node) || $this->node->name == '/') {
+			return 'files';
+		}
+		return parent::getName();
 	}
 
 	function getChildren() {
@@ -48,20 +53,24 @@ class BackendFiles extends Directory {
 		return parent::getChildren();
 	}
 	
-	private function drives() {
-		return Drive::find((new \IFW\Orm\Query)
+	private function drives($name = null) {
+		$query = (new \IFW\Orm\Query)
 			->joinRelation('owner', 'name')
 			->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id, 'LEFT')
-			->where('m.userId IS NOT NULL')
-		);
+			->where('m.userId IS NOT NULL');
+		if($name !== null) {
+			$query->andWhere(['name' =>$name]);
+		}
+
+		return Drive::find($query);
 	}
 
 	public function getChild($name) {
 		if($name === self::$home) {
 			return new Directory(Drive::home()->getRoot());
+		} else {
+			return new Directory($this->drives($name)->single()->root);
 		}
-		return parent::getChild($name);
-		throw new Sabre\DAV\Exception\NotFound("$name not found in the root");
 	}
 
 	/**
