@@ -47,6 +47,12 @@ class Debugger extends Object {
 	 * @var boolean
 	 */
 	public $enabled = false;
+
+	/**
+	 * When set all visible debug messaged are written to this file
+	 * @var string Full path on FS
+	 */
+	public $logPath;
 	
 	/**
 	 * List of enabled debug sections.
@@ -122,7 +128,7 @@ class Debugger extends Object {
 	 * @param string $type The type of message. Types can be arbitrary and can be enabled and disabled for output. {@see self::$enabledTypes}
 	 */
 	public function debug($mixed, $type = self::TYPE_GENERAL, $traceBackSteps = 0) {
-		
+
 		if(!$this->enabled || !in_array($this->section, $this->enabledSections) || !in_array($type, $this->enabledTypes)) {
 			return;
 		}		
@@ -134,9 +140,9 @@ class Debugger extends Object {
 		}
 		
 		$bt = debug_backtrace(null, 4+$traceBackSteps);
-		$caller = $lastCaller = array_shift($bt);		
-		//can be called with IFW::app()->debug(). We need to go one step back
-		while($caller['function'] == 'debug' || $caller['class'] == self::class) {		
+		$caller = $lastCaller = array_shift($bt);
+		//can be called with IFW::app()->debug(). We need to go one step back (no class for closure)
+		while(isset($caller['class']) && ($caller['function'] == 'debug' || $caller['class'] == self::class)) {
 			$lastCaller = $caller;
 			$caller = array_shift($bt);
 		}
@@ -147,12 +153,19 @@ class Debugger extends Object {
 			$traceBackSteps--;			
 		}
 		
-		$entry = "[" . $this->getTimeStamp() . "][" . $caller['class'] . ":".$lastCaller['line']."] " . $mixed;
+		if(empty($caller['class'])) {
+			$caller['class'] = 'closure';
+		}
 		
-//		$debugLog = \IFW::app()->getConfig()->getTempFolder()->getFile('debug.log');
-//		if($debugLog->isWritable()) {
-//			$debugLog->putContents($entry."\n", FILE_APPEND);
-//		}
+		$entry = "[" . $this->getTimeStamp() . "][" . $caller['class'] . ":".$lastCaller['line']."] " . $mixed;
+
+		if(!empty($this->logPath)) {
+			$debugLog = new Fs\File($this->logPath);
+
+			if($debugLog->isWritable()) {
+				$debugLog->putContents($entry."\n", FILE_APPEND);
+			}
+		}
 		
 		if(PHP_SAPI == 'cli') {
 			echo $entry."\n";

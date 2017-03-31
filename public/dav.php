@@ -40,13 +40,20 @@ $server->addPlugin(new DAVACL\Plugin());
 //caldav
 $server->addPlugin(new CalDAV\Plugin());
 //$server->addPlugin(new CalDAV\Schedule\Plugin());
-//$server->addPlugin(new CalDAV\SharingPlugin());
+//$s
+//erver->addPlugin(new CalDAV\SharingPlugin());
 $server->addPlugin(new CalDAV\ICSExportPlugin());
 
 //carddav
 $server->addPlugin(new CardDAV\Plugin());
 $server->addPlugin(new CardDAV\VCFExportPlugin());
-$server->on('exception', function($e) {
-	GO()->debug($e);
+
+//$server->debugExceptions=true;
+$server->on('exception', function(\Exception $e) {
+	
+	\GO()->debug($e->getMessage(), 'dav');
+	\GO()->debug($e->getTraceAsString(), 'dav');
+	
 });
+
 $server->exec();

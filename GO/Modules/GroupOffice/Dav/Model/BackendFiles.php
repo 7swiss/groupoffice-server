@@ -59,7 +59,7 @@ class BackendFiles extends Directory {
 			->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id, 'LEFT')
 			->where('m.userId IS NOT NULL');
 		if($name !== null) {
-			$query->andWhere(['name' =>$name]);
+			$query->andWhere(['name' => $name]);
 		}
 
 		return Drive::find($query);

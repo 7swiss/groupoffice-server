@@ -106,7 +106,7 @@ class Config {
 	public function getTempFolder($autoCreate = true, $appendSAPI = true) {
 
 		if (!isset($this->tempFolder)) {
-			$this->tempFolder = sys_get_temp_dir() . '/groupoffice/' . dirname($this->getLibPath());
+			$this->tempFolder = sys_get_temp_dir() . '/groupoffice' . dirname($this->getLibPath());
 		}
 		
 		$path = $this->tempFolder;
