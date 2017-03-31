@@ -18,10 +18,13 @@ namespace GO\Modules\GroupOffice\Dav\Model;
 use GO;
 use Sabre;
 use GO\Modules\GroupOffice\Files\Model\Node as NodeRecord;
+use GO\Modules\GroupOffice\Files\Model\Drive;
+use GO\Modules\GroupOffice\Files\Model\Mount;
 
 class BackendFiles extends Directory {
 
 	const rootDirs = ['Mine','Shared','Starred','Recent'];
+	private static $home = 'Home';
 
 	public function __construct($path) {
 		$this->path = $path;
@@ -35,53 +38,27 @@ class BackendFiles extends Directory {
 	function getChildren() {
 		$nodes = [];
 		if($this->path == '/') {
-			foreach (self::rootDirs as $dir) {
-				$nodes[] = new self($dir);
+			$nodes[] = new self(self::$home);
+			foreach ($this->drives() as $drive) {
+				$nodes[] = new self($drive->root->name);
 			}
 			return $nodes;
 		}
 
-		$children = [];
-		$query = (new \IFW\Orm\Query)
-				  ->joinRelation('blob', true, 'LEFT') // folder has no size
-				  ->joinRelation('nodeUser', 'starred', 'LEFT')
-				  ->joinRelation('owner', 'name');
-
-		if(in_array($this->path, self::rootDirs)) {
-			$children = call_user_func(array($this, 'get'.$this->path), $query);
-		} else {
-			$nodes = parent::getChildren();
-		}
-		
-		foreach ($children as $entry) {
-			$nodes[] = $this->getChild($entry->path);
-		}
-		
-		return $nodes;
+		return parent::getChildren();
 	}
-
-	private function getMine($query) {
-		return NodeRecord::find($query->where(['parentId' => null])->andWhere('ownedBy = '.\GO()->getAuth()->user()->group->id));
-	}
-
-	private function getShared($query) {
-		return NodeRecord::find($query->andWhere('ownedBy != '.\GO()->getAuth()->user()->group->id));
-	}
-
-	private function getStarred($query) {
-		return NodeRecord::find($query->andWhere('nodeUser.starred = 1'));
-	}
-
-	private function getRecent($query) {
-		return NodeRecord::find($query
-					  ->orderBy(['isDirectory' => 'DESC', 'nodeUser.touchedAt' => 'ASC'])
-					  ->andWhere('nodeUser.touchedAt IS NOT NULL')
-				  );
+	
+	private function drives() {
+		return Drive::find((new \IFW\Orm\Query)
+			->joinRelation('owner', 'name')
+			->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id, 'LEFT')
+			->where('m.userId IS NOT NULL')
+		);
 	}
 
 	public function getChild($name) {
-		if(in_array($name, self::rootDirs)) {
-			return new self($name);
+		if($name === self::$home) {
+			return new Directory(Drive::home()->getRoot());
 		}
 		return parent::getChild($name);
 		throw new Sabre\DAV\Exception\NotFound("$name not found in the root");

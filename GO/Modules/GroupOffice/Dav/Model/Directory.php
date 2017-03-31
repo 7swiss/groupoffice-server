@@ -26,7 +26,7 @@ class Directory extends Node implements DAV\ICollection, DAV\IQuota {
 		if (empty($node)) {
 			throw new DAV\Exception\NotFound('Node with name "' . $name . '" could not be located in '.$this->node->path);
 		}
-		return $node->isDirectory ? new self($node->path) : new File($node->path);
+		return $node->isDirectory ? new Directory($node->path) : new File($node->path);
 	}
 
 	function getChildren() {
