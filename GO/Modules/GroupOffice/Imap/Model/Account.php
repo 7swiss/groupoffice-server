@@ -213,24 +213,27 @@ class Account extends AccountRecord implements SyncableInterface{
 		
 		GO()->getProcess()->setProgress(null);
 		
-		$newCount = 0;
+		$hasChanges = false;
 		
 		foreach($folders as $folder) {
 			
-			GO()->debug("Sync ".$folder->name);
-			$newCount += $folder->sync();
+			if($folder->syncNeeded) {
+				GO()->debug("Sync ".$folder->name);
+				$folder->sync();
+				$hasChanges = true;
+			}
 		}
 		
 		GO()->debug("Start thread sync");
 		
 		
 		
-//		if($newCount) {
+		if($hasChanges) {
 			//only process threading stuff when new messages have arrived
 //			$this->updateReplies();				
 			$this->thread();
 			Thread::syncAll($this->id);
-//		}
+		}
 		
 		GO()->debug("Sending messages");
 		
@@ -650,9 +653,9 @@ class Account extends AccountRecord implements SyncableInterface{
 			}
 			
 			if(!$mailbox->noSelect){
-				if (!isset($folder->highestModSeq)) {
-					$folder->highestModSeq = $mailbox->getHighestModSeq();
-				}
+		
+				$folder->syncNeeded = $folder->highestModSeq != $mailbox->getHighestModSeq();				
+
 				if ($folder->uidValidity != $mailbox->getUidValidity()) {
 					//UID's not valid anymore! Set all uid's to null.	
 					//Also set folderId = null. This way we can also detect moves of mail because we search by messageId

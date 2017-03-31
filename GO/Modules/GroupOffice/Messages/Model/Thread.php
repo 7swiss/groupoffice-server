@@ -84,6 +84,12 @@ class Thread extends Record {
 	public $lastMessageSentAt;
 
 	/**
+	 * 
+	 * @var \DateTime
+	 */							
+	public $modifiedAt;
+	
+	/**
 	 * Excerpt of the latest message in the thread
 	 * @var string
 	 */							
@@ -131,7 +137,7 @@ class Thread extends Record {
 		$q = (new Query())
 //				->distinct()
 				->joinRelation('message.messages', false)
-				->select('t.personal, t.address')
+				->select('ANY_VALUE(t.personal) AS personal, t.address')
 				->where(['message.messages.threadId' => $this->id])
 				->groupBy(['address']);
 		
@@ -154,7 +160,7 @@ class Thread extends Record {
 	
 	
 	public function getExcerpt() {
-		if(!isset($this->excerpt)) {
+		if(!$this->isNew() && !isset($this->excerpt)) {			
 			$this->excerpt = $this->findLatestMessage()->getExcerpt();
 			$this->update();
 		}
@@ -193,7 +199,7 @@ class Thread extends Record {
 						->select('t.id')
 						->joinRelation('messages')
 						->where(['accountId'=>$accountId])
-						->andWhere('t.messageCount IS NUll OR t.lastMessageSentAt < messages.sentAt')						
+						->andWhere('t.messageCount IS NUll OR t.modifiedAt < messages.modifiedAt')						
 						);		
 		
 		GO()->debug($threads->getRowCount().' threads out of sync');

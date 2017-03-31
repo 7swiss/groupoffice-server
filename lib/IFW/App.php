@@ -293,8 +293,8 @@ abstract class App {
 	 * 
 	 * @param string|callable|array|object $msg
 	 */
-	public function debug($msg, $section = 'general', $traceBackSteps = 0) {				
-		$this->getDebugger()->debug($msg, $section, $traceBackSteps);		
+	public function debug($msg, $type = 'general', $traceBackSteps = 0) {				
+		$this->getDebugger()->debug($msg, $type, $traceBackSteps);		
 	}
 	
 	/**

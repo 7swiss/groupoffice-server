@@ -27,7 +27,8 @@ class Module extends InstallableModule {
 						->get('messages/:messageId/attachments/:attachmentId', 'read');
 		
 		$router->addRoutesFor(Controller\AccountController::class)
-						->get('messages/accounts', 'store');
+						->get('messages/accounts', 'store')
+						->get('messages/tags', 'tags');
 		
 	}
 	

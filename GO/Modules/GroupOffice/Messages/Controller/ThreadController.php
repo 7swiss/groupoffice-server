@@ -60,6 +60,7 @@ class ThreadController extends Controller {
 	private function applyType(Query $query, $type) {
 		$subquery = (new Query())
 								->select('id')
+								->from(Message::tableName())
 								->tableAlias('m')
 								->where('m.threadId=t.id');
 		
@@ -97,7 +98,7 @@ class ThreadController extends Controller {
 				break;
 		}
 		
-		$query->andWhere(['EXISTS', Message::find($subquery)]);
+		$query->andWhere(['EXISTS', $subquery]);
 	}
 
 	/**

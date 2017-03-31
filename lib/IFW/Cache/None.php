@@ -13,7 +13,7 @@ use IFW\Cache\CacheInterface;
  */
 class None implements CacheInterface{
 	
-	
+	private $cache = [];
 
 	/**
 	 * Store any value in the cache
@@ -22,6 +22,7 @@ class None implements CacheInterface{
 	 * @param int $ttl Seconds to live
 	 */
 	public function set($key, $value, $ttl=0){
+		$this->cache[$key] = $value;
 		return true;
 	}
 	
@@ -32,6 +33,9 @@ class None implements CacheInterface{
 	 * @return mixed Stored value or NULL if not found 
 	 */
 	public function get($key){		
+		if(isset($this->cache[$key])) {
+			return $this->cache[$key];
+		}
 		return null;
 	}
 	
@@ -41,6 +45,7 @@ class None implements CacheInterface{
 	 * @param string $key 
 	 */
 	public function delete($key){
+		unset($this->cache[$key]);
 		return true;
 	}
 	/**
@@ -49,6 +54,7 @@ class None implements CacheInterface{
 	 * @return boolean
 	 */
 	public function flush(){
+		$this->cache = [];
 		return true;
 	}
 	

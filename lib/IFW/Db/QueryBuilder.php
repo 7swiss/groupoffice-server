@@ -92,7 +92,7 @@ class QueryBuilder {
 	 *
 	 * @var Table 
 	 */
-	private $columns;
+	private $table;
 
 	/**
 	 * Constructor
@@ -102,7 +102,7 @@ class QueryBuilder {
 	public function __construct($tableName) {		
 		$this->tableName = $this->defaultRecordForEmptyAlias = $tableName;
 		
-		$this->columns = Table::getInstance($tableName);
+		$this->table = Table::getInstance($tableName);
 	}
 
 	/**
@@ -146,13 +146,18 @@ class QueryBuilder {
 			return;
 		}
 
-		if ($this->columns->getColumn('deleted')) {
+		if ($this->table->getColumn('deleted')) {
+			
+			
 
 			//Group all existing where criteria. For example WHERE id=1 OR id=2 will become WHERE (id=1 OR id=2)
 			$criteria = $this->query->getWhereAsCriteria();
 			$this->query->resetCriteria();
 			$this->query->andWhere(['!=', ['deleted' => true]]);
-
+			
+			//when query is cloned we don't want this to happen again
+			$this->query->withDeleted();
+			
 			if (isset($criteria)) {
 				$this->query->andWhere($criteria);
 			}
@@ -514,7 +519,18 @@ class QueryBuilder {
 		$comparator = array_pop($condition);
 		$type = array_pop($condition);
 
-		if ($values instanceof \IFW\Orm\Store) {
+		if($values instanceof \IFW\Db\Query) {
+			$build = $values->createCommand()->build($prefix . "\t");
+			
+			$str = $prefix . $comparator . " (\n" . $prefix . "\t" . $build['sql'] ."\n". $prefix . ")";
+			//import subquery bind params
+			foreach ($build['params'] as $v) {
+				$this->buildBindParameters[] = $v;
+			}
+			
+			return $str;
+			
+		}else if ($values instanceof \IFW\Orm\Store) {
 			//subquery passed ['EXISTS", $subquery]
 			return $this->buildSubQuery($comparator, $values, $prefix);
 		} else {
@@ -690,7 +706,16 @@ class QueryBuilder {
 //					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 					$this->buildBindParameters[] = $v;
 				}
-			} else {
+			} else if ($value instanceof \IFW\Db\Query) {
+				
+				$build = $value->createCommand()->build($prefix . "\t");
+				
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";
+				foreach ($build['params'] as $v) {
+//					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
+					$this->buildBindParameters[] = $v;
+				}
+			}else {
 				$paramTag = $this->getParamTag();
 
 				$this->addBuildBindParameter($paramTag, $value, $columnParts[0], $columnParts[1]);

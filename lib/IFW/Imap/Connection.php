@@ -23,14 +23,8 @@ class Connection extends Object {
 
 	private $handle;
 	private $authenticated = false;
-//	private $server = '';
 	
-	/**
-	 * Enable debugging
-	 * 
-	 * @var boolean 
-	 */
-	public $debug = false;
+	const DEBUG_TYPE_IMAP = 'imap';
 
 	/**
 	 * Use start tls
@@ -105,7 +99,7 @@ class Connection extends Object {
 		$remote = $ssl ? 'ssl://' : '';			
 		$remote .=  $server.":".$port;
 
-		IFW::app()->debug("Connection to ".$remote, 'imap');
+		IFW::app()->debug("Connection to ".$remote, 'imap', self::DEBUG_TYPE_IMAP);
 
 		try{
 			$this->handle = stream_socket_client($remote, $this->connectErrorNo, $this->connectError, $timeout, STREAM_CLIENT_CONNECT, $streamContext);
@@ -116,7 +110,7 @@ class Connection extends Object {
 		if (!is_resource($this->handle)) {	
 			
 			$this->handle = null;
-			IFW::app()->debug("Connection to ".$remote." failed ".$this->connectError, 'imap');
+			IFW::app()->debug("Connection to ".$remote." failed ".$this->connectError, self::DEBUG_TYPE_IMAP);
 			
 			return false;
 		}		
@@ -143,7 +137,7 @@ class Connection extends Object {
 			return false;
 		}else
 		{
-			IFW::app()->debug("TLS Crypto enabled");
+			IFW::app()->debug("TLS Crypto enabled", self::DEBUG_TYPE_IMAP);
 		}
 					
 		$this->starttls = true;
@@ -256,9 +250,7 @@ class Connection extends Object {
 		
 		$command = 'A' . $this->commandNumber() . ' ' . $command . "\r\n";
 
-		if($this->debug) {
-			IFW::app()->debug('> ' . $command, 'imap');
-		}
+		IFW::app()->debug('> ' . $command, self::DEBUG_TYPE_IMAP);
 		
 		return $this->fputs($command);
 	}
@@ -295,8 +287,8 @@ class Connection extends Object {
 		
 		$line = fgets($this->handle, $length);
 
-		if($debug && $this->debug){
-			IFW::app()->debug('< ' . $line, 'imap');	
+		if($debug){
+			IFW::app()->debug('< ' . $line, self::DEBUG_TYPE_IMAP);	
 		}
 		
 		
@@ -425,9 +417,9 @@ class Connection extends Object {
 		$readLength = 0;
 		$data = "";
 		
-		if($this->debug) {
-			IFW::app()->debug('< .. DATA OMITTED FROM LOG ...', 'imap');	
-		}
+
+		IFW::app()->debug('< .. DATA OMITTED FROM LOG ...', 'imap');	
+		
 		
 		$leftOver = $size;
 		do{

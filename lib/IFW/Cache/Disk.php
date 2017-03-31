@@ -21,6 +21,8 @@ class Disk implements CacheInterface {
 	private $ttlsDirty = false;
 	private $folder;
 	private $time;
+	
+	private $cache;
 
 	public function __construct() {
 		$this->folder = IFW::app()->getConfig()->getTempFolder(true, false)->getFolder('diskcache');
@@ -68,6 +70,10 @@ class Disk implements CacheInterface {
 		$file = $this->folder->getFile($key);
 
 		$success = $file->putContents(serialize($value));
+		
+		if($success) {
+			$this->cache[$key] = $value;
+		}
 
 		return $success;
 	}
@@ -79,6 +85,8 @@ class Disk implements CacheInterface {
 	 * @return mixed null if it doesn't exist
 	 */
 	public function get($key) {
+		
+		
 
 		$key = File::stripInvalidChars($key, '-');
 
@@ -87,20 +95,25 @@ class Disk implements CacheInterface {
 		if (!empty($this->ttls[$key]) && $this->ttls[$key] < $this->time) {
 			$file->delete();
 			return null;
-		} elseif (!$file->exists()) {
+		}
+		
+		if(isset($this->cache[$key])) {
+			return $this->cache[$key];
+		}
+		
+		if (!$file->exists()) {
+			return null;
+		} 
+
+		$this->cache[$key] = unserialize($file->getContents());
+
+		if ($this->cache[$key] === false) {
+			trigger_error("Could not unserialize cache from file " . $key);
+			$this->delete($key);
 			return null;
 		} else {
-
-			$unserialized = unserialize($file->getContents());
-
-			if ($unserialized === false) {
-				trigger_error("Could not unserialize cache from file " . $key);
-				$this->delete($key);
-				return null;
-			} else {
-				return $unserialized;
-			}
-		}
+			return $this->cache[$key];
+		}		
 	}
 
 	/**
@@ -112,6 +125,7 @@ class Disk implements CacheInterface {
 		$key = File::stripInvalidChars($key, '-');
 
 		unset($this->ttls[$key]);
+		unset($this->cache[$key]);
 		$this->ttlsDirty = true;
 		if (file_exists($this->folder . $key)) {
 			unlink($this->folder . $key);
@@ -137,7 +151,7 @@ class Disk implements CacheInterface {
 		}
 		
 		\IFW::app()->debug("Flush cache");
-
+		$this->cache = [];
 
 		$this->ttls = [];
 		$this->ttlsDirty = true;

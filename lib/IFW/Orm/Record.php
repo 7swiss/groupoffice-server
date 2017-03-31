@@ -458,7 +458,7 @@ abstract class Record extends DataModel {
 	 */
 	public static function tableName() {
 		return self::classToTableName(get_called_class());
-	}
+	}	
 
 	/**
 	 * Get the table name from a record class name
@@ -886,24 +886,28 @@ abstract class Record extends DataModel {
 	 * @param string|array $attributeOrRelationName If you pass an array then they are all checked
 	 * @return boolean
 	 */
-	public function isModified($attributeOrRelationName = null) {
+	public function isModified($attributeOrRelationName = null, $withRelations = true) {
 		
 		//prevent infinite loop
-		if($this->isCheckingModified) {
-			return false;
+		if($withRelations) {
+			if($this->isCheckingModified) {
+				return false;
+			}
+			$this->isCheckingModified = $withRelations;
 		}
-		$this->isCheckingModified = true;
 		
 		try {
-			$ret = $this->internalIsModified($attributeOrRelationName);
+			$ret = $this->internalIsModified($attributeOrRelationName, $withRelations);
 		} finally {
-			$this->isCheckingModified = false;
+			if($withRelations) {
+				$this->isCheckingModified = false;
+			}
 		}		
 		
 		return $ret;
 	}
 	
-	private function internalIsModified($attributeOrRelationName) {
+	private function internalIsModified($attributeOrRelationName, $withRelations) {
 		if (!isset($attributeOrRelationName)) {
 			
 			foreach($this->oldAttributes as $colName => $loadedValue) {
@@ -914,9 +918,11 @@ abstract class Record extends DataModel {
 				}
 			}
 			
-			foreach($this->relations as $store) {
-				if($store->isModified()) {
-					return true;
+			if($withRelations) {
+				foreach($this->relations as $store) {
+					if($store->isModified()) {
+						return true;
+					}
 				}
 			}
 			
@@ -1356,10 +1362,12 @@ abstract class Record extends DataModel {
 		
 		//Unset the accessed relations so user set relations are queried from the db after save.
 		foreach($this->relations as $relationStore) {
-			foreach($relationStore as $record) {
-				//only commit if this record initated the save of this relation
-				if($record->isSaving && $record->isSavedBy == $this) {
-					$record->commit();
+			if($relationStore->isModified()) {
+				foreach($relationStore as $record) {
+					//only commit if this record initated the save of this relation
+					if($record->isSaving && $record->isSavedBy == $this) {
+						$record->commit();
+					}
 				}
 			}
 			$relationStore->reset();

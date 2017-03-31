@@ -22,7 +22,7 @@ class TransportUtil {
 	 */
 	static public function upload() {
 
-		if(isset($_POST['flowFilename'])){
+		if(isset($_REQUEST['flowFilename'])){
 			return self::chunkedUpload();
 		}
 		return self::normalUpload();
@@ -82,6 +82,8 @@ class TransportUtil {
 			//$blob->name = $finalFile->getRelativePath(GO()->getAuth()->getTempFolder());
 			$blob = Blob::fromFile($finalFile);
 			$blob->inProgress = false;
+			
+			$blob->save();
 		}
 		return $blob;
 	}

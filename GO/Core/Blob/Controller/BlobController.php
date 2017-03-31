@@ -39,10 +39,8 @@ class BlobController extends Controller {
 	}
 
 	public function actionUpload() {
-
-		sleep(1);
 		$blob = TransportUtil::upload();
-		$this->render(['success'=>$blob->save(),'data'=>$blob->toArray()]);
+		$this->renderModel($blob);
 	}
 
 	/**

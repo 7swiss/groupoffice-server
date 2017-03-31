@@ -66,6 +66,13 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	 * @var int
 	 */							
 	public $highestModSeq;
+	
+	/**
+	 * When the highers mod seq changes this folder should be synced
+	 * 
+	 * @var bool 
+	 */
+	public $syncNeeded = false;
 
 	/**
 	 * Used for sorting. prioriy first and then name. Used for putting inbox, trash, sent and drafts on top.
@@ -236,15 +243,35 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 //		GO()->getDebugger()->enabled = true;
 
 		$uids = $this->diffUids();
+		
+		
 
 		//limit to avoid too long imap command error		
 		$chunks = array_chunk($uids, 1000);		
+		
+	
 		while($subset = array_shift($chunks)){		
 		
 			$messages = $this->getImapMailbox()->getMessagesUnsorted($subset);
 
 			while ($imapMessage = array_shift($messages)) {
 				
+				if($imapMessage->uid <= $this->getHighestSyncedUid()) {
+					/**
+					 * 
+					 * https://tools.ietf.org/html/rfc3501#page-61
+					 * 
+					 * Also note that a UID range of 559:* always includes the
+   UID of the last message in the mailbox, even if 559 is
+   higher than any assigned UID value.  This is because the
+   contents of a range are independent of the order of the
+   range endpoints.  Thus, any UID range with * as one of
+   the endpoints indicates at least one message (the
+   message with the highest numbered UID), unless the
+   mailbox is empty.
+					 */
+					continue;
+				}
 				
 				GO()->debug('Creating local '.$imapMessage->uid.' ' .$imapMessage->subject);
 
@@ -298,6 +325,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	
 
 	private function syncUpdatesFromImap() {
+		
 		$messages = $this->getImapMailbox()->getMessagesUnsorted('1:*', ['FLAGS'], $this->highestModSeq);
 
 		if (!empty($messages)) {
@@ -319,7 +347,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 				
 				if(isset($thread)) {
 					$thread->tags = $this->toTags();
-				}
+				}				
 				
 				if (!$message->save()) {
 					throw new Exception("Failed to save message");
@@ -353,6 +381,8 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 
 		return $this->imapMailbox;
 	}
+	
+	private $higesthSyncedUid;
 
 	/**
 	 * Get the highest UID present in the database
@@ -360,9 +390,14 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	 * @return int
 	 */
 	public function getHighestSyncedUid() {
-		$store = clone $this->messages;
-		$store->getQuery()->select('max(imapUid) AS highestSyncedUid')->fetchMode(\PDO::FETCH_COLUMN, 0);
-		return (int) $store->single();
+		
+		if(!isset($this->higesthSyncedUid)) {
+			$store = clone $this->messages;
+			$store->getQuery()->select('max(imapUid) AS highestSyncedUid')->fetchMode(\PDO::FETCH_COLUMN, 0);
+			$this->higesthSyncedUid = (int) $store->single();
+		}
+		
+		return $this->higesthSyncedUid;
 	}
 
 	/**
@@ -396,8 +431,15 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 
 		//Get all UID's and get the ones higher than our highest synced uid and lower
 		//than our lowest synced uid.		
-		$lowestSyncedUid = $this->getLowestSyncedUid();
+//		$lowestSyncedUid = $this->getLowestSyncedUid();
 		$highestSyncedUid = $this->getHighestSyncedUid();
+		
+		if(!$highestSyncedUid) {
+			return ["*"];
+		}else
+		{
+			return [($highestSyncedUid+1).':*'];
+		}
 
 //		GO()->debug("UID's in db for " . $this->name . ": " . $lowestSyncedUid . ':' . $highestSyncedUid, 'sync');
 
@@ -507,8 +549,8 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		$messages = MessagesMessage::find(
 						(new IFW\Orm\Query())
 						->joinRelation('imapMessage', true)
-						->where('imapMessage.syncedAt<t.modifiedAt')
-						->andWhere(['imapMessage.folderId'=>$this->id])
+						->where('imapMessage.syncedAt < t.modifiedAt')
+						->andWhere(['imapMessage.folderId' => $this->id])
 					
 		);
 		

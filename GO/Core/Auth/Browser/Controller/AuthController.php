@@ -184,6 +184,22 @@ class AuthController extends Controller {
 		
 		$this->renderModel($token, $returnProperties);
 	}
+	
+	public function actionLoginByToken($token, $returnProperties = '*,user[*]') {
+		$accessToken = GO()->getAuth()->sudo(function() use ($token) {			
+	
+			$accessToken = Token::find(['accessToken' => $token])->single();
+			if(!$accessToken) {
+				throw new BadLogin();
+			}
+			
+			$accessToken->setCookies();
+
+			return $accessToken;
+		});
+		
+		$this->renderModel($accessToken, $returnProperties);
+	}
 
 	/**
 	 * Check if there's an active session
