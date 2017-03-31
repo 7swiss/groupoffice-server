@@ -173,6 +173,8 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 		return $this->traversable;
 	}
 
+	
+
 //	
 //	public function getRecordCount() {
 ////		return isset($this->_recordCount) ? $this->_recordCount : iterator_count($this->traversable);

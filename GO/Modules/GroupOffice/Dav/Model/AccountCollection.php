@@ -110,11 +110,7 @@ class AccountCollection extends Record {
 		
 		foreach($response->getMultiResponse() as $subResponse) {
 			$uri = (string) $subResponse->xpath('//d:href')[0];
-//			var_dump($uri);
-			
 			$vcard = (string) $subResponse->xpath('//card:address-data')[0];
-//			
-//			var_dump($vcard);
 			
 			$card = AccountCard::find(['accountId' => $this->accountId, 'uri' => $uri])->single();
 			if(!$card) {
@@ -126,6 +122,8 @@ class AccountCollection extends Record {
 			$card->data = $vcard;
 			$card->save();
 		}
+		
+		//TODO deletes
 
 //		var_dump(GO()->getDebugger()->entries);
 	}

@@ -189,7 +189,13 @@ class RelationStore extends Store implements ArrayAccess {
 	}
 
 	public function offsetSet($offset, $value) {
-		$value = $this->normalize($value);
+		
+		//If an array and offset are given then apply the array to the existing value
+		if(isset($offset) && is_array($value) && isset($this->modified[$offset])) {
+			$value = $this->modified[$offset]->setValues($value);
+		}else {
+			$value = $this->normalize($value);
+		}
 		
 		if(!isset($value)) {
 			if($this->getRelation()->hasMany()) {
@@ -632,4 +638,5 @@ class RelationStore extends Store implements ArrayAccess {
 		return $toRecordName::find($query)->single();
 		
 	}
+
 }

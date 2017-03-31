@@ -19,16 +19,28 @@ class VCardHelper {
 	 * Parse an Event object to a VObject
 	 * @param Contact $contact
 	 */
-	static public function toVCard(Contact $contact) {
-
-		$vcard = new VObject\Component\VCard([
-			'PRODID' => self::PRODID,
-			'VERSION' => '3.0', // @todo: use 4.0 when URI Photo base64 is working properly
-			'UID' => $contact->id.'@nouuid',
-			'N' => [$contact->lastName, $contact->firstName, $contact->middleName, $contact->prefixes, $contact->suffixes],
-			'FN' => $contact->name,
-			'REV' => $contact->modifiedAt->getTimestamp(),
-		]);
+	static public function toVCard(Contact $contact, \Sabre\VObject\Component\VCard $vcard = null) {
+		
+		if(!isset($vcard)) {
+				$vcard = new VObject\Component\VCard([
+						"VERSION" => "3.0"
+						]);
+		}else
+		{
+			//remove all supported properties
+			$vcard->remove('EMAIL');
+			$vcard->remove('TEL');
+			$vcard->remove('ADR');
+			$vcard->remove('ORG');
+			$vcard->remove('CATEGORIES');
+		}
+		
+		$vcard->PRODID = self::PRODID;		
+		$vcard->N = [$contact->lastName, $contact->firstName, $contact->middleName, $contact->prefixes, $contact->suffixes];
+		$vcard->FN = $contact->name;
+		$vcard->REV = $contact->modifiedAt->getTimestamp();		
+		
+		
 		foreach($contact->emailAddresses as $emailAddr) {
 			$vcard->add('EMAIL', $emailAddr->email, ['TYPE'=>[$emailAddr->type]]);
 		}
@@ -44,7 +56,7 @@ class VCardHelper {
 			$vcard->add(
 				'ADR',
 				['','',$address->street, $address->city,$address->state,$address->zipCode,$address->country], // @todo country must be full name
-				['TYPE'=>[$address->type]]
+				['TYPE' => [$address->type]]
 			);
 		}
 		foreach($contact->organizations as $org) {
@@ -56,10 +68,10 @@ class VCardHelper {
 		}
 		$vcard->CATEGORIES = $categories; // @todo: test
 
-		!isset($contact->function) ?: $vcard->TITLE = $contact->function; // @todo implement in ContactOrganization
-		!isset($contact->url) ?: $vcard->URL = $contact->url; // @todo: decide if we are going to implement this
-		empty($contact->notes) ?: $vcard->NOTE = $contact->notes;
-		empty($contact->gender) ?: $vcard->GENDER = $contact->gender;
+//		!isset($contact->function) ?: $vcard->TITLE = $contact->function; // @todo implement in ContactOrganization
+//		!isset($contact->url) ?: $vcard->URL = $contact->url; // @todo: decide if we are going to implement this
+		$vcard->NOTE = $contact->notes;
+		$vcard->GENDER = $contact->gender;
 
 		if(!empty($contact->photoBlobId) && file_exists($contact->photoBlob->getPath())) {
 			$image = new Image($contact->photoBlob->getPath());
@@ -74,11 +86,11 @@ class VCardHelper {
 	 * @param VObject\Component\VCard $vcard
 	 * @return Contact[]
 	 */
-	static public function fromVCard($vcard) {
+	static public function fromVCard($vcard, Contact $contact = null) {
 
-	
-			$contact = new Contact();
-			//$contact->uuid = (string)$vcard->UID; todo
+			if(!isset($contact)) {
+				$contact = new Contact();
+			}
 			
 			$n = $vcard->N->getParts();
 			empty($n[0]) ?: $contact->lastName = $n[0];
@@ -86,35 +98,37 @@ class VCardHelper {
 			empty($n[2]) ?: $contact->middleName = $n[2];
 			empty($n[3]) ?: $contact->prefixes = $n[3];
 			empty($n[4]) ?: $contact->suffixes = $n[4];
-			$contact->name = empty((string)$vcard->FN) ? self::EMPTY_NAME : (string)$vcard->FN;
+			$contact->name = empty((string) $vcard->FN) ? self::EMPTY_NAME : (string)$vcard->FN;
 
 			empty($vcard->BDAY) ?: $contact->dates[] = ['date'=>$vcard->BDAY, 'type'=>'birthday'];
 			empty($vcard->ANNIVERSARY) ?: $contact->dates[] = ['date'=>$vcard->ANNIVERSARY, 'type'=>'anniversary'];
+			
 			empty($vcard->NOTE) ?: $contact->notes = (string)$vcard->NOTE;
 
-			//ORG ??
-			if(!empty($vcard->TEL)) {
-				foreach($vcard->TEL as $tel) {
-					$contact->phoneNumbers[] = ['number'=>(string)$tel, 'type' => self::convertType($tel['TYPE'])];
-				}
-			}
-			if(!empty($vcard->EMAIL)) {
-				foreach($vcard->EMAIL as $email) {
-					$contact->emailAddresses[] = ['email'=>(string)$email, 'type' => self::convertType($email['TYPE'])];
-				}
-			}
-			if(!empty($vcard->ADR)) {
-				foreach($vcard->ADR as $adr) {
-					$a = $adr->getParts();
-					$addr = ['type' => self::convertType($adr['TYPE'])];
+			self::mergeRelation($contact->phoneNumbers, $vcard->TEL, function($value) {
+				 return ['number'=>(string) $value, 'type' => self::convertType($value['TYPE'])];
+			});
+			
+			self::mergeRelation($contact->emailAddresses, $vcard->EMAIL, function($value) {				
+				 return ['email' => (string) $value, 'type' => self::convertType($value['TYPE'])];					
+			});
+			
+			//TODO CATEGORIES -> tags
+			
+			self::mergeRelation($contact->addresses, $vcard->ADR, function($value) {
+				$a = $value->getParts();
+					$addr = ['type' => self::convertType($value['TYPE'])];
 					empty($a[2]) ?: $addr['street'] = $a[2];
 					empty($a[3]) ?: $addr['city'] = $a[3];
 					empty($a[4]) ?: $addr['state'] = $a[4];
 					empty($a[5]) ?: $addr['zipCode'] = $a[5];
 					empty($a[6]) ?: $addr['country'] = $a[6];
-					$contact->addresses[] = $addr;
-				}
-			}
+					return $addr;
+			});
+			
+			self::mergeOrg($contact, $vcard);
+			
+			
 			if(!empty($vcard->PHOTO)) {
 				$blob = Blob::fromString($vcard->PHOTO->getValue());
 				if($blob->save()) {
@@ -123,6 +137,42 @@ class VCardHelper {
 			}
 		
 		return $contact;
+	}
+	
+	private static function mergeOrg(Contact $contact, $vcard) {
+		if(empty($vcard->ORG)) {
+			return;
+		}
+		
+		foreach($vcard->ORG as $org) {
+			$parts = $org->getParts();			
+			$org = Contact::find(['name' => $parts[0], 'isOrganization' => true])->single();
+			
+			if(!$org) {
+				$org = new Contact();
+				$org->isOrganization = true;
+				$org->name = $parts[0];
+			}
+			
+			$contact->organizations[] = $org;			
+		}
+	}
+	
+	private static function mergeRelation(\IFW\Orm\RelationStore $store, $vcardProp, $fn) {
+		
+		$vcardCount = isset($vcardProp) ? count($vcardProp) : 0;
+		$contactCount = count($store->all());
+		//remove emails
+		for($i = $vcardCount; $i < $contactCount; $i++) {
+			$store[$i]->markDeleted = true;
+		}
+		
+		if(isset($vcardProp)) {
+			foreach($vcardProp as $index => $value) {	
+				$store[$index] = call_user_func($fn, $value);
+			}	
+		}		
+	
 	}
 
 	private static function convertType($vCardType) {
