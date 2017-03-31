@@ -24,6 +24,18 @@ use GO;
  */
 class Node extends Record {
 
+	const InvalidNameRegex = "/[\\~#%&*{}/:<>?|\"-]/";
+
+	const TempFilePatterns = [
+		'/^\._(.*)$/',     // OS/X resource forks
+		'/^.DS_Store$/',   // OS/X custom folder settings
+		'/^desktop.ini$/', // Windows custom folder settings
+		'/^Thumbs.db$/',   // Windows thumbnail cache
+		'/^.(.*).swp$/',   // ViM temporary files
+		'/^\.dat(.*)$/',   // Smultron seems to create these
+		'/^~lock.(.*)#$/', // Windows 7 lockfiles
+   ];
+
 	/**
 	 * auto increment primary key
 	 * @var int
@@ -32,6 +44,7 @@ class Node extends Record {
 
 	/**
 	 * name of file or folder
+	 * Only the following
 	 * @var string
 	 */							
 	public $name;
@@ -67,12 +80,6 @@ class Node extends Record {
 	public $deleted = false;
 
 	/**
-	 * FK to the storage object
-	 * @var int
-	 */							
-	public $storageId;
-
-	/**
 	 * 
 	 * @var string
 	 */							
@@ -82,7 +89,7 @@ class Node extends Record {
 	 * true when this Node is a directory
 	 * @var int
 	 */							
-	public $isDirectory = 0;
+	public $isDirectory = false;
 
 	/**
 	 * FK to owner
@@ -90,11 +97,21 @@ class Node extends Record {
 	 */							
 	public $ownedBy;
 
+	public $driveId;
+
+	private $isDrive = false;
+
 	/**
 	 * 
 	 * @var int
 	 */							
-	public $parentId;
+	protected $parentId;
+	/**
+	 * ParentID from setRelativePath
+	 * Use this as parentId if set
+	 * @var int 
+	 */
+	private $relParentId;
 
 	/**
 	 * These directories do not exist and need to be created to save the node
@@ -104,16 +121,37 @@ class Node extends Record {
 
 	protected function init() {
 		$this->ownedBy = GO()->getAuth()->user()->group->id;
-		$this->storageId = 1; //TODO: multiple storage providers
+	}
+
+	public static function findByPath($path) {
+		$dirnames = explode('/', $path);
+		$query = (new Query())->where(['parentId'=>null, 'deleted'=>0]);
+		$alias = $prevAlias = 't';
+		$count=0;
+		foreach($dirnames as $i => $dir) {
+			$count++;
+			$alias = 't'.$i;
+			if($count == 1) {
+				$parentMatch = $alias.'.parentId IS NULL';
+			} else {
+				$parentMatch = $alias.'.parentId = '.$prevAlias.'.id';
+			}
+			$query->join(self::tableName(), $alias, $parentMatch. ' AND '. $alias.'.name = "'.$dir.'" AND '.$alias.'.deleted = 0');
+			$prevAlias = $alias;
+		}
+		$query->select($alias.'.*');
+		$store = self::find($query);
+		//var_dump($store->getQuery()->createCommand()->toString());
+		return $store->single();
 	}
 
 	protected static function defineRelations() {
 
-		self::hasMany('groups', NodeGroup::class, ['id' => 'nodeId']);
 		self::hasOne('nodeUser', NodeUser::class, ['id' => 'nodeId']); //Current user is added in getRelations() override below. This is because relations are cached.
-		self::hasMany('children', Node::class, ['id' => 'parentid']);
-		self::hasOne('parent', Node::class, ['parentId' => 'id']);
-		self::hasOne('storage', Storage::class, ['storageId' => 'id']);
+		self::hasMany('children', Node::class, ['id' => 'parentId']);
+//		/self::hasMany('rootOf', Drive::class, ['id' => 'directoryId']);
+		self::hasOne('drive', Drive::class, ['driveId' => 'id']);
+		self::hasOne('parent', Directory::class, ['parentId' => 'id']);//->setQuery((new Query())->where('parentId IS NOT NULL'));
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
 		self::hasOne('owner', Group::class, ['ownedBy' => 'id']);
 	}
@@ -126,13 +164,26 @@ class Node extends Record {
 		return $relations;
 	}
 
-	protected static function internalGetPermissions() {
-		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(NodeGroup::class);
+	protected function internalValidate() {
+		$this->name = preg_replace(self::InvalidNameRegex, "_", $this->name);
+
+		foreach (self::TempFilePatterns as $tempFile) {
+			if (preg_match($tempFile, $this->name)) {
+				$this->setValidationError('name', 'Temp file pattern skip this');
+			}
+		}
+
+		parent::internalValidate();
 	}
 
 	protected function internalSave() {
 
 		if ($this->isNew()) {
+			if(!empty($this->relParentId)) {
+				$this->setParentId($this->relParentId);
+			} else {
+				$this->setParentId($this->parentId);
+			}
 			$nodeUser = new NodeUser();
 			$nodeUser->userId = \GO()->getAuth()->user()->id;
 			$this->nodeUser = $nodeUser;
@@ -148,37 +199,72 @@ class Node extends Record {
 	public function setRelativePath($path) {
 		$parts = explode('/', $path);
 		array_pop($parts);
-		$parentId = isset(\IFW::app()->getRequest()->body['data']['parentId']) ? \IFW::app()->getRequest()->body['data']['parentId'] : null;
+		$parentId = $this->parentId;
 		while ($dirName = array_shift($parts)) {
 			$folder = Node::find((new Query)->where(['parentId' => $parentId, 'name' => $dirName]))->single();
 			if (empty($folder)) {
 				$folder = new Node();
 				$folder->isDirectory = true;
 				$folder->name = $dirName;
-				$folder->parentId = $parentId;
+				$folder->setParentId($parentId);
 				$folder->save(); // if not saved then it is not found when saving the second uploaded file
 			}
 			$parentId = $folder->id;
 		}
-		$this->parentId = $parentId;
+		if(isset($parentId)) {
+			$this->relParentId = $parentId;
+			$this->parentId = $parentId;
+		}
 	}
 
 	public function getPath() {
-		$dir = $this;
-		$path = '';
-		while ($dir = $dir->parent) {
-			$path .= $dir->name . '/';
+
+		return GO()->getAuth()->sudo(function() {
+			$dir = $this;
+			$path = '';
+			while ($dir = $dir->parent) {
+				$path = $dir->name . '/'. $path;
+			}
+			return $path . $this->name;
+		});
+	}
+
+	public function setParentId($id) {
+		$this->parentId = $id;
+		if($this->isModified('parentId')) {
+			$this->driveId = $this->parent->driveId;
 		}
-		return $path . $this->name;
+		
+	}
+
+	public function getParentId() {
+		return $this->parentId;
+	}
+
+	/**
+	 * @param string $name
+	 * @return Node
+	 */
+	public function getChild($name) {
+		return Node::find(['parentId'=>$this->id,'name'=>$name])->single();
 	}
 
 	public function getSize() {
 		return isset($this->blob) ? $this->blob->size : null;
 	}
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('drive');
+	}
+
 	public function getType() {
-		if (empty($this->blob))
+		if($this->isDrive) {
+			return FileType::Drive;
+		}
+		if (empty($this->blob)) {
 			return FileType::Folder;
+		}
+		
 		return FileType::fromContentType($this->blob->contentType);
 	}
 
@@ -192,14 +278,6 @@ class Node extends Record {
 		$node->setValues($this->toArray());
 		$node->parentId = $to->id;
 		return $node;
-	}
-
-	public function share($groupId, $canRead = true, $canWrite = false) {
-		$nodeAccess = new NodeAccess();
-		$nodeAccess->groupId = $groupId;
-		$nodeAccess->canRead = $canRead;
-		$nodeAccess->canWrite = $canWrite;
-		return $nodeAccess->save();
 	}
 
 }

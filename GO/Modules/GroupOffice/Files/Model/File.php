@@ -22,9 +22,23 @@ class File extends Node {
 	protected static function defineRelations() {
 		self::hasOne('blob', Blob::class, ['blobId'=>'blobId']);
 		self::hasMany('versions', Version::class, ['id'=>'nodeId']);
-		parent::defineRelations();
-		
+		parent::defineRelations();	
 	}
 
+	public static function tableName() {
+		return 'files_node';
+	}
+
+	/**
+	 * User by WebDAV
+	 * @param string $data
+	 * @return File
+	 */
+	public static function create($data) {
+		$blob = \GO\Core\Blob\Model\Blob::fromString($data);
+		$file = new self();
+		$file->blob = $blob;
+		return $file;
+	}
 
 }
