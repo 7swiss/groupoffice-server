@@ -2,11 +2,9 @@
 -- Table `files_drive`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `files_mount` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
   `userId` INT NOT NULL,
   `driveId` INT NOT NULL,
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`userId`, `driveId`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -14,12 +12,13 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `files_drive` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(127) CHARACTER SET 'ascii' NOT NULL,
   `quota` BIGINT NULL,
   `usage` BIGINT NOT NULL DEFAULT 0,
-  `ownedBy` INT NULL DEFAULT NULL,
+  `ownedBy` INT NOT NULL,
   `rootId` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name` ASC))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------

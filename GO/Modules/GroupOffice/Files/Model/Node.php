@@ -24,6 +24,18 @@ use GO;
  */
 class Node extends Record {
 
+	const InvalidNameRegex = "/[\\~#%&*{}/:<>?|\"-]/";
+
+	const TempFilePatterns = [
+		'/^\._(.*)$/',     // OS/X resource forks
+		'/^.DS_Store$/',   // OS/X custom folder settings
+		'/^desktop.ini$/', // Windows custom folder settings
+		'/^Thumbs.db$/',   // Windows thumbnail cache
+		'/^.(.*).swp$/',   // ViM temporary files
+		'/^\.dat(.*)$/',   // Smultron seems to create these
+		'/^~lock.(.*)#$/', // Windows 7 lockfiles
+   ];
+
 	/**
 	 * auto increment primary key
 	 * @var int
@@ -32,6 +44,7 @@ class Node extends Record {
 
 	/**
 	 * name of file or folder
+	 * Only the following
 	 * @var string
 	 */							
 	public $name;
@@ -76,7 +89,7 @@ class Node extends Record {
 	 * true when this Node is a directory
 	 * @var int
 	 */							
-	public $isDirectory = 0;
+	public $isDirectory = false;
 
 	/**
 	 * FK to owner
@@ -151,7 +164,17 @@ class Node extends Record {
 		return $relations;
 	}
 
-	
+	protected function internalValidate() {
+		$this->name = preg_replace(self::InvalidNameRegex, "_", $this->name);
+
+		foreach (self::TempFilePatterns as $tempFile) {
+			if (preg_match($tempFile, $this->name)) {
+				$this->setValidationError('name', 'Temp file pattern skip this');
+			}
+		}
+
+		parent::internalValidate();
+	}
 
 	protected function internalSave() {
 
@@ -223,7 +246,7 @@ class Node extends Record {
 	 * @return Node
 	 */
 	public function getChild($name) {
-		return self::find(['parentId'=>$this->id,'name'=>$name])->single();
+		return Node::find(['parentId'=>$this->id,'name'=>$name])->single();
 	}
 
 	public function getSize() {

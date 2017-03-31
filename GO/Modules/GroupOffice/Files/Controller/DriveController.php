@@ -5,6 +5,7 @@ namespace GO\Modules\GroupOffice\Files\Controller;
 use IFW;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\Files\Model\Drive;
+use GO\Modules\GroupOffice\Files\Model\Mount;
 use IFW\Orm\Query;
 
 /**
@@ -20,7 +21,9 @@ class DriveController extends Controller {
 
 	public function actionStore($orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name]", $q = null) {
 		$query = (new Query)
+				  ->select("t.*, CASE WHEN m.userId IS NULL THEN 0 ELSE 1 END as isMounted")
 				  ->joinRelation('owner', 'name')
+				  ->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id, 'LEFT')
 				  ->limit($limit)
 				  ->offset($offset);
 
@@ -38,5 +41,25 @@ class DriveController extends Controller {
 		
 		$this->renderStore($nodes);
 
+	}
+
+	public function actionMount($id, $mount = true) {
+		$drive = Drive::findByPk($id);
+		if(empty($drive)) {
+			throw new \IFW\Exception\NotFound();
+		}
+		$success = $mount ? $drive->mount()->save() : $drive->unmount() ;
+		$this->render(['success'=>$success]);
+	}
+
+	public function actionMountStore() {
+		$query = (new Query())
+				  ->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id)
+				  ->joinRelation('root')
+				  ->where('m.userId = '.GO()->getAuth()->user()->id);
+
+		$mountedDrives = Drive::find($query);
+
+		$this->renderStore($mountedDrives);
 	}
 }

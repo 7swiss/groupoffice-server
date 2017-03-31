@@ -41,6 +41,8 @@ class Drive extends Record {
 	
 	public $ownedBy;
 
+	private $isMounted = false;
+
 	/**
 	 * the root directory for this drive
 	 * @var int FK to files_node
@@ -52,6 +54,7 @@ class Drive extends Record {
 		self::hasOne('owner', \GO\Core\Users\Model\Group::class, ['ownedBy'=>'id']);
 		self::hasMany('groups', DriveGroup::class, ['id' => 'driveId']);
 		self::hasOne('root', Directory::class, ['rootId' => 'id']);
+		self::hasMany('mounts', Mount::class, ['id' => 'driveId']);
 	}
 
 	protected static function internalGetPermissions() {
@@ -60,6 +63,10 @@ class Drive extends Record {
 
 	public function getName() {
 		return !empty($this->forUserId) ? $this->user->name : $this->name;
+	}
+
+	public function getIsMounted() {
+		return $this->isMounted;
 	}
 
 	static function home() {
@@ -92,6 +99,29 @@ class Drive extends Record {
 			}
 		}
 		return $dir;
+	}
+
+	public function mount($userId = null) {
+		if($userId === null) {
+			$userId = GO()->getAuth()->user()->id;
+		}
+
+		$mount = new Mount();
+		$mount->driveId = $this->id;
+		$mount->userId = $userId;
+		$this->mounts[] = $mount;
+		return $this;
+	}
+
+	public function unmount($userId = null) {
+		if($userId === null) {
+			$userId = GO()->getAuth()->user()->id;
+		}
+		$mount = Mount::find(['driveId'=>$this->id, 'userId'=>$userId])->single();
+		if(empty($mount)) {
+			return true;
+		}
+		return $mount->delete();
 	}
 
 
