@@ -24,7 +24,7 @@ use GO;
  */
 class Node extends Record {
 
-	const InvalidNameRegex = "/[\\~#%&*{}/:<>?|\"-]/";
+	const InvalidNameRegex = "/[\\~#%&*{}\/:<>?|\"]/";
 
 	const TempFilePatterns = [
 		'/^\._(.*)$/',     // OS/X resource forks
@@ -173,7 +173,7 @@ class Node extends Record {
 			}
 		}
 
-		parent::internalValidate();
+		return parent::internalValidate();
 	}
 
 	protected function internalSave() {
@@ -188,7 +188,9 @@ class Node extends Record {
 			$nodeUser->userId = \GO()->getAuth()->user()->id;
 			$this->nodeUser = $nodeUser;
 		}
-		$this->nodeUser->touchedAt = new \DateTime();
+		if(!empty($this->nodeUser)) {
+			$this->nodeUser->touchedAt = new \DateTime();
+		}
 
 		return parent::internalSave();
 	}

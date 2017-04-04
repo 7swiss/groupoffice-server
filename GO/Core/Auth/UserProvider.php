@@ -155,7 +155,7 @@ class UserProvider implements UserProviderInterface {
 		return $ret;
 	}
 	
-	
+	private $tempFolder;
 
 	/**
 	 * Get a temporary folder that is cleanned up when the user is logged out
@@ -164,21 +164,17 @@ class UserProvider implements UserProviderInterface {
 	 */
 	public function getTempFolder($autoCreate = true) {
 
-		if (\GO() instanceof \IFW\Cli\App) {
-			$folder = \GO()->getConfig()->getTempFolder()->getFolder('cli');
-
-			if ($autoCreate) {
-				$folder->create();
-			}
-
-			return $folder;
-		} else {
+		if(!isset($this->tempFolder)) {
 			$accessToken = Token::findByCookie();
 			if(!$accessToken) {
-				throw new \Exception("User is not authenticated!");
+				$this->tempFolder = new \IFW\Fs\TempFolder();
+			} else {
+				$this->tempFolder = $accessToken->getTempFolder($autoCreate);
 			}
-			return $accessToken->getTempFolder($autoCreate);
 		}
+
+		return $this->tempFolder;
+		
 	}
 
 }

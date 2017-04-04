@@ -3,6 +3,7 @@
 // Use GO
 $classLoader = require(dirname(__DIR__)."/vendor/autoload.php");
 $app = new \GO\Core\Web\App($classLoader, require(dirname(__DIR__).'/config.php'));
+\GO()->getDebugger()->setSection('controller');
 
 use
 	Sabre\DAV,
@@ -39,12 +40,20 @@ $server->addPlugin(new DAVACL\Plugin());
 //caldav
 $server->addPlugin(new CalDAV\Plugin());
 //$server->addPlugin(new CalDAV\Schedule\Plugin());
-//$server->addPlugin(new CalDAV\SharingPlugin());
+//$s
+//erver->addPlugin(new CalDAV\SharingPlugin());
 $server->addPlugin(new CalDAV\ICSExportPlugin());
 
 //carddav
 $server->addPlugin(new CardDAV\Plugin());
 $server->addPlugin(new CardDAV\VCFExportPlugin());
 
+//$server->debugExceptions=true;
+$server->on('exception', function(\Exception $e) {
+	
+	\GO()->debug($e->getMessage(), 'dav');
+	\GO()->debug($e->getTraceAsString(), 'dav');
+	
+});
 
 $server->exec();

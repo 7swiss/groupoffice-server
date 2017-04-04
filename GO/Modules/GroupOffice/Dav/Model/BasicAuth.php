@@ -17,9 +17,9 @@ class BasicAuth extends AbstractBasic {
 	}
 
 	protected function validateUserPass($username, $password) {
-
-		$this->_user = User::find(['username' => $username])->single();
-		
+		$this->_user = GO()->getAuth()->sudo(function() use ($username) {
+			return User::find(['username' => $username])->single();
+		});
 		if(!$this->_user) {
 			return false;
 		}

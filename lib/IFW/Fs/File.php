@@ -169,7 +169,6 @@ class File extends FileSystemObject {
 		
 		$this->create();
 		
-		
 		if (file_put_contents($this->path, $data, $flags, $context)) {
 			$this->setDefaultPermissions();
 			return true;

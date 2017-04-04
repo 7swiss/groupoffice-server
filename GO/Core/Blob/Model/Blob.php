@@ -137,6 +137,7 @@ class Blob extends Record {
 	}
 
 	public static function fromString($str, \DateTime $expireAt = null) {
+
 		$file = GO()->getAuth()->getTempFolder()->getFile(uniqid());
 		$file->putContents($str);
 

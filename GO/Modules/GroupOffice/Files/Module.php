@@ -37,6 +37,9 @@ class Module extends InstallableModule {
 		$router->addRoutesFor(DriveController::class)
 			->get('drives', 'store')
 			->get('mounts', 'mountStore')
+			->get('drives/:id', 'read')
+			->put('drives/:id', 'update')
+			->post('drives/:id', 'create')
 			->post('drives/:id/mount', 'mount');
 	}
 
