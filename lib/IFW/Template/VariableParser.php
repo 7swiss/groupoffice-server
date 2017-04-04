@@ -223,10 +223,19 @@ class VariableParser {
 		$model = $this;
 
 		foreach ($pathParts as $pathPart) {
-			if (!isset($model->$pathPart)) {
-				return null;
+			if(is_array($model)) {
+				if (!isset($model[$pathPart])) {
+					return null;
+				}
+				$model = $model[$pathPart];
+			}else
+			{
+				if (!isset($model->$pathPart)) {
+					return null;
+				}
+				$model = $model->$pathPart;
 			}
-			$model = $model->$pathPart;
+			
 		}
 
 		return $model;
