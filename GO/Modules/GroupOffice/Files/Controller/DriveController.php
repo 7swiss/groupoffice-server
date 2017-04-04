@@ -43,6 +43,17 @@ class DriveController extends Controller {
 
 	}
 
+	protected function actionRead($id, $returnProperties = "*") {
+
+		$drive = Drive::findByPk($id);
+
+		if (!$drive) {
+			throw new NotFound();
+		}
+
+		$this->renderModel($drive, $returnProperties);
+	}
+
 	public function actionMount($id, $mount = true) {
 		$drive = Drive::findByPk($id);
 		if(empty($drive)) {
