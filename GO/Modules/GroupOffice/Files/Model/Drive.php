@@ -43,6 +43,8 @@ class Drive extends Record {
 
 	private $isMounted = false;
 
+	public $quotaUnit;
+
 	/**
 	 * the root directory for this drive
 	 * @var int FK to files_node
@@ -64,6 +66,9 @@ class Drive extends Record {
 	public function getName() {
 		return !empty($this->forUserId) ? $this->user->name : $this->name;
 	}
+	public function setName($val) {
+		$this->name = $val;
+	}
 
 	public function getIsMounted() {
 		return $this->isMounted;
@@ -83,22 +88,38 @@ class Drive extends Record {
 		return $drive;
 	}
 
-	public function getRoot() {
+	public function internalSave() {
+		
+		$success = parent::internalSave();
 
-		if(!empty($this->rootId)) {
-			$dir = Directory::findByPk($this->rootId);
+		if(empty($this->rootId)) {
+			$this->createRootFolder();
 		}
-		if(empty($dir)) {
+
+		return $success;
+	}
+
+	public function createRootFolder() {
+		if(empty($this->rootId)) {
 			$dir = new Directory();
 			$dir->name = $this->name;
-			$dir->parentId = Directory::RootID;
+			//$dir->parentId = Directory::RootID;
 			$dir->driveId = $this->id;
 			if($dir->save()) {
 				$this->rootId = $dir->id;
 				$this->save();
 			}
 		}
-		return $dir;
+	}
+
+	public function getRoot() {
+
+		if(!empty($this->rootId)) {
+			$dir = Directory::findByPk($this->rootId);
+		}
+		if(!empty($dir)) {
+			return $dir;
+		}
 	}
 
 	public function mount($userId = null) {

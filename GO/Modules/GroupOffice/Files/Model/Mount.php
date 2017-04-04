@@ -29,6 +29,10 @@ class Mount extends Record {
 	 */
 	public $userId;
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('drive');
+	}
+
 	protected static function defineRelations() {
 		self::hasOne('drive', Drive::class, ['driveId' => 'id']);
 		self::hasOne('user', User::class, ['userId' => 'id']);

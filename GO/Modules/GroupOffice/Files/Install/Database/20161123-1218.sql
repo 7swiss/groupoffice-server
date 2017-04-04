@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `files_node` (
   `metaData` TEXT NULL,
   `deleted` TINYINT(1) NOT NULL DEFAULT 0,
   `blobId` CHAR(40) COLLATE ascii_bin NULL,
-  `isDirectory` TINYINT NOT NULL DEFAULT 0,
+  `isDirectory` TINYINT(1) NOT NULL DEFAULT 0,
   `ownedBy` INT NOT NULL,
   `parentId` INT NULL DEFAULT NULL,
   `driveId` INT NOT NULL,

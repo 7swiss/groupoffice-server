@@ -24,12 +24,6 @@ class DriveGroup extends GroupAccess {
 	public $driveId;
 
 	/**
-	 * PK
-	 * @var int
-	 */							
-	public $groupId;
-
-	/**
 	 * 
 	 * @var bool
 	 */							
