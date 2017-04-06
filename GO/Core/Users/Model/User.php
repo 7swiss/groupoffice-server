@@ -302,8 +302,7 @@ class User extends Record implements UserInterface {
 	
 	protected function internalDelete($hard) {
 		if ($this->id === 1) {
-			$this->setValidationError('id', 'adminDeleteForbidden');
-			return false;
+			throw new \IFW\Exception\Forbidden("Admin can't be deleted!");
 		}
 		
 		$this->freeBlob($this->photoBlobId);
@@ -331,11 +330,7 @@ class User extends Record implements UserInterface {
 		$hash = $this->isModified('password') ? $this->getOldAttributeValue('password') : $this->password;
 		
 		$this->passwordVerified = password_verify($password, $hash);
-		
-		if(!$this->passwordVerified) {
-			$this->setValidationError('currentPassword', "INCORRECT_PASSWORD");
-		}
-		
+
 		return $this->passwordVerified;
 	}
 	

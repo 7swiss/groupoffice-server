@@ -150,7 +150,7 @@ class Account extends AccountRecord implements SyncableInterface{
 				$this->connect();
 			}
 			catch(\Exception $e) {
-				$this->setValidationError('hostname', "connecterror", ['exception' => $e->getMessage()]);
+				$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, $e->getMessage());
 
 				return false;
 			}

@@ -169,7 +169,7 @@ class Node extends Record {
 
 		foreach (self::TempFilePatterns as $tempFile) {
 			if (preg_match($tempFile, $this->name)) {
-				$this->setValidationError('name', 'Temp file pattern skip this');
+				$this->setValidationError('name', \IFW\Validate\ErrorCode::MALFORMED, 'This is a temporary file');
 			}
 		}
 

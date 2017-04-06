@@ -551,7 +551,7 @@ class Message extends \GO\Core\Orm\Record {
 				}
 			}
 			
-			$this->setValidationError('to', 'norecipient');
+			$this->setValidationError('to', \IFW\Validate\ErrorCode::REQUIRED, 'No recipients given');
 			return false;			
 		}
 		

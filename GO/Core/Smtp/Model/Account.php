@@ -92,7 +92,7 @@ class Account extends AccountRecord {
 		}
 
 		if (!is_resource($handle)) {
-			$this->setValidationError('hostname', 'connecterror', ['msg' => 'Failed to open socket #' . $errorno . '. ' . $errorstr]);
+			$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, 'Failed to open socket #' . $errorno . '. ' . $errorstr);
 			return false;
 		}
 		

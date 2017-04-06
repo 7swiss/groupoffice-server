@@ -157,7 +157,7 @@ class UserController extends Controller {
 		if ($user->isModified('password')) {
 
 			if (!\GO()->getAuth()->isAdmin() && !$user->checkPassword($user->currentPassword)) {
-				$user->setValidationError('currentPassword', 'wrongPassword');
+				throw new \IFW\Auth\Exception\BadLogin();
 			}
 		}
 

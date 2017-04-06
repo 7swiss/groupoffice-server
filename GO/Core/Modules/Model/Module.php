@@ -151,7 +151,7 @@ class Module extends Record {
 				$installedModulesNames[] = $module->name;
 
 				if(in_array($this->name, $module->manager()->conflicts())) {
-					$this->setValidationError('conflicts', 'NEW_CONFLICTS_WITH_INSTALLED', [$module->name]);
+					$this->setValidationError('conflicts', \IFW\Validate\ErrorCode::CONFLICT, $module->name.' conflicts with '.$this->name);
 
 					return false;
 				}
@@ -160,7 +160,7 @@ class Module extends Record {
 		
 		foreach ($this->manager()->conflicts() as $moduleName) {
 			if(in_array($moduleName, $installedModulesNames)){
-				$this->setValidationError('conflicts', 'INSTALLED_CONFLICTS_WITH_NEW', [$moduleName]);
+				$this->setValidationError('conflicts',  \IFW\Validate\ErrorCode::CONFLICT, $module->name.' conflicts with '.$this->name);
 				return false;
 			}
 		}
@@ -171,7 +171,7 @@ class Module extends Record {
 	protected function internalValidate() {		
 		
 		if(!is_a($this->name, InstallableModule::class, true)) {
-			$this->setValidationError('name', 'no_installable_module');
+			$this->setValidationError('name', \IFW\Validate\ErrorCode::NOT_FOUND, $this->name.' is not an installable module');
 			
 			return false;
 		}
@@ -346,13 +346,13 @@ class Module extends Record {
 		$modules = Module::find();		
 		foreach($modules as $module) {			
 			if($module->exists() && in_array($this->name, $module->manager()->depends()) ){
-				$this->setValidationError('depends', $module->name.' depends on '.$this->name);
+				$this->setValidationError('depends', \IFW\Validate\ErrorCode::DEPENDENCY_NOT_SATISFIED, $module->name.' depends on '.$this->name);
 				return false;
 			}
 		}
 		
 		if($hard && !$this->manager()->uninstall($this)) {
-			$this->setValidationError('deleted', 'Uninstall returned false');
+			$this->setValidationError('deleted', \IFW\Validate\ErrorCode::DELETE_RELATION_FAILED, 'Uninstall returned false');
 			return false;
 		}
 		

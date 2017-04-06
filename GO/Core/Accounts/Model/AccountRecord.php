@@ -45,13 +45,11 @@ abstract class AccountRecord extends Record {
 	}
 	
 	protected function internalDelete($hard) {
-		
-//		if($hard) {
-			if(!$this->coreAccount->delete()) {
-				$this->setValidationError('id', 'DELETE_CORE_ACCOUNT_FAILED');
-				return false;
-			}
-//		}
+
+		if(!$this->coreAccount->delete()) {
+			$this->setValidationError('id', \IFW\Validate\ErrorCode::RELATIONAL, "Couldn't delete core account record");
+			return false;
+		}
 		
 		return parent::internalDelete($hard);
 	}
