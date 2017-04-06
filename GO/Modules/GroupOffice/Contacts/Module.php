@@ -24,6 +24,9 @@ class Module extends InstallableModule{
 		
 		$router->addRoutesFor(Controller\CommentController::class)
 						->crud('contacts/:contactId/comments', 'commentId');
+		
+		$router->addRoutesFor(Controller\AddressBookController::class)
+						->crud('contacts/address-books', 'addressBookId');
 	}
 	
 	
