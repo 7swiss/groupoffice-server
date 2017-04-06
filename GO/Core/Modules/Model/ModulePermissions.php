@@ -33,8 +33,18 @@ class ModulePermissions extends Model {
 	
 	private function getManagerPermissions() {
 		
+		
+		
 		if(!isset($this->managerPermissions)) {
-			$this->managerPermissions = $this->record->manager()->getPermissions();
+			//check if module is on disk
+			if($this->record->isAvailable()) {
+				$this->managerPermissions = $this->record->manager()->getPermissions();
+			}else
+			{
+				$this->managerPermissions = new \IFW\Auth\Permissions\Everyone();
+				$this->managerPermissions->setRecord($this->record);
+				
+			}
 //			$this->managerPermissions->setRecord($this->record);
 		}
 		return $this->managerPermissions;

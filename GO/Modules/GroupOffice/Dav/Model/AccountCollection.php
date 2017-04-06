@@ -55,33 +55,29 @@ class AccountCollection extends Record {
 		return $this->getRemoteCtag() != $this->ctag;
 	}
 
-	private $remoteCtag;
-
+	
 	private function getRemoteCtag() {
 
-		if (!isset($this->remoteCtag)) {
-			$response = $this->account->getClient()->propFind($this->uri, ['{DAV:}displayname', '{cs:}getctag'], 0);
+		$response = $this->account->getClient()->propFind($this->uri, ['{DAV:}displayname', '{cs:}getctag'], 0);
 
-			/**
-			 * <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:card="urn:ietf:params:xml:ns:carddav">
-			  <d:response>
-			  <d:href>/carddav/addressbooks/test/test-man-1287/</d:href>
-			  <d:propstat>
-			  <d:prop>
-			  <d:displayname>Test Man</d:displayname>
-			  <x1:getctag xmlns:x1="http://calendarserver.org/ns/">3:1371847188</x1:getctag>
-			  </d:prop>
-			  <d:status>HTTP/1.1 200 OK</d:status>
-			  </d:propstat>
-			  </d:response>
-			  </d:multistatus>
-			 * 
-			 */
-			$xml = $response->getBodyAsXml();
-			$this->remoteCtag = $xml->xpath('d:response//cs:getctag')[0];
-		}
-
-		return $this->remoteCtag;
+		/**
+		 * <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:card="urn:ietf:params:xml:ns:carddav">
+			<d:response>
+			<d:href>/carddav/addressbooks/test/test-man-1287/</d:href>
+			<d:propstat>
+			<d:prop>
+			<d:displayname>Test Man</d:displayname>
+			<x1:getctag xmlns:x1="http://calendarserver.org/ns/">3:1371847188</x1:getctag>
+			</d:prop>
+			<d:status>HTTP/1.1 200 OK</d:status>
+			</d:propstat>
+			</d:response>
+			</d:multistatus>
+		 * 
+		 */
+		$xml = $response->getBodyAsXml();
+		return (string) $xml->xpath('d:response//cs:getctag')[0];
+		
 	}
 
 	/**
@@ -91,13 +87,22 @@ class AccountCollection extends Record {
 	 */
 	public function sync() {
 
-		if (!$this->syncRequired()) {
-			return true;
+		if ($this->syncRequired()) {		
+			$etags = $this->getRemoteEtags();
+			$this->serverUpdates($etags);
 		}
 		
-		$etags = $this->getRemoteEtags();		
-//	var_dump($etags);
-		//check if new or modified
+		$this->clientUpdates();
+		
+		
+		$this->ctag = $this->getRemoteCtag();
+		$this->save();
+
+
+//		var_dump(GO()->getDebugger()->entries);
+	}
+	
+	private function serverUpdates($etags) {
 		$fetch = [];		
 		foreach($etags as $uri => $etag) {
 			$card = AccountCard::find(['accountId' => $this->accountId, 'uri' => $uri])->single();			
@@ -118,14 +123,45 @@ class AccountCollection extends Record {
 				$card->accountId = $this->accountId;
 				$card->uri = $uri;				
 			}
-			$card->etag = (string) $subResponse->xpath('//d:getetag')[0];;
+			$card->etag = (string) $subResponse->xpath('//d:getetag')[0];
 			$card->data = $vcard;
 			$card->save();
+		}	
+		
+		
+		//todo this will probably fail on large accounts
+		$deletedCards = AccountCard::find(
+						(new \IFW\Orm\Query())
+						->where(['accountId' => $this->accountId])
+						->where(['!=', ['uri' => array_keys($etags)]])
+						);
+		
+		foreach($deletedCards as $deletedCard) {
+			$deletedCard->delete();
+		}
+	}
+	
+	private function clientUpdates() {
+		$updatedCards = AccountCard::find(
+						(new \IFW\Orm\Query)
+						->where(['accountId' => $this->accountId])
+						->joinRelation('contact')
+						->where('contact.modifiedAt > t.modifiedAt')
+						);
+		
+		
+		$client = $this->account->getClient();
+		
+		foreach($updatedCards as $card) {
+			$card->updateFromContact();
+			$response = $client->put($card->uri, $card->data, $card->etag);
+			
+			if($response->status == 204) { //no content
+				$card->etag = $response->headers['etag'];
+				$card->save();
+			}			
 		}
 		
-		//TODO deletes
-
-//		var_dump(GO()->getDebugger()->entries);
 	}
 	
 	private function getRemoteEtags() {

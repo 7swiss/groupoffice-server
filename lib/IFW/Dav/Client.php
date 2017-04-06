@@ -123,14 +123,9 @@ class Client {
 	 *
 	 * @var	string
 	 */
-	private $url = null;
+	private $host = null;
 
-	/**
-	 * CardDAV server url parts
-	 *
-	 * @var	array
-	 */
-	public $urlParts = null;
+
 
 	/**
 	 * Authentication string
@@ -197,30 +192,13 @@ class Client {
 	 * Constructor
 	 * Sets the CardDAV server url
 	 *
-	 * @param	string	$url	CardDAV server url
+	 * @param	string	$host	CardDAV server url
 	 */
-	public function __construct($url = null) {
-		if ($url !== null) {
-			$this->setUrl($url);
-		}
+	public function __construct($host ) {
+		$this->host = $host;
 	}
 
 
-	/**
-	 * Sets the CardDAV server url
-	 *
-	 * @param	string	$url	CardDAV server url
-	 * @return	void
-	 */
-	public function setUrl($url) {
-		$this->url = $url;
-
-		if (substr($this->url, -1, 1) !== '/') {
-			$this->url = $this->url . '/';
-		}
-
-		$this->urlParts = parse_url($this->url);
-	}
 
 	/**
 	 * Sets authentication information
@@ -269,7 +247,7 @@ class Client {
 		
 		
 		
-		return $this->request($this->url.$path, 'PROPFIND', $body, [
+		return $this->request($path, 'PROPFIND', $body, [
 				'Content-Type: application/xml',
 				'Depth: '.$depth,
 				'Prefer: return-minimal'
@@ -320,7 +298,7 @@ class Client {
 		
 		
 		
-		return $this->request($this->url.$path, 'REPORT', $body, [
+		return $this->request($path, 'REPORT', $body, [
 				'Content-Type: application/xml',
 				'Depth: '.$depth,
 				'Prefer: return-minimal'
@@ -368,7 +346,7 @@ Content-Type: application/xml; charset=utf-8
 		
 		$body = $dom->saveXML();
 		
-		return $this->request($this->url.$path, 'REPORT', $body, [
+		return $this->request($path, 'REPORT', $body, [
 				'Content-Type: application/xml',
 				'Depth: 1'
 		]);
@@ -383,7 +361,7 @@ Content-Type: application/xml; charset=utf-8
 	 * @return	boolean
 	 */
 	public function checkConnection() {
-		$result = $this->request($this->url, 'OPTIONS');
+		$result = $this->request($this->host, 'OPTIONS');
 
 		if ($result['http_code'] === 200) {
 			return true;
@@ -413,20 +391,34 @@ Content-Type: application/xml; charset=utf-8
 			}
 		}
 	}
+	
+	
+	public function put($uri, $vcard, $etag = null) {
+		
+		$headers = [
+				'Content-Type: text/vcard; charset=UTF-8'				
+		];
+		
+		if(isset($etag)) {
+			$headers[] = 'If-Match: '.$etag;
+		}
+		
+		return $this->request($uri, 'PUT', $vcard, $headers);
+	}
 
 	/**
 	 * Query the CardDAV server via curl and returns the response
 	 *
-	 * @param	string	$url				CardDAV server URL
+	 * @param	string	$path				Path on the server
 	 * @param	string	$method				HTTP method like (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, COPY, MOVE)
 	 * @param	string	$body			Content for CardDAV queries
-	 * @param	string	$content_type		Set content type
+	 * 
 	 * @return	array						Raw CardDAV Response and http status code
 	 */
-	private function request($url, $method, $body = null, $headers = []) {
+	private function request($path, $method, $body = null, $headers = []) {
 		$this->curlInit();
 
-		curl_setopt($this->curl, CURLOPT_URL, $url);
+		curl_setopt($this->curl, CURLOPT_URL, $this->host.$path);
 		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $method);
 
 		if ($body !== null) {
@@ -439,12 +431,16 @@ Content-Type: application/xml; charset=utf-8
 		
 		curl_setopt($this->curl, CURLINFO_HEADER_OUT, true);
 		
-//		var_dump($headers);
-		
-	
-
 		curl_setopt($this->curl, CURLOPT_HTTPHEADER, $headers);	
 		
+		$responseHeaders = [];	
+		
+		curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$responseHeaders) {
+			if (preg_match('/([\w-]+): (.*)/i', $header, $matches)) {
+				$responseHeaders[strtolower($matches[1])] = $matches[2];
+			}
+			return strlen($header);
+		});
 
 		$completeResponse = curl_exec($this->curl);
 
@@ -454,16 +450,7 @@ Content-Type: application/xml; charset=utf-8
 //		$header = trim(substr($complete_response, 0, $header_size));
 		$response = substr($completeResponse, $header_size);
 		
-		$responseHeaders = [];
-		curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($responseHeaders) {
-			if (preg_match('/([\w-]+): (.*)/i', $header, $matches)) {
-				$responseHeaders[strtolower($matches[1])] = $matches[2];
-			}
-			return strlen($header);
-		});
-		
-		
-		$completeRequest =  $method.' '.$url."\n".$requestHeaders."\n\n".$body;
+		$completeRequest =  $requestHeaders."\n\n".$body;
 		
 		\IFW::app()->debug($completeRequest, 'dav');
 		\IFW::app()->debug($completeResponse, 'dav');
