@@ -1,7 +1,9 @@
 <?php
 namespace GO\Core\Accounts\Model;
 
-use IFW\Orm\Record;
+use GO\Core\Auth\Permissions\Model\Owner;
+use GO\Core\Orm\Record;
+use IFW\Orm\Query;
 /**
  * The Account model
  *
@@ -49,7 +51,7 @@ class Account extends Record {
 			$capabilities = $modelName::getCapabilities();
 			
 			foreach($capabilities as $capability) {
-				$this->capabilities[] = (new \GO\Core\Accounts\Model\Capabiltiy())->setValues(['modelName' => $capability]);
+				$this->capabilities[] = (new Capability())->setValues(['modelName' => $capability]);
 			}
 		}
 		
@@ -74,7 +76,7 @@ class Account extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \GO\Core\Auth\Permissions\Model\Owner();
+		return new Owner();
 	}
 	
 	/**
@@ -93,11 +95,11 @@ class Account extends Record {
 	 * Find by capability 
 	 * 
 	 * @param string $modelName eg. Contact::class
-	 * @param \IFW\Orm\Query $query
+	 * @param Query $query
 	 * @return self[]
 	 */
-	public static function findByCapability($modelName, \IFW\Orm\Query $query = null) {
-		$query = \IFW\Orm\Query::normalize($query)
+	public static function findByCapability($modelName, Query $query = null) {
+		$query = Query::normalize($query)
 					->orderBy(['name' => 'ASC'])
 					->joinRelation('capabilities')
 					->where(['capabilities.modelName' => $modelName]);

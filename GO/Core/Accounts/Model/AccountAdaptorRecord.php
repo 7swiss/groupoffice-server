@@ -19,7 +19,7 @@ abstract class AccountAdaptorRecord extends Record implements AccountAdaptorInte
 		
 		if($this->isNew()) {
 			$this->coreAccount = new Account();
-			$this->coreAccount->createdBy  = isset($this->createdBy) ? $this->createdBy : GO()->getAuth()->user()->id();
+//			$this->coreAccount->ownedBy  = isset($this->createdBy) ? $this->createdBy : GO()->getAuth()->user()->id();
 			$this->coreAccount->modelName = $this->getClassName();
 		}
 	}

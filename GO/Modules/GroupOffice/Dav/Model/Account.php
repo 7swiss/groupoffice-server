@@ -28,13 +28,10 @@ class Account extends \GO\Core\Accounts\Model\AccountAdaptorRecord {
 		self::hasMany('collections', AccountCollection::class, ['id' => 'accountId']);
 	}
 	
-	protected function init() {
-		parent::init();
-		
-		if($this->isNew()) {
-			$this->coreAccount->capabilities[] = (new \GO\Core\Accounts\Model\Capabiltiy())->setValues(['modelName' => \GO\Modules\GroupOffice\Contacts\Model\Contact::class]);
-		}
+	public static function getCapabilities() {
+		return [\GO\Modules\GroupOffice\Contacts\Model\Contact::class];
 	}
+	
 	
 	private $client;
 	
