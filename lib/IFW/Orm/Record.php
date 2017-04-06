@@ -145,7 +145,7 @@ abstract class Record extends DataModel {
 	
 	use \IFW\Event\EventEmitterTrait;
 	
-	use \IFW\Data\ValidationTrait;
+	use \IFW\Validate\ValidationTrait;
 	
 	/**
 	 * Event fired in the save function.

@@ -34,7 +34,7 @@ use IFW\Data\Model;
  */
 class SMTPDetector extends Model {
 	
-	use \IFW\Data\ValidationTrait;
+	use \IFW\Validate\ValidationTrait;
 
 	public $hostname;
 	public $port;
