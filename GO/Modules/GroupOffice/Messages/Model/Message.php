@@ -2,7 +2,7 @@
 namespace GO\Modules\GroupOffice\Messages\Model;
 
 use DateTime;
-use GO\Core\Accounts\Model\AccountRecord;
+use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use GO\Core\Blob\Model\BlobNotifierTrait;
 use GO\Core\Users\Model\User;
 use GO\Modules\GroupOffice\Contacts\Model\Contact;
@@ -268,7 +268,7 @@ class Message extends \GO\Core\Orm\Record {
 		$message = new self;
 		$message->thread = new \GO\Modules\GroupOffice\Messages\Model\Thread();
 		$message->accountId = $message->thread->accountId = $accountId;
-		$address = $message->thread->account->getAccountRecord()->getFromAddress();
+		$address = $message->thread->account->getAdaptor()->getFromAddress();
 		$message->from = $address;
 		
 		$message->photoBlobId = GO()->getAuth()->sudo(function() use ($address)  {

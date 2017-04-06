@@ -12,7 +12,7 @@ use GO\Core\Auth\Permissions\Model\GroupAccess;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class ContactGroup extends GroupAccess {
+class AccountGroup extends GroupAccess {
 
 	/**
 	 * 
@@ -26,20 +26,15 @@ class ContactGroup extends GroupAccess {
 	 */							
 	public $write = true;
 
-	/**
-	 * 
-	 * @var bool
-	 */							
-	public $delete = true;
 
 	/**
 	 * 
 	 * @var int
 	 */
-	public $contactId;
+	public $accountId;
 
 
 	protected static function groupsFor() {
-		return self::hasOne('contact', Contact::class, ['contactId' => 'id']);
+		return self::hasOne('account', Account::class, ['accountId' => 'id']);
 	}
 }

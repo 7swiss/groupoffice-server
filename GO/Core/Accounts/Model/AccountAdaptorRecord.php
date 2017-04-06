@@ -6,7 +6,7 @@ use GO\Core\Orm\Record;
 /**
  * @param Account $coreAccount
  */
-abstract class AccountRecord extends Record {
+abstract class AccountAdaptorRecord extends Record implements AccountAdaptorInterface{
 	protected static function defineRelations() {
 		
 		self::hasOne('coreAccount', Account::class, ['id' => 'id']);
@@ -63,7 +63,14 @@ abstract class AccountRecord extends Record {
 	
 	abstract public function getName();
 	
-
 	
+	public static function getInstance(\GO\Core\Accounts\Model\Account $record) {
+		return static::findByPk($record->id);
+	}
+	
+	
+	public static function getCapabilities() {
+		return [];
+	}
 	
 }

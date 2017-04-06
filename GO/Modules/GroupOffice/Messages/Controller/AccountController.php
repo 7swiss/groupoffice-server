@@ -24,7 +24,8 @@ class AccountController extends Controller {
 		
 		$query = (new Query())
 						->orderBy(['name' => 'ASC'])
-						->where(['modelName' => Module::getAccountModelNames()]);
+						->joinRelation('capabilities')
+						->where(['capabilities.modelName' => Thread::class]);
 		
 		if(isset($q)) {
 			$query->setFromClient($q);			

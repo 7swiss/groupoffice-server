@@ -5,7 +5,8 @@ use IFW\Orm\Record;
 /**
  * The Account model
  *
- *
+ * @property Capability[] $capabilities
+ * 
  * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
@@ -34,7 +35,26 @@ class Account extends Record {
 	 * 
 	 * @var int
 	 */							
-	public $createdBy;
+	public $ownedBy;
+	
+	protected static function defineRelations() {
+		self::hasMany('capabilities', Capability::class, ['id' => 'accountId']);
+	}
+	
+	protected function internalSave() {
+		
+		if($this->isNew()) {
+			
+			$modelName = $this->modelName;
+			$capabilities = $modelName::getCapabilities();
+			
+			foreach($capabilities as $capability) {
+				$this->capabilities[] = (new \GO\Core\Accounts\Model\Capabiltiy())->setValues(['modelName' => $capability]);
+			}
+		}
+		
+		return parent::internalSave();
+	}
 
 	public static function syncAll() {
 		$accounts = self::find();
@@ -44,7 +64,7 @@ class Account extends Record {
 				continue;
 			}
 			
-			$account->getAccountRecord()->sync();
+			$account->getAdaptor()->sync();
 		}
 	}
 		
@@ -54,7 +74,7 @@ class Account extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\CreatorOnly();
+		return new \GO\Core\Auth\Permissions\Model\Owner();
 	}
 	
 	/**
@@ -62,10 +82,11 @@ class Account extends Record {
 	 * 
 	 * For example an imap account
 	 * 
-	 * @return AccountRecord
+	 * @return AccountAdaptorInterface
 	 */
-	public function getAccountRecord() {
+	public function getAdaptor() {
 		$modelName = $this->modelName;
-		return $modelName::findByPk($this->id);
+		return $modelName::getInstance($this);
+		
 	}
 }

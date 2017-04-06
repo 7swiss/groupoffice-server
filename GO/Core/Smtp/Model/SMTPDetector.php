@@ -2,6 +2,7 @@
 namespace GO\Core\Smtp\Model;
 
 use IFW\Data\Model;
+use function GO;
 
 /**
  * SMTP Auto detection

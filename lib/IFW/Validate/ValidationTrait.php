@@ -1,5 +1,5 @@
 <?php
-namespace IFW\Data;
+namespace IFW\Validate;
 
 trait ValidationTrait {
 	private $validationErrors = null;
