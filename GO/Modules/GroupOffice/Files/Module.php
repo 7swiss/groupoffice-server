@@ -39,7 +39,7 @@ class Module extends InstallableModule {
 			->get('mounts', 'mountStore')
 			->get('drives/:id', 'read')
 			->put('drives/:id', 'update')
-			->post('drives/:id', 'create')
+			->post('drives', 'create')
 			->post('drives/:id/mount', 'mount');
 	}
 

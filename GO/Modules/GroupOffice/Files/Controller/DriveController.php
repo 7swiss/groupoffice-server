@@ -43,13 +43,37 @@ class DriveController extends Controller {
 
 	}
 
-	protected function actionRead($id, $returnProperties = "*") {
+	protected function actionRead($id, $returnProperties = "*,groups") {
 
 		$drive = Drive::findByPk($id);
 
 		if (!$drive) {
 			throw new NotFound();
 		}
+
+		$this->renderModel($drive, $returnProperties);
+	}
+
+	public function actionCreate($returnProperties = "*") {
+
+		$data = IFW::app()->getRequest()->body['data'];
+		$drive = new Drive();
+		$drive->setValues($data);
+		$drive->save();
+
+		$this->renderModel($drive, $returnProperties);
+	}
+
+	public function actionUpdate($id, $returnProperties = "*,groups") {
+
+		$drive = Drive::findByPk($id);
+
+		if (!$drive) {
+			throw new NotFound();
+		}
+
+		$drive->setValues(IFW::app()->getRequest()->body['data']);
+		$drive->save();
 
 		$this->renderModel($drive, $returnProperties);
 	}
