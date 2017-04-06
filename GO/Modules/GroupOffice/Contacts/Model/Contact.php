@@ -227,6 +227,15 @@ class Contact extends Record {
 		parent::defineRelations();
 	}
 	
+	protected function init() {
+		parent::init();
+		
+		if($this->isNew()) {
+			$this->account = \GO\Core\Accounts\Model\Account::findByCapability(self::class)->single();
+		}
+		
+	}
+	
 	public function internalValidate() {
 		//always fill name field on contact too
 		if(!isset($this->name) && !$this->isOrganization){

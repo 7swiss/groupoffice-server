@@ -86,7 +86,22 @@ class Account extends Record {
 	 */
 	public function getAdaptor() {
 		$modelName = $this->modelName;
-		return $modelName::getInstance($this);
+		return $modelName::getInstance($this);		
+	}
+	
+	/**
+	 * Find by capability 
+	 * 
+	 * @param string $modelName eg. Contact::class
+	 * @param \IFW\Orm\Query $query
+	 * @return self[]
+	 */
+	public static function findByCapability($modelName, \IFW\Orm\Query $query = null) {
+		$query = \IFW\Orm\Query::normalize($query)
+					->orderBy(['name' => 'ASC'])
+					->joinRelation('capabilities')
+					->where(['capabilities.modelName' => $modelName]);
 		
+		return self::find($query);
 	}
 }
