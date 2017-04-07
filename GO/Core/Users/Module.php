@@ -26,7 +26,7 @@ class Module extends InstallableModule {
 						->get('auth/users/:userId', 'read')
 						->put('auth/users/:userId', 'update')
 						->post('auth/users', 'create')
-						->delete('auth/users', 'delete')
+						->delete('auth/users/:userId', 'delete')
 						->get('auth/users/filters', 'filters')
 						->put('auth/users/:userId/change-password', 'changePassword');
 		
@@ -35,9 +35,6 @@ class Module extends InstallableModule {
 						->post('auth/users/:userId/resetpassword', 'resetPassword');
 		
 		
-		$router->addRoutesFor(ThumbController::class)		
-						->get('auth/users/:userId/photo', 'download');
-
 		$router->addRoutesFor(GroupController::class)
 						->get('auth/groups', 'store')
 						->get('auth/groups/0', 'new')

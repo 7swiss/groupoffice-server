@@ -5,6 +5,7 @@ namespace GO\Core;
 use GO\Core\Accounts\Controller\AccountController;
 use GO\Core\Auth\Browser\Controller\AuthController;
 use GO\Core\Blob\Controller\BlobController;
+use GO\Core\Comments\Controller\CommentController;
 use GO\Core\Cron\Controller\JobController;
 use GO\Core\CustomFields\Controller\FieldController;
 use GO\Core\CustomFields\Controller\FieldSetController;
@@ -20,12 +21,10 @@ use GO\Core\Smtp\Controller\AccountController as SmtpAccountController;
 use GO\Core\Tags\Controller\TagController;
 use GO\Core\Templates\Controller\MessageController;
 use GO\Core\Templates\Controller\PdfController;
-use GO\Core\Upload\Controller\FlowController;
 use GO\Core\Upload\Controller\TempThumbController;
 use GO\Core\Users\Controller\AdminUserController;
 use GO\Core\Users\Controller\ForgotPasswordController;
 use GO\Core\Users\Controller\GroupController;
-use GO\Core\Users\Controller\ThumbController;
 use GO\Core\Users\Controller\UserController;
 use IFW\Cli\Router as Router2;
 use IFW\Modules\Module as BaseModule;
@@ -125,37 +124,7 @@ class Module extends BaseModule {
 						->post('auth', 'login')
 						->delete('auth', 'logout')
 						->post('auth/users/:userId/switch-to', 'switchTo');
-
-//		Oauth2Controller::routes()
-//				->post('auth/oauth2/token', 'token');
-
-		$router->addRoutesFor(AdminUserController::class)
-						->get('auth/users', 'store')
-						->get('auth/users/0', 'new')
-						->get('auth/users/:userId', 'read')
-						->put('auth/users/:userId', 'update')
-						->post('auth/users', 'create')
-						->delete('auth/users', 'delete')
-						->get('auth/users/filters', 'filters');
-		
-			$router->addRoutesFor(UserController::class)
-						->put('auth/users/:userId/change-password', 'changePassword');
-		
-		$router->addRoutesFor(ForgotPasswordController::class)
-						->post('auth/forgotpassword/:email', 'send')
-						->post('auth/users/:userId/resetpassword', 'resetPassword');
-		
-		
-		$router->addRoutesFor(ThumbController::class)		
-						->get('auth/users/:userId/photo', 'download');
-
-		$router->addRoutesFor(GroupController::class)
-						->get('auth/groups', 'store')
-						->get('auth/groups/0', 'new')
-						->get('auth/groups/:groupId', 'read')
-						->put('auth/groups/:groupId', 'update')
-						->post('auth/groups', 'create')
-						->delete('auth/groups', 'delete');
+	
 		
 		$router->addRoutesFor(EntryController::class)
 						->get('log', 'store')
@@ -182,7 +151,7 @@ class Module extends BaseModule {
 						->post('templates/pdf/:moduleClassName/:pdfTemplateId/duplicate', 'duplicate');
 		
 		
-		$router->addRoutesFor(Comments\Controller\CommentController::class)
+		$router->addRoutesFor(CommentController::class)
 						->crud('comments', 'commentId');
 		
 		

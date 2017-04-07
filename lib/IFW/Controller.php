@@ -122,6 +122,8 @@ abstract class Controller extends Object {
 		}
 		
 		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
+		
+		\IFW::app()->debug("Running controller action: ".static::class.'::action'.$action);
 
 		//Should we remove action prefix? Please consider reserved name like "print"
 		$this->callMethodWithParams("action".$action, $routerParams);
