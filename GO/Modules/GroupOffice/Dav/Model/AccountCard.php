@@ -76,7 +76,8 @@ class AccountCard extends Record {
 		
 		if($this->isModified('data')) {			
 			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING);		
-			$this->contact = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::fromVCard($vcard, $this->contact);				
+			$this->contact = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::fromVCard($vcard, $this->contact);		
+			$this->contact->accountId = $this->accountId;
 			
 			//sync modifiedAt
 			$this->contact->modifiedAt = $this->modifiedAt = new \DateTime();

@@ -405,6 +405,16 @@ Content-Type: application/xml; charset=utf-8
 		
 		return $this->request($uri, 'PUT', $vcard, $headers);
 	}
+	
+	public function delete($uri, $etag = null) {
+		$headers = [];
+		
+		if(isset($etag)) {
+			$headers[] = 'If-Match: '.$etag;
+		}
+		
+		return $this->request($uri, 'DELETE', null, $headers);
+	}
 
 	/**
 	 * Query the CardDAV server via curl and returns the response

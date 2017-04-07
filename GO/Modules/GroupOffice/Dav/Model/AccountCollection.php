@@ -96,10 +96,7 @@ class AccountCollection extends Record {
 		
 		
 		$this->ctag = $this->getRemoteCtag();
-		$this->save();
-
-
-//		var_dump(GO()->getDebugger()->entries);
+		return $this->save();
 	}
 	
 	private function serverUpdates($etags) {
@@ -145,23 +142,52 @@ class AccountCollection extends Record {
 		$updatedCards = AccountCard::find(
 						(new \IFW\Orm\Query)
 						->where(['accountId' => $this->accountId])
-						->joinRelation('contact')
+						->withDeleted()
+						->joinRelation('contact', true)
 						->where('contact.modifiedAt > t.modifiedAt')
 						);
 		
+		foreach($updatedCards as $card) {			
+
+			if($card->contact->deleted) {
+				
+				$this->deleteContact($card);
+				
+			} else {
+				$this->updateContact($card);
+			}
+		}
+		exit();
 		
-		$client = $this->account->getClient();
-		
-		foreach($updatedCards as $card) {
-			$card->updateFromContact();
-			$response = $client->put($card->uri, $card->data, $card->etag);
-			
-			if($response->status == 204) { //no content
-				$card->etag = $response->headers['etag'];
-				$card->save();
-			}			
+	}
+	
+	private function updateContact(AccountCard $card) {
+		$card->updateFromContact();
+		$response = $this->account->getClient()->put($card->uri, $card->data, $card->etag);
+
+		if($response->status != 204) { //no content			
+			throw new \Exception("DAV server returned ".$response->status." ".$response->body);
 		}
 		
+		$card->etag = $response->headers['etag'];
+		if(!$card->save()) {
+			throw new \Exception("Couldn't save card");
+		}
+
+	}
+	
+	private function deleteContact(AccountCard $card) {
+		
+		$response = $this->account->getClient()->delete($card->uri, $card->etag);
+
+		if($response->status != 204) { //no content			
+			throw new \Exception("DAV server returned ".$response->status." ".$response->body);
+		}
+
+		if(!$card->delete()) {
+			throw new \Exception("Couldn't save card");
+		}
+
 	}
 	
 	private function getRemoteEtags() {
