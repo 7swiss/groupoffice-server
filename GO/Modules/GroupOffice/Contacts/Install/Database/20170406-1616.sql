@@ -1,7 +1,7 @@
 ALTER TABLE `contacts_contact` ADD `accountId` INT NOT NULL AFTER `deleted`, ADD INDEX (`accountId`);
 INSERT INTO `accounts_account` (`id`, `name`, `modelName`, `ownedBy`) VALUES (NULL, 'GroupOffice', 'GO\\Modules\\GroupOffice\\Contacts\\Model\\Account', '2');
 
-update contacts_contact set accountId = (select id from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account" limit 0,1)
+update contacts_contact set accountId = (select id from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account" limit 0,1);
 
 insert into `accounts_capability` select null, id, "GO\\Modules\\GroupOffice\\Contacts\\Model\\Contact" from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account";
 
@@ -14,7 +14,7 @@ CREATE TABLE `contacts_account_group` (
   `accountId` int(11) NOT NULL,
   `groupId` int(11) NOT NULL,
   `write` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB;
 
 --
 -- Gegevens worden geëxporteerd voor tabel `contacts_account_group`
