@@ -125,6 +125,8 @@ class Notification extends Record {
 	const CATEGORY_PROGRESS = 'progress';
 
 	use BlobNotifierTrait;
+	
+	private static $suspended = false;
 
 	protected static function defineRelations() {
 		self::hasOne('creator', User::class, ['createdBy' => 'id']);
@@ -138,6 +140,20 @@ class Notification extends Record {
 		//todo only for
 		return new Everyone();
 	}
+	
+	/**
+	 * Avoid creating notifications
+	 */
+	public static function suspend() {
+		self::$suspended = true;
+	}
+	
+	/**
+	 * Resume create notifications
+	 */
+	public static function resume() {
+		self::$suspended = false;	
+	}
 
 	/**
 	 * 
@@ -150,6 +166,10 @@ class Notification extends Record {
 	 * @return self
 	 */
 	public static function create($type, $data, Record $record, $iconBlobId = null, $forGroupId = null) {
+		
+		if(self::$suspended) {
+			return true;
+		}
 
 		$notification = new self();
 		$notification->iconBlobId = isset($iconBlobId) ? $iconBlobId : GO()->getAuth()->user()->photoBlobId;

@@ -12,9 +12,17 @@ return [
 				'database' => 'go7',
 				'host' => 'localhost',
 		],
+		
+//		Needed on MySQL < 5.7 because ONLY_FULL_GROUP_BY is buggy
+//		'IFW\Db\PDO' => [
+//				'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+//		],
+		
 		'IFW\Validate\ValidatePassword' => [
 			'enabled' => true
 		],
+		
+		
 		
 		//"GO\Core\Auth\Browser\Model\Token" => [
 		//	'checkXSRFToken' => false	
