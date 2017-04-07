@@ -103,7 +103,12 @@ class Tag extends Record{
 		
 //		$query->joinModel($tagLinkModelName, 'id', 'link', 'tagId');
 		$viaRecordName = $relation->getViaRecordName();
-		$query->join($viaRecordName::tableName(),'link', 't.id = link.tagId');
+		
+		$subQuery = $viaRecordName::find((new Query())->tableAlias('link')->where('t.id = link.tagId'));
+		
+//		$query->join($viaRecordName::tableName(),'link', 't.id = link.tagId');
+		
+		$query->where(['EXISTS', $subQuery]);
 			
 		if($countItems)
 		{
@@ -117,7 +122,6 @@ class Tag extends Record{
 
 			$query->select('t.*, count(link.'.$colName.') as count');			
 		}
-		$query->groupBy(['t.id']);
 		
 		return self::find($query);
 	}
