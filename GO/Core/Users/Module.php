@@ -3,10 +3,9 @@
 namespace GO\Core\Users;
 
 use GO\Core\Modules\Model\InstallableModule;
-use GO\Core\Users\Controller\AdminUserController;
+use GO\Core\Modules\Model\Module as CoreModule;
 use GO\Core\Users\Controller\ForgotPasswordController;
 use GO\Core\Users\Controller\GroupController;
-use GO\Core\Users\Controller\ThumbController;
 use GO\Core\Users\Controller\UserController;
 use GO\Core\Users\Model\UsersModulePermissions;
 use IFW\Web\Router;
@@ -45,7 +44,7 @@ class Module extends InstallableModule {
 		
 	}
 	
-	protected function installPermissions(\GO\Core\Modules\Model\Module $record) {
+	protected function installPermissions(CoreModule $record) {
 		//we don't want to grant everyone access on install
 		return true;
 	}
