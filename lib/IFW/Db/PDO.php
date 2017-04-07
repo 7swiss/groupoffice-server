@@ -22,33 +22,31 @@ class PDO extends PhpPdo {
 
 	public function __construct($dsn, $username, $passwd, $options = null) {
 		parent::__construct($dsn, $username, $passwd, $options);
-		
+
 		$this->applyConfig();
 
 		$this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$this->setAttribute(PDO::ATTR_PERSISTENT, true);
 
 		$this->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
-		
-		if(isset($this->sqlMode)) {
+
+		if (isset($this->sqlMode)) {
 			$this->query("SET sql_mode='" . $this->sqlMode . "'");
 		}
-		
+
 		$this->query("SET time_zone = '+00:00'");
 	}
-	
-
 
 	/**
 	 * Applies config options to this object
 	 */
-	private function applyConfig(){
-		$className = static::class;		
-		if(isset(IFW::app()->getConfig()->classConfig[$className])){			
-			foreach(IFW::app()->getConfig()->classConfig[$className] as $key => $value){
+	private function applyConfig() {
+		$className = static::class;
+		if (isset(IFW::app()->getConfig()->classConfig[$className])) {
+			foreach (IFW::app()->getConfig()->classConfig[$className] as $key => $value) {
 				$this->$key = $value;
 			}
-		}		
+		}
 	}
 
 }
