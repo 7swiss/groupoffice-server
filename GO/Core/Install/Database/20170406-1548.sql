@@ -7,51 +7,21 @@ ALTER TABLE `accounts_account` ADD FOREIGN KEY (`ownedBy`) REFERENCES `auth_grou
 ALTER TABLE `accounts_account` DROP `createdBy`;
 
 
-
-
----------------
-
---
--- Tabelstructuur voor tabel `accounts_capability`
---
-
 CREATE TABLE `accounts_capability` (
   `id` int(11) NOT NULL,
   `accountId` int(11) NOT NULL,
   `modelName` varchar(190) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT;
 
---
--- Gegevens worden geëxporteerd voor tabel `accounts_capability`
---
 
---
--- Indexen voor geëxporteerde tabellen
---
-
---
--- Indexen voor tabel `accounts_capability`
---
 ALTER TABLE `accounts_capability`
   ADD PRIMARY KEY (`id`),
   ADD KEY `accountId` (`accountId`);
 
---
--- AUTO_INCREMENT voor geëxporteerde tabellen
---
 
---
--- AUTO_INCREMENT voor een tabel `accounts_capability`
---
 ALTER TABLE `accounts_capability`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
---
--- Beperkingen voor geëxporteerde tabellen
---
 
---
--- Beperkingen voor tabel `accounts_capability`
---
 ALTER TABLE `accounts_capability`
   ADD CONSTRAINT `accounts_capability_ibfk_1` FOREIGN KEY (`accountId`) REFERENCES `accounts_account` (`id`) ON DELETE CASCADE;
 
