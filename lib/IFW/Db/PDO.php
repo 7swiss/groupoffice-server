@@ -1,5 +1,9 @@
 <?php
+
 namespace IFW\Db;
+
+use IFW;
+use PDO as PhpPdo;
 
 /**
  * PDO Connection
@@ -12,24 +16,39 @@ namespace IFW\Db;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class PDO extends \PDO{
-	
-	protected $sqlMode = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
-	
-	public function __construct($dsn, $username, $passwd, $options=null) {
+class PDO extends PhpPdo {
+
+	public $sqlMode = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
+
+	public function __construct($dsn, $username, $passwd, $options = null) {
 		parent::__construct($dsn, $username, $passwd, $options);
 		
-		$this->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$this->setAttribute(\PDO::ATTR_PERSISTENT, true);
+		$this->applyConfig();
 
-		//needed for foundRows
-//		$this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true); 
+		$this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->setAttribute(PDO::ATTR_PERSISTENT, true);
 
 		$this->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
 		
-		$this->query("SET sql_mode='".$this->sqlMode."'");
-		
+		if(isset($this->sqlMode)) {
+			$this->query("SET sql_mode='" . $this->sqlMode . "'");
+		}
 		
 		$this->query("SET time_zone = '+00:00'");
 	}
+	
+
+
+	/**
+	 * Applies config options to this object
+	 */
+	private function applyConfig(){
+		$className = static::class;		
+		if(isset(IFW::app()->getConfig()->classConfig[$className])){			
+			foreach(IFW::app()->getConfig()->classConfig[$className] as $key => $value){
+				$this->$key = $value;
+			}
+		}		
+	}
+
 }
