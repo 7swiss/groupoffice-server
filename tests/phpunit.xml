@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit 
+	bootstrap="bootstrap.php"
+	colors="true"
+	processIsolation="false"
+	backupGlobals="false"
+   backupStaticAttributes="false">
+
+    <testsuites>
+        <testsuite name="go-calendar">
+            <directory>GO/Modules/Calendar</directory>
+        </testsuite>
+		  <testsuite name="go-core">
+            <directory>GO/Core</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>./</directory>
+            <exclude>
+                <directory>./Tests</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
