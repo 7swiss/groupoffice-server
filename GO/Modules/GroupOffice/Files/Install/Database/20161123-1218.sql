@@ -129,6 +129,3 @@ CREATE TABLE IF NOT EXISTS `files_node_user` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
-
-INSERT INTO `files_node` (`id`, `name`, `createdAt`, `modifiedAt`, `versionUntil`, `metaData`, `deleted`, `blobId`, `isDirectory`, `ownedBy`, `parentId`)
-VALUES ('1', '/', '0', '0', '0', '', '0', null, '1', '1', '1');
