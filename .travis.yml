@@ -10,4 +10,4 @@ before_script:
   - mysql -e 'DROP DATABASE IF EXISTS go7_test;' -uroot
   - mysql -e 'CREATE DATABASE go7_test;' -uroot
 
-script: phpunit --configuration phpunit.xml --coverage-text
+script: phpunit --configuration tests/phpunit.xml --coverage-text
