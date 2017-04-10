@@ -10,9 +10,6 @@
         <testsuite name="go-calendar">
             <directory>GO/Modules/Calendar</directory>
         </testsuite>
-		  <testsuite name="go-core">
-            <directory>GO/Core</directory>
-        </testsuite>
     </testsuites>
 
     <filter>
