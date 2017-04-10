@@ -145,7 +145,7 @@ abstract class Record extends DataModel {
 	
 	use \IFW\Event\EventEmitterTrait;
 	
-	use \IFW\Data\ValidationTrait;
+	use \IFW\Validate\ValidationTrait;
 	
 	/**
 	 * Event fired in the save function.
@@ -1446,7 +1446,7 @@ abstract class Record extends DataModel {
 			}
 
 			if(!$relationStore->save()) {				
-				$this->setValidationError($relationName, 'relation');				
+				$this->setValidationError($relationName, \IFW\Validate\ErrorCode::RELATIONAL);				
 				return false;
 			}
 		}
@@ -1525,7 +1525,7 @@ abstract class Record extends DataModel {
 			}
 			
 			if(!$relationStore->save()) {						
-				$this->setValidationError($relationName, 'relation');
+				$this->setValidationError($relationName, \IFW\Validate\ErrorCode::RELATIONAL);
 				return false;
 			}
 		}
@@ -1872,7 +1872,7 @@ abstract class Record extends DataModel {
 			}
 			
 			if (!empty($column->length) && !empty($this->$colName) && StringUtil::length($this->$colName) > $column->length) {
-				$this->setValidationError($colName, 'maxLength', ['length' => $column->length, 'value'=>$this->$colName]);
+				$this->setValidationError($colName, \IFW\Validate\ErrorCode::MALFORMED, 'Length can\'t be greater than '.$column->length);
 			}
 			
 			if($column->unique && isset($this->$colName)){
@@ -1903,7 +1903,7 @@ abstract class Record extends DataModel {
 				$this->setValidationError(
 								$validator->getId(), 
 								$validator->getErrorCode(), 
-								$validator->getErrorInfo()
+								$validator->getErrorData()
 								);
 			}
 		}
@@ -1978,13 +1978,13 @@ abstract class Record extends DataModel {
 				case PDO::PARAM_BOOL:
 				case PDO::PARAM_INT:
 					if (!isset($this->{$column->name})) {
-						$this->setValidationError($column->name, "required");
+						$this->setValidationError($column->name, \IFW\Validate\ErrorCode::REQUIRED);
 						return false;
 					}
 					break;
 				default:
 					if (empty($this->{$column->name})) {
-						$this->setValidationError($column->name, "required");
+						$this->setValidationError($column->name, \IFW\Validate\ErrorCode::REQUIRED);
 						return false;
 					}
 					break;

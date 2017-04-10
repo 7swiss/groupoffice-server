@@ -48,9 +48,12 @@ class UserGroup extends Record{
 	
 	protected function internalDelete($hard) {
 		
+		if($this->groupId == Group::ID_ADMINS) {
+			throw new \IFW\Exception\Forbidden("Admins group can't be deleted!");
+		}
+		
 		if($this->groupId == Group::ID_EVERYONE) {
-			$this->setValidationError('deleted', "CANT_REMOVE_EVERYONE");
-			return false;
+			throw new \IFW\Exception\Forbidden("Everyone group can't be deleted!");
 		}
 		return parent::internalDelete($hard);
 	}

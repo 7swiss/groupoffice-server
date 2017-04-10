@@ -232,6 +232,10 @@ class AbstractRecordTest extends TestCase {
 		
 		$success = $contact->save() !== false;
 
+		if(!$success) {
+			var_dump($contact->getValidationErrors());
+		}
+		
 		$this->assertEquals(true, $success);
 		
 		$this->assertEquals($contact->user->username, $user->username);
@@ -349,6 +353,10 @@ class AbstractRecordTest extends TestCase {
 		
 		
 //		var_dump($contact->getRelation('organization')->isBelongsTo());
+		
+		if(!$success) {
+			var_dump($contact->getValidationErrors());
+		}
 
 		$this->assertEquals(true, $success);		
 		

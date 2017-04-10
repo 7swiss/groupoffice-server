@@ -2,6 +2,7 @@
 namespace GO\Core\Smtp\Model;
 
 use IFW\Data\Model;
+use function GO;
 
 /**
  * SMTP Auto detection
@@ -34,7 +35,7 @@ use IFW\Data\Model;
  */
 class SMTPDetector extends Model {
 	
-	use \IFW\Data\ValidationTrait;
+	use \IFW\Validate\ValidationTrait;
 
 	public $hostname;
 	public $port;

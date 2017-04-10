@@ -384,7 +384,7 @@ class Event extends Record {
 		$success = parent::internalValidate();
 
 		if($this->startAt > $this->endAt) {
-			$this->setValidationError('startAt', 'compareGreaterThen');
+			$this->setValidationError('startAt', \IFW\Validate\ErrorCode::MALFORMED, 'Start date is greater than end date');
 			$success = false;
 		}
 		return $success;

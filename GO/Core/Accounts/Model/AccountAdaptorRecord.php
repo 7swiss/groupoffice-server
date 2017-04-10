@@ -6,7 +6,7 @@ use GO\Core\Orm\Record;
 /**
  * @param Account $coreAccount
  */
-abstract class AccountRecord extends Record {
+abstract class AccountAdaptorRecord extends Record implements AccountAdaptorInterface{
 	protected static function defineRelations() {
 		
 		self::hasOne('coreAccount', Account::class, ['id' => 'id']);
@@ -19,7 +19,7 @@ abstract class AccountRecord extends Record {
 		
 		if($this->isNew()) {
 			$this->coreAccount = new Account();
-			$this->coreAccount->createdBy  = isset($this->createdBy) ? $this->createdBy : GO()->getAuth()->user()->id();
+//			$this->coreAccount->ownedBy  = isset($this->createdBy) ? $this->createdBy : GO()->getAuth()->user()->id();
 			$this->coreAccount->modelName = $this->getClassName();
 		}
 	}
@@ -45,13 +45,11 @@ abstract class AccountRecord extends Record {
 	}
 	
 	protected function internalDelete($hard) {
-		
-//		if($hard) {
-			if(!$this->coreAccount->delete()) {
-				$this->setValidationError('id', 'DELETE_CORE_ACCOUNT_FAILED');
-				return false;
-			}
-//		}
+
+		if(!$this->coreAccount->delete()) {
+			$this->setValidationError('id', \IFW\Validate\ErrorCode::RELATIONAL, "Couldn't delete core account record");
+			return false;
+		}
 		
 		return parent::internalDelete($hard);
 	}
@@ -65,7 +63,14 @@ abstract class AccountRecord extends Record {
 	
 	abstract public function getName();
 	
-
 	
+	public static function getInstance(\GO\Core\Accounts\Model\Account $record) {
+		return static::findByPk($record->id);
+	}
+	
+	
+	public static function getCapabilities() {
+		return [];
+	}
 	
 }

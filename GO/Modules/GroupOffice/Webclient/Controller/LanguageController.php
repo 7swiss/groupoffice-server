@@ -172,6 +172,14 @@ class LanguageController extends Controller {
 		fclose($fp);
 	}
 	
+	/**
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=./app --input=/tmp/nl.csv
+	 * 
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=/var/www/html/elearning-webclient/app --input=Teksten\ NL-Frontend\ EntrancePortal\ FC\ bewerkt\ jva\ 7-4-17.csv
+	 * 
+	 * @param type $root
+	 * @param type $input
+	 */
 	public function actionImportCsv($root, $input) {
 		$fp = fopen($input, 'r');
 		

@@ -4,7 +4,7 @@ namespace GO\Modules\GroupOffice\Dav\Model;
 /**
  * @property AccountCollection $collections
  */
-class Account extends \GO\Core\Accounts\Model\AccountRecord {
+class Account extends \GO\Core\Accounts\Model\AccountAdaptorRecord {
 	
 	/**
 	 * 
@@ -27,6 +27,11 @@ class Account extends \GO\Core\Accounts\Model\AccountRecord {
 		
 		self::hasMany('collections', AccountCollection::class, ['id' => 'accountId']);
 	}
+	
+	public static function getCapabilities() {
+		return [\GO\Modules\GroupOffice\Contacts\Model\Contact::class];
+	}
+	
 	
 	private $client;
 	

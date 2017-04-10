@@ -3,7 +3,7 @@
 namespace GO\Core\Smtp\Model;
 
 use ErrorException;
-use GO\Core\Accounts\Model\AccountRecord;
+use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use Swift_Mailer;
 use Swift_SmtpTransport;
 use Swift_Transport;
@@ -15,7 +15,7 @@ use Swift_Transport;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Account extends AccountRecord {
+class Account extends AccountAdaptorRecord {
 
 	
 	/**
@@ -92,7 +92,7 @@ class Account extends AccountRecord {
 		}
 
 		if (!is_resource($handle)) {
-			$this->setValidationError('hostname', 'connecterror', ['msg' => 'Failed to open socket #' . $errorno . '. ' . $errorstr]);
+			$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, 'Failed to open socket #' . $errorno . '. ' . $errorstr);
 			return false;
 		}
 		

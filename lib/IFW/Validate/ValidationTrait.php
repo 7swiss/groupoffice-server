@@ -1,5 +1,5 @@
 <?php
-namespace IFW\Data;
+namespace IFW\Validate;
 
 trait ValidationTrait {
 	private $validationErrors = null;
@@ -55,7 +55,7 @@ trait ValidationTrait {
 		foreach ($validators as $validator) {
 			if (!$validator->validate($this)) {
 				$this->setValidationError(
-								$validator->getId(), $validator->getErrorCode(), $validator->getErrorInfo());
+								$validator->getId(), $validator->getErrorCode(), $validator->getErrorData());
 			}
 		}
 		
@@ -94,15 +94,21 @@ trait ValidationTrait {
 	 * The key for an error must be unique.
 	 * 
 	 * @param string $key 
-	 * @param string $code  Code for the client. eg. "required" or "maxLength"
+	 * @param int $code  Error code. {@see \IFW\Validate\ErrorCode} class for general constants
+	 * @param string $description Override the default description. Pure info for the API developer. Clients shouldn't use this.
+	 * @param array $data Arbitrary data for output to the client
 	 */
-	protected function setValidationError($key, $code, $info = array()) {
+	protected function setValidationError($key, $code, $description = null, $data = []) {
+		
+		if(!isset($description)) {
+			$description = \IFW\Validate\ErrorCode::getDescription($code);
+		}
 		
 		\IFW::app()->debug("Validation error in ".$this->getClassName().'::'.$key.': '.$code, 'validation', 1);
 		
-		\IFW::app()->getDebugger()->debugCalledFrom();
+//		\IFW::app()->getDebugger()->debugCalledFrom();
 		
-		$this->validationErrors[$key] = array('code' => $code, 'info' => $info);
+		$this->validationErrors[$key] = ['code' => $code, 'description' => $description, 'data' => $data];
 	}
 
 	/**

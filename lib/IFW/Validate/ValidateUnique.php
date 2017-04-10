@@ -35,7 +35,7 @@ use IFW\Orm\Query;
  */
 class ValidateUnique extends Base {
 
-	private $_relatedColumns = [];
+	private $relatedColumns = [];
 
 	/**
 	 * Validate a unique value of this column in combination with other columns.
@@ -43,7 +43,7 @@ class ValidateUnique extends Base {
 	 * @param array $relatedColumns
 	 */
 	public function setRelatedColumns(array $relatedColumns) {
-		$this->_relatedColumns = $relatedColumns;
+		$this->relatedColumns = $relatedColumns;
 	}
 
 	/**
@@ -52,8 +52,8 @@ class ValidateUnique extends Base {
 	 * @param Model $model
 	 * @return boolean
 	 */
-	public function validate(Model $model) {
-		$relatedColumns = $this->_relatedColumns;
+	protected function internalValidate(Model $model) {
+		$relatedColumns = $this->relatedColumns;
 
 		if (!in_array($this->getId(), $relatedColumns)) {
 			$relatedColumns[] = $this->getId();
@@ -76,13 +76,8 @@ class ValidateUnique extends Base {
 		}
 		
 		$existing = $model->find($query)->single();
-		if ($existing) {
-
-			$this->errorCode = 'UNIQUE';
-			$this->errorInfo = ['relatedColumns' => $this->_relatedColumns];
-
-			return false;
+		if ($existing) {			
+			$this->setValidationError(ErrorCode::UNIQUE, 'The value must be unique', ['relatedColumns' => $this->relatedColumns]);
 		}
-		return true;
 	}
 }

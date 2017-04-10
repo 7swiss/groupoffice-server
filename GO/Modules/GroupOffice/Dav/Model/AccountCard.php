@@ -47,7 +47,7 @@ class AccountCard extends Record {
 	 * 
 	 * @var string
 	 */
-	protected $data;
+	public $data;
 
 	/**
 	 * 
@@ -56,7 +56,7 @@ class AccountCard extends Record {
 	public $uri;
 
 	/**
-	 * Universal Unique Identifier @see getUuid()
+	 * 
 	 * @var string
 	 */
 	public $etag;
@@ -76,7 +76,8 @@ class AccountCard extends Record {
 		
 		if($this->isModified('data')) {			
 			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING);		
-			$this->contact = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::fromVCard($vcard, $this->contact);				
+			$this->contact = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::fromVCard($vcard, $this->contact);		
+			$this->contact->accountId = $this->accountId;
 			
 			//sync modifiedAt
 			$this->contact->modifiedAt = $this->modifiedAt = new \DateTime();
@@ -85,11 +86,8 @@ class AccountCard extends Record {
 		return parent::internalSave();
 	}
 	
-	public function setData($data) {
-		$this->data = $data;
-	}
 	
-	public function getData() {
+	public function updateFromContact() {
 		if($this->contact && $this->contact->modifiedAt > $this->modifiedAt) {
 			//update vcard
 			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING);		
@@ -98,9 +96,19 @@ class AccountCard extends Record {
 			
 			$this->data = $vcard->serialize();
 			$this->modifiedAt = $this->contact->modifiedAt;
-			$this->save();
+//			$this->etag = '"'. $this->modifiedAt->format('Ymd Gis') . '"';
+			//$this->save();
+		}
+	}
+	
+
+	
+	protected function internalDelete($hard) {
+		
+		if(!$this->contact->delete()) {
+			return false;
 		}
 		
-		return $this->data;
+		return parent::internalDelete($hard);
 	}
 }

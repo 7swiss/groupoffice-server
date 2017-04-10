@@ -37,15 +37,18 @@ class GroupPermissions extends Model {
 	
 	private $groupAccessRecordName;
 	
+	private $groupAccessKey;
+	
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param string $groupAccessRecordName The link table record
 	 */
-	public function __construct($groupAccessRecordName) {
+	public function __construct($groupAccessRecordName, $key = 'id') {
 		
 		$this->groupAccessRecordName = $groupAccessRecordName;
+		$this->groupAccessKey = $key;
 		parent::__construct();
 	}
 	
@@ -81,7 +84,7 @@ class GroupPermissions extends Model {
 			
 			return $this->groupAccess = $cls::find((new Query())
 							->joinRelation('groupUsers')
-							->andWhere([$cls::getForPk() => $this->record->id])							
+							->andWhere([$cls::getForPk() => $this->record->{$this->groupAccessKey}])							
 							->andWhere(['groupUsers.userId' => $user->id()])
 							)->single();
 		}
@@ -98,7 +101,7 @@ class GroupPermissions extends Model {
 						->tableAlias('groupAccess')						
 						->joinRelation('groupUsers')
 						->where(['groupUsers.userId' => $user->id()])
-						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias().'.id')
+						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias(). '.' . $this->groupAccessKey)
 						);
 		
 		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])

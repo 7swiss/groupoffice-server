@@ -22,15 +22,13 @@ class AccountController extends Controller {
 	public function actionStore($q=null) {
 		
 		
-		$query = (new Query())
-						->orderBy(['name' => 'ASC'])
-						->where(['modelName' => Module::getAccountModelNames()]);
+		$query = new Query();
 		
 		if(isset($q)) {
 			$query->setFromClient($q);			
 		}
 						
-		$accounts = Account::find($query);		
+		$accounts = Account::findByCapability(Thread::class, $query);		
 		$this->renderStore($accounts);		
 	}
 	

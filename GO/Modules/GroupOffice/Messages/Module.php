@@ -31,9 +31,4 @@ class Module extends InstallableModule {
 						->get('messages/tags', 'tags');
 		
 	}
-	
-	
-	public static function getAccountModelNames() {
-		return [\GO\Modules\GroupOffice\Imap\Model\Account::class];
-	}
 }

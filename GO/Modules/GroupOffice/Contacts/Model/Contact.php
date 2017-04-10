@@ -60,6 +60,13 @@ class Contact extends Record {
 	 * @var int
 	 */							
 	public $userId;
+	
+	
+	/**
+	 * Set to user ID if this contact is a profile for that user
+	 * @var int
+	 */							
+	public $accountId;
 
 	/**
 	 * 
@@ -179,6 +186,7 @@ class Contact extends Record {
 
 	public static function defineRelations(){
 		
+		self::hasOne('account', \GO\Core\Accounts\Model\Account::class, ['accountId' => 'id']);		
 		
 		self::hasOne('owner', Group::class, ['ownedBy'=>'id']);
 		self::hasOne('creator', User::class, ['createdBy'=>'id']);
@@ -208,15 +216,24 @@ class Contact extends Record {
 		
 		self::hasOne('customfields', CustomFields::class, ['id' => 'id']);		
 		
-		self::hasMany('groupUsers', UserGroup::class, ['id' => 'contactId'])
-						->via(ContactGroup::class, ['groupId'=>'groupId']);
+//		self::hasMany('groupUsers', UserGroup::class, ['id' => 'contactId'])
+//						->via(ContactGroup::class, ['groupId'=>'groupId']);
 		
 		
-		self::hasMany('groups', ContactGroup::class, ['id' => 'contactId']);
+//		self::hasMany('groups', AccountGroup::class, ['accountId' => 'contactId']);
 
 		self::hasOne('photoBlob', Blob::class, ['photoBlobId' => 'blobId']);
 				
 		parent::defineRelations();
+	}
+	
+	protected function init() {
+		parent::init();
+		
+		if($this->isNew()) {
+			$this->account = \GO\Core\Accounts\Model\Account::findByCapability(self::class)->single();
+		}
+		
 	}
 	
 	public function internalValidate() {
@@ -277,7 +294,7 @@ class Contact extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new GroupPermissions(ContactGroup::class);
+		return new GroupPermissions(AccountGroup::class, 'accountId');
 	}	
 	
 	public function getLanguage() {

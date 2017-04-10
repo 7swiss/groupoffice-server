@@ -135,11 +135,18 @@ class Thread extends Record {
 	public function getFrom(){
 
 		$q = (new Query())
-//				->distinct()
 				->joinRelation('message.messages', false)
-				->select('ANY_VALUE(t.personal) AS personal, t.address')
-				->where(['message.messages.threadId' => $this->id])
-				->groupBy(['address']);
+						
+						//Only works in mysql 5.7
+//				->select('ANY_VALUE(t.personal) AS personal, t.address')
+//				->groupBy(['address']);
+						
+						//so we'll use this instead with the downsite that persons can be listed twice if they use different aliases
+				->select('t.personal, t.address')->distinct()
+						
+						
+				->where(['message.messages.threadId' => $this->id]);
+				
 		
 		return Address::find($q);
 	}

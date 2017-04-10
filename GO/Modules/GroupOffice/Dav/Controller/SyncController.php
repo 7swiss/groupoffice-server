@@ -18,12 +18,12 @@ class SyncController extends Controller {
 		
 		if(!$account) {
 			$account = new \GO\Modules\GroupOffice\Dav\Model\Account();
-			$account->url = 'https://intermesh.group-office.com/carddav';
+			$account->url = 'https://intermesh.group-office.com';
 			$account->username = 'test';
 			$account->password = 'T3stusr1!';
 			
 			$collection = new \GO\Modules\GroupOffice\DAV\Model\AccountCollection();
-			$collection->uri = "/addressbooks/test/test-man-1287";
+			$collection->uri = "/carddav/addressbooks/test/test-man-1287";
 			
 			$account->collections[] = $collection;
 			

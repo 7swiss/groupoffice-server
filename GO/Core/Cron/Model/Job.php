@@ -149,30 +149,34 @@ class Job extends Record {
 			return false;
 		}
 	}
+	
+	const ERROR_INVALIDCLASS = 10000;
+	
+	const ERROR_METHOD_NOT_FOUND = 10001;
 
 	public function internalValidate() {
 
 		if (isset($this->cronExpression) && !CronExpression::isValidExpression($this->cronExpression)) {
-			$this->setValidationError('cronExpression', 'INVALIDEXPRESSION');
+			$this->setValidationError('cronExpression', \IFW\Validate\ErrorCode::MALFORMED);
 		}
 		
 		if(!class_exists($this->cronClassName)) {
-			$this->setValidationError('cronClassName', 'CLASSNOTFOUND');
+			$this->setValidationError('cronClassName', \IFW\Validate\ErrorCode::NOT_FOUND);
 		}
 		
 		if(!method_exists($this->cronClassName, 'findModuleName')) {
-			$this->setValidationError('cronClassName', 'INVALIDCLASS');
+			$this->setValidationError('cronClassName', self::ERROR_INVALIDCLASS, 'Invalid class name');
 		}
 		
 		if(!method_exists($this->cronClassName, $this->method)) {
-			$this->setValidationError('method', 'METHODNOTFOUND');
+			$this->setValidationError('method', self::ERROR_METHOD_NOT_FOUND, 'Class method not found');
 		}
 		
 		if($this->isModified('timezone')) {
 			try {
 				$tz = new \DateTimeZone($this->timezone);
 			}catch(\Exception $e) {
-				$this->setValidationError('timezone', 'INVALIDTIMEZONE');
+				$this->setValidationError('timezone', \IFW\Validate\ErrorCode::TIMEZONE_INVALID);
 			}
 		}
 		

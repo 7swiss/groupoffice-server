@@ -37,7 +37,7 @@ ehlo localhost
 class IMAPDetector extends Model {
 	
 	
-	use \IFW\Data\ValidationTrait;
+	use \IFW\Validate\ValidationTrait;
 	
 	public $hostname;
 	

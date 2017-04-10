@@ -170,7 +170,7 @@ class RelationStore extends Store implements ArrayAccess {
 	 * 
 	 * @return Record[]
 	 */
-	public function all() {
+	public function &all() {
 		if(!isset($this->modified)) {
 			$this->modified = parent::all();
 		}		

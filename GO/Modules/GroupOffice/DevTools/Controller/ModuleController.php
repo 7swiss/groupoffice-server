@@ -120,6 +120,7 @@ EOD;
 		$result = GO()->getDbConnection()->query("SHOW TABLES");
 
 		while ($record = $result->fetch(\PDO::FETCH_NUM)) {
+			
 			if (strpos($record[0], $tablePrefix . '_') === 0) {
 				$this->tableToRecord($folder, $namespace, $tablePrefix, $record[0]);
 			}
@@ -230,7 +231,7 @@ EOD;
 
 		$recordName = \IFW\Util\StringUtil::upperCamelCasify(str_replace($tablePrefix . '_', '', $tableName));
 
-		
+				
 
 		$file = $folder->getFolder('Model')->getFile($recordName . '.php');
 

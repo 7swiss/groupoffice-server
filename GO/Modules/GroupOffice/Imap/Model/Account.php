@@ -3,7 +3,7 @@ namespace GO\Modules\GroupOffice\Imap\Model;
 
 use DateTime;
 use Exception;
-use GO\Core\Accounts\Model\AccountRecord;
+use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use GO\Core\Accounts\Model\SyncableInterface;
 use GO\Core\Blob\Model\Blob;
 use GO\Core\Smtp\Model\Account as SmtpAccount;
@@ -33,7 +33,7 @@ use Swift_Mime_ContentEncoder_Base64ContentEncoder;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Account extends AccountRecord implements SyncableInterface{
+class Account extends AccountAdaptorRecord implements SyncableInterface{
 
 	/**
 	 * 
@@ -115,6 +115,8 @@ class Account extends AccountRecord implements SyncableInterface{
 		parent::defineRelations();
 	}
 	
+
+	
 	public static function getDefaultReturnProperties() {
 		return parent::getDefaultReturnProperties().',smtpAccount,signatures';
 	}
@@ -150,7 +152,7 @@ class Account extends AccountRecord implements SyncableInterface{
 				$this->connect();
 			}
 			catch(\Exception $e) {
-				$this->setValidationError('hostname', "connecterror", ['exception' => $e->getMessage()]);
+				$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, $e->getMessage());
 
 				return false;
 			}
@@ -771,5 +773,7 @@ class Account extends AccountRecord implements SyncableInterface{
 		
 		return $address;
 	}
+
+
 
 }
