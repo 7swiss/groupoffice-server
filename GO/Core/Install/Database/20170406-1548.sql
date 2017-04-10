@@ -11,7 +11,7 @@ CREATE TABLE `accounts_capability` (
   `id` int(11) NOT NULL,
   `accountId` int(11) NOT NULL,
   `modelName` varchar(190) NOT NULL
-) ENGINE=InnoDB DEFAULT;
+) ENGINE=InnoDB;
 
 
 ALTER TABLE `accounts_capability`

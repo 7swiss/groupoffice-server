@@ -18,12 +18,13 @@ class RecipientController extends Controller {
 		$limit = 10;
 
 		$query = (new Query())
+						->distinct()
 						->orderBy(['name' => 'ASC'])
 						->limit($limit)
 						->joinRelation('emailAddresses')
 						->fetchMode(\PDO::FETCH_ASSOC)
-						->select('t.name AS personal, emailAddresses.email AS address')
-						->groupBy(['emailAddresses.email'])
+						->select('t.name AS personal, emailAddresses.email AS address')						
+						->orderBy(['emailAddresses.email' => 'ASC'])
 						->search($searchQuery, ['t.name', 'emailAddresses.email']);
 
 		$contacts = Contact::find($query);
@@ -38,14 +39,13 @@ class RecipientController extends Controller {
 		$count = count($records);
 		if ($count < $limit) {
 			$query = (new Query())
-							->select('t.address, t.personal')
+							->select('t.personal, t.address')
+							->distinct()
 							->fetchMode(\PDO::FETCH_ASSOC)
-							->joinRelation('message.thread.account', false)
-							->where(['account.createdBy' => GO()->getAuth()->user()->id()])												
 							->search($searchQuery, ['t.personal', 't.address'])
 							->limit($limit - $count)
-							->orderBy(['personal' => 'ASC'])
-							->groupBy(['t.address']);
+							->orderBy(['address' => 'ASC']);
+							
 			
 			if(!empty($emails)) {
 				$query->andWhere(['!=', ['address'=>$emails]]);
