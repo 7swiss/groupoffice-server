@@ -47,7 +47,7 @@ abstract class Node implements INode {
 	}
 
 	function getLastModified() {
-		if(!empty($this->node) && !empty($this->node->modfiedAt)) {
+		if(!empty($this->node)) {
 			return $this->node->modifiedAt->getTimestamp();
 		}
 		return null;

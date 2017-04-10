@@ -9,7 +9,7 @@ class File extends Node implements DAV\IFile {
     function put($data) {
 		$blob = \GO\Core\Blob\Model\Blob::fromString($data);
 		$blob->save();
-		$this->node->blobId = $blob->id;
+		$this->node->blobId = $blob->blobId;
 		$this->node->save();
     }
 
