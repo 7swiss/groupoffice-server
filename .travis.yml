@@ -9,5 +9,6 @@ services:
 before_script:
   - mysql -e 'DROP DATABASE IF EXISTS go7_test;' -uroot
   - mysql -e 'CREATE DATABASE go7_test;' -uroot
+  - composer update
 
 script: phpunit --configuration tests/phpunit.xml --coverage-text
