@@ -105,7 +105,7 @@ class Blob extends Record {
 	 * $blob = \GO\Core\Blob\Model\Blob::fromFile(new \IFW\Fs\File(dirname(__DIR__).'/Resources/intermesh-logo.png'));
 	 * ```
 	 * @param File $file
-	 * @return \self
+	 * @return Blob
 	 * @throws \Exception
 	 */
 	static public function fromFile(File $file, \DateTime $expireAt = null) {
@@ -136,6 +136,12 @@ class Blob extends Record {
 		return $blob;
 	}
 
+	/**
+	 * 
+	 * @param string $str the binary data
+	 * @param DateTime $expireAt
+	 * @return Blob
+	 */
 	public static function fromString($str, \DateTime $expireAt = null) {
 
 		$file = GO()->getAuth()->getTempFolder()->getFile(uniqid());

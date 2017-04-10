@@ -147,16 +147,20 @@ abstract class App {
 					
 		$this->getDebugger()->setSection(Debugger::SECTION_INIT);		
 
-		Record::initRelations();
-		StaticListeners::singleton()->initListeners();		
-		
-		$this->getRouter()->initRoutes();
-		
 		$this->init();
 		
-		Model::$enablePermissions = true;
-		
 		$this->debug("IFW Core Initialized");	
+	}
+
+	/**
+	 * Reinialize the application
+	 *
+	 * It will rescan record relations, listeners and router routes.
+	 */
+	public function reinit() {
+		GO()->getCache()->flush(false);
+		Model::$enablePermissions = false;
+		$this->init();
 	}
 	
 	/**
@@ -165,7 +169,13 @@ abstract class App {
 	 * Override this to initialize your app.
 	 */
 	protected function init() {
-		
+
+		Record::initRelations();
+		StaticListeners::singleton()->initListeners();
+
+		$this->getRouter()->initRoutes();
+
+		Model::$enablePermissions = true;
 	}
 	
 	/**

@@ -22,7 +22,7 @@ abstract class InstallableModule extends IFWModule {
 	 * @return boolean
 	 */
 	public function autoInstall() {
-		return true;
+		return false;
 	}
 
 	/**

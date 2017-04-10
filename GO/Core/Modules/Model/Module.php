@@ -197,6 +197,7 @@ class Module extends Record {
 		//make sure cache is up to date. router routes are cached for example.
 		if($this->isNew() || $this->isModified('deleted') || $this->isModified('version')) {
 			GO()->getCache()->flush();
+			GO()->getModules()[] = $this->name;
 		}
 		
 		return true;

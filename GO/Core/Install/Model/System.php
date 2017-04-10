@@ -76,6 +76,9 @@ class System extends Model {
 			}
 		}
 
+		
+		IFW::app()->reinit();
+
 		return true;
 	}
 
