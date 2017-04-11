@@ -20,28 +20,41 @@ abstract class CustomFieldsRecord extends Record {
 	private $attributes;
 
 	public function __set($name, $value) {
+		
+		if($this->getRelation($name)) {
+			return $this->getRelated($name);
+		}
+		
 		$this->attributes[$name] = $value;
 	}
 
 	public function __get($name) {
 		if (array_key_exists($name, $this->attributes)) {
 			return $this->attributes[$name];
+		}else
+		{
+			return parent::__get($name);
 		}
-
-		$trace = debug_backtrace();
-		trigger_error(
-						'Undefined property via __get(): ' . $name .
-						' in ' . $trace[0]['file'] .
-						' on line ' . $trace[0]['line'], E_USER_NOTICE);
-		return null;
+	
 	}
 
 	public function __isset($name) {
-		return isset($this->attributes[$name]);
+		if(isset($this->attributes[$name])) {
+			return true;
+		}else
+		{
+			return parent::__isset($name);
+		}
+		
 	}
 	
 	public function __unset($name) {
-		unset($this->attributes[$name]);
+		if(isset($this->attributes[$name])) {
+			unset($this->attributes[$name]);
+		}else
+		{
+			parent::__unset($name);
+		}
 	}
 	
 	public static function getDefaultReturnProperties() {
