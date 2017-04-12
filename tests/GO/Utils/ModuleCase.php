@@ -4,7 +4,7 @@ namespace GO\Utils;
 
 abstract class ModuleCase extends \PHPUnit\Framework\TestCase {
 
-	use \GO\Utils\UserTrait;
+	use UserTrait;
 
 	static function setUpBeforeClass() {
 		$mod = new static::$module();
