@@ -227,13 +227,9 @@ class Field extends Record {
 	}
 	
 	public function internalValidate() {
-		
-		if(!parent::internalValidate()) {
-			return false;
-		}
-		
-		if(IFW\Db\Utils::columnExists($this->fieldSet->customFieldsTableName(), $this->databaseName)){
-			$this->setValidationError('databaseName', 'columnexists');
+
+		if($this->isModified("databaseName") && IFW\Db\Utils::columnExists($this->fieldSet->customFieldsTableName(), $this->databaseName)){
+			$this->setValidationError('databaseName', IFW\Validate\ErrorCode::UNIQUE, 'The column name already exists');
 			return false;
 		}
 		
@@ -241,23 +237,23 @@ class Field extends Record {
 			case self::TYPE_SELECT:
 		
 				if(!isset($this->getData()['options'])){
-					$this->setValidationError('data', 'noSelectOptions');
+					$this->setValidationError('data', IFW\Validate\ErrorCode::REQUIRED, 'Select options are required');
 				}
 				if(!empty($this->defaultValue) && !$this->hasOption($this->defaultValue)){
-					$this->setValidationError('defaultValue', 'defaultNotASelectOption');
+					$this->setValidationError('defaultValue', IFW\Validate\ErrorCode::NOT_FOUND, 'Default value is not a select option');
 				}
 				break;
 				
 			case self::TYPE_TEXT:
 				
 				if($this->getData()['multiline'] && !empty($this->defaultValue)) {
-					$this->setValidationError('defaultValue', 'textCantHaveDefaultValue');
+					$this->setValidationError('defaultValue', IFW\Validate\ErrorCode::INVALID_INPUT, 'Text can\'t have a default value');
 				}
 				
 				break;
 		}
 		
-		return true;
+		return parent::internalValidate();
 	}
 	
 	public static function defineSortOrderCriteria() {
