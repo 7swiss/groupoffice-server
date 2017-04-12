@@ -315,10 +315,6 @@ class Field extends Record {
 
 			//for cached database columns
 			$this->fieldSet->getTable()->clearCache();
-		}else
-		{
-			var_dump($this->getModifiedAttributes());
-			throw new \Exception("Doesn't work!");
 		}
 	}
 	
