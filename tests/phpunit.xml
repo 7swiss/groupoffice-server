@@ -8,7 +8,7 @@
 
     <testsuites>
         <testsuite name="go-calendar">
-            <directory>GO/Modules/Calendar</directory>
+            <directory>GO/Modules/GroupOffice/Calendar</directory>
         </testsuite>
     </testsuites>
 
@@ -16,7 +16,7 @@
         <whitelist>
             <directory>./</directory>
             <exclude>
-                <directory>./Tests</directory>
+                <directory>./GO/Utils</directory>
             </exclude>
         </whitelist>
     </filter>

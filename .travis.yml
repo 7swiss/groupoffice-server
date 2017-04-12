@@ -1,6 +1,7 @@
 language: php
 php:
-  - 5.5
+  - 5.6
+  - 7.0
   - 7.1
 
 services:
@@ -11,7 +12,7 @@ before_script:
   - mysql -e 'CREATE DATABASE go7_test;' -uroot
   - composer update
 
-script: phpunit --configuration tests/phpunit.xml --coverage-text
+script: vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
 
 notifications:
   email:
