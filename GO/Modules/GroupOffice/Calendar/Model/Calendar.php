@@ -98,4 +98,20 @@ class Calendar extends Record {
 		$event->calendarId = $this->id;
 		return $event;
 	}
+
+	/**
+	 * Test
+	 * @return Attendee
+	 */
+	public function newEvent() {
+		$attendee = new Attendee();
+		$attendee->email = \GO()->getAuth()->user()->email;
+		$attendee->groupId = $this->ownedBy;
+		$attendee->setCalendar($this);
+		$attendee->responseStatus = AttendeeStatus::Accepted;
+		$event = new Event();
+		$attendee->event = $event;
+		$attendee->event->organizerEmail = \GO()->getAuth()->user()->email;
+		return $attendee;
+	}
 }
