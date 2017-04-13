@@ -39,7 +39,7 @@ class Query extends Criteria {
 	
 	protected $queryBuilder;
 	
-	private $allowedPermissionTypes = [];
+	
 	
 	
 	private $relation;
@@ -84,9 +84,7 @@ class Query extends Criteria {
 		return $this->fetchMode;
 	}
 	
-	public function getAllowedPermissionTypes(){
-		return $this->allowedPermissionTypes;
-	}
+	
 	
 	public function getIsRelational(){
 		return isset($this->relation);
@@ -508,18 +506,7 @@ class Query extends Criteria {
 		return GO()->getDbConnection()->createCommand()->select($this);
 	}
 	
-	/**
-	 * Set permission type as allowed when querying records
-	 * 
-	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
-	 * already been checked for read access.
-	 * 
-	 * @return static
-	 */
-	public function allowPermissionTypes(array $allowedPermissionTypes) {
-		$this->allowedPermissionTypes = $allowedPermissionTypes;		
-		return $this;
-	}
+	
 	
 	
 	

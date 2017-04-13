@@ -155,6 +155,15 @@ class UserProvider implements UserProviderInterface {
 		return $ret;
 	}
 	
+	/**
+	 * Get the user calling sudo
+	 * 
+	 * @return User
+	 */
+	public function getSudoUser() {
+		return $this->sudoUser;
+	}
+	
 	private $tempFolder;
 
 	/**

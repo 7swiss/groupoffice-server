@@ -153,4 +153,33 @@ class Query extends DbQuery {
 		return new QueryBuilder($this->recordClassName);
 		
 	}
+	
+	private $allowedPermissionTypes = [];
+	
+	/**
+	 * Set permission type as allowed when querying records
+	 * 
+	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
+	 * already been checked for read access.
+	 * 
+	 * @return static
+	 */
+	public function allowPermissionTypes(array $allowedPermissionTypes) {
+		$this->allowedPermissionTypes = $allowedPermissionTypes;		
+		return $this;
+	}
+	
+	public function getAllowedPermissionTypes(){
+		return $this->allowedPermissionTypes;
+	}
+	
+	private $requirePermissionType;
+	
+	public function requirePermission($type) {
+		$this->requirePermissionType = $type;		
+	}
+	
+	public function getRequirePermission() {
+		return $this->requirePermissionType;
+	}
 }
