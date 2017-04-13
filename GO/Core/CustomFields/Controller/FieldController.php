@@ -156,4 +156,41 @@ class FieldController extends Controller {
 
 		$this->renderModel($field);
 	}
+	
+	/**
+	 * Update multiple contacts at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$field = Field::findByPk($values['id']);
+
+				if (!$field) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$field = new Field();
+			}
+			
+			$field->setValues($values);
+			$field->save();
+			
+			$response['data'][] = $field->toArray('id');
+		}
+		
+		$this->render($response);
+	}
 }

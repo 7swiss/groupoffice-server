@@ -2,12 +2,12 @@
 
 namespace GO\Core\CustomFields\Controller;
 
-use IFW;
 use GO\Core\Controller;
-use IFW\Data\Store;
-use IFW\Orm\Query;
-use IFW\Exception\NotFound;
+use GO\Core\CustomFields\Model\Field;
 use GO\Core\CustomFields\Model\FieldSet;
+use IFW\Exception\NotFound;
+use IFW\Orm\Query;
+use function GO;
 
 /**
  * The controller for fieldSets. Admin group is required.
@@ -276,6 +276,45 @@ class FieldSetController extends Controller {
 			exit();
 		}	
 
+	}
+	
+	
+		
+	/**
+	 * Update multiple contacts at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$fieldSet = FieldSet::findByPk($values['id']);
+
+				if (!$fieldSet) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$fieldSet = new FieldSet();
+			}
+			
+			$fieldSet->setValues($values);
+			$fieldSet->save();
+			
+			$response['data'][] = $fieldSet->toArray('id');
+		}
+		
+		$this->render($response);
 	}
 
 }

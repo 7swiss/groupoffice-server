@@ -102,7 +102,8 @@ class Module extends BaseModule {
 						->get('customfields/fieldsets/:modelName/:fieldSetId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId', 'update')
 						->post('customfields/fieldsets/:modelName', 'create')
-						->delete('customfields/fieldsets/:modelName/:fieldSetId', 'delete');
+						->delete('customfields/fieldsets/:modelName/:fieldSetId', 'delete')
+						->put('customfields/fieldsets/:modelName', 'multiple');
 
 		$router->addRoutesFor(FieldController::class)
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields', 'store')
@@ -110,7 +111,8 @@ class Module extends BaseModule {
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'update')
 						->post('customfields/fieldsets/:modelName/:fieldSetId/fields', 'create')
-						->delete('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'delete');
+						->delete('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'delete')
+						->put('customfields/fieldsets/:modelName/:fieldSetId/fields', 'multiple');
 
 
 		$router->addRoutesFor(JobController::class)
