@@ -15,7 +15,7 @@ use IFW\Imap\Utils;
  * "Merijn Schering" <mschering@intermesh.nl>,someone@somedomain.com,Pete <pete@pete.com>
  * 
  */
-class RecipientList implements ArrayAccess{
+class RecipientList implements ArrayAccess {
 
 	/**
 	 * Pass a e-mail string like:
@@ -24,7 +24,7 @@ class RecipientList implements ArrayAccess{
 	 * 
 	 * @param string $emailRecipientList 
 	 */
-	public function __construct($emailRecipientList = '', $strict = false) {		
+	public function __construct($emailRecipientList = '', $strict = false) {
 		$this->strict = $strict;
 		$this->addString($emailRecipientList);
 	}
@@ -43,13 +43,13 @@ class RecipientList implements ArrayAccess{
 	 */
 	public function hasRecipient($email) {
 //		return isset($this->_addresses[$email]);
-		
-		for($i=0,$c = count($this->_recipients); $i < $c; $i++){
-			if($this->_recipients[$i]->getEmail() == $email){
+
+		for ($i = 0, $c = count($this->recipients); $i < $c; $i++) {
+			if ($this->recipients[$i]->getEmail() == $email) {
 				return $i;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -59,19 +59,18 @@ class RecipientList implements ArrayAccess{
 	 * @param string $email 
 	 */
 	public function removeRecipient($email) {
-		
+
 		$index = $this->hasRecipient($email);
-		
-		if($index !== false){
-			unset($this->_recipients[$index]);
+
+		if ($index !== false) {
+			unset($this->recipients[$index]);
 		}
-		
 	}
 
 	public function __toString() {
 		$str = '';
-		foreach ($this->_recipients as $recipient) {
-			$str .= $recipient. ', ';
+		foreach ($this->recipients as $recipient) {
+			$str .= $recipient . ', ';
 		}
 		return rtrim($str, ', ');
 	}
@@ -84,9 +83,8 @@ class RecipientList implements ArrayAccess{
 	 * @return array
 	 */
 	public function toArray() {
-		return $this->_recipients;
+		return $this->recipients;
 	}
-
 
 	/**
 	 * The array of parsed addresses
@@ -94,7 +92,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     array
 	 * @access  private
 	 */
-	private $_recipients = array();
+	private $recipients = array();
 
 	/**
 	 * Temporary storage of personal info of an e-mail address
@@ -102,7 +100,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     StringUtil
 	 * @access  private
 	 */
-	private $_personal = null;
+	private $personal = null;
 
 	/**
 	 * Temporary storage
@@ -110,7 +108,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     StringUtil
 	 * @access  private
 	 */
-	private $_buffer = '';
+	private $buffer = '';
 
 	/**
 	 * Bool to check if a string is quoted or not
@@ -118,7 +116,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     bool
 	 * @access  private
 	 */
-	private $_inQuotedString = false;
+	private $inQuotedString = false;
 
 	/**
 	 * Bool to check if we found an e-mail address
@@ -126,7 +124,7 @@ class RecipientList implements ArrayAccess{
 	 * @var     bool
 	 * @access  private
 	 */
-	private $_emailFound = false;
+	private $emailFound = false;
 
 	/**
 	 * Pass a e-mail string like:
@@ -148,26 +146,26 @@ class RecipientList implements ArrayAccess{
 
 			switch ($char) {
 				case '"':
-					$this->_handleQuote($char);
+					$this->handleQuote($char);
 					break;
 
 				case "'":
-					$this->_handleQuote($char);
+					$this->handleQuote($char);
 					break;
 
 				case '<':
-					$this->_personal = trim($this->_buffer);
-					$this->_buffer = '';
-					$this->_emailFound = true;
+					$this->personal = trim($this->buffer);
+					$this->buffer = '';
+					$this->emailFound = true;
 					break;
 
 				case '>':
 					//do nothing
-					if($this->_inQuotedString){
-						$this->_buffer .= $char;
+					if ($this->inQuotedString) {
+						$this->buffer .= $char;
 					}
 					break;
-				
+
 //				case ' ':
 //					if($this->_inQuotedString){
 //						$this->_buffer .= $char;
@@ -180,22 +178,22 @@ class RecipientList implements ArrayAccess{
 
 				case ',':
 				case ';':
-					if ($this->_inQuotedString ) {// || (!$this->strict && !$this->_emailFound && !ValidateEmail::check(trim($this->_buffer)))) {
-						$this->_buffer .= $char;
+					if ($this->inQuotedString) {// || (!$this->strict && !$this->_emailFound && !ValidateEmail::check(trim($this->_buffer)))) {
+						$this->buffer .= $char;
 					} else {
-						$this->_addBuffer();
+						$this->addBuffer();
 					}
 					break;
 
 
 				default:
-					$this->_buffer .= $char;
+					$this->buffer .= $char;
 					break;
 			}
 		}
-		$this->_addBuffer();
+		$this->addBuffer();
 
-		return $this->_recipients;
+		return $this->recipients;
 	}
 
 	/**
@@ -204,23 +202,23 @@ class RecipientList implements ArrayAccess{
 	 * @access private
 	 * @return void
 	 */
-	private function _addBuffer() {
-		$this->_buffer = trim($this->_buffer);
-		if (!empty($this->_personal) && empty($this->_buffer)) {
-			$this->_buffer = 'noaddress';
+	private function addBuffer() {
+		$this->buffer = trim($this->buffer);
+		if (!empty($this->personal) && empty($this->buffer)) {
+			$this->buffer = 'noaddress';
 		}
 
-		if (!empty($this->_buffer)) {
-			if ($this->strict && !ValidateEmail::check($this->_buffer)) {
-				throw new Exception("Address " . $this->_buffer . " is not valid");
-			} else {				
-				$this->_recipients[] = new Recipient($this->_buffer, Utils::mimeHeaderDecode($this->_personal));
+		if (!empty($this->buffer)) {
+			if ($this->strict && !ValidateEmail::check($this->buffer)) {
+				throw new Exception("Address " . $this->buffer . " is not valid");
+			} else {
+				$this->recipients[] = new Recipient($this->buffer, Utils::mimeHeaderDecode($this->personal));
 			}
 		}
-		$this->_buffer = '';
-		$this->_personal = null;
-		$this->_emailFound = false;
-		$this->_inQuotedString = false;
+		$this->buffer = '';
+		$this->personal = null;
+		$this->emailFound = false;
+		$this->inQuotedString = false;
 	}
 
 	/**
@@ -229,13 +227,13 @@ class RecipientList implements ArrayAccess{
 	 * @access private
 	 * @return void
 	 */
-	private function _handleQuote($char) {
-		if (!$this->_inQuotedString && trim($this->_buffer) == "") {
-			$this->_inQuotedString = $char;
-		} elseif ($char == $this->_inQuotedString) {
-			$this->_inQuotedString = false;
+	private function handleQuote($char) {
+		if (!$this->inQuotedString && trim($this->buffer) == "") {
+			$this->inQuotedString = $char;
+		} elseif ($char == $this->inQuotedString) {
+			$this->inQuotedString = false;
 		} else {
-			$this->_buffer .= $char;
+			$this->buffer .= $char;
 		}
 	}
 
@@ -252,26 +250,26 @@ class RecipientList implements ArrayAccess{
 //	}
 
 	public function offsetExists($offset) {
-		return array_key_exists($offset, $this->_recipients);
+		return array_key_exists($offset, $this->recipients);
 	}
 
 	public function offsetGet($offset) {
-		return $this->_recipients[$offset];
+		return $this->recipients[$offset];
 	}
 
 	public function offsetSet($offset, $value) {
-		
-		if(!is_string($value)){
+
+		if (!is_string($value)) {
 			return false;
 		}
-			
+
 		$recipients = new RecipientList($value);
-		
-		$this->_recipients[$offset] = $recipients[0];
+
+		$this->recipients[$offset] = $recipients[0];
 	}
 
 	public function offsetUnset($offset) {
-		unset($this->_recipients[$offset]);
+		unset($this->recipients[$offset]);
 	}
 
 }

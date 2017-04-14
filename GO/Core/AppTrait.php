@@ -78,6 +78,10 @@ trait AppTrait {
 		$log->type = $type;
 		$log->description = $description;
 		$log->moduleName = $record->findModuleName();
+//		var_dump($log->moduleName);
+		if(!$log->moduleName) {
+			throw new Exception("Module not found for ".$record->getClassName());
+		}
 
 		if (!$log->save()) {
 			throw new Exception("Could not save log entry: " . var_export($log->getValidationErrors(), true));

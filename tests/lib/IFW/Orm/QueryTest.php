@@ -1,5 +1,5 @@
 <?php
-namespace IFW\Db;
+namespace IFW\Orm;
 
 use PHPUnit\Framework\TestCase;
 
@@ -7,15 +7,15 @@ use PHPUnit\Framework\TestCase;
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class QueryTest extends \PHPUnit\Framework\TestCase {
+class QueryTest extends TestCase {
 	public function testMergeWith() {
 		
-		$query1 = new \IFW\Orm\Query();
+		$query1 = new Query();
 		$query1->select('t.*')
-						->join(\GO\Modules\GroupOffice\Contacts\Model\Address::tableName(),'addresses','t.id=addresses.contactId')
-						->joinRelation('emailAddresses');
+						->join("tableA",'addresses','t.id = addresses.contactId')
+						->joinRelation('example1');
 		
-		$query2 = (new \IFW\Orm\Query)->joinRelation('phoneNumbers');
+		$query2 = (new Query)->joinRelation('example2');
 		
 		$query1->mergeWith($query2);
 		

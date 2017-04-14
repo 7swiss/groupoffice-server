@@ -1,7 +1,5 @@
-<?php
-
+<?php 
 namespace IFW;
-use IFW;
 
 /**
  * The App class is a collection of static functions to access common services
@@ -10,9 +8,8 @@ use IFW;
 class AppTest extends \PHPUnit\Framework\TestCase{
 	function testInit(){
 
-		//\IFW::app()->init(require('config.php'));
 		
-		$this->assertEquals(IFW::app()->getConfig()->productName,"Group-Office 7.0");
+		$this->assertEquals(\IFW::app()->getConfig()->productName,"Group-Office 7.0");
 
 
 	}

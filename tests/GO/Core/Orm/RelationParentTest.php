@@ -13,7 +13,9 @@ use PHPUnit\Framework\TestCase;
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class RelationParentTest extends \PHPUnit\Framework\TestCase {
+class RelationParentTest extends \GO\Utils\ModuleCase {
+	
+	protected static $module = '\GO\Modules\GroupOffice\Contacts\Module';
 
 	public function test() {
 

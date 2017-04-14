@@ -160,6 +160,7 @@ abstract class App {
 	public function reinit() {
 		GO()->getCache()->flush(false);
 		Model::$enablePermissions = false;
+		unset($this->moduleCollection);
 		$this->init();
 	}
 	

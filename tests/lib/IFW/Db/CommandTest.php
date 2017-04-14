@@ -2,14 +2,14 @@
 namespace IFW\Db;
 
 use DateTime;
+use IFW;
 use PHPUnit\Framework\TestCase;
-use function GO;
 
 /**
  * The App class is a collection of static functions to access common services
  * like the configuration, reqeuest, debugger etc.
  */
-class CommandTest extends \PHPUnit\Framework\TestCase {
+class CommandTest extends TestCase {
 	public function testSelect() {
 		
 		$query = (new Query())
@@ -25,7 +25,7 @@ class CommandTest extends \PHPUnit\Framework\TestCase {
 	}
 	
 	public function testInsert() {
-		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', ['id' => 1, 'username' => 'test']);
+		$command = IFW::app()->getDbConnection()->createCommand()->insert('auth_user', ['id' => 1, 'username' => 'test']);
 		
 		$this->assertStringStartsWith('INSERT INTO', $command->toString());
 	}
@@ -36,14 +36,14 @@ class CommandTest extends \PHPUnit\Framework\TestCase {
 		$query->select('id,username')
 						->from('auth_user');
 		
-		$command = GO()->getDbConnection()->createCommand()->insert('auth_user', $query);
+		$command = IFW::app()->getDbConnection()->createCommand()->insert('auth_user', $query);
 		
 		$this->assertStringStartsWith('INSERT INTO', $command->toString());
 	}
 	
 	public function testUpdate() {
 				
-		$command = GO()->getDbConnection()->createCommand()->update('auth_user', ['lastLogin' => new DateTime()], ['id' => 1]);
+		$command = IFW::app()->getDbConnection()->createCommand()->update('auth_user', ['lastLogin' => new DateTime()], ['id' => 1]);
 		
 		$this->assertStringStartsWith('UPDATE', $command->toString());
 		
@@ -53,7 +53,7 @@ class CommandTest extends \PHPUnit\Framework\TestCase {
 	}
 	public function testDelete() {
 				
-		$command = GO()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
+		$command = IFW::app()->getDbConnection()->createCommand()->delete('auth_user', ['id' => -123]);
 		
 		$this->assertStringStartsWith('DELETE', $command->toString());
 		
