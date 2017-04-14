@@ -2041,6 +2041,29 @@ abstract class Record extends DataModel {
 	}
 	
 	/**
+	 * Checks if the given record is equal to this record
+	 * 
+	 * @param \IFW\Orm\Record $record
+	 * @return boolean
+	 */
+	public function equals(Record $record) {
+		if($record->getClassName() != $this->getClassName()) {
+			return false;
+		}
+		
+		if($record->isNew() || $this->isNew()) {
+			return false;
+		}
+		
+		$pk1 = $this->pk();
+		$pk2 = $record->pk();
+		
+		$diff = array_diff($pk1, $pk2);
+		
+		return empty($diff);
+	}
+	
+	/**
 	 * Delete's the model from the database
 	 * 
 	 * You should rarely use this function. For example when cleaning up soft 
