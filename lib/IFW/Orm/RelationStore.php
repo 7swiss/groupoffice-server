@@ -638,5 +638,53 @@ class RelationStore extends Store implements ArrayAccess {
 		return $toRecordName::find($query)->single();
 		
 	}
+	
+	/**
+	 * 
+	 * @param Record|Record[] $replacement
+	 */
+	public function replace($replacement) {
+		if($this->getRelation()->hasMany()) {
+			return $this->replaceMany($replacement);
+		}else
+		{
+			$this->modified[0] = $replacement;
+		}
+	}
+	
+	private function replaceMany(array $replacements) {
+		
+		for($i = 0, $c = count($replacements); $i < $c; $i++) {			
+			$replacements[$i] = $this->normalize($replacements[$i]);
+		}		
+		
+		$this->all();
+		for($i = 0, $c = count($this->modified); $i < $c; $i++) {			
+			$replacement = $this->extractFromReplacements($this->modified[$i], $replacements);
+			if($replacement) {
+				$this->modified[$i] = $replacement;
+			}else
+			{
+				$this->modified[$i]->markDeleted = true;
+			}
+		}
+		
+		foreach($replacements as $replacement) {
+			$this->modified[] = $replacement;
+		}
+
+	}
+	
+	private function extractFromReplacements($record, &$replacements) {
+		for($i = 0, $c = count($replacements); $i < $c; $i++) {			
+			if($record->equals($replacements[$i])) {
+				$ret = $replacements[$i];
+				unset($replacements[$i]);
+				return $ret;
+			}
+		}
+		
+		return false;
+	}
 
 }

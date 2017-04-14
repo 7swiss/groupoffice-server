@@ -169,10 +169,23 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 		return $records;
 	}
 
+	/**
+	 * 
+	 * @return \Traversable
+	 */
 	public function getIterator() {
 		return $this->traversable;
 	}
 
+	/**
+	 * Get the next record of the store iterator
+	 * 
+	 * @return mixed
+	 */
+	public function next() {
+		$this->getIterator()->next();
+		return $this->getIterator()->current();
+	}
 	
 
 //	

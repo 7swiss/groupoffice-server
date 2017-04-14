@@ -71,6 +71,8 @@ class Address extends Record {
 	 */							
 	public $country;
 
+	const TYPE_OFFICE = 'office';
+	
 	const TYPE_POST = 'post';
 	
 	const TYPE_INVOICE = 'invoice';

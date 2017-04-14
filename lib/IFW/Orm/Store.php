@@ -129,6 +129,8 @@ class Store extends \IFW\Data\Store {
 		$model = $this->getIterator()->fetch();
 		return $model;
 	}
+	
+	
 
 	/**
 	 * Check if the query object is a find by primary key action
