@@ -202,7 +202,7 @@ class Job extends Record {
 			}
 		}
 		
-		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {			
+		if(($this->isModified('cronExpression') || (!isset($this->nextRun)) && $this->enabled)) {			
 			$this->nextRun = $this->getNextRunDate();
 		}
 		

@@ -679,7 +679,7 @@ class RelationStore extends Store implements ArrayAccess {
 		for($i = 0, $c = count($replacements); $i < $c; $i++) {			
 			if($record->equals($replacements[$i])) {
 				$ret = $replacements[$i];
-				unset($replacements[$i]);
+				array_splice($replacements, $i, 1);
 				return $ret;
 			}
 		}
