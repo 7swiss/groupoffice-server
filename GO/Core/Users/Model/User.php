@@ -4,7 +4,7 @@ namespace GO\Core\Users\Model;
 
 use DateTime;
 use Exception;
-use GO\Core\Auth\Browser\Model\Token;
+use GO\Core\Auth\Model\Token;
 use GO\Core\Model\Session;
 use GO\Core\Orm\Record;
 use GO\Core\Users\Model\UserPermissions;

@@ -1,6 +1,6 @@
 <?php
 return [
-	'GO\Core\Auth\Browser\Model\Token' => [
+	'GO\Core\Auth\Model\Token' => [
 		 "checkXSRFToken" => false
 	],
 	'IFW\Config' => [

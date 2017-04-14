@@ -3,7 +3,7 @@
 namespace GO\Core;
 
 use GO\Core\Accounts\Controller\AccountController;
-use GO\Core\Auth\Browser\Controller\AuthController;
+use GO\Core\Auth\Controller\AuthController;
 use GO\Core\Blob\Controller\BlobController;
 use GO\Core\Comments\Controller\CommentController;
 use GO\Core\Cron\Controller\JobController;

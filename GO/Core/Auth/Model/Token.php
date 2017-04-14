@@ -1,5 +1,5 @@
 <?php
-namespace GO\Core\Auth\Browser\Model;
+namespace GO\Core\Auth\Model;
 
 use DateInterval;
 use DateTime;
@@ -27,7 +27,7 @@ use IFW\Orm\Record;
  * 
  * Optionally you can disable the token checking in config.php:
  * ```````````````````````````````````````````````````````````````````````````
- * 'GO\Core\Auth\Browser\Model\Token' => [
+ * 'GO\Core\Auth\Model\Token' => [
 			"checkXSRFToken" => false //Can be convenient to disable in development mode.
 		],
  * ```````````````````````````````````````````````````````````````````````````
@@ -216,7 +216,7 @@ class Token extends Record {
 	/**
 	 * Set new tokens and expiry date
 	 * 
-	 * @return \GO\Core\Auth\Browser\Model\Token
+	 * @return \GO\Core\Auth\Model\Token
 	 */
 	public function refresh() {
 		

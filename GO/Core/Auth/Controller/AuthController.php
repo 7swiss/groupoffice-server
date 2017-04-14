@@ -1,11 +1,10 @@
 <?php
 
-namespace GO\Core\Auth\Browser\Controller;
+namespace GO\Core\Auth\Controller;
 
-use GO\Core\Auth\Browser\Model\Token;
-use GO\Core\Users\Model\User;
+use GO\Core\Auth\Model\Token;
 use GO\Core\Controller;
-use IFW;
+use GO\Core\Users\Model\User;
 use IFW\Auth\Exception\BadLogin;
 use IFW\Exception\Forbidden;
 use IFW\Web\Response;
@@ -13,7 +12,7 @@ use IFW\Web\Response;
 /**
  * The controller that handles authentication
  * 
- * See the {@see \GO\Core\Auth\Browser\Model\Token} model for more information
+ * See the {@see \GO\Core\Auth\Model\Token} model for more information
  * about the authentication token.
  *
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
@@ -32,19 +31,19 @@ class AuthController extends Controller {
 	 * @return Response {@see actionLogin()}
 	 */
 	protected function actionLogout() {
-		
-		$token = Token::findByCookie();		
-		if(!$token) {
+
+		$token = Token::findByCookie();
+		if (!$token) {
 			throw new \IFW\Exception\NotFound();
 		}
-		
+
 		GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
-		
+
 		$token->unsetCookies();
 		$token->delete();
 		$this->renderModel($token, '*,user[*]');
 	}
-	
+
 	/**
 	 * Change the current session to another user.
 	 * 
@@ -55,14 +54,14 @@ class AuthController extends Controller {
 	 * @throws Forbidden
 	 */
 	protected function actionSwitchTo($userId) {
-		if(!\GO()->getAuth()->isAdmin()){
+		if (!GO()->getAuth()->isAdmin()) {
 			throw new Forbidden();
 		}
-		
+
 		$token = Token::findByCookie();
 		$token->user = User::findByPk($userId);
 		$token->save();
-		
+
 		$this->renderModel($token, '*,user[*]');
 	}
 
@@ -151,7 +150,7 @@ class AuthController extends Controller {
 	 *       "changePermissions": true
 	 *     },
 	 *     "validationErrors": [],
-	 *     "className": "GO\Core\Auth\Browser\Model\Token",
+	 *     "className": "GO\Core\Auth\Model\Token",
 	 *     "checkXSRFToken": false,
 	 *     "markDeleted": false
 	 *   },
@@ -163,11 +162,9 @@ class AuthController extends Controller {
 	public function actionLogin($returnProperties = '*,user[*]') {
 
 		$token = GO()->getAuth()->sudo(function() {
-			
+
 			$user = User::login(
-							GO()->getRequest()->body['data']['username'], 
-							GO()->getRequest()->body['data']['password'], 
-							true);
+											GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
 
 			if (!$user) {
 				throw new BadLogin();
@@ -181,23 +178,23 @@ class AuthController extends Controller {
 
 			return $token;
 		});
-		
+
 		$this->renderModel($token, $returnProperties);
 	}
-	
+
 	public function actionLoginByToken($token, $returnProperties = '*,user[*]') {
-		$accessToken = GO()->getAuth()->sudo(function() use ($token) {			
-	
+		$accessToken = GO()->getAuth()->sudo(function() use ($token) {
+
 			$accessToken = Token::find(['accessToken' => $token])->single();
-			if(!$accessToken) {
+			if (!$accessToken) {
 				throw new BadLogin();
 			}
-			
+
 			$accessToken->setCookies();
 
 			return $accessToken;
 		});
-		
+
 		$this->renderModel($accessToken, $returnProperties);
 	}
 
@@ -208,10 +205,10 @@ class AuthController extends Controller {
 	 */
 	public function actionIsLoggedIn($returnProperties = '*,user[*]') {
 		$token = GO()->getAuth()->sudo(function() {
-			
+
 			$token = Token::findByCookie(false);
-			
-			
+
+
 //			if($token && $token->user->password == null) {
 //				$token->delete();
 //				
@@ -221,14 +218,14 @@ class AuthController extends Controller {
 
 			return $token;
 		});
-		
-		if($token) {
+
+		if ($token) {
 //			$token->refresh();
-			$token->setCookies();			
+			$token->setCookies();
 			$this->renderModel($token, $returnProperties);
-		}else
-		{
+		} else {
 			$this->render(['success' => false]);
 		}
 	}
+
 }
