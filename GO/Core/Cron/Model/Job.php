@@ -268,7 +268,7 @@ class Job extends Record {
 		$this->nextRun = $this->getNextRunDate();
 		
 		if(!isset($this->nextRun)) {
-			$this->delete();
+			$this->deleteHard();
 		}else if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}
