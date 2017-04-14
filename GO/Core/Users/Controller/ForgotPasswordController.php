@@ -30,9 +30,7 @@ class ForgotPasswordController extends Controller {
 	}
 	
 	
-	private function generateToken(User $user) {
-		return md5($user->lastLogin->format('c').$user->password);
-	}
+	
 	
 	/**
 	 * 
@@ -49,7 +47,7 @@ class ForgotPasswordController extends Controller {
 			throw new NotFound();
 		}
 		
-		$token = $this->generateToken($user);
+		$token = $user->generateToken();
 		
 		//example: "Hello {user.username}, Your token is {token}."
 		$templateParser = new \IFW\Template\VariableParser();
@@ -80,7 +78,7 @@ class ForgotPasswordController extends Controller {
 			}
 			
 			
-			$correctToken = $this->generateToken($user);
+			$correctToken = $user->generateToken();
 			if($token != $correctToken) {
 				throw new \IFW\Exception\Forbidden("Token incorrect");
 			}

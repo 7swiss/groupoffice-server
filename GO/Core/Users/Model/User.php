@@ -372,4 +372,13 @@ class User extends Record implements UserInterface {
 						->andWhere(['groupUsers.userId'=>$user->id])
 						)->single();
 	}	
+	
+	/**
+	 * Used for lost password to verify e-mail link
+	 * 
+	 * @return string
+	 */
+	public function generateToken() {
+		return md5($this->lastLogin->format('c').$this->password);
+	}
 }
