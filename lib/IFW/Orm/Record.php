@@ -1677,7 +1677,7 @@ abstract class Record extends DataModel {
 		}
 		
 		$query = new Query();
-		$query->where($pk);
+		$query->where($pk)->withDeleted();
 		
 		return self::find($query)->single();
 	}
