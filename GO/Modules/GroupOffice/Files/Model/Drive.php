@@ -89,12 +89,12 @@ class Drive extends Record {
 	}
 
 	public function internalSave() {
-		
-		$success = parent::internalSave();
 
-		if(empty($this->rootId)) {
+		$success = parent::internalSave();
+		if($this->isNew()) {
 			$this->createRootFolder();
 		}
+		
 
 		return $success;
 	}
@@ -103,22 +103,13 @@ class Drive extends Record {
 		if(empty($this->rootId)) {
 			$dir = new Directory();
 			$dir->name = $this->name;
-			//$dir->parentId = Directory::RootID;
 			$dir->driveId = $this->id;
 			if($dir->save()) {
 				$this->rootId = $dir->id;
-				$this->save();
+				$this->update();
+			} else {
+				throw new \Exception('Could not create root folder, drive removed');
 			}
-		}
-	}
-
-	public function getRoot() {
-
-		if(!empty($this->rootId)) {
-			$dir = Directory::findByPk($this->rootId);
-		}
-		if(!empty($dir)) {
-			return $dir;
 		}
 	}
 
