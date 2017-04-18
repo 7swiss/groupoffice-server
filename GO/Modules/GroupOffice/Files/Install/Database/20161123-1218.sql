@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `files_drive` (
   `ownedBy` INT NOT NULL,
   `rootId` INT NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name_UNIQUE` (`name` ASC))
+  UNIQUE KEY `drive_name_UNIQUE` (`name` ASC))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `files_node` (
   `driveId` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_files_node_blob_blob1_idx` (`blobId` ASC),
-  INDEX `fk_files_node_auth_user1_idx` (`ownedBy` ASC),
+  INDEX `fk_files_node_auth_group1_idx` (`ownedBy` ASC),
   INDEX `fk_files_node_files_node1_idx` (`parentId` ASC),
   INDEX `fk_files_node_files_drive1_idx` (`driveId` ASC),
   UNIQUE KEY `name_parent_unique` (`parentId`,`name`),
@@ -71,9 +71,9 @@ CREATE TABLE IF NOT EXISTS `files_node` (
     REFERENCES `blob_blob` (`blobId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_files_node_auth_user1`
+  CONSTRAINT `fk_files_node_auth_group1`
     FOREIGN KEY (`ownedBy`)
-    REFERENCES `auth_user` (`id`)
+    REFERENCES `auth_group` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_files_node_files_node1`
