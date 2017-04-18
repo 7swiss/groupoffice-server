@@ -51,8 +51,8 @@ class NodeController extends Controller {
 			$query->setFromClient($q);
 			$flat = true;
 		}
-		if(empty($directory) || $directory === "home") {
-			$directory = Drive::home()->getRoot()->id;
+		if($directory === "home" || $directory === null) {
+			$directory = Drive::home()->rootId;
 		}
 		if(!empty($filter['locations'])) {
 			$query->join(Drive::tableName(),'d', 't.id = d.rootId');
