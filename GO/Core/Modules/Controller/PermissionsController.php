@@ -24,7 +24,7 @@ class PermissionsController extends Controller {
 		$query = (new Query())
 						->select('t.id, t.name, GROUP_CONCAT(moduleGroups.action) AS actions')
 						->orderBy(['name' => 'ASC'])
-						->groupBy(['t.id'])
+						->groupBy(['t.id','t.name'])
 //						->where(['userId' => null])
 //						->orWhere(['!=',['permissions.aclId' => null]])		
 						->fetchMode(\PDO::FETCH_ASSOC)
