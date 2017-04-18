@@ -11,7 +11,11 @@ use GO\Core\Users\Model\UsersModulePermissions;
 use IFW\Web\Router;
 
 class Module extends InstallableModule {
-	
+
+	public function autoInstall() {
+		return true;
+	}
+
 	protected static function internalGetPermissions() {
 		return new UsersModulePermissions();
 	}
