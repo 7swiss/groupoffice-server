@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `files_drive` (
   `quota` BIGINT NULL,
   `usage` BIGINT NOT NULL DEFAULT 0,
   `ownedBy` INT NOT NULL,
-  `rootId` INT NOT NULL,
+  `rootId` INT NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name` ASC))
 ENGINE = InnoDB;
