@@ -13,7 +13,7 @@ use IFW\Db\Table;
 use IFW\Db\Exception\DeleteRestrict;
 use IFW\Db\PDO;
 use IFW\Exception\Forbidden;
-use IFW\Imap\Connection;
+use IFW\Db\Connection;
 use IFW\Util\ClassFinder;
 use IFW\Util\StringUtil;
 
