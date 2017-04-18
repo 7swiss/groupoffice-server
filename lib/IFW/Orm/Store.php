@@ -103,7 +103,7 @@ class Store extends \IFW\Data\Store {
 		//Expirimental caching if query is findByPk		
 		if (!isset($this->query->fetchMode) && ($primaryKeyValues = $this->isFindByPk())) {
 			
-			$this->query->withDeleted();
+//			$this->query->withDeleted();
 
 			$keyStr = implode('-', $primaryKeyValues);
 
