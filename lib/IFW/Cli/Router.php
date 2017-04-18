@@ -145,7 +145,7 @@ class Router extends IFW\Router{
           [0]=>
           array(2) {
             [0]=>
-            string(46) "GO\Core\Auth\Browser\Controller\AuthController"
+            string(46) "GO\Core\Auth\Controller\AuthController"
             [1]=>
             string(10) "isLoggedIn"
           }

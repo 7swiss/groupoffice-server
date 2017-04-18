@@ -132,12 +132,12 @@ class Field extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new ReadOnly();
+		return new IFW\Auth\Permissions\ViaRelation('fieldSet');
 	}
 
 	protected function internalDelete($hard) {
 		
-		if(parent::internal($hard) && $hard) {
+		if(parent::internalDelete($hard) && $hard) {
 			//don't be strict in upgrade process
 			GO()->getDbConnection()->getPdo()->query("SET sql_mode=''");
 
@@ -315,10 +315,6 @@ class Field extends Record {
 
 			//for cached database columns
 			$this->fieldSet->getTable()->clearCache();
-		}else
-		{
-			var_dump($this->getModifiedAttributes());
-			throw new \Exception("Doesn't work!");
 		}
 	}
 	

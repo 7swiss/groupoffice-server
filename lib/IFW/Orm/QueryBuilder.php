@@ -44,7 +44,7 @@ class QueryBuilder extends DbQueryBuilder{
 		return $this->recordClassName;
 	}
 	
-	protected function joinRelation($joinRelation) {
+	protected function joinRelation($joinRelation, $prefix) {
 
 		$join = '';
 		$names = explode('.', $joinRelation['name']);
@@ -75,19 +75,19 @@ class QueryBuilder extends DbQueryBuilder{
 			
 
 			if (!in_array($name, $this->alreadyJoinedRelations)) {
-				$join .= $joinParams['joinSql'];
+				$join .= $joinParams['joinSql']. "\n". $prefix;
 			}
 			$this->alreadyJoinedRelations[] = $name;
 
 			if (!empty($selectAttributes)) {
-				$this->joinRelationSelectString .= ",\n" . $joinParams['selectCols'];
+				$this->joinRelationSelectString .= ",\n". $prefix . $joinParams['selectCols'];
 			}
 
 			$relationModel = $r->getToRecordName();
 			$relationAlias = $name;
 		}
 
-		return $join;
+		return trim($join);
 	}
 
 

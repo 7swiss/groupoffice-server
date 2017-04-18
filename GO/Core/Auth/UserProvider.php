@@ -3,7 +3,7 @@
 namespace GO\Core\Auth;
 
 use Exception;
-use GO\Core\Auth\Browser\Model\Token;
+use GO\Core\Auth\Model\Token;
 use GO\Core\Users\Model\User;
 use IFW\Auth\UserProviderInterface;
 use IFW\Auth\UserInterface;
@@ -153,6 +153,15 @@ class UserProvider implements UserProviderInterface {
 		}
 		
 		return $ret;
+	}
+	
+	/**
+	 * Get the user calling sudo
+	 * 
+	 * @return User
+	 */
+	public function getSudoUser() {
+		return $this->sudoUser;
 	}
 	
 	private $tempFolder;

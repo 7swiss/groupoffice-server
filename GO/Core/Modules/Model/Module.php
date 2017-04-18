@@ -170,6 +170,8 @@ class Module extends Record {
 	
 	protected function internalValidate() {		
 		
+		$this->name = trim($this->name, ' \\');
+		
 		if(!is_a($this->name, InstallableModule::class, true)) {
 			$this->setValidationError('name', \IFW\Validate\ErrorCode::NOT_FOUND, $this->name.' is not an installable module');
 			

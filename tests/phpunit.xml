@@ -4,20 +4,28 @@
 	colors="true"
 	processIsolation="false"
 	backupGlobals="false"
-   backupStaticAttributes="false">
+	backupStaticAttributes="false">
 
-    <testsuites>
-        <testsuite name="go-calendar">
-            <directory>GO/Modules/GroupOffice/Calendar</directory>
-        </testsuite>
-    </testsuites>
+	<testsuites>
+		<testsuite name="go-ifw">
+			<directory>./lib/IFW</directory>
+		</testsuite>
+		
+		<testsuite name="go-core">
+			<directory>./GO/Core</directory>
+		</testsuite>
+		
+		<testsuite name="go-calendar">
+			<directory>./GO/Modules/GroupOffice/Calendar</directory>
+		</testsuite>
+	</testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>./</directory>
-            <exclude>
-                <directory>./GO/Utils</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+	<filter>
+		<whitelist>
+			<directory>./</directory>
+			<exclude>
+				<directory>./GO/Utils</directory>
+			</exclude>
+		</whitelist>
+	</filter>
 </phpunit>

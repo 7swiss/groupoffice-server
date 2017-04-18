@@ -12,10 +12,10 @@ use IFW\Web\App as BaseApp;
  * 
  * | Method | Route | Controller     |
  * |--------|-------|----------------|
- * |GET | auth | {@link GO\Core\Auth\Browser\Controller\AuthController::actionIsLoggedIn}|
- * |POST | auth | {@link GO\Core\Auth\Browser\Controller\AuthController::actionLogin}|
- * |DELETE | auth | {@link GO\Core\Auth\Browser\Controller\AuthController::actionLogout}|
- * |POST | auth/users/:userId/switch-to | {@link GO\Core\Auth\Browser\Controller\AuthController::actionSwitchTo}|
+ * |GET | auth | {@link GO\Core\Auth\Controller\AuthController::actionIsLoggedIn}|
+ * |POST | auth | {@link GO\Core\Auth\Controller\AuthController::actionLogin}|
+ * |DELETE | auth | {@link GO\Core\Auth\Controller\AuthController::actionLogout}|
+ * |POST | auth/users/:userId/switch-to | {@link GO\Core\Auth\Controller\AuthController::actionSwitchTo}|
  * |GET | auth/users | {@link GO\Core\Users\Controller\UserController::actionStore}|
  * |GET | auth/users/0 | {@link GO\Core\Users\Controller\UserController::actionNew}|
  * |GET | auth/users/:userId | {@link GO\Core\Users\Controller\UserController::actionRead}|

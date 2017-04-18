@@ -53,7 +53,6 @@ class FieldSet extends Record{
 
 	protected static function defineRelations() {		
 			self::hasMany('fields', Field::class, ['id' => 'fieldSetId'])
-				->setDeleteAction(Relation::DELETE_CASCADE)
 				->setQuery((new Query())->orderBy(['sortOrder' => 'ASC']));		
 	}
 	

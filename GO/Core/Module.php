@@ -3,7 +3,7 @@
 namespace GO\Core;
 
 use GO\Core\Accounts\Controller\AccountController;
-use GO\Core\Auth\Browser\Controller\AuthController;
+use GO\Core\Auth\Controller\AuthController;
 use GO\Core\Blob\Controller\BlobController;
 use GO\Core\Comments\Controller\CommentController;
 use GO\Core\Cron\Controller\JobController;
@@ -102,7 +102,8 @@ class Module extends BaseModule {
 						->get('customfields/fieldsets/:modelName/:fieldSetId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId', 'update')
 						->post('customfields/fieldsets/:modelName', 'create')
-						->delete('customfields/fieldsets/:modelName/:fieldSetId', 'delete');
+						->delete('customfields/fieldsets/:modelName/:fieldSetId', 'delete')
+						->put('customfields/fieldsets/:modelName', 'multiple');
 
 		$router->addRoutesFor(FieldController::class)
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields', 'store')
@@ -110,7 +111,8 @@ class Module extends BaseModule {
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'update')
 						->post('customfields/fieldsets/:modelName/:fieldSetId/fields', 'create')
-						->delete('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'delete');
+						->delete('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'delete')
+						->put('customfields/fieldsets/:modelName/:fieldSetId/fields', 'multiple');
 
 
 		$router->addRoutesFor(JobController::class)

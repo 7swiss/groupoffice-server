@@ -233,6 +233,7 @@ abstract class Object {
 		
 		$modules = IFW::app()->getModules()->toArray();
 		rsort($modules);		
+
 		
 		foreach($modules as $module) {
 			$namespace = substr($module, 0, strrpos($module, '\\'));

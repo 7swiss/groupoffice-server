@@ -16,7 +16,7 @@ return [
 			'enabled' => true
 		],
 	
-		'GO\Core\Auth\Browser\Model\Token' => [
+		'GO\Core\Auth\Model\Token' => [
 			"checkXSRFToken" => false //Can be convenient to disable in development mode.
 		],
 		

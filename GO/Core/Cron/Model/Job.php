@@ -202,7 +202,7 @@ class Job extends Record {
 			}
 		}
 		
-		if(($this->isModified('cronExpression') || !isset($this->nextRun)) && $this->enabled) {			
+		if(($this->isModified('cronExpression') || (!isset($this->nextRun)) && $this->enabled)) {			
 			$this->nextRun = $this->getNextRunDate();
 		}
 		
@@ -268,7 +268,7 @@ class Job extends Record {
 		$this->nextRun = $this->getNextRunDate();
 		
 		if(!isset($this->nextRun)) {
-			$this->delete();
+			$this->deleteHard();
 		}else if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}

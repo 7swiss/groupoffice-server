@@ -1,6 +1,6 @@
 <?php
 return [
-	'GO\Core\Auth\Browser\Model\Token' => [
+	'GO\Core\Auth\Model\Token' => [
 		 "checkXSRFToken" => false
 	],
 	'IFW\Config' => [
@@ -9,9 +9,9 @@ return [
 			'cacheClass' => "\\IFW\\Cache\\None" //set to none for development
 	],
 	'IFW\Db\Connection' => [
-			'user' => 'root',
+			'user' => 'admin',
 			'port' => 3306,
-			'pass' => '',
+			'pass' => 'mks14785',
 			'database' => 'go7_test',
 			'host' => 'localhost',
 	],

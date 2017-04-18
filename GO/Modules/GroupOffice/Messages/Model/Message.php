@@ -283,7 +283,7 @@ class Message extends \GO\Core\Orm\Record {
 					)->single();
 			
 			return empty($id) ? null : $id;
-		}, $message->thread->account->createdBy);
+		});
 				
 		return $message;
 	}

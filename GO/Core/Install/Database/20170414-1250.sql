@@ -1,0 +1,1 @@
+RENAME TABLE `auth_browser_token` TO `auth_token`;
