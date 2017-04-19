@@ -12,7 +12,7 @@ CREATE TABLE `auth_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   KEY `deleted` (`deleted`)
-) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `auth_browser_token` (
   `accessToken` varchar(50) CHARACTER SET ascii COLLATE ascii_general_ci,
@@ -37,7 +37,7 @@ CREATE TABLE `auth_group` (
   KEY `autoAdd` (`autoAdd`),
   KEY `deleted` (`deleted`),
   CONSTRAINT `auth_group_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=317 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `auth_user_group` (
@@ -65,7 +65,7 @@ CREATE TABLE `modules_module` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `deleted` (`deleted`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `modules_module_group` (
@@ -93,7 +93,7 @@ CREATE TABLE `cron_job` (
   PRIMARY KEY (`id`),
   KEY `moduleId` (`moduleId`),
   CONSTRAINT `cron_job_ibfk_1` FOREIGN KEY (`moduleId`) REFERENCES `modules_module` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `custom_fields_field_set` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -105,7 +105,7 @@ CREATE TABLE `custom_fields_field_set` (
   UNIQUE KEY `name` (`name`),
   KEY `model` (`modelName`),
   KEY `deleted` (`deleted`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `custom_fields_field` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -126,7 +126,7 @@ CREATE TABLE `custom_fields_field` (
   KEY `deleted` (`deleted`),
   KEY `sortOrder` (`sortOrder`),
   CONSTRAINT `custom_fields_field_ibfk_1` FOREIGN KEY (`fieldSetId`) REFERENCES `custom_fields_field_set` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -140,7 +140,7 @@ CREATE TABLE `tags_tag` (
   `color` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
