@@ -15,13 +15,20 @@ class LanguageFile {
 	}
 
 	private function extractVariables() {
+		
+		if(!$this->file->exists()) {
+			return [];
+		}
+		
 		$data = $this->file->getContents();
 
 		$startpos = strpos($data, '{');
-		$startpos = strpos($data, '{', $startpos + 1);
+		if($startpos !== false) {
+			$startpos = strpos($data, '{', $startpos + 1);
 
-		$endpos = strrpos($data, '}');
-		$endpos = strrpos($data, '}', $endpos - strlen($data) - 1);
+			$endpos = strrpos($data, '}');
+			$endpos = strrpos($data, '}', $endpos - strlen($data) - 1);
+		}
 
 		if ($startpos && $endpos) {
 			$json = $this->fixJSON(substr($data, $startpos, $endpos - $startpos + 1));
