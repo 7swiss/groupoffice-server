@@ -150,6 +150,10 @@ class Query extends DbQuery {
 		if(!isset($this->recordClassName)) {
 			return parent::getBuilder();
 		}
+		
+		if(isset($this->requirePermissionType) && !$this->requirePermissionHandled) {
+			throw new \Exception("A required permission type was given but the permission object doesn't support this.");
+		}
 		return new QueryBuilder($this->recordClassName);
 		
 	}
@@ -174,12 +178,25 @@ class Query extends DbQuery {
 	}
 	
 	private $requirePermissionType;
+	private $requirePermissionHandled = false;
 	
+	/**
+	 * Make the query filter only objects with this permission type
+	 * 
+	 * The permission object must call {@see getRequirePermision()} and handle it
+	 * in (@see \IFW\Auth\Permissions\Model::internalApplyToQuery()}. Otherwise 
+	 * an exception will be thrown when using this function while it's not supported.
+	 * 
+	 * @param string $type
+	 * @return self	
+	 */
 	public function requirePermission($type) {
 		$this->requirePermissionType = $type;		
+		return $this;
 	}
 	
 	public function getRequirePermission() {
+		$this->requirePermissionHandled = true;
 		return $this->requirePermissionType;
 	}
 }

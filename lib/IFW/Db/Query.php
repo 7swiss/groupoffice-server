@@ -499,6 +499,7 @@ class Query extends Criteria {
 	}
 	
 	/**
+	 * Creates a select command that can be executed
 	 * 
 	 * @return Command
 	 */

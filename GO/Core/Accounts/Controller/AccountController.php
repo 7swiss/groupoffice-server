@@ -28,7 +28,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q=null) {
+	protected function actionStore($capability = null, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q=null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -38,6 +38,13 @@ class AccountController extends Controller {
 		
 		if(isset($q)) {
 			$query->setFromClient($q);			
+		}
+		
+		if($capability) {
+			$capabilities = \GO\Core\Accounts\Model\Capability::find(
+							(new Query)->tableAlias('capabilities')->where('capabilities.accountId = t.id')->andWhere(['modelName' => $capability]));
+			
+			$query->andWhere(['EXISTS', $capabilities]);
 		}
 
 		$accounts = Account::find($query);
