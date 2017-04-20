@@ -126,13 +126,13 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		$this->password = $crypt->encrypt($password);						
 	}
 	
-	private function getPassword() {
+	private function getDecryptedPassword() {
 		$crypt = new \IFW\Util\Crypt();
 		if(!$crypt->isEncrypted($this->password)) {
 			$this->password = $crypt->encrypt($this->password);
 			$this->update();
 			
-			return $this->getPassword();
+			return $this->getDecryptedPassword();
 		}else
 		{
 			return $crypt->decrypt($this->password);
@@ -187,7 +187,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 			}
 		}
 
-		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->getPassword())) {
+		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->getDecryptedPassword())) {
 			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.$this->connection->lastCommandStatus);
 		}
 
