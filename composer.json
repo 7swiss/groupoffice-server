@@ -29,7 +29,8 @@
 		"ralouphie/mimey": "dev-master",
 		"setasign/fpdi-tcpdf": "*"	,
 		"donatj/phpuseragentparser": "*",
-		"phpdocumentor/reflection-docblock": "~2.0"
+		"phpdocumentor/reflection-docblock": "~2.0",
+		"defuse/php-encryption": "^2.0"
 		
 	},
 	"require-dev": {

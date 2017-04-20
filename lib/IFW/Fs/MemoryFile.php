@@ -10,34 +10,34 @@ namespace IFW\Fs;
  */
 class MemoryFile extends File{
 	
-	private $_data;
+	private $data;
 	
 	public function __construct($filename, $data) {
 		
-		$this->_data = $data;
+		$this->data = $data;
 		
 		
 		return parent::__construct($filename);
 	}
 	
 	public function getContents() {
-		return $this->_data;
+		return $this->data;
 	}
 	public function contents() {
-		return $this->_data;
+		return $this->data;
 	}
 	
 	public function putContents($data, $flags = null, $context = null) {
 		if($flags = FILE_APPEND){
-			$this->_data .= $data;
+			$this->data .= $data;
 		}else
 		{
-			$this->_data = $data;
+			$this->data = $data;
 		}
 	}
 	
 	public function getSize() {
-		return strlen($this->_data);
+		return strlen($this->data);
 	}
 	
 	public function getModifiedAt() {
@@ -147,14 +147,11 @@ class MemoryFile extends File{
 	}
 	
 	public function output($sendHeaders = true, $useCache = true) {
-		echo $this->_data;
+		echo $this->data;
 	}
 	
-	public function setDefaultPermissions() {
-		
-	}
 	
 	public function md5Hash(){
-		return md5($this->_data);
+		return md5($this->data);
 	}
 }

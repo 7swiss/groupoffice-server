@@ -13,20 +13,6 @@ use IFW;
  */
 class Folder extends FileSystemObject {
 	
-	/**
-	 * Default folder create mode
-	 *
-	 * @var octal
-	 */
-	public $folderCreateMode;
-	
-	
-	/**
-	 * Default file create mode
-	 * 
-	 * @var octal 
-	 */
-	public $fileCreateMode;
 	
 //	/**
 //	 * Create a new file object. Filesystem file is not created automatically.
@@ -129,9 +115,6 @@ class Folder extends FileSystemObject {
 	public function getFile($relativePath) {
 		$childPath = $this->path . '/' . $relativePath;
 		$file = new File($childPath);
-		if(isset($this->fileCreateMode)) {
-			$file->createMode = $this->fileCreateMode;
-		}
 		
 		return $file;
 	}
@@ -146,9 +129,6 @@ class Folder extends FileSystemObject {
 	public function getFolder($relativePath) {
 		$childPath = $this->path . '/' . $relativePath;		
 		$folder = new Folder($childPath);
-		if(isset($this->folderCreateMode)) {
-			$folder->folderCreateMode = $this->folderCreateMode;
-		}
 		
 		return $folder;
 	}	
@@ -302,23 +282,21 @@ class Folder extends FileSystemObject {
 	/**
 	 * Create the folder
 	 *
-	 * @param int $permissionsMode <p>
+	 * @param int $permissionsMode 
+	 * 
+	 * Use umask() to change defaults.
+	 * 
 	 * Note that mode is not automatically
 	 * assumed to be an octal value, so strings (such as "g+w") will
 	 * not work properly. To ensure the expected operation,
 	 * you need to prefix mode with a zero (0):
-	 * </p>
+	 * 
 	 *
 	 * @return self|boolean
 	 */
-	public function create($permissionsMode = null) {
-
-		if (!isset($permissionsMode)) {
-			$permissionsMode = isset($this->folderCreateMode) ? $this->folderCreateMode : 0755;
-		}
+	public function create($permissionsMode = 0777) {
 
 		if (is_dir($this->path)) {
-//			$this->setDefaultPermissions();
 			return $this;
 		}
 

@@ -67,18 +67,6 @@ abstract class FileSystemObject extends Object {
 		$this->path = $path;
 	}
 
-	/**
-	 * Set's default permissions and group ownership
-	 */
-	public function setDefaultPermissions() {
-		if (isset($this->createMode)) {
-			chmod($this->path, $this->createMode);
-		}
-
-		if (isset($this->changeGroup)) {
-			chgrp($this->path, $this->changeGroup);
-		}
-	}
 
 	/**
 	 * Return absolute filesystem path
@@ -184,13 +172,16 @@ abstract class FileSystemObject extends Object {
 	}
 
 	/**
-	 *
-	 * @param int $permissionsMode <p>
+	 * Change permissions
+	 * 
+	 * You should use umask() to control default permissions
+	 * 
+	 * @param int $permissionsMode 
 	 * Note that mode is not automatically
 	 * assumed to be an octal value, so strings (such as "g+w") will
 	 * not work properly. To ensure the expected operation,
 	 * you need to prefix mode with a zero (0):
-	 * </p>
+	 * 
 	 *
 	 * @return boolean
 	 */

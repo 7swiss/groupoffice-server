@@ -5,7 +5,7 @@ return [
 	],
 	'IFW\Config' => [
 			'productName' => 'Group-Office 7.0',
-			'dataFolder'=>dirname(__FILE__).'/data',
+			'dataFolder'=> '/tmp/groupoffice/phpunit/data',
 			'cacheClass' => "\\IFW\\Cache\\None" //set to none for development
 	],
 	'IFW\Db\Connection' => [

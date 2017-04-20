@@ -19,13 +19,7 @@ use IFW\Util\StringUtil;
  */
 class File extends FileSystemObject {
 	
-	/**
-	 * File create mode
-	 * 
-	 * @var octal 
-	 */
-	public $createMode;
-	
+
 	
 	/**
 	 * Get the parent folder object
@@ -170,7 +164,6 @@ class File extends FileSystemObject {
 		$this->create();
 		
 		if (file_put_contents($this->path, $data, $flags, $context)) {
-			$this->setDefaultPermissions();
 			return true;
 		} else {
 			return false;
@@ -309,10 +302,6 @@ class File extends FileSystemObject {
 		if (!copy($this->path, $destinationFile->getPath())) {
 			return false;
 		}else{
-
-//			$file = new File($destinationFile->getPath());
-			$destinationFile->setDefaultPermissions();
-
 			return $destinationFile;
 		}
 	}
@@ -400,7 +389,6 @@ class File extends FileSystemObject {
 	private function create() {
 		if(!$this->exists()) {
 			$this->touch(true);
-			$this->setDefaultPermissions();
 		}
 	}
 }

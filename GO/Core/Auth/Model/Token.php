@@ -184,7 +184,6 @@ class Token extends Record {
 	 */
 	public function getTempFolder($autoCreate = true){
 		$folder = GO()->getConfig()->getTempFolder(false)->getFolder($this->accessToken);
-		$folder->folderCreateMode = 0777;
 		
 		if($autoCreate){
 			$folder->create();

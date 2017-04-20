@@ -59,7 +59,7 @@ class Config {
 	 * @var string
 	 */
 	private $dataFolder = '/home/ifw';
-
+	
 	/**
 	 * Configuration for all objects that extend AbstractObject
 	 *
@@ -113,13 +113,13 @@ class Config {
 		if($appendSAPI) {
 			$path .= '/'.PHP_SAPI;
 		}
-
+		
 		$folder = new Folder($path);
-		$folder->folderCreateMode = 0777;
-
 		if ($autoCreate) {
+			$old = umask(0); //world reabable
 			$folder->create();
-		}
+			umask($old);
+		}		
 
 		return $folder;
 	}

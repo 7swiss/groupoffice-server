@@ -121,14 +121,6 @@ abstract class App {
 	 * 					'host'=>'localhost',
 	 * 			),
 	 * 			
-	 * 			'IFW\Fs\File'=>array(
-	 * 					'createMode'=>0644
-	 * 			),
-	 * 			
-	 * 			'IFW\Fs\Folder'=>array(
-	 * 					'createMode'=>0755
-	 * 			)
-	 * 			
 	 * 	))
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * 

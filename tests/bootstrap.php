@@ -6,6 +6,12 @@ $autoLoader->add('GO\\', __DIR__);
 
 $app = new \GO\Core\Web\App($autoLoader, require(__DIR__.'/config.php'));
 
+$old = umask(0); //world readable
+$app->getConfig()->getDataFolder()->delete();
+$app->getConfig()->getDataFolder()->create();
+umask($old);
+
+
 //cleanup previous database
 GO()->getDbConnection()->query("DROP DATABASE IF EXISTS `" . $app->getDbConnection()->database ."`");
 GO()->getDbConnection()->query("CREATE DATABASE `" . $app->getDbConnection()->database ."`");

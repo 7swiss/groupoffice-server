@@ -51,7 +51,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 	 * 
 	 * @var string
 	 */							
-	public $password;
+	protected $password;
 
 	/**
 	 * 
@@ -120,23 +120,24 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 	public static function getDefaultReturnProperties() {
 		return parent::getDefaultReturnProperties().',smtpAccount,signatures';
 	}
-	
-	public function toArray($properties = null) {
-		
-		$attr = parent::toArray($properties);
-		
-		unset($attr['password']);
-		
-		return $attr;
-					
+
+	public function setPassword($password) {
+		$crypt = new \IFW\Util\Crypt();
+		$this->password = $crypt->encrypt($password);						
 	}
 	
-//	protected function internalDelete($hard) {
-//		
-//		//if(\GO\Modules\GroupOffice\Messages\Model\Attachment::find(['']))
-//		
-//		return parent::internalDelete($hard);
-//	}
+	private function getPassword() {
+		$crypt = new \IFW\Util\Crypt();
+		if(!$crypt->isEncrypted($this->password)) {
+			$this->password = $crypt->encrypt($this->password);
+			$this->update();
+			
+			return $this->getPassword();
+		}else
+		{
+			return $crypt->decrypt($this->password);
+		}
+	}
 
 	public function getName() {
 		return $this->username;
@@ -186,7 +187,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 			}
 		}
 
-		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->password)) {
+		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->getPassword())) {
 			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.$this->connection->lastCommandStatus);
 		}
 
