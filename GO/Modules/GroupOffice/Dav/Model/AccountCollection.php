@@ -157,7 +157,6 @@ class AccountCollection extends Record {
 				$this->updateContact($card);
 			}
 		}
-		exit();
 		
 	}
 	

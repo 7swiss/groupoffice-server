@@ -75,7 +75,7 @@ class AccountCard extends Record {
 	protected function internalSave() {	
 		
 		if($this->isModified('data')) {			
-			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING);		
+			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING+ VObject\Reader::OPTION_IGNORE_INVALID_LINES);
 			$this->contact = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::fromVCard($vcard, $this->contact);		
 			$this->contact->accountId = $this->accountId;
 			
@@ -90,7 +90,7 @@ class AccountCard extends Record {
 	public function updateFromContact() {
 		if($this->contact && $this->contact->modifiedAt > $this->modifiedAt) {
 			//update vcard
-			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING);		
+			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING + VObject\Reader::OPTION_IGNORE_INVALID_LINES);
 			
 			$vcard = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::toVCard($this->contact, $vcard);				
 			
