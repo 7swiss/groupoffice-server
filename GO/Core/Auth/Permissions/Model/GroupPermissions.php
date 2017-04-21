@@ -65,7 +65,7 @@ class GroupPermissions extends Model {
 				return $this->getGroupAccess($user) != false;			
 				
 			case self::PERMISSION_UPDATE:
-				return $this->getGroupAccess($user) != false && $this->getGroupAccess($user)->write;
+				return $this->getGroupAccess($user) != false && $this->getGroupAccess($user)->update;
 				
 			case self::PERMISSION_CHANGE_PERMISSIONS:
 				return $this->record->ownedBy == $user->group->id; //owner
@@ -94,15 +94,19 @@ class GroupPermissions extends Model {
 	
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		
-		$cls = $this->getGroupAccessRecordName();
+		$cls = $this->getGroupAccessRecordName();		
 		
-		$groupAccess = $cls::find(
-						(new Query())
+		$subQuery = (new Query())
 						->tableAlias('groupAccess')						
 						->joinRelation('groupUsers')
 						->where(['groupUsers.userId' => $user->id()])
-						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias(). '.' . $this->groupAccessKey)
-						);
+						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias(). '.' . $this->groupAccessKey);
+		
+		if($query->getRequirePermission()) {
+			$subQuery->andWhere(['groupAccess.update' => true]);
+		}
+		
+		$groupAccess = $cls::find($subQuery);
 		
 		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 						->andWhere(['EXISTS', $groupAccess]);

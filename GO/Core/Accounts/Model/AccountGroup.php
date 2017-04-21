@@ -1,5 +1,5 @@
 <?php
-namespace GO\Modules\GroupOffice\Contacts\Model;
+namespace GO\Core\Accounts\Model;
 
 use GO\Core\Auth\Permissions\Model\GroupAccess;
 
@@ -19,12 +19,6 @@ class AccountGroup extends GroupAccess {
 	 * @var int
 	 */							
 	public $groupId;
-
-	/**
-	 * 
-	 * @var bool
-	 */							
-	public $write = true;
 
 
 	/**

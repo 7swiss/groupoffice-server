@@ -76,7 +76,7 @@ class Account extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new Owner();
+		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(AccountGroup::class);
 	}
 	
 	/**
