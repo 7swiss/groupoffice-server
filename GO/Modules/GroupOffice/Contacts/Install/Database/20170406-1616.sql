@@ -1,5 +1,5 @@
 ALTER TABLE `contacts_contact` ADD `accountId` INT NOT NULL AFTER `deleted`, ADD INDEX (`accountId`);
-INSERT INTO `accounts_account` (`id`, `name`, `modelName`, `ownedBy`) VALUES (NULL, 'Public contacts', 'GO\\Modules\\GroupOffice\\Contacts\\Model\\Account', '2');
+INSERT INTO `accounts_account` (`id`, `name`, `modelName`, `ownedBy`) VALUES (NULL, 'Public contacts', 'GO\\Modules\\GroupOffice\\Contacts\\Model\\Account', '1');
 
 update contacts_contact set accountId = (select id from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account" limit 0,1);
 

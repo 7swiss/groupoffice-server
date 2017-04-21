@@ -102,24 +102,37 @@ class GroupPermissions extends Model {
 						->where(['groupUsers.userId' => $user->id()])
 						->andWhere('groupAccess.'.$cls::getForPk().' = '.$query->getTableAlias(). '.' . $this->groupAccessKey);
 		
-		if($query->getRequirePermission()) {
-			$subQuery->andWhere(['groupAccess.update' => true]);
+		switch($query->getRequirePermissionType()) {
+			case self::PERMISSION_UPDATE:
+				$subQuery->andWhere(['groupAccess.update' => true]);
+				
+				$groupAccess = $cls::find($subQuery);
+				break;
+			
+			case null:
+			case self::PERMISSION_READ:
+				$groupAccess = $cls::find($subQuery);
+				break;
+			
+			case self::PERMISSION_CHANGE_PERMISSIONS:
+				
+				$groupAccess = \GO\Core\Users\Model\UserGroup::find(
+						(new Query())
+						->tableAlias('ug')
+						->where(['userId' => $user->id()])
+						->andWhere('ug.groupId = '.$query->getTableAlias().'.ownedBy')
+						);
+				
+				break;
+			
+			default:				
+				throw new \Exception("Invalid permission required");
 		}
 		
-		$groupAccess = $cls::find($subQuery);
+		
 		
 		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
 						->andWhere(['EXISTS', $groupAccess]);
-		
-//		->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])
-//						->joinRelation('groupPermissions')->debug()
-//						->joinRelation(
-//										'groupPermissions.groupUsers', 
-//										false, 
-//										'INNER', 
-//										['groupUsers.userId' => $user->id()]
-//										)
-//						->groupBy(['t.id']);
 	}
 
 }

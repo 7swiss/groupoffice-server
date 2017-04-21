@@ -28,8 +28,7 @@ use IFW\Orm\Record;
  * 
  * read: {@see Record::__construct()}
  * create: {@see Record::save()} and {@see Record::__construct()}
- * update: {@see Record::save()}
- * delete: {@see Record::delete()}
+ * update: {@see Record::save()} and {@see Record::delete()}
  * changePermissions: {@see Record::validate()}
  * 
  * 

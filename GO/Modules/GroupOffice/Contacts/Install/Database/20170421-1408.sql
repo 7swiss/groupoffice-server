@@ -1,0 +1,1 @@
+DROP TABLE contacts_account_group;

@@ -596,21 +596,7 @@ class Query extends Criteria {
 			return $this;
 		}
 		
-		$allowed = [
-				'andWhere',
-				'where',
-				'orWhere',
-				'joinRelation',
-				'groupBy',
-//				'having', 
-//				'andHaving',
-//				'orHaving',
-//				'distinct',
-				'orderBy',
-				'limit',
-				'offset',
-				'search'
-				];
+		$allowed = $this->getAllowedClientMethods();
 		
 		$data = json_decode($json, true);
 		
@@ -627,6 +613,31 @@ class Query extends Criteria {
 		$this->safeMode = false;
 		
 		return $this;
+	}
+	
+	/**
+	 * Returns methods that can be set by the client
+	 * 
+	 * {@see setFromClient()}
+	 * 
+	 * @return string[]
+	 */
+	protected function getAllowedClientMethods() {
+		return [
+				'andWhere',
+				'where',
+				'orWhere',
+				'joinRelation',
+				'groupBy',
+//				'having', 
+//				'andHaving',
+//				'orHaving',
+//				'distinct',
+				'orderBy',
+				'limit',
+				'offset',
+				'search'
+				];
 	}
 	
 	

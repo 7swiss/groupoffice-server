@@ -1,8 +1,12 @@
 <?php
 namespace IFW\Orm;
 
+use Exception;
+use IFW;
+use IFW\Db\Command;
 use IFW\Db\Criteria;
 use IFW\Db\Query as DbQuery;
+use PDO;
 
 /**
  * Used to build parameters for ActiveRecord::find() database queries
@@ -71,36 +75,6 @@ class Query extends DbQuery {
 		return $this;
 	}
 	
-//	protected function getWhere() {
-//		$where = parent::getWhere();
-//		
-//		foreach($where as $w) {
-//			if(is_array($w) && is_array($w[2])) {
-//				
-//			}
-//		}
-//	}
-//	
-//	/**
-//	 * Code for automatic join of relations based on the where table aliases.
-//	 *
-//	 * @todo move to ORM
-//	 * @param string $relationParts
-//	 */
-//	private function joinWhereRelation($relationParts) {
-//
-//		$relationName = implode('.', $relationParts);
-//		$alias = array_pop($relationParts);
-//
-//		if (!isset($this->aliasMap[$alias]) && $this->query->relationIsJoined($relationName) === false) {
-//			$arName = $this->recordClassName;
-//			if ($arName::getRelation($relationName)) {
-//				IFW::app()->debug("Joining relation in from where() param: ".$relationName);
-//				$this->query->joinRelation($relationName, false, 'LEFT');
-//			}
-//		}
-//	}
-//	
 	/**
 	 * Check if a relation was already joined
 	 * @param string $name
@@ -117,27 +91,37 @@ class Query extends DbQuery {
 	
 	private $recordClassName;
 	
+	
+	/**
+	 * Set the record class to query
+	 * 
+	 * Do not use this directly. This will be applied automatically by {@see Record::find()}
+	 * 
+	 * @param type $recordClassName
+	 * @return type
+	 */
 	public function setRecordClassName($recordClassName) {
 		$this->recordClassName = $recordClassName;
-		
-		
-		
 		return $this->from($recordClassName::tableName());
-		
-	}
-	
-	public function createCommand() {
-		
-		if($this->getFetchMode() == null && isset($this->recordClassName)) {
-			//set fetch mode to fetch Record objects
-			$this->fetchMode(\PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
-		}
-		
-		return parent::createCommand();
 	}
 	
 	public function getRecordClassName() {
 		return $this->recordClassName;
+	}
+	
+	/**
+	 * Create a select command from this query
+	 * 
+	 * @return Command
+	 */
+	public function createCommand() {
+		
+		if($this->getFetchMode() == null && isset($this->recordClassName)) {
+			//set fetch mode to fetch Record objects
+			$this->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
+		}
+		
+		return parent::createCommand();
 	}
 	
 	/**
@@ -151,11 +135,10 @@ class Query extends DbQuery {
 			return parent::getBuilder();
 		}
 		
-		if(isset($this->requirePermissionType) && !$this->requirePermissionHandled) {
-			throw new \Exception("A required permission type was given but the permission object doesn't support this.");
+		if(isset($this->requirePermissionType) && !$this->requirePermissionTypeHandled && !IFW::app()->getAuth()->user()->isAdmin()) {
+			throw new Exception("A required permission type was given but the permission object doesn't support this.");
 		}
-		return new QueryBuilder($this->recordClassName);
-		
+		return new QueryBuilder($this->recordClassName);		
 	}
 	
 	private $allowedPermissionTypes = [];
@@ -166,6 +149,7 @@ class Query extends DbQuery {
 	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
 	 * already been checked for read access.
 	 * 
+	 * @param string[] $allowedPermissionTypes An array of permission types defined in the constants.
 	 * @return static
 	 */
 	public function allowPermissionTypes(array $allowedPermissionTypes) {
@@ -173,12 +157,25 @@ class Query extends DbQuery {
 		return $this;
 	}
 	
+	/**
+	 * Get the allowed permission types
+	 * 
+	 * These are set on the query object by {@see allowPermissionTypes()}
+	 * 
+	 * @return string[]
+	 */
 	public function getAllowedPermissionTypes(){
 		return $this->allowedPermissionTypes;
 	}
 	
 	private $requirePermissionType;
-	private $requirePermissionHandled = false;
+	
+	/**
+	 * Used to check if the permissions model supports {@see requirePermissionType()}
+	 * 
+	 * @var bool 
+	 */
+	private $requirePermissionTypeHandled = false;
 	
 	/**
 	 * Make the query filter only objects with this permission type
@@ -190,13 +187,25 @@ class Query extends DbQuery {
 	 * @param string $type
 	 * @return self	
 	 */
-	public function requirePermission($type) {
+	public function requirePermissionType($type) {
 		$this->requirePermissionType = $type;		
 		return $this;
 	}
 	
-	public function getRequirePermission() {
-		$this->requirePermissionHandled = true;
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getRequirePermissionType() {
+		$this->requirePermissionTypeHandled = true;
 		return $this->requirePermissionType;
+	}
+	
+	protected function getAllowedClientMethods() {
+		$methods = parent::getAllowedClientMethods();
+		
+		$methods[] = 'requirePermissionType';
+		
+		return $methods;
 	}
 }
