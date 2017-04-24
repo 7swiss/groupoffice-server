@@ -1,7 +1,8 @@
 <?php
+
 namespace GO\Core\CustomFields\Model;
 
-use IFW\Orm\Record;
+use IFW\Orm\PropertyRecord;
 
 /**
  * Custom fields record
@@ -15,49 +16,45 @@ use IFW\Orm\Record;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class CustomFieldsRecord extends \IFW\Orm\PropertyRecord {
+abstract class CustomFieldsRecord extends PropertyRecord {
 
 	private $attributes;
 
 	public function __set($name, $value) {
-		
-		if($this->getRelation($name)) {
+
+		if ($this->getRelation($name)) {
 			return $this->getRelated($name);
 		}
-		
+
 		$this->attributes[$name] = $value;
 	}
 
 	public function __get($name) {
 		if (array_key_exists($name, $this->attributes)) {
 			return $this->attributes[$name];
-		}else
-		{
+		} else {
 			return parent::__get($name);
 		}
-	
 	}
 
 	public function __isset($name) {
-		if(isset($this->attributes[$name])) {
+		if (isset($this->attributes[$name])) {
 			return true;
-		}else
-		{
+		} else {
 			return parent::__isset($name);
 		}
-		
 	}
-	
+
 	public function __unset($name) {
-		if(isset($this->attributes[$name])) {
+		if (isset($this->attributes[$name])) {
 			unset($this->attributes[$name]);
-		}else
-		{
+		} else {
 			parent::__unset($name);
 		}
 	}
-	
+
 	public static function getDefaultReturnProperties() {
 		return implode(',', self::getTable()->getColumnNames());
 	}
+
 }
