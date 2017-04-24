@@ -11,18 +11,10 @@ use IFW\Auth\Permissions\Everyone;
  * This is a special type of record that behaves as property. It has no permissions
  * because it's only allowed to fetch and save it relationally.
  * 
+ * This record can't be queried directly. This is checked in {@see Query::createCommand()}
+ * 
  */
-class PropertyRecord extends Record {
-	
-	public static function find($query = null) {
-		
-		$query = Query::normalize($query);
-		if(!$query->getRelation()) {
-			throw new Exception("Property '".static::class."' can't be queried directly. Use as relation only.");
-		}
-		
-		return parent::find($query);
-	}
+class PropertyRecord extends Record {	
 	
 	protected function internalSave() {
 		

@@ -16,7 +16,7 @@ use GO\Modules\GroupOffice\Contacts\Model\Contact;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Date extends Record {
+class Date extends \IFW\Orm\PropertyRecord {
 	/**
 	 * 
 	 * @var int

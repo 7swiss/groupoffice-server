@@ -81,25 +81,6 @@ class ContactController extends Controller {
 	
 	
 	
-	public function actionFilters() {
-		$this->render($this->getFilterCollection()->toArray());		
-	}
-	
-	private function getFilterCollection() {
-		$filters = new FilterCollection(Contact::class);
-		
-		//$filters->setCountQuery(ContactPermissions::query());
-		
-		$filters->addFilter(TypeFilter::class);
-		$filters->addFilter(TagFilter::class);
-		$filters->addFilter(GenderFilter::class);
-		$filters->addFilter(AgeFilter::class);
-		
-		
-//		Field::addFilters(ContactCustomFields::class, $filters);
-		
-		return $filters;
-	}
 	
 
 	/**
@@ -127,8 +108,6 @@ class ContactController extends Controller {
 		if(isset($q)) {
 			$query->setFromClient($q);			
 		}
-		
-		$this->getFilterCollection()->apply($query);
 		
 		$contacts = Contact::find($query);
 		$contacts->setReturnProperties($returnProperties);

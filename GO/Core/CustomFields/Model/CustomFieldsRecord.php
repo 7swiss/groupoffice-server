@@ -15,7 +15,7 @@ use IFW\Orm\Record;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-abstract class CustomFieldsRecord extends Record {
+abstract class CustomFieldsRecord extends \IFW\Orm\PropertyRecord {
 
 	private $attributes;
 

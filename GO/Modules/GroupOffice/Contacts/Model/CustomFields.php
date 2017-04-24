@@ -19,9 +19,6 @@ class CustomFields extends CustomFieldsRecord{
 		self::hasOne('contact', Contact::class, ['id' => 'id']);
 		parent::defineRelations();
 	}
-	
-	public static function internalGetPermissions() {
-		return new ViaRelation('contact');
-	}
+
 	
 }

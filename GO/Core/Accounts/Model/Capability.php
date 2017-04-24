@@ -1,7 +1,7 @@
 <?php
 namespace GO\Core\Accounts\Model;
 
-use IFW\Orm\Record;
+use IFW\Orm\PropertyRecord;
 /**
  * The Capability model
  *
@@ -9,7 +9,7 @@ use IFW\Orm\Record;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Capability extends Record {	
+class Capability extends PropertyRecord {	
 	
 	/**
 	 * Primary key
@@ -32,9 +32,5 @@ class Capability extends Record {
 
 	protected static function defineRelations() {
 		self::hasOne('account', Account::class, ['accountId' => 'id']);
-	}
-	
-	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\Everyone();
 	}
 }

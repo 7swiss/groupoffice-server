@@ -531,8 +531,16 @@ class RelationStore extends Store implements ArrayAccess {
 		
 		$primaryKey = $this->buildViaPk($relatedRecord);
 		
+		$query = (new \IFW\Db\Query)
+						->select('*')
+						->from($viaModelName::tableName())
+						->where($primaryKey)
+						->limit(1);
+		
+		return $query->createCommand()->execute()->fetch() !== false;
+		
 
-		return $viaModelName::find($primaryKey)->single() != false;
+//		return $viaModelName::find($query)->single() != false;
 	}
 	
 	private function buildViaPk(Record $relatedModel) {
@@ -561,36 +569,41 @@ class RelationStore extends Store implements ArrayAccess {
 		$viaRecordName = $this->relation->getViaRecordName();
 		
 		$primaryKey = $this->buildViaPk($relatedRecord);
+//		$query = (new Query)
+//						->setRelation($this->getRelation(), $this->getRecord())
+//						->where($primaryKey);
+//
+//		$viaRecord = $viaRecordName::find($query)->single();
+//		
 		
+		return GO()->getDbConnection()->createCommand()->insert($viaRecordName::tableName(), $primaryKey, true)->execute();
 
-		$viaRecord = $viaRecordName::find($primaryKey)->single();
-
-		if (!$viaRecord) {
-			$viaRecord = new $viaRecordName();			
-			$viaRecord->setValues($primaryKey);
-			$this->setParentForViaRecord($viaRecord);
-			if (!$viaRecord->save()) {
-				throw new Exception("Could not create viaModel " . $viaRecordName.' validation errors: '.var_export($viaRecord->getValidationErrors(), true));
-			}
-		}else
-		{
-			$this->setParentForViaRecord($viaRecord);
-		}
+//		if (!$viaRecord) {
+//			$viaRecord = new $viaRecordName();			
+//			$viaRecord->setValues($primaryKey);
+//			$this->setParentForViaRecord($viaRecord);
+//			if (!$viaRecord->save()) {
+//				throw new Exception("Could not create viaModel " . $viaRecordName.' validation errors: '.var_export($viaRecord->getValidationErrors(), true));
+//			}
+//		}else
+//		{
+//			$this->setParentForViaRecord($viaRecord);
+//		}
 	}
 	
-	private function setParentForViaRecord($viaRecord) {
-		foreach($viaRecord::getRelations() as $parentRelation) { //eg. contact
-			if(
-							!$parentRelation->hasMany() && 
-							$parentRelation->getToRecordName() == $this->relation->getFromRecordName() && 
-							$viaRecord::KeysMatch($this->relation, $parentRelation)
-				) {				
-				$viaRecord->{$parentRelation->getName()} = $this->record;
-				return true;
-			}							
-		}
-		return false;
-	}	
+//	private function setParentForViaRecord($viaRecord) {
+//		foreach($viaRecord::getRelations() as $parentRelation) { //eg. contact
+//			if(
+//							!$parentRelation->hasMany() && 
+//							$parentRelation->getToRecordName() == $this->relation->getFromRecordName() && 
+//							$viaRecord::KeysMatch($this->relation, $parentRelation)
+//				) {				
+//				$viaRecord->{$parentRelation->getName()} = $this->record;
+//				return true;
+//			}							
+//		}
+//		return false;
+//	}	
 	
 	private function deleteViaRecord(Record $relatedModel) {
 		$viaRecordName = $this->relation->getViaRecordName();		
@@ -606,15 +619,17 @@ class RelationStore extends Store implements ArrayAccess {
 		foreach($this->relation->getViaKeys() as $fromField => $toField) {
 			$primaryKey[$fromField] = $relatedModel->$toField;
 		}
-
-		$viaRecord = $viaRecordName::find($primaryKey)->single();
-		if(!$viaRecord) {
-			return true;
-		}
 		
-		if(!$viaRecord->delete()) {
-			throw new Exception("Could not delete viaModel " . $viaRecordName);
-		}
+		return GO()->getDbConnection()->createCommand()->delete($viaRecordName::tableName(), $primaryKey)->execute();
+//
+//		$viaRecord = $viaRecordName::find($primaryKey)->single();
+//		if(!$viaRecord) {
+//			return true;
+//		}
+//		
+//		if(!$viaRecord->delete()) {
+//			throw new Exception("Could not delete viaModel " . $viaRecordName);
+//		}
 	}
 	
 	/**
@@ -626,9 +641,8 @@ class RelationStore extends Store implements ArrayAccess {
 	 */
 	public function has(Record $relatedRecord) {		
 		
-		if(($viaRecordName = $this->relation->getViaRecordName())) {		
-			$primaryKey = $this->buildViaPk($relatedRecord);
-			return $viaRecordName::find($primaryKey)->single() !== false;
+		if(($viaRecordName = $this->relation->getViaRecordName())) {					
+			return $this->hasViaRecord($relatedRecord);
 		}
 		
 		$query = clone $this->getQuery();		

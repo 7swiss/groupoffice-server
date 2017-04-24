@@ -10,7 +10,7 @@ namespace GO\Modules\GroupOffice\Contacts\Model;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class ContactOrganization extends \IFW\Orm\Record {
+class ContactOrganization extends \IFW\Orm\PropertyRecord {
 	
 	/**
 	 * 

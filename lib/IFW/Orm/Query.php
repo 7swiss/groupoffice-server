@@ -118,7 +118,13 @@ class Query extends DbQuery {
 		
 		if($this->getFetchMode() == null && isset($this->recordClassName)) {
 			//set fetch mode to fetch Record objects
-			$this->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record
+			if(is_a($this->recordClassName, PropertyRecord::class, true)) {
+				if($this->getRelationFromRecord() == null) {
+					throw new \Exception($this->recordClassName.' is a propery and can\'t be queried directly');
+				}
+			}
+				
+			$this->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record			
 		}
 		
 		return parent::createCommand();
