@@ -8,6 +8,7 @@ use IFW\Orm\Query;
  * The Account model
  *
  * @property Capability[] $capabilities
+ * @property AccountGroup[] $groups
  * 
  * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -41,6 +42,7 @@ class Account extends Record {
 	
 	protected static function defineRelations() {
 		self::hasMany('capabilities', Capability::class, ['id' => 'accountId']);
+		self::hasMany('groups', AccountGroup::class, ['id' => 'accountId']);
 	}
 	
 	protected function internalSave() {
@@ -76,8 +78,9 @@ class Account extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \GO\Core\Auth\Permissions\Model\GroupPermissions(AccountGroup::class);
+		return new AccountPermissions();
 	}
+
 	
 	/**
 	 * Get the account record that actually does the work

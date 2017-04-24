@@ -38,7 +38,7 @@ class XmlEncoder implements EncoderInterface {
 	  <read type="boolean">true</read>
 	  <update type="boolean">true</update>
 	  <delete type="boolean">true</delete>
-	  <changePermissions type="boolean">true</changePermissions>
+	  <manage type="boolean">true</manage>
 	  </permissions>
 	  <validationErrors/>
 	  <className type="string">GO\Core\Modules\Users\Model\User</className>

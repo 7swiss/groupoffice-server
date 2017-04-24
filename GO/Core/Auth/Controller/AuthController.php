@@ -99,7 +99,7 @@ class AuthController extends Controller {
 	 *         "read": true,
 	 *         "update": true,
 	 *         "delete": true,
-	 *         "changePermissions": true
+	 *         "manage": true
 	 *       },
 	 *       "validationErrors": [],
 	 *       "className": "GO\Core\Users\Model\User",
@@ -131,7 +131,7 @@ class AuthController extends Controller {
 	 *           "read": true,
 	 *           "update": true,
 	 *           "delete": true,
-	 *           "changePermissions": true
+	 *           "manage": true
 	 *         },
 	 *         "validationErrors": [],
 	 *         "className": "GO\Modules\Contacts\Model\Contact",
@@ -147,7 +147,7 @@ class AuthController extends Controller {
 	 *       "read": true,
 	 *       "update": true,
 	 *       "delete": true,
-	 *       "changePermissions": true
+	 *       "manage": true
 	 *     },
 	 *     "validationErrors": [],
 	 *     "className": "GO\Core\Auth\Model\Token",

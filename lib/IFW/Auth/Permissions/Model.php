@@ -29,7 +29,7 @@ use IFW\Orm\Record;
  * read: {@see Record::__construct()}
  * create: {@see Record::save()} and {@see Record::__construct()}
  * update: {@see Record::save()} and {@see Record::delete()}
- * changePermissions: {@see Record::validate()}
+ * manage: {@see Record::validate()}
  * 
  * 
  * **Note** that find queries are not aware of permissions. You must implement the
@@ -66,7 +66,7 @@ abstract class Model extends DataModel {
 	/**
 	 * Checked in validate() function of {@see AbstractRecord}
 	 */
-	const PERMISSION_CHANGE_PERMISSIONS = 'changePermissions';
+	const PERMISSION_MANAGE = 'manage';
 	
 	/**
 	 * Disable all permission checks
@@ -124,7 +124,7 @@ abstract class Model extends DataModel {
 				self::PERMISSION_READ,
 				self::PERMISSION_UPDATE,
 				self::PERMISSION_CREATE,
-				self::PERMISSION_CHANGE_PERMISSIONS,
+				self::PERMISSION_MANAGE,
 		];
 	}
 	

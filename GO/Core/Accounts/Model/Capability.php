@@ -35,6 +35,6 @@ class Capability extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\ViaRelation('account');
+		return new \IFW\Auth\Permissions\Everyone();
 	}
 }

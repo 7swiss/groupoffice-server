@@ -45,8 +45,7 @@ class GroupPermissions extends Model {
 	 * 
 	 * @param string $groupAccessRecordName The link table record
 	 */
-	public function __construct($groupAccessRecordName, $key = 'id') {
-		
+	public function __construct($groupAccessRecordName, $key = 'id') {		
 		$this->groupAccessRecordName = $groupAccessRecordName;
 		$this->groupAccessKey = $key;
 		parent::__construct();
@@ -67,7 +66,7 @@ class GroupPermissions extends Model {
 			case self::PERMISSION_UPDATE:
 				return $this->getGroupAccess($user) != false && $this->getGroupAccess($user)->update;
 				
-			case self::PERMISSION_CHANGE_PERMISSIONS:
+			case self::PERMISSION_MANAGE:
 				return $this->record->ownedBy == $user->group->id; //owner
 					
 			default:
@@ -114,7 +113,7 @@ class GroupPermissions extends Model {
 				$groupAccess = $cls::find($subQuery);
 				break;
 			
-			case self::PERMISSION_CHANGE_PERMISSIONS:
+			case self::PERMISSION_MANAGE:
 				
 				$groupAccess = \GO\Core\Users\Model\UserGroup::find(
 						(new Query())
