@@ -1,0 +1,1 @@
+ALTER TABLE `accounts_account_group` CHANGE `update` `write` TINYINT(1) NOT NULL DEFAULT '1';

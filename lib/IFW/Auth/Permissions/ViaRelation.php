@@ -32,7 +32,7 @@ class ViaRelation extends Model {
 		$relatedRecord = $this->record->{$relationName};
 		
 		if($permissionType != self::PERMISSION_READ) {
-			$permissionType = $relatedRecord->isNew() ? self::PERMISSION_CREATE : self::PERMISSION_UPDATE;		
+			$permissionType = $relatedRecord->isNew() ? self::PERMISSION_CREATE : self::PERMISSION_WRITE;		
 		}
 
 		if(!isset($relatedRecord)) {

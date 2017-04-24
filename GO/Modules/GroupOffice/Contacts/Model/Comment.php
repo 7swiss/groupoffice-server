@@ -32,7 +32,7 @@ class Comment extends \IFW\Orm\Record {
 		self::hasOne('comment', CoreComment::class, ['commentId' => 'id'])->allowPermissionTypes([
 				\IFW\Auth\Permissions\Model::PERMISSION_READ,
 				\IFW\Auth\Permissions\Model::PERMISSION_CREATE,
-				\IFW\Auth\Permissions\Model::PERMISSION_UPDATE,
+				\IFW\Auth\Permissions\Model::PERMISSION_WRITE,
 		]);
 		
 	}

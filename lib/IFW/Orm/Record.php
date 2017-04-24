@@ -1275,7 +1275,7 @@ abstract class Record extends DataModel {
 				return $this->delete();
 			}
 		
-			$action = $this->isNew() ? PermissionsModel::PERMISSION_CREATE : PermissionsModel::PERMISSION_UPDATE;
+			$action = $this->isNew() ? PermissionsModel::PERMISSION_CREATE : PermissionsModel::PERMISSION_WRITE;
 
 			if(!$this->getPermissions()->can($action)) {
 				$this->isSaving = false;
@@ -2119,7 +2119,7 @@ abstract class Record extends DataModel {
 	
 	private function processDelete($hard = false) {
 		
-		if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_UPDATE)) {
+		if(!$this->getPermissions()->can(PermissionsModel::PERMISSION_WRITE)) {
 			throw new Forbidden("You're not permitted to delete ".$this->getClassName()." ".var_export($this->pk(), true));
 		}
 

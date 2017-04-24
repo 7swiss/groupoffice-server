@@ -22,7 +22,7 @@ class EventPermission extends ViaRelation {
 			return true;
 		}
 
-		$permissionType = ($permissionType == self::PERMISSION_READ) ? self::PERMISSION_READ : self::PERMISSION_UPDATE;
+		$permissionType = ($permissionType == self::PERMISSION_READ) ? self::PERMISSION_READ : self::PERMISSION_WRITE;
 
 		$relatedRecord = $this->record->calendar;
 

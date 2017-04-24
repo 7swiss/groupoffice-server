@@ -23,8 +23,8 @@ class AccountPermissions extends \GO\Core\Auth\Permissions\Model\GroupPermission
 	
 		switch($permissionType) {
 			case self::PERMISSION_WRITE_CONTENTS:
-				return parent::internalCan(self::PERMISSION_UPDATE, $user);
-			case self::PERMISSION_UPDATE:
+				return parent::internalCan(self::PERMISSION_WRITE, $user);
+			case self::PERMISSION_WRITE:
 				return parent::internalCan(self::PERMISSION_MANAGE, $user);
 			default:
 				return parent::internalCan($permissionType, $user);
@@ -37,10 +37,10 @@ class AccountPermissions extends \GO\Core\Auth\Permissions\Model\GroupPermission
 		$requirePermissionType = $query->getRequirePermissionType();
 		switch($requirePermissionType) {
 			case self::PERMISSION_WRITE_CONTENTS:
-				$query->requirePermissionType(self::PERMISSION_UPDATE);
+				$query->requirePermissionType(self::PERMISSION_WRITE);
 				break;
 			
-			case self::PERMISSION_UPDATE:
+			case self::PERMISSION_WRITE:
 				$query->requirePermissionType(self::PERMISSION_MANAGE);				
 				break;
 			

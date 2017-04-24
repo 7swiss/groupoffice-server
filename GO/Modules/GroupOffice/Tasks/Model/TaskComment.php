@@ -31,7 +31,7 @@ class TaskComment extends \IFW\Orm\Record {
 		self::hasOne('comment', Comment::class, ['commentId' => 'id'])->allowPermissionTypes([
 				\IFW\Auth\Permissions\Model::PERMISSION_READ,
 				\IFW\Auth\Permissions\Model::PERMISSION_CREATE,
-				\IFW\Auth\Permissions\Model::PERMISSION_UPDATE,
+				\IFW\Auth\Permissions\Model::PERMISSION_WRITE,
 		]);
 		
 		self::hasOne('task', Task::class, ['taskId' => 'id']);

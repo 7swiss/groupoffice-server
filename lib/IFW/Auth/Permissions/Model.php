@@ -56,7 +56,7 @@ abstract class Model extends DataModel {
 	/**
 	 * Checked in save() function of {@see AbstractRecord}
 	 */
-	const PERMISSION_UPDATE = "update";
+	const PERMISSION_WRITE = "write";
 
 	/**
 	 * Checked in save() function of {@see AbstractRecord}
@@ -122,7 +122,7 @@ abstract class Model extends DataModel {
 	protected function definePermissionTypes() {
 		return [
 				self::PERMISSION_READ,
-				self::PERMISSION_UPDATE,
+				self::PERMISSION_WRITE,
 				self::PERMISSION_CREATE,
 				self::PERMISSION_MANAGE,
 		];
