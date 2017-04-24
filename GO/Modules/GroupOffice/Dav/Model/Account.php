@@ -2,13 +2,15 @@
 
 namespace GO\Modules\GroupOffice\Dav\Model;
 
+use Exception;
 use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use GO\Modules\GroupOffice\Contacts\Model\Contact;
 use IFW\Dav\Client;
+use IFW\Orm\Query;
 use IFW\Util\Crypt;
+use Sabre\VObject\UUIDUtil;
 
 /**
- * @property AccountCollection $collections
  */
 class Account extends AccountAdaptorRecord {
 
@@ -29,7 +31,7 @@ class Account extends AccountAdaptorRecord {
 
 	private function getDescryptedPassword() {
 		$crypt = new Crypt();
-		if (!$crypt->isEncrypted($this->password)) {
+		if (!empty($this->password) && !$crypt->isEncrypted($this->password)) {
 			$this->password = $crypt->encrypt($this->password);
 			$this->update();
 
@@ -38,13 +40,6 @@ class Account extends AccountAdaptorRecord {
 			return $crypt->decrypt($this->password);
 		}
 	}
-
-	protected static function defineRelations() {
-		parent::defineRelations();
-
-		self::hasMany('collections', AccountCollection::class, ['id' => 'accountId']);
-	}
-
 	public static function getCapabilities() {
 		return [Contact::class];
 	}
@@ -55,7 +50,7 @@ class Account extends AccountAdaptorRecord {
 	 * 
 	 * @return Client
 	 */
-	public function getClient() {
+	public function connect() {
 		if (!isset($this->client)) {
 			$this->client = new Client($this->getHost());
 			$this->client->setAuth($this->username, $this->getDescryptedPassword());
@@ -68,9 +63,6 @@ class Account extends AccountAdaptorRecord {
 		if (!isset($this->ctag)) {
 			return true;
 		}
-
-
-
 		return $this->getRemoteCtag() != $this->ctag;
 	}
 	
@@ -86,7 +78,7 @@ class Account extends AccountAdaptorRecord {
 
 	private function getRemoteCtag() {
 
-		$response = $this->getClient()->propFind($this->getPath(), ['{DAV:}displayname', '{cs:}getctag'], 0);
+		$response = $this->connect()->propFind($this->getPath(), ['{DAV:}displayname', '{cs:}getctag'], 0);
 
 		/**
 		 * <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:card="urn:ietf:params:xml:ns:carddav">
@@ -135,7 +127,7 @@ class Account extends AccountAdaptorRecord {
 			}
 		}
 
-		$response = $this->getClient()->multiget($this->getPath(), ['d:getetag', 'card:address-data'], $fetch);
+		$response = $this->connect()->multiget($this->getPath(), ['d:getetag', 'card:address-data'], $fetch);
 
 		foreach ($response->getMultiResponse() as $subResponse) {
 			$uri = (string) $subResponse->xpath('//d:href')[0];
@@ -155,7 +147,7 @@ class Account extends AccountAdaptorRecord {
 
 		//todo this will probably fail on large accounts
 		$deletedCards = AccountCard::find(
-										(new \IFW\Orm\Query())
+										(new Query())
 														->where(['accountId' => $this->id])
 														->where(['!=', ['uri' => array_keys($etags)]])
 		);
@@ -165,9 +157,10 @@ class Account extends AccountAdaptorRecord {
 		}
 	}
 
+	//TODO account moves
 	private function clientUpdates() {
 		$updatedCards = AccountCard::find(
-										(new \IFW\Orm\Query)
+										(new Query)
 														->where(['accountId' => $this->id])
 														->withDeleted()
 														->joinRelation('contact', true)
@@ -183,37 +176,79 @@ class Account extends AccountAdaptorRecord {
 				$this->updateContact($card);
 			}
 		}
+		
+		$this->clientCreateContacts();
+		
+		
+	}
+	
+	private function clientCreateContacts() {
+		
+		$cards = AccountCard::find(
+							(new Query)
+						->tableAlias('cards')
+						->where('cards.contactId = t.id')
+						);
+		
+		$contacts = Contact::find(
+						(new Query)
+						->where(['accountId' => $this->id])
+						->where(['NOT EXISTS', $cards])
+						);
+		
+		foreach($contacts as $contact) {
+			
+			$card = new AccountCard();
+			$card->uri = $this->getPath() . UUIDUtil::getUUID().'.vcf';
+			$card->account = $this;
+			$card->contact = $contact;
+			$card->updateFromContact();
+		
+			
+			$response = $this->connect()->put($card->uri, $card->data);
+
+			if ($response->status != 201) { //no content			
+				throw new Exception("DAV server returned " . $response->status . " " . $response->body);
+			}
+
+			$card->etag = $response->headers['etag'];
+			if (!$card->save()) {
+				throw new Exception("Couldn't save card");
+			}
+			
+			
+		}
 	}
 
 	private function updateContact(AccountCard $card) {
 		$card->updateFromContact();
-		$response = $this->getClient()->put($card->uri, $card->data, $card->etag);
+		$response = $this->connect()->put($card->uri, $card->data, $card->etag);
 
 		if ($response->status != 204) { //no content			
-			throw new \Exception("DAV server returned " . $response->status . " " . $response->body);
+			throw new Exception("DAV server returned " . $response->status . " " . $response->body);
 		}
 
 		$card->etag = $response->headers['etag'];
 		if (!$card->save()) {
-			throw new \Exception("Couldn't save card");
+			throw new Exception("Couldn't save card");
 		}
 	}
 
 	private function deleteContact(AccountCard $card) {
 
-		$response = $this->getClient()->delete($card->uri, $card->etag);
+		$response = $this->connect()->delete($card->uri, $card->etag);
 
 		if ($response->status != 204) { //no content			
-			throw new \Exception("DAV server returned " . $response->status . " " . $response->body);
+			throw new Exception("DAV server returned " . $response->status . " " . $response->body);
 		}
 
 		if (!$card->delete()) {
-			throw new \Exception("Couldn't save card");
+			throw new Exception("Couldn't save card");
 		}
 	}
 
 	private function getRemoteEtags() {
-		$client = $this->getClient();
+		$client = $this->connect();
 
 		//	$response = $client->report($this->getPath(), ['{DAV:}getetag','{card:}address-data'], 1);
 

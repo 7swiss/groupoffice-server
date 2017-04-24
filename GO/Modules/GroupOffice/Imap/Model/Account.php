@@ -128,7 +128,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 	
 	private function getDecryptedPassword() {
 		$crypt = new \IFW\Util\Crypt();
-		if(!$crypt->isEncrypted($this->password)) {
+		if(!empty($this->password) && !$crypt->isEncrypted($this->password)) {
 			$this->password = $crypt->encrypt($this->password);
 			$this->update();
 			
@@ -139,10 +139,6 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		}
 	}
 
-	public function getName() {
-		return $this->username;
-	}
-	
 	public function internalValidate() {
 		
 		if(!parent::internalValidate()){

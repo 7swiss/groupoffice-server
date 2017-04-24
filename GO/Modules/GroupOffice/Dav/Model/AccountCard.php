@@ -69,7 +69,9 @@ class AccountCard extends Record {
 	
 	protected static function defineRelations() {
 		self::hasOne('contact', Contact::class, ['contactId' => 'id']);
+		self::hasOne('account', Account::class, ['accountId' => 'id']);
 	}
+	
 
 
 	protected function internalSave() {	
@@ -90,7 +92,7 @@ class AccountCard extends Record {
 	public function updateFromContact() {
 		if($this->contact && $this->contact->modifiedAt > $this->modifiedAt) {
 			//update vcard
-			$vcard = Reader::read($this->data, Reader::OPTION_FORGIVING + Reader::OPTION_IGNORE_INVALID_LINES);
+			$vcard = empty($this->data) ? null : Reader::read($this->data, Reader::OPTION_FORGIVING + Reader::OPTION_IGNORE_INVALID_LINES);
 			
 			$vcard = \GO\Modules\GroupOffice\Contacts\Model\VCardHelper::toVCard($this->contact, $vcard);				
 			

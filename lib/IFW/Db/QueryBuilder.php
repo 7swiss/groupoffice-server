@@ -289,7 +289,7 @@ class QueryBuilder {
 
 		$this->reset();
 		
-		$this->query = $query;
+		$this->query = clone $query; //TODO this makes build parameters unnecessary
 		$this->tableAlias = $this->query->getTableAlias();
 		$this->aliasMap[$this->tableAlias] = Table::getInstance($this->tableName);
 
