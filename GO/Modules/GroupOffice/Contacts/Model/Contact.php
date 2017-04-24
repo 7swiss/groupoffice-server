@@ -294,7 +294,7 @@ class Contact extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new GroupPermissions(\GO\Core\Accounts\Model\AccountGroup::class, 'accountId');
+		return new \GO\Core\Accounts\Model\AccountItemPermissions();
 	}	
 	
 	public function getLanguage() {

@@ -53,7 +53,7 @@ class Mailer extends Swift_Mailer {
 		
 		if(isset($account->username)){
 			$transport->setUsername($account->username);
-			$transport->setPassword($account->password);
+			$transport->setPassword($account->decryptPassword());
 		}
 
 		return $transport;		

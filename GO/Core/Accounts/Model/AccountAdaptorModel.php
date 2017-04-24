@@ -19,12 +19,9 @@ abstract class AccountAdaptorModel implements \GO\Core\Accounts\Model\AccountAda
 	 */
 	private $coreAccount;
 	
-	public function __construct(CoreAccount $record) {
+	
+	public function setCoreAccount(CoreAccount $record) {
 		$this->coreAccount = $record;
-	}
-
-	public function getName() {
-		return $this->coreAccount->name;
 	}
 
 	public static function getInstance(\GO\Core\Accounts\Model\Account $record) {

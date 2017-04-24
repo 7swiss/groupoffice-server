@@ -62,11 +62,12 @@ class AccountController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	protected function actionNew($modelName, $returnProperties = "") {
 
-		$user = new Account();
+		$account = new Account();
+		$account->modelName = $modelName;
 
-		$this->renderModel($user, $returnProperties);
+		$this->renderModel($account, $returnProperties);
 	}
 
 	/**

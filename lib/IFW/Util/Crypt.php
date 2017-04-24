@@ -42,6 +42,9 @@ class Crypt {
 	 * @return string Cypher text
 	 */
 	public function encrypt($secretData) {
+		if(empty($secretData)) {
+			return "";
+		}
 		return self::$tag.Crypto::encrypt($secretData, $this->getKey());
 	}
 	

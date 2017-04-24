@@ -31,9 +31,9 @@ class AutoDetectController extends Controller {
 		$detector->detect();
 		
 		
-		$detector->smtpAccount = new SMTPDetector();
-		$detector->smtpAccount->setValues($data);
-		$detector->smtpAccount->detect();
+//		$detector->smtpAccount = new SMTPDetector();
+//		$detector->smtpAccount->setValues($data);
+//		$detector->smtpAccount->detect();
 		
 		$this->renderModel($detector);
 	}

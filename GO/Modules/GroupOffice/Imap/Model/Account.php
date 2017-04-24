@@ -118,7 +118,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 
 	
 	public static function getDefaultReturnProperties() {
-		return parent::getDefaultReturnProperties().',smtpAccount,signatures';
+		return parent::getDefaultReturnProperties().',signatures';
 	}
 
 	public function setPassword($password) {
@@ -143,10 +143,11 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		return $this->username;
 	}
 	
-	public function internalValidate() {	
+	public function internalValidate() {
+		
 		if(!parent::internalValidate()){
 			return false;
-		}
+		}		
 		
 		if($this->isModified(['hostname', 'port', 'username', 'password', 'encryption'])) {
 			try {
@@ -179,7 +180,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 //			$this->connection->debug = GO()->getDebugger()->enabled;
 			
 			if(!self::$connections[$this->id]->connect($this->hostname, $this->port, $this->encryption == 'ssl')){
-				throw new Exception($this->connection->connectError, $this->connection->connectErrorNo);			
+				throw new Exception(self::$connections[$this->id]->connectError, self::$connections[$this->id]->connectErrorNo);			
 			}
 			
 			if($this->encryption == 'tls' && !self::$connections[$this->id]->startTLS()) {
@@ -188,7 +189,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		}
 
 		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->getDecryptedPassword())) {
-			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.$this->connection->lastCommandStatus);
+			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.self::$connections[$this->id]->lastCommandStatus);
 		}
 
 		return self::$connections[$this->id];

@@ -14,35 +14,10 @@ abstract class AccountAdaptorRecord extends Record implements AccountAdaptorInte
 		parent::defineRelations();
 	}
 	
-	protected function init() {
-		parent::init();
-		
-		if($this->isNew()) {
-			$this->coreAccount = new Account();
-//			$this->coreAccount->ownedBy  = isset($this->createdBy) ? $this->createdBy : GO()->getAuth()->user()->id();
-			$this->coreAccount->modelName = $this->getClassName();
-		}
-	}
-	
 	protected static function internalGetPermissions() {
 		return new \IFW\Auth\Permissions\ViaRelation('coreAccount');
 	}
-	
-	protected function internalValidate() {
-		
-//		if($this->isNew()) {
-			$this->coreAccount->modelName = $this->getClassName();
-			$this->coreAccount->name = $this->getName();
-			
-			if(!$this->coreAccount->save()) {
-				throw new \Exception("Could not save core account");
-			}
 
-			$this->id = $this->coreAccount->id;
-//		}
-		
-		return parent::internalValidate();
-	}
 	
 	protected function internalDelete($hard) {
 
@@ -61,13 +36,10 @@ abstract class AccountAdaptorRecord extends Record implements AccountAdaptorInte
 		return $props;
 	}
 	
-	abstract public function getName();
-	
 	
 	public static function getInstance(\GO\Core\Accounts\Model\Account $record) {
 		return static::findByPk($record->id);
-	}
-	
+	}	
 	
 	public static function getCapabilities() {
 		return [];

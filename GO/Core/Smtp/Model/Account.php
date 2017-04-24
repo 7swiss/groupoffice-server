@@ -17,55 +17,54 @@ use Swift_Transport;
  */
 class Account extends AccountAdaptorRecord {
 
-	
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $id;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $hostname;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $port = 25;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $encryption;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $username;
 
 	/**
 	 * 
 	 * @var string
-	 */							
-	public $password;
+	 */
+	protected $password;
 
 	/**
 	 * The from name of the sent messages
 	 * @var string
-	 */							
+	 */
 	public $fromName;
 
 	/**
 	 * The from email address of the sent messages
 	 * @var string
-	 */							
+	 */
 	public $fromEmail;
-	
+
 	/**
 	 * Creator
 	 * 
@@ -86,8 +85,7 @@ class Account extends AccountAdaptorRecord {
 
 		try {
 			$handle = stream_socket_client($remote, $errorno, $errorstr, 10, STREAM_CLIENT_CONNECT, $streamContext);
-		}
-		catch(ErrorException $e) {
+		} catch (ErrorException $e) {
 			GO()->debug($e->getMessage());
 		}
 
@@ -95,46 +93,43 @@ class Account extends AccountAdaptorRecord {
 			$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, 'Failed to open socket #' . $errorno . '. ' . $errorstr);
 			return false;
 		}
-		
+
 		stream_socket_shutdown($handle, STREAM_SHUT_RDWR);
 
 		return true;
 	}
-	
-	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\Everyone();
-	}
 
-	
 	/**
 	 * Get the mailer using this account settings
 	 * 
 	 * @return Swift_Mailer
 	 */
-	public function createMailer(){
+	public function createMailer() {
 		return new \GO\Core\Email\Model\Mailer($this);
 	}
+
+	public function setPassword($password) {
+		$crypt = new \IFW\Util\Crypt();
+		$this->password = $crypt->encrypt($password);
+	}
+
+	public function decryptPassword() {
+		$crypt = new \IFW\Util\Crypt();
+		if (!$crypt->isEncrypted($this->password)) {
+			$this->password = $crypt->encrypt($this->password);
+			$this->update();
+
+			return $this->getDecryptedPassword();
+		} else {
+			return $crypt->decrypt($this->password);
+		}
+	}
 	
-	/**
-	 * {@inheritdoc}
-	 * 
-	 * Overridden to hide passwords from API
-	 * 
-	 * @param $returnProperties
-	 * @param string
-	 */
-	public function toArray($returnProperties = null) {
-		$attr = parent::toArray($returnProperties);
-		
-		//protect password		
-		unset($attr['password']);// = '***********';
-
-		return $attr;
+	public static function getCapabilities() {
+		return [\GO\Core\Email\Model\Message::class];
 	}
 
-	public function getName() {
-		return $this->fromEmail;
-	}
+
 //
 //	/**
 //	 * 
@@ -149,5 +144,4 @@ class Account extends AccountAdaptorRecord {
 //		
 //		return self::find($q)->all();
 //	}
-
 }

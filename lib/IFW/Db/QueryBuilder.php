@@ -156,7 +156,9 @@ class QueryBuilder {
 			$this->query->andWhere(['!=', ['deleted' => true]]);
 			
 			//when query is cloned we don't want this to happen again
-			$this->query->withDeleted();
+			//
+			//Removed this because it will also lead to joins not being checked for deletion
+//			$this->query->withDeleted();
 			
 			if (isset($criteria)) {
 				$this->query->andWhere($criteria);

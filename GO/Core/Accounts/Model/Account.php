@@ -40,6 +40,8 @@ class Account extends Record {
 	 */							
 	public $ownedBy;
 	
+	public $deleted = false;
+	
 	protected static function defineRelations() {
 		self::hasMany('capabilities', Capability::class, ['id' => 'accountId']);
 		self::hasMany('groups', AccountGroup::class, ['id' => 'accountId']);
@@ -50,14 +52,28 @@ class Account extends Record {
 		if($this->isNew()) {
 			
 			$modelName = $this->modelName;
-			$capabilities = $modelName::getCapabilities();
+			$capabilities = $this->getAdaptor()->getCapabilities();
 			
 			foreach($capabilities as $capability) {
 				$this->capabilities[] = (new Capability())->setValues(['modelName' => $capability]);
 			}
 		}
 		
-		return parent::internalSave();
+		if(!parent::internalSave()) {
+			return false;
+		}
+		
+		if($this->adaptor instanceof \IFW\Orm\Record) {
+			$this->adaptor->id = $this->id;
+
+			if(!$this->adaptor->save()) {
+
+				$this->setValidationError('adaptor', \IFW\Validate\ErrorCode::RELATIONAL, "Could not save adaptor");
+				return false;
+			}
+			}
+		
+		return true;
 	}
 
 	public static function syncAll() {
@@ -81,17 +97,44 @@ class Account extends Record {
 		return new AccountPermissions();
 	}
 
+	private $adaptor;
 	
 	/**
 	 * Get the account record that actually does the work
 	 * 
-	 * For example an imap account
+	 * For example an IMAP account
 	 * 
 	 * @return AccountAdaptorInterface
 	 */
 	public function getAdaptor() {
-		$modelName = $this->modelName;
-		return $modelName::getInstance($this);		
+		if(!isset($this->modelName)) {
+			return null;
+		}
+		
+		if(!isset($this->adaptor)) {
+			if($this->isNew()) {
+				$this->adaptor = new $this->modelName;
+				$this->adaptor->coreAccount = $this;
+			}else
+			{		
+				$modelName = $this->modelName;
+				$this->adaptor = $modelName::getInstance($this);		
+			}
+		}
+		
+		
+		
+		return $this->adaptor;
+	}
+	
+	public function setAdaptor($data) {
+		if(is_array($data)) {
+			$this->modelName = $data['className'];
+			$this->getAdaptor()->setValues($data);
+		} else {
+			$this->adaptor = $data;
+			$this->modelName = $data->className;
+		}		
 	}
 	
 	/**

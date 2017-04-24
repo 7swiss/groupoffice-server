@@ -654,7 +654,7 @@ abstract class Record extends DataModel {
 		
 		if(!isset($this->relations[$name])){			
 			
-			//Get't RelationStore
+			//Get RelationStore
 			$store = $relation->get($this);			
 			$this->applyRelationPermissions($relation, $store);			
 			$this->relations[$name] = $store;		
