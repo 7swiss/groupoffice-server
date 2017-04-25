@@ -258,16 +258,21 @@ abstract class Model extends DataModel {
 			throw new IFW\Exception\NotAuthenticated();
 		}
 				
-		if($user && $user->isAdmin()) {		
-			self::$enablePermissions = true;
-			return;
-		}
+//		if($user && $user->isAdmin()) {		
+//			self::$enablePermissions = true;
+//			return;
+//		}
 
 		//Group all existing where criteria. For example WHERE id=1 OR id=2 will become WHERE (id=1 OR id=2)
 		$criteria = $query->getWhereAsCriteria();
 		$query->resetCriteria();
 		
-		$this->internalApplyToQuery($query, $user);
+		if(!$user->isAdmin()) {
+			$this->internalApplyToQuery($query, $user);
+		}else
+		{
+			$this->internalApplyToQueryForAdmin($query, $user);
+		}
 		
 		if (isset($criteria)) {
 			$query->andWhere($criteria);
@@ -277,7 +282,17 @@ abstract class Model extends DataModel {
 
 	}
 	
+	/**
+	 * Override this to make sure only readable recors are returned
+	 * 
+	 * @param Query $query
+	 * @param \IFW\Auth\UserInterface $user
+	 */
 	protected function internalApplyToQuery(Query $query, \IFW\Auth\UserInterface $user){
+		
+	}
+	
+	protected function internalApplyToQueryForAdmin(Query $query, \IFW\Auth\UserInterface $user){
 		
 	}
 	

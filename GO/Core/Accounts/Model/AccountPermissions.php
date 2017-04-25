@@ -50,5 +50,13 @@ class AccountPermissions extends \GO\Core\Auth\Permissions\Model\GroupPermission
 		
 		return parent::internalApplyToQuery($query, $user);
 	}
+	
+	protected function internalApplyToQueryForAdmin(\IFW\Orm\Query $query, \IFW\Auth\UserInterface $user) {
+		$requirePermissionType = $query->getRequirePermissionType();
+		
+		if($requirePermissionType == self::PERMISSION_WRITE || $requirePermissionType == self::PERMISSION_MANAGE) {
+			$query->where(['ownedBy' => \GO\Core\Users\Model\Group::ID_ADMINS]);
+		}
+	}
 
 }
