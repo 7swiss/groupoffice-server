@@ -82,7 +82,7 @@ class Request extends Object{
 	}
 	
 	/**
-	 * Get the values of the Accept header
+	 * Get the values of the Accept header in lower case
 	 * 
 	 * @param string[]
 	 */
@@ -92,11 +92,22 @@ class Request extends Object{
 			return [];
 		}
 		
-		$accept = explode(',', $_SERVER['HTTP_ACCEPT']);		
-		$accept = array_map('trim', $accept);		
-		$accept = array_map('strtolower', $accept);
+		$accept = explode(',', strtolower($_SERVER['HTTP_ACCEPT']));		
+		return array_map('trim', $accept);				
+	}
+	
+	/**
+	 * Get the accepted languages sent by the request in lower case
+	 * 
+	 * @return string[]
+	 */
+	public function getAcceptLanguages() {
+		if(empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			return [];
+		}
 		
-		return $accept;
+		$accept = explode(',', strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']));		
+		return array_map('trim', $accept);				
 	}
 
 	/**
@@ -107,7 +118,7 @@ class Request extends Object{
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * [
 	 * 'accept' => 'application/json',
-	 * 'accept-aanguage' => 'en-us'
+	 * 'accept-language' => 'en-us'
 	 * ]
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * 

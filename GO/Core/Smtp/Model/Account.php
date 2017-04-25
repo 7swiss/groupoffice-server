@@ -115,11 +115,11 @@ class Account extends AccountAdaptorRecord {
 
 	public function decryptPassword() {
 		$crypt = new \IFW\Util\Crypt();
-		if (!$crypt->isEncrypted($this->password)) {
+		if (!empty($this->password) && !$crypt->isEncrypted($this->password)) {
 			$this->password = $crypt->encrypt($this->password);
 			$this->update();
 
-			return $this->getDecryptedPassword();
+			return $this->decryptPassword();
 		} else {
 			return $crypt->decrypt($this->password);
 		}
