@@ -20,7 +20,7 @@ CREATE TABLE `dav_account_card` (
   `modifiedAt` datetime NOT NULL,
   `data` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `uri` varchar(191) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  `etag` varchar(192) COLLATE utf8mb4_unicode_ci NOT NULL
+  `etag` varchar(191) CHARACTER SET ascii COLLATE ascii_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
