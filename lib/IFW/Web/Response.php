@@ -35,9 +35,32 @@ use IFW\Exception\HttpException;
  */
 class Response {
 
+	/**
+	 * HTTP version
+	 * 
+	 * @var string 
+	 */
 	public $httpVersion = '1.1';
+	
+	/**
+	 * Key value array with headers
+	 * @var array 
+	 */
 	protected $headers = [];
+	
+	/**
+	 * The modified at header
+	 * 
+	 * @var \DateTime 
+	 */
 	private $modifiedAt;
+	
+	/**
+	 * Enable HTTP caching
+	 * 
+	 * @var boolean 
+	 */
+	public $enableCache = true;
 
 	public function setContentType($contentType) {
 		$this->setHeader('Content-Type', $contentType);
@@ -56,15 +79,15 @@ class Response {
 	 */
 	public function setHeader($name, $value) {
 		$name = strtolower($name);
-		
-		if(!is_array($value)) {
+
+		if (!is_array($value)) {
 			$value = [$value];
 		}
-		
+
 		$this->headers[$name] = $value;
 
 		foreach ($this->headers[$name] as $v) {
-			if(!headers_sent()){
+			if (!headers_sent()) {
 				header($name . ': ' . $v);
 			}
 		}
@@ -76,7 +99,7 @@ class Response {
 	 * @param string $name
 	 */
 	public function removeHeader($name) {
-		if(!headers_sent()){
+		if (!headers_sent()) {
 			header_remove($name);
 		}
 
@@ -109,7 +132,7 @@ class Response {
 		if (!isset($text)) {
 			$text = HttpException::$codes[$httpCode];
 		}
-		if(!headers_sent())
+		if (!headers_sent())
 			header("HTTP/" . $this->httpVersion . " " . $httpCode . " " . $text);
 	}
 
@@ -130,7 +153,6 @@ class Response {
 	public function setModifiedAt(DateTime $modifiedAt) {
 		$this->modifiedAt = $modifiedAt;
 		$this->setHeader('Modified-At', $this->modifiedAt->format('D, d M Y H:i:s') . ' GMT');
-		
 	}
 
 	private $etag;
@@ -142,13 +164,13 @@ class Response {
 	 */
 	public function setETag($etag) {
 		$this->etag = $etag;
-		$this->setHeader('ETag', $this->etag);		
+		$this->setHeader('ETag', $this->etag);
 	}
-	
+
 	public function setExpires(DateTime $expires = null) {
-		$this->setHeader("Expires", $this->expires->format('D, d M Y H:i:s'));		
+		$this->setHeader("Expires", $this->expires->format('D, d M Y H:i:s'));
 	}
-	
+
 	/**
 	 * Check if the client cache is up to date
 	 * 
@@ -160,11 +182,11 @@ class Response {
 	 * @return boolean
 	 */
 	public function isCached() {
-		
-		if(\IFW::app()->getDebugger()->enabled) {
+
+		if(!$this->enableCache) {
 			return false;
 		}
-//		
+		
 		//get the HTTP_IF_MODIFIED_SINCE header if set
 		$ifModifiedSince = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? $_SERVER['HTTP_IF_MODIFIED_SINCE'] : false;
 		//get the HTTP_IF_NONE_MATCH header if set (etag: unique file hash)
@@ -172,17 +194,17 @@ class Response {
 
 		return (isset($this->modifiedAt) && $ifModifiedSince >= $this->modifiedAt->format('U')) || isset($this->etag) && $etagHeader == $this->etag;
 	}
-	
+
 	/**
 	 * Stop running if client has up to date cache.
 	 */
-	public function abortIfCached() {		
-		if($this->isCached()) {
+	public function abortIfCached() {
+		if ($this->isCached()) {
 			$this->setStatus(304);
+			GO()->debug("Abort for cache");
 			exit();
 		}
 	}
-
 
 	/**
 	 * Output headers and body
@@ -190,7 +212,7 @@ class Response {
 	 * @param string $body
 	 */
 	public function send($body = null) {
-		
+
 		$this->setHeader('Cache-Control', 'private');
 		$this->removeHeader('Pragma');
 
