@@ -40,7 +40,7 @@ class Settings extends \GO\Core\Orm\Record {
 		$this->id=1;
 	}
 	protected static function defineRelations() {
-		self::hasOne('smtpAccount', \GO\Core\Smtp\Model\Account::class, ['smtpAccountId'=>'id']);
+		self::hasOne('smtpAccount', \GO\Core\Smtp\Model\Account::class, ['smtpAccountId'=>'id'])->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ]);
 	}
 	
 	public static function getDefaultReturnProperties() {

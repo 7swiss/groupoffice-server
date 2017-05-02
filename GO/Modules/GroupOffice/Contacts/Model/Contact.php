@@ -28,6 +28,7 @@ use IFW\Orm\Query;
  * @property Contact[] $organizations
  * @property Contact[] $employees
  * @property ContactTag[] $tags
+ * @property CustomFields $customFields
  * @property Blob $photoBlob The Blob object representing the contact picture
  *
  */
@@ -214,7 +215,7 @@ class Contact extends Record {
 		
 		User::hasOne('contact', Contact::class, ['id'=>'userId']);
 		
-		self::hasOne('customfields', CustomFields::class, ['id' => 'id']);		
+		self::hasOne('customFields', CustomFields::class, ['id' => 'id']);		
 		
 //		self::hasMany('groupUsers', UserGroup::class, ['id' => 'contactId'])
 //						->via(ContactGroup::class, ['groupId'=>'groupId']);

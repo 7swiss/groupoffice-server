@@ -19,7 +19,7 @@ class ModelController extends Controller{
 			
 			foreach($modelClasses as $modelClass){
 				
-				if($relation = $modelClass::getRelation('customfields')){
+				if($relation = $modelClass::getRelation('customFields')){
 					
 					$customFieldModels[] = [
 							'id' => $modelClass, 
@@ -47,7 +47,7 @@ class ModelController extends Controller{
 			$modelClasses = $classFinder->findByParent(Record::class);
 			
 			foreach($modelClasses as $modelClass){
-				if($relation = $modelClass::getRelation('customfields')){
+				if($relation = $modelClass::getRelation('customFields')){
 					
 					// find the model
 					if($relation->getToRecordName() == $modelName) {

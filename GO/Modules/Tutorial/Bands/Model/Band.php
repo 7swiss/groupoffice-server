@@ -22,7 +22,7 @@ use GO\Modules\Tutorial\Bands\Model\BandCustomFields;
  * @property StringUtil $modifiedAt
  * 
  * @property Album[] $albums
- * @property BandCustomFields $customfields
+ * @property BandCustomFields $customFields
  *
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -35,7 +35,7 @@ class Band extends Record {
 		self::hasOne('owner', User::class, ['createdBy' => 'id']);
 		
 		//add this custom field relation
-		self::hasOne('customfields', BandCustomFields::class, ['id' => 'id']);
+		self::hasOne('customFields', BandCustomFields::class, ['id' => 'id']);
 
 		parent::defineRelations();
 	}

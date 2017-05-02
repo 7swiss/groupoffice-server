@@ -214,4 +214,22 @@ class Query extends DbQuery {
 		
 		return $methods;
 	}
+	
+	private $cacheKey = null;
+	
+	public function enableCache($key) {
+		$this->cacheKey = $key;
+	}
+	
+	
+	public function getCacheKey () {
+		
+		if(!$this->cacheKey) {
+			return null;
+		}
+		
+		return $this->getRecordClassName().'-'.$this->cacheKey;
+		
+		
+	}
 }

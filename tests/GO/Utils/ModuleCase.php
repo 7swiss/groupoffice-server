@@ -4,11 +4,10 @@ namespace GO\Utils;
 
 abstract class ModuleCase extends \PHPUnit\Framework\TestCase {
 
-	use UserTrait;
+	use UserTrait;	
 	
-//	protected static $module;
-	
-	static function module() {
+	static function module() {	
+		
 		$cls = get_called_class();
 		
 		$parts = explode('\\', $cls);
