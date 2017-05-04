@@ -13,7 +13,8 @@ DROP TABLE IF EXISTS `calendar_calendar`;
 --
 CREATE TABLE `calendar_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uid` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `recurrenceId` datetime NOT NULL,
   `sequence` int(11) NOT NULL DEFAULT '0',
   `allDay` tinyint(1) DEFAULT '0',
   `startAt` datetime DEFAULT NULL,
@@ -23,12 +24,10 @@ CREATE TABLE `calendar_event` (
   `title` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
   `location` varchar(144) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `vevent` text COLLATE utf8mb4_unicode_ci,
   `status` tinyint(4) DEFAULT '1',
-  `busy` tinyint(4) DEFAULT '1',
+  `busy` tinyint(1) DEFAULT '1',
   `tag` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `visibility` tinyint(4) DEFAULT '1',
-  `deletedAt` datetime DEFAULT NULL,
   `organizerEmail` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_calendar_event_calendar_attending_individual1_idx` (`id`,`organizerEmail`)
@@ -74,22 +73,12 @@ CREATE TABLE `calendar_recurrence_rule` (
 -- Table structure for table `calendar_recurrence_exception`
 --
 CREATE TABLE `calendar_recurrence_exception` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventId` int(11) NOT NULL,
-  `recurrenceId` datetime NOT NULL,
-  `isRemoved` tinyint(4) NOT NULL DEFAULT '1',
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `startAt` datetime DEFAULT NULL,
-  `endAt` datetime DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `location` varchar(144) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` tinyint(4) DEFAULT NULL,
-  `classification` tinyint(4) DEFAULT NULL,
-  `busy` tinyint(4) DEFAULT NULL,
-  PRIMARY KEY (`id`,`eventId`),
+  `at` datetime NOT NULL,
+  PRIMARY KEY (`eventId`,`at`),
   KEY `fk_calendar_exception_calendar_recurrence_rule1_idx` (`eventId`),
   CONSTRAINT `fk_calendar_exception_calendar_recurrence_rule1` FOREIGN KEY (`eventId`) REFERENCES `calendar_recurrence_rule` (`eventId`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `calendar_calendar`
@@ -128,13 +117,15 @@ CREATE TABLE `calendar_attendee` (
   `responseStatus` tinyint(4) NOT NULL DEFAULT '1',
   `calendarId` int(11) DEFAULT NULL,
   `groupId` int(11) DEFAULT NULL,
+  `deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`eventId`,`email`),
   KEY `fk_calendar_attendee_calendar_event1_idx` (`eventId`),
   KEY `fk_calendar_attendee_user_calendar_calendar1_idx` (`calendarId`),
   KEY `fk_calendar_attendee_core_group1_idx` (`groupId`),
   CONSTRAINT `fk_calendar_attendee_calendar_event1` FOREIGN KEY (`eventId`) REFERENCES `calendar_event` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_calendar_attendee_core_group1` FOREIGN KEY (`groupId`) REFERENCES `auth_group` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_calendar_attendee_user_calendar_calendar1` FOREIGN KEY (`calendarId`) REFERENCES `calendar_calendar` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
+  CONSTRAINT `fk_calendar_attendee_user_calendar_calendar1` FOREIGN KEY (`calendarId`) REFERENCES `calendar_calendar` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
+  UNIQUE INDEX `fk_calendar_event_unique` (`calendarId` ASC, `eventId` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

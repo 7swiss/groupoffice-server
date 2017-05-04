@@ -10,7 +10,6 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 use IFW\Orm\Record;
 use IFW\Util\DateTime;
 use IFW\Util\UUID;
-use IFW\Auth\Permissions\Everyone;
 
 /**
  * This holds information about a single event. The event can occur one-time or
@@ -34,10 +33,10 @@ class Event extends Record {
 	public $id;
 
 	/**
-	 * A universal unique identifier for the object.
+	 * A unique identifier for the object.
 	 * @var string
 	 */							
-	public $uuid;
+	public $uid;
 
 	/**
 	 * This is an revision number that is increased by 1 every time the organizer
@@ -95,12 +94,6 @@ class Event extends Record {
 	public $location;
 
 	/**
-	 * This object in VEvent format @see VObject library
-	 * @var string
-	 */							
-	public $vevent;
-
-	/**
 	 * Status of event (confirmed, canceled, tentative)
 	 * @var int
 	 */							
@@ -118,13 +111,11 @@ class Event extends Record {
 	 */							
 	public $visibility = 1;
 
-	public $busy = 1;
-
 	/**
-	 * soft delete an event
-	 * @var Datetime
-	 */							
-	public $deletedAt = null;
+	 * Is event Transparent or Opaque
+	 * @var boolean
+	 */
+	public $busy = true;
 
 	/**
 	 * 
@@ -132,31 +123,24 @@ class Event extends Record {
 	 */							
 	public $organizerEmail;
 
-	// DEFINE
-	private $oldVEvent = null;
-
-	/**
-	 * The Date(time) that an instance of a recurring series is occurring
-	 * @var \DateTime
-	 */
-	protected $recurrenceId = null;
-	private $singleInstance = null;
-
 	/**
 	 * The exception object that is applied to this instance
 	 * @var RecurrenceException
 	 */
-	private $exception = null;
+	public $recurrenceId = null;
 
 	protected function init() {
 		if ($this->isNew()) {
-			$this->uuid = UUID::v4();
-			$this->setStartTime($this->newStartTime());
+			$this->uid = UUID::v4();
+			$diff = $this->getDuration();
+			$this->startAt = clone $this->newStartTime();
+			$this->endAt = clone $this->startAt;
+			$this->endAt->add($diff);
 		}
 	}
 
-	protected static function internalGetPermissions() {
-		return new Everyone();
+	protected function ignoreOnException() {
+		return ['uid', 'organizerEmail', 'allDay','recurrence', 'links'];
 	}
 
 	private function newStartTime() {
@@ -173,13 +157,16 @@ class Event extends Record {
 		return 'calendar_event';
 	}
 
+	public function getTitle() {
+		return $this->title;
+	}
 	/**
-	 * TODO: function is not called when the attributes of events are set relational
-	 * Eg. through an attendance
+	 * Set the tag property when the title contains a certain word
+	 * @todo function is not called when the attributes of events are set relational
 	 * @param string $value Title of event
 	 */
 	public function setTitle($value) {
-		$tags = require(dirname(__FILE__) . '/../Resources/tags/nl.php'); //<-- todo: use users language
+		$tags = require(dirname(__FILE__) . '/../Resources/tags/nl.php'); //<-- @todo: use users language
 		$this->tag = null;
 		foreach($tags as $tag => $possibleMatches) {
 			foreach($possibleMatches as $possibleMatch) {
@@ -192,37 +179,22 @@ class Event extends Record {
 		$this->title = $value;
 	}
 	
-	public function getTitle() {
-		return $this->title;
-	}
+	
 
-	static public function findByUUID($uuid) {
-		return self::find(['uuid'=>$uuid, 'exceptionId'=>null])->single();
-	}
-
-	static public function findRecurring($start, $end) {
-		$query = new \IFW\Orm\Query();
-		$query->joinRelation('recurrenceRule');
-		$events = self::find($query);
-		$allOccurrences = [];
-		foreach($events as $event) {
-			$allOccurrences = array_merge($allOccurrences, $event->recurrenceRule->getOccurences($start, $end));
-		}
-		return new \IFW\Data\Store($allOccurrences);
+	static public function findByUID($uid) {
+		return self::find(['uid'=>$uid])->single();
 	}
 	
 	protected static function defineRelations() {
 		self::hasOne('recurrenceRule', RecurrenceRule::class, ['id' => 'eventId']);
 		self::hasMany('attendees', Attendee::class, ['id' => 'eventId']);
 		self::hasMany('attachments', EventAttachment::class, ['id' => 'eventId']);
-		self::hasOne('calendar', Calendar::class, ['id'=>'eventId'])
-						->via(Attendee::class,['calendarId'=>'id']);
 	}
 
 	// ATTRIBUTES
 	
 	public function getIsRecurring() {
-		return !empty($this->recurrenceRule) && !$this->recurrenceRule->isNew() && !empty($this->recurrenceRule->frequency);
+		return !empty($this->recurrenceRule) && !empty($this->recurrenceRule->frequency);
 	}
 
 	/**
@@ -237,20 +209,6 @@ class Event extends Record {
 				return true;
 		}
 		return false;
-	}
-
-	public function applyException(RecurrenceException $exception) {
-		$this->exception = $exception;
-		foreach($exception->getTable()->getColumns() as $colName => $name) {
-			if($exception->{$colName} !== null && !in_array($colName, ['id', 'eventId', 'isRemoved', 'classification'])) {
-				$this->{$colName} = $exception->{$colName};
-			}
-		}
-		$this->clearModified(); //
-	}
-
-	public function getIsException() {
-		return !empty($this->exception);
 	}
 
 	/**
@@ -271,63 +229,11 @@ class Event extends Record {
 		$this->endAt->setDate($arr[0], $arr[1], $arr[2]);
 	}
 
-	/**
-	 * When this event is an exception for another event.
-	 * This is the date for the occurrence
-	 */
-	public function getRecurrenceId() {
-		return $this->recurrenceId; // or start time?
+	public function getIsException() {
+		return $this->recurrenceId !== null;
 	}
 
-	/**
-	 * Will move the endTime with it and set the occurrence ID
-	 * @param Datetime $recurrenceId
-	 * this instance forward. When true we create an exception
-	 */
-	public function addRecurrenceId($recurrenceId) {
-
-		$this->recurrenceId = $recurrenceId;
-
-		//Apply exception if any
-		$exception = RecurrenceException::find([
-			 'eventId' => $this->id,
-			 'recurrenceId' => $this->recurrenceId
-		])->single();
-		if(!empty($exception)) {
-			$this->applyException($exception);
-		}
-
-		if(!empty($recurrenceId) && $recurrenceId !== $this->startAt) {
-			$this->setStartTime($recurrenceId);
-		}
-	}
-
-	private function setStartTime($startTime) {
-		$diff = $this->getDuration();
-		$this->startAt = clone $startTime;
-		$this->endAt = clone $startTime;
-		$this->endAt->add($diff);
-	}
-
-	public function setSingleInstance($value) {
-		$this->singleInstance = $value;
-	}
-
-	protected function isFirstInSeries() {
-		$startAt = $this->isModified('startAt') ? $this->getOldAttributeValue('startAt') : $this->startAt;
-		return $this->isNew() || ($this->recurrenceId == $startAt);
-	}
-
-	/**
-	 * When the recurrenceId of an event was set it represents a single instance
-	 * of a recurring event. When editing we create an exception
-	 * @return bool
-	 */
-	protected function isInstance() {
-		return $this->getIsException() || ($this->singleInstance && !empty($this->recurrenceId));
-	}
-
-	private function getDuration() {
+	public function getDuration() {
 		if(empty($this->endAt)){
 			return new \DateInterval('PT1H');
 		}
@@ -335,49 +241,6 @@ class Event extends Record {
 	}
 
 	// OVERRIDES
-
-	protected function internalDelete($hard) {
-
-		if($this->isRecurring) {
-			if($this->isInstance()) {
-				return $this->saveException($this->recurrenceId);
-			} else if(!$this->isFirstInSeries()) {
-				return $this->deleteFromHere(); // close serie
-			}
-		}
-
-		return parent::internalDelete($hard);
-	}
-
-	private function deleteFromHere() {
-
-		$this->recurrenceRule->stopBefore($this->recurrenceId);
-		return $this->recurrenceRule->save();
-	}
-
-	protected function internalSave() {
-
-		if($this->getIsRecurring()) {
-			if($this->isInstance()) {
-				return $this->saveException($this->recurrenceId, $this);
-			} else if (!$this->isFirstInSeries()) {
-				return $this->saveFromHere($this->startAt);
-			}
-		}
-
-		if(!$this->getIsException() && !$this->isModified('vevent')) {
-			// THIS GIVES A SEGMENTATION FAULT IN PHP 7.0.13
-			$this->vevent = ICalendarHelper::toVObject($this)->serialize();
-		}
-
-		if($this->getHasAttendees()) {
-			// This must be before save but after vevent is set
-			$this->notify();
-		}
-
-		return parent::internalSave();
-
-	}
 
 	protected function internalValidate() {
 
@@ -391,7 +254,16 @@ class Event extends Record {
 	}
 
 	// OPERATIONS
-	
+
+	public function applyExceptionTODO(RecurrenceException $exception) {
+		$this->exception = $exception;
+		foreach($exception->getTable()->getColumns() as $colName => $name) {
+			if($exception->{$colName} !== null && !in_array($colName, ['id', 'eventId', 'isRemoved', 'recurrenceId'])) {
+				$this->{$colName} = $exception->{$colName};
+			}
+		}
+	}
+
 	/**
 	 * Confirm that the event is really happening
 	 */
@@ -400,13 +272,13 @@ class Event extends Record {
 		return $this;
 	}
 
-	private function cloneMe() {
+	public function cloneMe() {
 		$event = new self();
 		$properties = $this->toArray();
 		//unset($properties['recurrenceId']);
 		$event->setValues($properties);
 		$event->id = null;
-		$event->uuid = UUID::v4();
+		$event->uid = UUID::v4();
 
 		foreach($this->attendees as $attendee) {
 			$clone = new Attendee();
@@ -426,80 +298,12 @@ class Event extends Record {
 	}
 
 	/**
-	 * Set the until time of this recurrence rule and create a new event
-	 * with the same recurring rule starting from The occurrence start time
-	 */
-	private function saveFromHere(DateTime $occurrence) {
-	
-		$newSeries = $this->cloneMe();
-		$newSeries->startAt = clone $occurrence;
-
-		$rrule = new RecurrenceRule();
-		$rrule->setValues($this->recurrenceRule->toArray());
-		$rrule->eventId = null;
-		$newSeries->recurrenceRule = $rrule;
-		$success = $newSeries->save();
-
-		$startTimeDiff = $this->getOldAttributeValue('startAt')->diff($newSeries->startAt); // Todo
-		$startTimeDiff->d = 0;
-		$startTimeDiff->m = 0;
-		$startTimeDiff->y = 0;
-		// Move remove and reattach exceptions
-		foreach($this->recurrenceRule->exceptions as $exception) {
-			if($exception->recurrenceId < $occurrence) {
-				continue;
-			}
-			if($this->isModified('startAt')) {
-				$exception->recurrenceId->add($startTimeDiff);
-			}
-			$exception->eventId = $newSeries->id;
-			$success = $success && $exception->save();
-		}
-
-		$this->recurrenceRule->stopBefore($occurrence);
-		return $success && $this->recurrenceRule->save();
-
-	}
-
-	/**
-	 * Add exception to the current event, and pass the replacementEvent if any
-	 * Replacement event will not be saved
-	 * @param DateTime $occurrence time to except the recurrent
-	 * @param Event $event the replacement attributes
-	 * @return bool successful
-	 */
-	public function saveException(DateTime $occurrence, Event $event = null) {
-		if(empty($this->exception)) {
-			$this->exception = new RecurrenceException();
-		}
-		$this->exception->recurrenceId = $occurrence;
-		$this->exception->eventId = $this->id;
-		$this->exception->isRemoved = ($event === null);
-		if($event !== null) {
-			foreach($event->getModifiedAttributes() as $column => $oldValue) {
-				if(in_array($column, RecurrenceException::validAttrs())) {
-					$this->exception->{$column} = $event->{$column};
-				}
-			}
-		}
-		return $this->exception->save();
-	}
-
-	/**
 	 * Cancel the event
 	 * @return \GO\Modules\GroupOffice\Calendar\Model\Event
 	 */
 	public function cancel() {
 		$this->status = EventStatus::Cancelled;
 		return $this;
-	}
-
-	/**
-	 * Will notify the attendee as well as the organizer
-	 * ITIP will find out who you are
-	 */
-	public function notify() {
-		ICalendarHelper::sendItip($this);
 	}
 	
 	public function inTimeRange($from, $till) {

@@ -60,6 +60,8 @@ class Attendee extends Record {
 	 */							
 	public $groupId;
 
+	public $deleted;
+
 	// DEFINE
 
 	static public function me() {
@@ -92,7 +94,7 @@ class Attendee extends Record {
 	}
 
 	public static function internalGetPermissions() {
-		return new EventPermission();
+		return new ViaRelation('event');
 	}
 	
 	protected static function defineRelations() {
@@ -100,6 +102,8 @@ class Attendee extends Record {
 		self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);
 		self::hasMany('alarms', Alarm::class, ['eventId' => 'eventId', 'groupId' => 'groupId']);
 		self::hasOne('group', Group::class, ['groupId'=> 'id']);
+
+		self::hasMany('calendarGroups', CalendarGroup::class, ['calendarId' => 'calendarId']);
 	}
 
 	protected static function defineValidationRules() {
@@ -150,17 +154,6 @@ class Attendee extends Record {
 		foreach($defaultAlarms as $defaultAlarm) {
 			$defaultAlarm->addTo($this);
 		}
-	}
-
-	/**
-	 * TODO analyse rowCount performance
-	 * @return type
-	 */
-	public function getHasAlarms() {
-		if($this->groupId == Group::current()->id) {
-			return $this->alarms->getRowCount() > 0;
-		}
-		return null;
 	}
 
 	public function setCalendar($calendar) {

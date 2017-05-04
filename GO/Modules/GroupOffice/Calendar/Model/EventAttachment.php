@@ -8,7 +8,7 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use GO\Core\Blob\Model\Blob;
 use GO\Core\Orm\Record;
-
+use IFW\Auth\Permissions\Everyone;
 /**
  * An attachment for an event. Many Many to blobs
  *
@@ -37,6 +37,10 @@ class EventAttachment extends Record {
 
 	protected static function defineRelations() {
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
+	}
+
+	protected static function internalGetPermissions() {
+		return new Everyone();
 	}
 
 	public function setName($value) {

@@ -5,6 +5,7 @@ use GO\Core\Modules\Model\InstallableModule;
 use GO\Modules\GroupOffice\Contacts\Module as ContactsModule;
 use GO\Modules\GroupOffice\Dav\Controller\SyncController;
 use IFW\Cli\Router;
+use IFW\Orm\Record;
 
 class Module extends InstallableModule {
 
@@ -17,4 +18,11 @@ class Module extends InstallableModule {
 						->set('dav/sync/test', 'test');
 	
 	}
+
+	public static function defineEvents() {
+		if(GO()->getModules()->has('GO\Modules\GroupOffice\Calendar\Module')) {
+			\GO\Modules\GroupOffice\Calendar\Model\CalendarEvent::on(Record::EVENT_BEFORE_SAVE, Model\Event::class, 'onEventChange');
+		}
+	}
+
 }

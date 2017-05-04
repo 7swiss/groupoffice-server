@@ -45,7 +45,10 @@ class DriveController extends Controller {
 
 	protected function actionRead($id, $returnProperties = "*,groups") {
 
-		$drive = Drive::findByPk($id);
+		if($id === 'home')
+			$drive = Drive::home();
+		else
+			$drive = Drive::findByPk($id);
 
 		if (!$drive) {
 			throw new NotFound();

@@ -9,6 +9,7 @@
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use IFW\Orm\Record;
+use IFW\Orm\Query;
 use IFW\Util\DateTime;
 use IFW\Auth\Permissions\ViaRelation;
 
@@ -119,6 +120,12 @@ class RecurrenceRule extends Record {
 	 */
 	private $iterator = null;
 
+	/**
+	 * the calendar event we are calculation occurrences for
+	 * @var CalendarEvent
+	 */
+	protected $forAttendee = null;
+
 	// DEFINITION
 	public static function tableName() {
 		return 'calendar_recurrence_rule';
@@ -126,10 +133,8 @@ class RecurrenceRule extends Record {
 	protected static function defineRelations() {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
 		self::hasMany('exceptions', RecurrenceException::class, ['eventId' => 'eventId']);
-	}
-
-	protected static function internalGetPermissions() {
-		return new ViaRelation('event');
+		self::hasMany('overrides', Event::class, ['eventId' => 'id'])->setQuery((new Query)->select('*'))
+				->via(Event::class,['uid'=>'uid']);
 	}
 
 	protected function internalValidate() {
@@ -146,6 +151,10 @@ class RecurrenceRule extends Record {
 			return true; // save nothing when there is no frequency
 		}
 		return parent::internalSave();
+	}
+
+	public function forAttendee($calendarEvent) {
+		$this->forAttendee = $calendarEvent;
 	}
 
 	/**
@@ -179,31 +188,46 @@ class RecurrenceRule extends Record {
 	 * @return \Datetime[]
 	 */
 	public function getOccurences($start, $end) {
+		if($this->forAttendee === null) {
+			throw new \Exception('Can get occurrences, select Attendee first');
+		}
 		$result = [];
 		$this->getIterator()->fastForward($start);
 		while($recurrenceId = $this->getIterator()->current()) {
 			if($recurrenceId > $end)
 				break;
-
-			$event = clone $this->event;
-			$event->addRecurrenceId($recurrenceId);
-			$result[$recurrenceId->getTimestamp()] = $event;
+			$calEvent = clone $this->forAttendee;
+			$calEvent->event = clone $this->forAttendee->event;
+			$calEvent->addRecurrenceId($recurrenceId);
+			$result[$recurrenceId->getTimestamp()] = $calEvent;
 			$this->getIterator()->next();
 		}
-		foreach($this->exceptions as $exception) {
-			//$c = $exception->recurrenceId->format('Ymd');
-			if($exception->recurrenceId > $end || $exception->recurrenceId < $start) {
-				continue;
+		foreach($this->exceptions as $exception) { // @todo fetch only exceptions between $start and $end
+			if(isset($result[$exception->at->getTimestamp()])) {
+				unset($result[$exception->at->getTimestamp()]);
 			}
-			
-			
-			if($exception->isRemoved) {
+		}
+		foreach($this->overrides as $exception) { // @todo fetch only exceptions between $start and $end
+			if(!empty($exception->recurrenceId) && isset($result[$exception->recurrenceId->getTimestamp()])) {
 				unset($result[$exception->recurrenceId->getTimestamp()]);
-			} else {
-				$result[$exception->recurrenceId->getTimestamp()]->applyException($exception);
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Add exception to the current event, and pass the replacementEvent if any
+	 * Replacement event will not be saved
+	 * @param DateTime $recurrenceId time to except the recurrent
+	 * @param array $attrs the replacement attributes
+	 * @return bool successful
+	 */
+	public function addException(DateTime $recurrenceId, $attrs = null) {
+		$exception = new RecurrenceException();
+		empty($attrs) ? $exception->isRemoved = true : $exception->setValues($attrs);
+		$exception->recurrenceId = $recurrenceId;
+		$exception->eventId = $this->eventId;
+		$this->exceptions[] = $exception;
 	}
 	
 }
