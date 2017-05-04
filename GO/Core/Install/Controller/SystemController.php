@@ -31,6 +31,8 @@ class SystemController extends Controller {
 	 * Run system tests
 	 */
 	public function actionInstall() {
+		
+		$this->lock();
 
 		$system = new System();
 
@@ -53,6 +55,9 @@ class SystemController extends Controller {
 	 * Run system tests
 	 */
 	public function actionUpgrade($skipFirstError = false) {
+		
+		$this->lock();
+
 		//run as admin
 		GO()->getCache()->flush(); // Sudo cant fetch user with old cache
 

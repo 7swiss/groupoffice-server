@@ -100,19 +100,21 @@ class Config {
 
 	/**
 	 * Get temporary files folder
+	 * 
+	 * The folder of this library and the PHP_SAPI name will automatically be 
+	 * appended to ensure that this folder is private to this environment.
 	 *
 	 * @return Folder
 	 */
-	public function getTempFolder($autoCreate = true, $appendSAPI = true) {
+	public function getTempFolder($autoCreate = true) {
 
 		if (!isset($this->tempFolder)) {
 			$this->tempFolder = sys_get_temp_dir() . '/groupoffice' . dirname($this->getLibPath());
 		}
 		
 		$path = $this->tempFolder;
-		if($appendSAPI) {
-			$path .= '/'.PHP_SAPI;
-		}
+		
+		$path .= '/'.PHP_SAPI;
 		
 		$folder = new Folder($path);
 		if ($autoCreate) {
