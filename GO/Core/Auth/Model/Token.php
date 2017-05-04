@@ -119,15 +119,7 @@ class Token extends Record {
 	}
 	
 	private static function generateToken(){
-		
-		//openssl has broader support than mcrypt
 		return bin2hex(openssl_random_pseudo_bytes(16));
-//		$randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
-//		if ($randomData !== false && strlen($randomData) === 20) {
-//			return bin2hex($randomData);
-//		}
-    
-		throw new Exception("We need mcrypt support in PHP!");
 	}
 	
 	/**
@@ -185,7 +177,7 @@ class Token extends Record {
 	public function getTempFolder($autoCreate = true){
 		$folder = GO()->getConfig()->getTempFolder(false)->getFolder($this->accessToken);
 		
-		if($autoCreate){
+		if($autoCreate) {
 			$folder->create();
 		}
 		
@@ -195,7 +187,7 @@ class Token extends Record {
 	
 	protected function internalDelete($hard) {
 		//clean up temp files
-		$this->getTempFolder()->delete();
+		$this->getTempFolder(false)->delete();
 		
 		return parent::internalDelete($hard);
 	}
@@ -307,5 +299,12 @@ class Token extends Record {
 	 */
 	public function checkXSRF() {
 		return !$this->checkXSRFToken || self::requestXSRFToken() === $this->XSRFToken;
+	}
+	
+	public static function getDefaultReturnProperties() {
+		//filter out temp folder. We don't want to expose it and also we don't want it to be auto created on every token fetch
+		$props =  array_diff(parent::getReadableProperties(), ['validationErrors','modified', 'modifiedAttributes', 'markDeleted', 'tempFolder']);
+		
+		return implode(',', $props);
 	}
 }
