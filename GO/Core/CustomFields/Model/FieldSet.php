@@ -77,4 +77,32 @@ class FieldSet extends Record{
 		
 		return parent::internalValidate();
 	}
+	/**
+	 * Find a fieldset by record class name and name or create it if it doesn't exist
+	 * 
+	 * @example
+	 * ```
+	 * $fieldSet = FieldSet::findOrCreate(\GO\Modules\GroupOffice\Contacts\Model\CustomFields::class, 'Test fieldset');
+	 * ```
+	 * 
+	 * @param string $recordClassName
+	 * @param string $name
+	 * @return \GO\Core\CustomFields\Model\FieldSet
+	 * @throws \Exception
+	 */
+	
+	public static function findOrCreate($recordClassName, $name) {
+		$fieldset = \GO\Core\CustomFields\Model\FieldSet::find(['modelName' => $recordClassName, 'name' => $name])->single();
+				
+		if(!$fieldset) {
+			$fieldset = new \GO\Core\CustomFields\Model\FieldSet();
+			$fieldset->modelName = $recordClassName;
+			$fieldset->name = $name;
+			if(!$fieldset->save()) {
+				throw new \Exception("Could not save fieldset: ".var_export($fieldset->getValidationErrors(), true));
+			}
+		}
+		
+		return $fieldset;
+	}
 }

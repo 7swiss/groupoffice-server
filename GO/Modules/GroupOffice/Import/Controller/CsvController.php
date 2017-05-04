@@ -35,7 +35,7 @@ class CsvController extends Controller {
 			'gender' => 'Geslacht',
 			'dates' => [['date' => 'Geboortedatum', 'type' => '"birthday"']],
 			'emailAddresses' => [['email' => 'E-mailadres', 'type' => '"home"']],
-			'customfields' => ['Bondsnummer' => 'Bondsnummer', 'Lid sinds' => 'Begindatum lidmaatschap'],
+			'customFields' => ['Bondsnummer' => 'Bondsnummer', 'Lid sinds' => 'Begindatum lidmaatschap'],
 			'phoneNumbers' => [
 				['number' => 'Telefoonnummer', 'type' => '"home"'],
 				['number' => 'Mobiel nummer', 'type' => '"mobile"']

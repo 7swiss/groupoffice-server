@@ -51,7 +51,7 @@ class Process extends Model {
 	public function lock($lockName) {
 
 		$lockFolder = \IFW::app()->getConfig()
-						->getTempFolder(true, false)
+						->getDataFolder()
 						->getFolder('locks');
 
 		$lockFile = $lockFolder->getFile($lockName . '.lock');

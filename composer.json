@@ -29,13 +29,11 @@
 		"ralouphie/mimey": "dev-master",
 		"setasign/fpdi-tcpdf": "*"	,
 		"donatj/phpuseragentparser": "*",
-		"phpdocumentor/reflection-docblock": "~2.0",
 		"defuse/php-encryption": "^2.0"
 		
 	},
 	"require-dev": {
-		"phpunit/phpunit": "*",
-		"phpdocumentor/phpdocumentor": "^2.9"
+		"phpunit/phpunit": "*"		
 	},
 	"autoload": {
 		"psr-4": {

@@ -16,7 +16,9 @@ use PHPUnit\Framework\TestCase;
  */
 class RecordTest extends \GO\Utils\ModuleCase {
 
-	protected static $module = '\GO\Modules\GroupOffice\Contacts\Module';
+	public static function module() {
+		return '\GO\Modules\GroupOffice\Contacts\Module';
+	}
 
 	public function testDateSet() {
 
@@ -102,8 +104,12 @@ class RecordTest extends \GO\Utils\ModuleCase {
 	}
 
 	public function testFindByPkReference() {
-		$user1 = User::find(['id' => 1])->single();
-		$user2 = User::find(['id' => 1])->single();
+
+		$this->markTestIncomplete('Relational queries should be cached too');
+		
+		$user1 = User::findByPk(1);
+		$user2 = User::findByPk(1);
+	
 //		$user3 = clone User::find(['id' => 1])->single();
 
 		$user1->username = date('Ymdgis');

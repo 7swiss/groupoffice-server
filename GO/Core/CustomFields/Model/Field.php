@@ -318,35 +318,30 @@ class Field extends Record {
 		}
 	}
 	
+	
+	
 	/**
-	 * Add filters for custom fields to a filtercollection
+	 * Find a field by record class name and database name
 	 * 
-	 * All fields that have "filterable" enabled will be added as a filter.
-	 * 
-	 * @param string $customfieldsModelName eg. "GO\Modules\Contacts\Model\ContactCustomFields"
-	 * @param FilterCollection $collection
+	 * @example
+	 * `````````	 
+	 * $field = Field::findByDbName(\GO\Modules\GroupOffice\Contacts\Model\CustomFields::class, 'testfield');		
+	 * ``````````
+	 * @param string $recordClassName
+	 * @param string $databaseName
+	 * @return self|false
 	 */
-	public static function addFilters($customfieldsModelName, FilterCollection $collection) {
-		$fields = self::find((new Query())->where(['filterable' => true, 'fieldSet.modelName' => $customfieldsModelName])->orderBy(['sortOrder'=>'ASC']));
+	public static function findByDbName($recordClassName, $databaseName) {
+		$query = new Query();
+		$query->joinRelation('fieldSet')
+						->where(['fieldSet.modelName' => $recordClassName])
+						->where(['databaseName' => $databaseName]);
 		
-		foreach($fields as $field) {
-			switch ($field->type) {
-				case self::TYPE_CHECKBOX:
-					$filter = $collection->addFilter(CheckboxFilter::class);
-					$filter->setField($field);
-					break;
-				
-				case self::TYPE_NUMBER:
-					$filter = $collection->addFilter(NumberFilter::class);
-					$filter->setField($field);
-					break;
-				
-				case self::TYPE_SELECT:
-					$filter = $collection->addFilter(SelectFilter::class);
-					$filter->setField($field);
-					break;
-			}
-		}
+		return self::find($query)->single();
+		
+	
+		
+		
 	}
 
 }

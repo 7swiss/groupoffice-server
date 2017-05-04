@@ -123,10 +123,13 @@ abstract class Controller extends Object {
 		
 		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
 		
-		\IFW::app()->debug("Running controller action: ".static::class.'::action'.$action);
+		$this->action = strtolower($action);
+		
+		\IFW::app()->debug("Running controller action: ".static::class.'::action' . $this->action);
+		
 
 		//Should we remove action prefix? Please consider reserved name like "print"
-		$this->callMethodWithParams("action".$action, $routerParams);
+		$this->callMethodWithParams("action" . $this->action, $routerParams);
 	}
 	
 
@@ -159,5 +162,62 @@ abstract class Controller extends Object {
 		}
 		
 		call_user_func_array([$this, $methodName], $methodArgs);
+	}
+	
+	/**
+	 * The file pinter for the lock method
+	 * 
+	 * @var resource 
+	 */
+	private $lockFp;
+	
+	/**
+	 * The lock file name.
+	 * Stored to cleanup after the script ends
+	 */
+	private $lockFile;
+	
+	/**
+	 * Lock the controller action
+	 * 
+	 * Call this to make sure it can only be executed by one user at the same time.
+	 * Useful for the system upgrade action for example
+	 * 
+	 * @throws Exception
+	 */
+	protected function lock() {
+
+		$lockFolder = \IFW::app()->getConfig()
+						->getDataFolder()
+						->getFolder('locks');
+		
+		$name = strtolower(str_replace('\\', '_', $this->getClassName()).'_'.$this->getAction());
+
+		$this->lockFile = $lockFolder->getFile($name . '.lock');
+
+		//needs to be put in a private variable otherwise the lock is released outside the function scope
+		$this->lockFp = $this->lockFile->open('w+');
+		
+		if (!flock($this->lockFp, LOCK_EX|LOCK_NB, $wouldblock)) {
+			
+			//unset it because otherwise __destruct will destroy the lock
+			unset($this->lockFile, $this->lockFp);
+			
+			if ($wouldblock) {
+				// another process holds the lock
+				throw new \Exception("The controller action is already running by another user");
+			} else {
+				throw new \Exception("Could not lock controller action '" . $name . "'");
+			}
+		} 
+	}
+	
+	public function __destruct() {
+		
+		//cleanup lock file if lock() was used
+		if(isset($this->lockFile)) {
+			fclose($this->lockFp);
+			unlink($this->lockFile);			
+		}
 	}
 }

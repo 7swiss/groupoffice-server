@@ -33,12 +33,21 @@ return [
 		//	"debugEmail" => 'test@intermesh.nl'	
 		//],
 		
-//		'IFW\Debugger'=> [
-//				//always enable debugger. Client can also enable it by sending HTTP header X-Debug=1. Open the launcher and press CTRL+F7 in the client to enable this.
-//				'enabled' => true,
-//				'enabledSections' => [\IFW\Debugger::SECTION_CONTROLLER],
-//				'enabledTypes' => [\IFW\Debugger::TYPE_GENERAL, \IFW\Debugger::TYPE_SQL],
-//		],
+		'IFW\Debugger'=> [
+				//always enable debugger. Client can also enable it by sending HTTP header X-Debug=1. Open the launcher and press CTRL+F7 in the client to enable this.
+				'enabled' => false,
+				'enabledSections' => [					
+//						\IFW\Debugger::SECTION_INIT, 
+//						\IFW\Debugger::SECTION_ROUTER,
+						\IFW\Debugger::SECTION_CONTROLLER
+				],
+				'enabledTypes' => [
+						\IFW\Debugger::TYPE_GENERAL, 
+//						\IFW\Debugger::TYPE_SQL, 
+						'imap', 
+						'dav'
+						],
+		],
 
 //		
 //		 'IFW\Orm\Query' => [

@@ -15,7 +15,9 @@ use PHPUnit\Framework\TestCase;
  */
 class RelationParentTest extends \GO\Utils\ModuleCase {
 	
-	protected static $module = '\GO\Modules\GroupOffice\Contacts\Module';
+	public static function module() {
+		return '\GO\Modules\GroupOffice\Contacts\Module';
+	}
 
 	public function test() {
 

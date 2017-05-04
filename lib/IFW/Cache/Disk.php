@@ -25,7 +25,7 @@ class Disk implements CacheInterface {
 	private $cache;
 
 	public function __construct() {
-		$this->folder = IFW::app()->getConfig()->getTempFolder(true, false)->getFolder('diskcache');
+		$this->folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
 
 		$this->folder->create();
 

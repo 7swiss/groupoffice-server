@@ -257,7 +257,7 @@ class Module extends Record {
 	
 	private static function runScript(\IFW\Fs\File $file, &$skipFirstError) {
 		try {
-			require($file->path());
+			require($file->getPath());
 		} catch (\Exception $e) {
 			if (!$skipFirstError) {
 				$msg = "An exception ocurred in upgrade file " . $file->getPath() . 

@@ -101,29 +101,19 @@ class Store extends \IFW\Data\Store {
 
 		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
 		//Expirimental caching if query is findByPk		
-		if (!isset($this->query->fetchMode) && ($primaryKeyValues = $this->isFindByPk())) {
-			
-//			$this->query->withDeleted();
-
-			$keyStr = implode('-', $primaryKeyValues);
-
-			$hash = $this->query->getRecordClassName() . '-' . $keyStr;
-			if (!isset(self::$cache[$hash])) {
+		$cacheKey = $this->query->getCacheKey();
+		if ($cacheKey) {
+			if (!isset(self::$cache[$cacheKey])) {
 				$model = $this->getIterator()->fetch();
 
 				if (!$model) {
 					return $model;
 				}
 
-//				IFW::app()->debug("Caching find by primary key for ".$this->recordClassName.'::('.$keyStr.')');
-
-				self::$cache[$hash] = $model;
+				self::$cache[$cacheKey] = $model;
 			}
-//			else {
-//				IFW::app()->debug("Return from findByPk cache for for ".$this->recordClassName.'::('.$keyStr.')');
-//			}
 
-			return self::$cache[$hash];
+			return self::$cache[$cacheKey];
 		}
 		
 		$model = $this->getIterator()->fetch();
@@ -132,67 +122,46 @@ class Store extends \IFW\Data\Store {
 	
 	
 
-	/**
-	 * Check if the query object is a find by primary key action
-	 * 
-	 * @return false|array the primary key values that can be used for a cache hash
-	 */
-	private function isFindByPk() {
-
-		//IFW::app()->debug($this->_query->where);
-		$w = $this->query->getWhere();
-		$count = count($w);
-
-		if ($count != 1) {
-			return false;
-		}
-
-//		//soft delete trait support here...
-//		if($count == 2) {
-////			$last = array_pop($this->_query->where[1]);
-//			$deletedWhere = $this->_query->where[1][1];
-//			
-//			if(!is_array($deletedWhere) || $deletedWhere[0] != 'AND' || $deletedWhere[1] != '!=') {
-//				
-////			IFW::app()->debug('1');
-//				return false;
-//			}		
-//			
-//			if(empty($deletedWhere[2]['deleted'])){
-////							IFW::app()->debug('2');
-//				return false;
-//			}			
-//		}elseif($count != 1) {
+//	/**
+//	 * Check if the query object is a find by primary key action
+//	 * 
+//	 * @return false|array the primary key values that can be used for a cache hash
+//	 */
+//	private function isFindByPk() {
+//
+//		//IFW::app()->debug($this->_query->where);
+//		$w = $this->query->getWhere();
+//		$count = count($w);
+//		
+//
+//		if ($count != 1) {
 //			return false;
 //		}
-//		//end soft delete support
-//		
-		//looks like: ['AND', '=', ['id'=>'1','name'=>'merijn']
-		$where = $w[0][1];
-
-		if (!is_array($where) || $where[0] != 'AND' || $where[1] != '=') {
-			return false;
-		}
-
-		$whereKeyValues = array_pop($where);
-		$whereKeys = array_keys($whereKeyValues);
-
-		$recordClassName = $this->query->getRecordClassName();
-
-		$primaryKeys = $recordClassName::getPrimaryKey();
-
-		if (count($whereKeys) != count($primaryKeys)) {
-			return false;
-		}
-
-		foreach ($whereKeys as $key) {
-			if (!in_array($key, $primaryKeys)) {
-				return false;
-			}
-		}
-
-		return array_values($whereKeyValues);
-	}
+//		$where = $w[0][1];
+//
+//		if (!is_array($where) || $where[0] != 'AND' || $where[1] != '=') {
+//			return false;
+//		}
+//
+//		$whereKeyValues = array_pop($where);
+//		$whereKeys = array_keys($whereKeyValues);
+//
+//		$recordClassName = $this->query->getRecordClassName();
+//
+//		$primaryKeys = $recordClassName::getPrimaryKey();
+//
+//		if (count($whereKeys) != count($primaryKeys)) {
+//			return false;
+//		}
+//
+//		foreach ($whereKeys as $key) {
+//			if (!in_array($key, $primaryKeys)) {
+//				return false;
+//			}
+//		}
+//
+//		return array_values($whereKeyValues);
+//	}
 
 	/**
 	 * Fetch all records from the database server. Not lazy but immediately.
