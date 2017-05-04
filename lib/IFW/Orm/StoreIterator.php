@@ -29,12 +29,8 @@ class StoreIterator extends IteratorIterator {
 		//set's the parent
 		if($this->store instanceof RelationStore && $record instanceof Record) {
 			$relation = $record::findParentRelation($this->store->getRelation());
-			//check if it hasn't been fetched or set already to prevent loops
 			
-			if($relation) {
-				GO()->debug("Parent relation found".$relation->getName());
-			}
-			
+			//check if it hasn't been fetched or set already to prevent loops			
 			if($relation && !$record->relationIsFetched($relation->getName())) {				
 				$record->{$relation->getName()} = $this->store->getRecord();				
 			}

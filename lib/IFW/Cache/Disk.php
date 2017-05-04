@@ -127,7 +127,7 @@ class Disk implements CacheInterface {
 		unset($this->ttls[$key]);
 		unset($this->cache[$key]);
 		$this->ttlsDirty = true;
-		if (file_exists($this->folder . $key)) {
+		if (file_exists($tgrouhis->folder . $key)) {
 			unlink($this->folder . $key);
 		}
 	}

@@ -85,7 +85,7 @@ class FieldSet extends Record{
 	 * $fieldSet = FieldSet::findOrCreate(\GO\Modules\GroupOffice\Contacts\Model\CustomFields::class, 'Test fieldset');
 	 * ```
 	 * 
-	 * @param string $recordClassName
+	 * @param string $recordClassName Must be a class that extends {@see CustomFieldsRecord}
 	 * @param string $name
 	 * @return \GO\Core\CustomFields\Model\FieldSet
 	 * @throws \Exception

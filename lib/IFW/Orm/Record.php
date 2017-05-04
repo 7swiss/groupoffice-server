@@ -1264,31 +1264,31 @@ abstract class Record extends DataModel {
 			return true;
 		}
 		
-		//GO()->debug("Save ".$this->getClassName());
+//		GO()->debug("Save ".$this->getClassName().' '.$this->id);
 		
 		$this->isSaving = true;
-		
-		$success = false;
-		try{					
-			if($this->markDeleted) {
-				$this->isSaving = false;
-				return $this->delete();
-			}
-		
-			$action = $this->isNew() ? PermissionsModel::PERMISSION_CREATE : PermissionsModel::PERMISSION_WRITE;
+							
+		if($this->markDeleted) {
+			$this->isSaving = false;
+			return $this->delete();
+		}
 
-			if(!$this->getPermissions()->can($action)) {
-				$this->isSaving = false;
-				throw new Forbidden("You're (user ID: ".IFW::app()->getAuth()->user()->id().") not permitted to ".$action." ".$this->getClassName()." ".var_export($this->pk(), true));
-			}
+		$action = $this->isNew() ? PermissionsModel::PERMISSION_CREATE : PermissionsModel::PERMISSION_WRITE;
+
+		if(!$this->getPermissions()->can($action)) {
+			$this->isSaving = false;
+			throw new Forbidden("You're (user ID: ".IFW::app()->getAuth()->user()->id().") not permitted to ".$action." ".$this->getClassName()." ".var_export($this->pk(), true));
+		}
+
+		$this->checkRelationPermissions();
+
+		if (!$this->validate()) {
+			$this->isSaving = false;
+			return false;
+		}
 			
-			$this->checkRelationPermissions();
-			
-			if (!$this->validate()) {
-				$this->isSaving = false;
-				return false;
-			}
-			
+		$success = false;
+		try {
 			//don't start new transaction if we're already in one
 			//we start it before validation because you might want to override 
 			//internalValidate() to create some required relations for example.
@@ -1308,6 +1308,7 @@ abstract class Record extends DataModel {
 			}
 
 			if(!$this->fireEvent(self::EVENT_AFTER_SAVE, $this, $success)){			
+				\IFW::app()->debug(static::class.'::fireEvent after save returned '.var_export($success, true));
 				$success = false;
 			}			
 						
@@ -1316,10 +1317,18 @@ abstract class Record extends DataModel {
 		} finally {
 			if(!$success) {
 				\IFW::app()->debug("Save of ".$this->getClassName()." failed. Validation errors: ".var_export($this->getValidationErrors(), true));
-				$this->rollBack();								
+				if(!$this->isSavedBy) {
+					$this->rollBack();
+				}else
+				{
+//					\IFW::app()->debug("NOT rolling back in ".$this->getClassName());
+				}
 			}else {			
 				if(!$this->isSavedBy) {
 					$this->commit();
+				}else
+				{
+//					\IFW::app()->debug("NOT committing in ".$this->getClassName().'  becuase were saved by '.$this->isSavedBy->getClassName().' '.$this->isSavedBy->id);
 				}
 			}
 		}
@@ -1330,6 +1339,7 @@ abstract class Record extends DataModel {
 	 * Rollback changes and database transaction after failed save operation
 	 */
 	protected function rollBack() {
+//		GO()->debug("Rollback ".$this->getClassName());
 		if($this->saveStartedTransaction) {
 			$this->getDbConnection()->rollBack();
 			$this->saveStartedTransaction = false;
@@ -1341,7 +1351,25 @@ abstract class Record extends DataModel {
 				$this->{$aiCol->name} = null;
 			}
 		}		
+		$this->isSavedBy = null;
 		$this->isSaving = false;
+		
+		foreach($this->relations as $relationStore) {
+			if($relationStore->isModified()) {
+				foreach($relationStore as $record) {
+					//only commit if this record initated the save of this relation
+					if($record->isSaving && $record->isSavedBy == $this) {
+						$record->rollBack();
+					}else
+					{						
+						//might have beeen set but save never started because it wasn't modified
+						if($record->isSavedBy == $this) {
+							$record->isSavedBy = null;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -1349,6 +1377,8 @@ abstract class Record extends DataModel {
 	 * after successful save operation.
 	 */
 	private function commit() {		
+//		GO()->debug("commit ".$this->getClassName().' '.$this->id);
+		
 		
 		if($this->saveStartedTransaction) {
 			$this->getDbConnection()->commit();
@@ -1361,12 +1391,18 @@ abstract class Record extends DataModel {
 		$this->isSaving = false;
 		
 		//Unset the accessed relations so user set relations are queried from the db after save.
-		foreach($this->relations as $relationStore) {
+		foreach($this->relations as $relationName => $relationStore) {
 			if($relationStore->isModified()) {
 				foreach($relationStore as $record) {
 					//only commit if this record initated the save of this relation
 					if($record->isSaving && $record->isSavedBy == $this) {
 						$record->commit();
+					}else
+					{						
+						//might have beeen set but save never started because it wasn't modified
+						if($record->isSavedBy == $this) {
+							$record->isSavedBy = null;
+						}
 					}
 				}
 			}
@@ -1440,9 +1476,7 @@ abstract class Record extends DataModel {
 			//this will prevent modifications to be cleared
 			foreach($relationStore as $record) {
 				//don't set this if the record was already saving. Loops.
-				if(!$record->isSaving) {
-					$record->isSavedBy = $this;
-				}
+				$record->setIsSavedBy($this);				
 			}
 
 			if(!$relationStore->save()) {				
@@ -1453,6 +1487,13 @@ abstract class Record extends DataModel {
 		
 		return true;
 	}	
+	
+	private function setIsSavedBy($record) {
+		if(!$this->isSaving) {
+//			GO()->debug($this->getClassName().' '.$this->id.' is saved by '.$record->getClassName().' '.$record->id);
+			$this->isSavedBy = $record;
+		}
+	}
 	
 	/**
 	 * When belongs to relations are updated by setting the keys directly.
@@ -1519,9 +1560,7 @@ abstract class Record extends DataModel {
 			//Modifications are not cleared directly.
 			foreach($relationStore as $record) {
 				//don't set this if the record was already saving. Loops.
-				if(!$record->isSaving) {
-					$record->isSavedBy = $this;
-				}
+				$record->setIsSavedBy($this);
 			}
 			
 			if(!$relationStore->save()) {						
@@ -2115,6 +2154,7 @@ abstract class Record extends DataModel {
 	 * @return boolean
 	 */
 	public final function delete() {		
+		IFW::app()->debug('delete '. $this->getClassName());
 		return $this->processDelete();
 	}
 	

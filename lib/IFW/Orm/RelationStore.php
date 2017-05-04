@@ -672,7 +672,9 @@ class RelationStore extends Store implements ArrayAccess {
 			$replacements[$i] = $this->normalize($replacements[$i]);
 		}		
 		
+		//load all records
 		$this->all();
+		
 		for($i = 0, $c = count($this->modified); $i < $c; $i++) {			
 			$replacement = $this->extractFromReplacements($this->modified[$i], $replacements);
 			if($replacement) {
