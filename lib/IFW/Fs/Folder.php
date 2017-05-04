@@ -302,6 +302,7 @@ class Folder extends FileSystemObject {
 
 		try{
 			if (mkdir($this->path, $permissionsMode, true)) {
+				clearstatcache();
 				if (isset($this->changeGroup)) {
 					chgrp($this->path, $this->changeGroup);
 				}
