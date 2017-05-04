@@ -53,13 +53,15 @@ class Module extends InstallableModule {
 	public static function defineWebRoutes(Router $router){
 		
 		$router->addRoutesFor(EventController::class)
-			->get('event', 'store')
-			->get('event/0', 'new')
-			->get('event/download/:id', 'download')
-			->get('event/:eventId/:groupId', 'read')
-			->put('event/:eventId/:groupId', 'update')
-			->post('event', 'create')
-			->delete('event/:eventId/:groupId', 'delete');
+			->get('event', 'store') // filterable by calendars
+			->get('event/:calendarId/0', 'new')
+			->get('event/:calendarId/:eventId/download', 'download')
+			->get('event/:calendarId/:eventId', 'read')
+			->put('event/:calendarId/:eventId', 'update')
+			//->put('event/:calendarId/:eventId/:recurrenceId', 'updateInstance')
+			->post('event/:calendarId', 'create')
+			//->delete('event/:calendarId/:eventId/:recurrenceId', 'deleteInstance');
+			->delete('event/:calendarId/:eventId', 'delete');
 
 		$router->addRoutesFor(CalendarController::class)
 			->get('calendar', 'store')

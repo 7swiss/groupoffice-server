@@ -8,7 +8,6 @@
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
 use GO\Core\Orm\Record;
-use IFW\Auth\Permissions\CreatorOnly;
 
 /**
  * Calendar holds the calendar-specific information such as name, color and sync info
@@ -104,14 +103,14 @@ class Calendar extends Record {
 	 * @return Attendee
 	 */
 	public function newEvent() {
-		$attendee = new Attendee();
-		$attendee->email = \GO()->getAuth()->user()->email;
-		$attendee->groupId = $this->ownedBy;
-		$attendee->setCalendar($this);
-		$attendee->responseStatus = AttendeeStatus::Accepted;
+		$calEvent = new CalendarEvent();
+		$calEvent->email = $this->owner->getEmail();
+		$calEvent->groupId = $this->ownedBy;
+		$calEvent->calendarId = $this->id;
+		$calEvent->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
-		$attendee->event = $event;
-		$attendee->event->organizerEmail = \GO()->getAuth()->user()->email;
-		return $attendee;
+		$event->organizerEmail = $this->owner->getEmail();
+		$calEvent->event = $event;
+		return $calEvent;
 	}
 }

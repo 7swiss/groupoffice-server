@@ -5,7 +5,8 @@ namespace GO\Modules\GroupOffice\Calendar\Controller;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\Calendar\Model\Attendee;
 use GO\Modules\GroupOffice\Calendar\Model\Event;
-use GO\Modules\GroupOffice\Calendar\Model\User;
+use GO\Modules\GroupOffice\Calendar\Model\CalendarEvent;
+use GO\Modules\GroupOffice\Calendar\Model\Calendar;
 use IFW;
 use IFW\Exception\NotFound;
 use IFW\Util\DateTime;
@@ -33,18 +34,21 @@ class EventController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*,attendees", $where = null) {
+	public function actionStore($orderColumn = 'event.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*, event", $where = null) {
 
 		$query = (new Query)
+			//->join(Attendee::tableName(), 'a', 't.id = a.eventId', 'LEFT')
 			->joinRelation('recurrenceRule', false, 'LEFT')
+//			->select('t.*, a.calendarId, a.groupId, a.responseStatus')
 			->orderBy([$orderColumn => $orderDirection]);
 		
 		if (!empty($searchQuery)) {
 			$query->search($searchQuery, ['title']);
 			$recurringEvents = new IFW\Data\Store([]); // does not find recurring events
 		} else {
-			$query->where('startAt <= :until AND endAt > :from')->bind([':until' => $until, ':from' => $from]);
-			$recurringEvents = Event::findRecurring(new \DateTime($from), new \DateTime($until));
+			$query->where('event.startAt <= :until AND event.endAt > :from')
+					->bind([':until' => $until, ':from' => $from]);
+			$recurringEvents = CalendarEvent::findRecurring(new \DateTime($from), new \DateTime($until));
 			$recurringEvents->setReturnProperties($returnProperties);
 		}
 
@@ -59,31 +63,35 @@ class EventController extends Controller {
 			}
 		}
 
-		$events = Event::find($query);
-		$events->setReturnProperties($returnProperties);
+		$events = CalendarEvent::find($query);
+		$events->setReturnProperties($returnProperties.',event');
 
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	protected function actionRead($eventId,$groupId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	protected function actionRead($calendarId, $eventId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
-		$attendee = Attendee::findByPk(['eventId'=>$eventId,'groupId'=>$groupId]);
+		$calEvent = CalendarEvent::findByPk(['calendarId'=>$calendarId,'eventId'=>$eventId]);
 
-		if (!$attendee) {
+		if (!$calEvent) {
 			throw new NotFound();
 		}
 		if($recurrenceId !== null) {
 			// fake a start time and ask to change single instance or start new series
-			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
+			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
 		}
 
-		$this->renderModel($attendee, $returnProperties);
+		$this->renderModel($calEvent, $returnProperties);
 	}
 
-	protected function actionNew($returnProperties = "*,alarms,event[*,attendees]"){
-		$attendee = Attendee::me();
+	protected function actionNew($calendarId, $returnProperties = "*,alarms,event[*,attendees]") {
+
+		$calendar = Calendar::findByPk($calendarId);
+		if(empty($calendar)) {
+			throw new NotFound('Calendar not found');
+		}
 		
-		$this->renderModel($attendee, $returnProperties);
+		$this->renderModel($calendar->newEvent(), $returnProperties);
 	}
 
 	/**
@@ -99,43 +107,44 @@ class EventController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function actionCreate($calendarId, $returnProperties = "") {
 
-		$attendee = Attendee::me();
-		$attendee->setValues(IFW::app()->getRequest()->body['data']);
-		$attendee->save();
+		$calEvent = Calendar::findByPk($calendarId)->newEvent(); 
+		$calEvent->setValues(IFW::app()->getRequest()->body['data']);
+		$calEvent->save();
 
-		$this->renderModel($attendee, $returnProperties);
+		$this->renderModel($calEvent, $returnProperties);
 	}
 
 	/**
 	 * Update event PUT
 	 * 
-	 * @param int $eventId The ID of the field
+	 * @param int $calendarId The ID of calendar
+	 * @param int $id The ID of the event
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($eventId, $groupId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function actionUpdate($calendarId, $eventId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
-		$attendee = Attendee::findByPk(['eventId'=>$eventId,'groupId'=>$groupId]);
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendarId]);
 
-		if (!$attendee) {
+		if (!$calEvent) {
 			throw new NotFound();
 		}
 	
-		$attendee->setValues(IFW::app()->getRequest()->body['data']);
+		$calEvent->setValues(IFW::app()->getRequest()->body['data']);
 		if($recurrenceId !== null) {
-			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
+			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
 			// modified is cleared after appling exception so set it again
 			if(isset(IFW::app()->getRequest()->body['data']['event'])) {
-				$attendee->event->setValues(IFW::app()->getRequest()->body['data']['event']);
+				$calEvent->event->setValues(IFW::app()->getRequest()->body['data']['event']);
 			}
 		}
-		$attendee->event->singleInstance = ($single === '1') ? true : false;
-		$attendee->save();
+		$calEvent->singleInstance = ($single === '1') ? true : false;
+		$calEvent->save();
 
-		$this->renderModel($attendee, $returnProperties);
+		$this->renderModel($calEvent, $returnProperties);
 	}
 
 	/**
@@ -145,26 +154,24 @@ class EventController extends Controller {
 	 * If you are the last attending person delete the event as well.
 	 * @todo: If you are the organizer and want to cancel the event. Call actionCancel()
 	 *
-	 * @param int $eventId
-	 * @param int $groupId
+	 * @param int $calendarId
+	 * @param int $id of the event
 	 * @param string $recurrenceId Start time of occurrence when recurring
 	 * @param bool $single when true delete a single occurrence
 	 * @throws NotFound
 	 */
-	public function actionDelete($eventId, $groupId, $recurrenceId = null, $single = '1') {
-		$attendee = Attendee::findByPk(['eventId'=>$eventId, 'groupId'=>$groupId]);
-
-		if (!$attendee) {
+	public function actionDelete($calendarId, $eventId, $recurrenceId = null, $single = '1') {
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId, 'calendarId'=>$calendarId]);
+		if (!$calEvent) {
 			throw new NotFound();
 		}
-		$attendee->event->singleInstance = ($single === '1') ? true : false;
+		$calEvent->singleInstance = ($single === '1') ? true : false;
 		if($recurrenceId !== null) {
-			$attendee->event->addRecurrenceId(new DateTime($recurrenceId));
-		} 
+			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
+		}
+		$calEvent->delete();
 
-		$attendee->delete();
-
-		$this->renderModel($attendee);
+		$this->renderModel($calEvent);
 	}
 
 	public function actionImportICS() {

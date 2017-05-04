@@ -16,20 +16,23 @@ class ICalendarHelper {
 	/**
 	 * Parse an Event object to a VObject
 	 * @param \GO\Modules\GroupOffice\Calendar\Model\Event $event
+	 * @param VObject\Component\VCalendar $vcalendar The original vcalendar to sync to
 	 */
-	static public function toVObject(Event $event) {
+	static public function toVObject(Event $event, $vcalendar = null) {
 
-		$vcalendar = new VObject\Component\VCalendar([
-			'VEVENT' => [
-				'UID' => $event->uuid,
-				'SUMMARY' => $event->title,
-				'STATUS' => EventStatus::$text[$event->status],
-				'LAST-MODIFIED' => $event->modifiedAt, // @todo: check if datetime must be UTC
-				'DTSTAMP' => $event->createdAt,
-				'DTSTART' => $event->startAt,
-				'DTEND' => $event->endAt,
-			]
-		]);
+		if($vcalendar === null) {
+			$vcalendar = new VObject\Component\VCalendar([
+				'VEVENT' => [
+					'UID' => $event->uuid,
+					'SUMMARY' => $event->title,
+					'STATUS' => EventStatus::$text[$event->status],
+					'LAST-MODIFIED' => $event->modifiedAt, // @todo: check if datetime must be UTC
+					'DTSTAMP' => $event->createdAt,
+					'DTSTART' => $event->startAt,
+					'DTEND' => $event->endAt,
+				]
+			]);
+		}
 		if($event->allDay) {
 			$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
 			$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
@@ -42,65 +45,61 @@ class ICalendarHelper {
 		empty($event->tag) ?: $vcalendar->VEVENT->CATEGORIES = $event->tag;
 		($event->visibility === 2) ?: $vcalendar->VEVENT->CLASS = Visibility::$text[$event->visibility];
 
-		if($event->getIsRecurring()) {
-			$vcalendar->VEVENT->RRULE = self::createRrule($event->recurrenceRule);
-			foreach($event->recurrenceRule->exceptions as $exception) {
-				if($exception->isRemoved) {
-				$vcalendar->VEVENT->add(
-					'EXDATE',
-					$exception->recurrenceId
-					//['VALUE' => $event->allDay ? "DATE" : "DATETIME"]
-				);
-				} else {
-					// TODO add exception event with RecurrenceId to VCalendar object
-//					$vcalendar->VEVENT->add(
-//						'RECURRENCE-ID',
-//						$event->exception->recurrenceId,
-//						['VALUE'=>$event->allDay ? "DATE" : "DATETIME"]
-//					);
-				}
-			}
-		}
-
-		// FROM GO 6.1 Comments:
-		// If this is a meeting REQUEST then we must send all participants.
-		// For a CANCEL or REPLY we must send the organizer and the current user.
 		foreach($event->attendees as $attendee) {
 			$attr = ['cn' => $attendee->getName()];
 			($attendee->responseStatus === AttendeeStatus::__default) ?: $attr['partstat'] = AttendeeStatus::$text[$attendee->responseStatus];
 			($attendee->role === Role::__default) ?: $attr['role'] = Role::$text[$attendee->role];
 
-//			var_dump($attendee);
-			$type = $event->organizerEmail == $attendee->email ? 'ORGANIZER' : 'ATTENDEE';
-//			$type = $attendee->getIsOrganizer() ? 'ORGANIZER' : 'ATTENDEE';
-//			var_dump($type);
-
 			$vcalendar->VEVENT->add(
-				$type,
+				$event->organizerEmail == $attendee->email ? 'ORGANIZER' : 'ATTENDEE',
 				$attendee->email, $attr
 			);
 		}
-
 		//@todo: VALARMS depend on who fetched the event. Need to be implemented when caldav is build
-		//@todo: add Files
+		//@todo: ATTACHMENT Files
+
+		if($event->getIsRecurring()) {
+			$vcalendar->VEVENT->RRULE = self::createRrule($event->recurrenceRule);
+			foreach($event->recurrenceRule->exceptions as $exception) {
+				if($exception->isRemoved) {
+					$vcalendar->VEVENT->add('EXDATE',$exception->recurrenceId);
+				} else {
+					$vcalendar->add('VEVENT',$exception->toVEVENT());
+				}
+			}
+		}
+
 		return $vcalendar;
 	}
 
 	/**
 	 * Parse a VObject to an Event object
-	 * @param VObject\Component\VCalendar $ccalendar
-	 * @return Event
+	 * @param VObject\Component\VCalendar $vcalendar
+	 * @param int $calendarId
+	 * @return Event updated or new Event if not found
 	 */
-	static public function fromVObject(VObject\Component\VCalendar $vcalendar, $calendarId = null) {
+	static public function fromVObject(VObject\Component\VCalendar $vcalendar, $calendarId) {
+		
+		$calendar = Calendar::findByPk($calendarId);
+		$emailId = $calendar->owner->getEmail();
+		$groupId = $calendar->ownedBy;
 
-		$events = [];
+		$mainEvents = [];
+		$exceptions = [];
 
 		foreach($vcalendar->VEVENT as $vevent) {
+			$uid = (string)$vevent->UID;
+			if(!empty($vevent->{'RECURRENCE-ID'})) {
+				$exceptions[] = self::parseException($vevent);
+			}
+			$event = Event::findByUUID($uid);
+			if(empty($event)) {
+				$event = new Event();
+				$event->uuid = $uid;
+			}
+			$mainEvents[$uid] = $event;
 
-			$event = new Event();
-			$event->uuid = (string)$vevent->UID;
 			$event->createdAt = $vevent->DTSTAMP->getDateTime();
-
 			$event->modifiedAt = $vevent->{'LAST-MODIFIED'}->getDateTime();
 			$event->startAt = $vevent->DTSTART->getDateTime();
 			$event->endAt = $vevent->DTEND->getDateTime();
@@ -114,32 +113,60 @@ class ICalendarHelper {
 			$event->visibility = Visibility::fromText($vevent->CLASS);
 
 			$event->organizerEmail = str_replace('mailto:', '',(string)$vevent->ORGANIZER);
-			$organizer = new Attendee();
-			$organizer->email = str_replace('mailto:', '',(string)$vevent->ORGANIZER);
-			$organizer->responseStatus = AttendeeStatus::fromText($vevent->ORGANIZER['PARTSTAT']);
-			$organizer->role = Role::fromText($vevent->ORGANIZER['ROLE']);
-			$event->attendees[] = $organizer;
-
+			$event->attendees[] = self::parseAttendee($vevent->ORGANIZER, [$emailId, $calendarId, $groupId]);
 			foreach($vevent->ATTENDEE as $vattendee) {
-				$attendee = new Attendee();
-				//$attendee->name = $vattendee['CN'];
-				if($calendarId !== null)
-					$attendee->calendarId = $calendarId;
-				$attendee->email = str_replace('mailto:', '',(string)$vattendee); // Will link to userId when found
-				$attendee->responseStatus = AttendeeStatus::fromText($vattendee['PARTSTAT']);
-				$attendee->role = Role::fromText($vattendee['ROLE']);
-				$event->attendees[] = $attendee;
+				$event->attendees[] = self::parseAttendee($vattendee, [$emailId, $calendarId, $groupId]);
 			}
 			//TODO VALARM for (attendee specific)
 			if(!empty((string)$vevent->RRULE)) {
 				$event->recurrenceRule = self::rruleToObject($vevent->RRULE);
+				foreach($vevent->EXDATE as $exdate) {
+					$event->recurrenceRule->addException($exdate->getDateTime());
+				}
 			}
-			//TODO RECURRENCE-ID and EXDATE
-
-			$events[] = $event;
 		}
+		//Attach exceptions found in VCALENDAR
+		foreach($exceptions as $props) {
+			$uid = $props['uid'];
+			if(isset($mainEvents[$uid]) && $mainEvents[$uid]->getIsRecurring()) {
+				unset($props['uid']);
+				$recurrenceId = $props['recurrenceId'];
+				$mainEvents[$uid]->recurrenceRule->addException($recurrenceId, $props);
+			}
+		}
+
 		$vcalendar->destroy();
-		return $events;
+		return $mainEvents;
+	}
+
+	static private function parseAttendee($vattendee, $current = []) {
+		$attendee = new Attendee();
+		$email = str_replace('mailto:', '',(string)$vattendee); // Will link to userId when found
+		if(count($current[0])==3 && $current[0] === $email) {
+			$attendee->calendarId = $current[1]; //calendarId;
+			$attendee->groupId = $current[2]; //groupId;
+		}
+		empty($vattendee['CN']) ?: $attendee->name = $vattendee['CN'];
+		$attendee->email = $email;
+		$attendee->responseStatus = AttendeeStatus::fromText($vattendee['PARTSTAT']);
+		$attendee->role = Role::fromText($vattendee['ROLE']);
+		return $attendee;
+	}
+
+	static private function parseException($vevent) {
+		$props = [
+			'recurrenceId' => $vevent->{'RECURRENCE-ID'},
+			'uid' => $vevent->UID
+		];
+		empty($vevent->TITLE) ?: $props['title'] = $vevent->TITLE;
+		empty($vevent->DTSTART) ?: $props['startAt'] = $vevent->DTSTART->getDateTime();
+		empty($vevent->DTEND) ?: $props['endAt'] = $vevent->DTEND->getDateTime();
+		empty($vevent->TITLE) ?: $props['title'] = $vevent->TITLE;
+		empty($vevent->SUMMARY) ?: $props['description'] = $vevent->SUMMARY;
+		empty($vevent->LOCATION) ?: $props['location'] = $vevent->LOCATION;
+		empty($vevent->STATUS) ?: $props['status'] = EventStatus::fromText($vevent->STATUS);
+		empty($vevent->CLASS) ?: $props['classification'] = Visibility::fromText($vevent->CLASS);
+		return $props;
 	}
 
 	static public function makeRecurrenceIterator(RecurrenceRule $rule) {
