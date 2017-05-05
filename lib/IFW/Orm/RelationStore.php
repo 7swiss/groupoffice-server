@@ -473,7 +473,7 @@ class RelationStore extends Store implements ArrayAccess {
 	 * Clears the modified Records
 	 */
 	public function reset() {
-		\IFW::app()->debug("Reset relation store ".$this->getRelation()->getName());
+//		\IFW::app()->debug("Reset relation store ".$this->getRelation()->getName());
 		$this->modified = null;
 	}
 
