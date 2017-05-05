@@ -32,6 +32,7 @@ class StoreIterator extends IteratorIterator {
 			
 			//check if it hasn't been fetched or set already to prevent loops			
 			if($relation && !$record->relationIsFetched($relation->getName())) {				
+//				\IFW::app()->debug("Parent relation '".$relation->getName()."' set on ".$record->objectId().' by '.$this->store->getRecord()->objectId());
 				$record->{$relation->getName()} = $this->store->getRecord();				
 			}
 		}

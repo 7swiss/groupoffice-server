@@ -1,4 +1,5 @@
 <?php
+
 namespace IFW\Cache;
 
 use IFW\Cache\CacheInterface;
@@ -11,54 +12,57 @@ use IFW\Cache\CacheInterface;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class None implements CacheInterface{
-	
+class None implements CacheInterface {
+
 	private $cache = [];
 
 	/**
 	 * Store any value in the cache
+	 * 
 	 * @param string $key
 	 * @param mixed $value Will be serialized
-	 * @param int $ttl Seconds to live
+	 * @param boolean $persist Cache must be available in next requests. Use false of it's just for this script run.
 	 */
-	public function set($key, $value, $ttl=0){
+	public function set($key, $value, $persist = true) {
 		$this->cache[$key] = $value;
 		return true;
 	}
-	
+
 	/**
 	 * Get a value from the cache
 	 * 
 	 * @param string $key
 	 * @return mixed Stored value or NULL if not found 
 	 */
-	public function get($key){		
-		if(isset($this->cache[$key])) {
+	public function get($key) {
+		if (isset($this->cache[$key])) {
 			return $this->cache[$key];
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Delete a value from the cache
 	 * 
 	 * @param string $key 
 	 */
-	public function delete($key){
+	public function delete($key) {
 		unset($this->cache[$key]);
 		return true;
 	}
+
 	/**
 	 * Flush all values 
 	 * 
 	 * @return boolean
 	 */
-	public function flush(){
+	public function flush() {
 		$this->cache = [];
 		return true;
 	}
-	
+
 	public function supported() {
 		return true;
 	}
+
 }

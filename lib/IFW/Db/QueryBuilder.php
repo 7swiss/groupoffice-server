@@ -541,6 +541,12 @@ class QueryBuilder {
 	}
 
 	private function buildSubQuery($comparator, \IFW\Orm\Store $store, $prefix) {
+		
+		//subquery
+		if($store->getQuery()->getTableAlias() == 't' && $this->getQuery()->getTableAlias() == 't') {
+			$store->getQuery()->tableAlias('sub');
+		}
+		
 		$builder = $store->getQuery()->getBuilder($store->getRecordClassName());
 		$builder->mergeAliasMap($this->aliasMap);
 
@@ -671,7 +677,13 @@ class QueryBuilder {
 			}
 
 			$columnParts = $this->splitTableAndColumn($column);
-			$col = $this->quoteTableName($columnParts[0]) . '.' . $this->quoteColumnName($columnParts[1]);
+			
+			if(empty($columnParts[0])){
+				throw new \Exception("Invalid column name '".$column.'"');
+			}
+			
+			$col = $this->quoteTableName($columnParts[0]). '.' .$this->quoteColumnName($columnParts[1]);
+			
 
 //			$relationParts = explode('.', $column);
 			//remove column name
@@ -698,21 +710,29 @@ class QueryBuilder {
 				$str .= $this->buildInCondition($type, $columnParts, $value, $prefix);
 			} else if ($value instanceof \IFW\Orm\Store) {
 				//subquery
+				if($value->getQuery()->getTableAlias() == 't' && $this->getQuery()->getTableAlias() == 't') {
+					$value->getQuery()->tableAlias('sub');
+				}
 				$builder = $value->getQuery()->getBuilder($value->getRecordClassName());
 				$this->mergeAliasMap($builder->aliasMap);
 
 				$build = $builder->buildSelect($value->getQuery(), $prefix . "\t");
 				
-				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix. "\t" . $build['sql'] ."\n". $prefix . ")\n";
 				foreach ($build['params'] as $v) {
 //					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 					$this->buildBindParameters[] = $v;
 				}
 			} else if ($value instanceof \IFW\Db\Query) {
 				
+				//subquery
+				if($value->getTableAlias() == 't' && $this->getQuery()->getTableAlias() == 't') {
+					$value->tableAlias('sub');
+				}
+				
 				$build = $value->createCommand()->build($prefix . "\t");
 				
-				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . $build['sql'] . $prefix . ")\n";
+				$str .=  $col . ' ' . $comparator . " (\n" .$prefix . "\t" . $build['sql'] . "\n" . $prefix . ")\n";
 				foreach ($build['params'] as $v) {
 //					$this->query->bind($v['paramTag'], $v['value'], $v['pdoType']);
 					$this->buildBindParameters[] = $v;

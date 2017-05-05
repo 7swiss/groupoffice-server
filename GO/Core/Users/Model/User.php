@@ -30,91 +30,90 @@ use IFW\Validate\ValidatePassword;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class User extends Record implements UserInterface {
-	
+
 	/**
 	 * Primary key of the model.
 	 * @var int
-	 */							
+	 */
 	public $id;
 
 	/**
 	 * 
 	 * @var bool
-	 */							
+	 */
 	public $deleted = false;
 
 	/**
 	 * Disables the user from logging in
 	 * @var bool
-	 */							
+	 */
 	public $enabled = true;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $username;
 
 	/**
 	 * If the password hash is set to null it's impossible to login.
 	 * @var string
-	 */							
+	 */
 	protected $password;
 
 	/**
 	 * Digest of the password used for digest auth. (Deprecated?)
 	 * @var string
-	 */							
+	 */
 	protected $digest;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $createdAt;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $modifiedAt;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $loginCount = 0;
 
 	/**
 	 * 
 	 * @var \DateTime
-	 */							
+	 */
 	public $lastLogin;
 
 	/**
 	 * E-mail address of the user. The system uses this for notifications.
 	 * @var string
-	 */							
+	 */
 	public $email;
 
 	/**
 	 * E-mail address of the user. The system uses this for password recovery.
 	 * @var string
-	 */							
+	 */
 	public $emailSecondary;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $photoBlobId;
 
 	use \GO\Core\Blob\Model\BlobNotifierTrait;
-	
+
 	const LOG_ACTION_LOGIN = 'login';
-	
 	const LOG_ACTION_LOGOUT = 'logout';
-	
+
 	/**
 	 * Fires before login
 	 * 
@@ -123,22 +122,21 @@ class User extends Record implements UserInterface {
 	 * @param boolean $count
 	 */
 	const EVENT_BEFORE_LOGIN = 0;
-	
+
 	/**
 	 * Fires after successful login
 	 * 
 	 * @param User $user
 	 */
 	const EVENT_AFTER_LOGIN = 1;
-	
+
 	/**
 	 * Non admin users must verify their password before they can set the password.
 	 * 
 	 * @var boolean 
 	 */
 	private $passwordVerified;
-	
-	
+
 	/**
 	 * Cache value for isAdmin()
 	 * 
@@ -157,22 +155,21 @@ class User extends Record implements UserInterface {
 				new \IFW\Validate\ValidateEmail('emailSecondary')
 		];
 	}
-	
 
 	public static function getTable() {
-		parent::getTable()->getColumn('password')->trimInput = false;		
-		
-		return parent::getTable();		
+		parent::getTable()->getColumn('password')->trimInput = false;
+
+		return parent::getTable();
 	}
-	
+
 	protected static function internalGetPermissions() {
 		return new UserPermissions();
 	}
-	
+
 	public function id() {
 		return $this->id;
 	}
-	
+
 	public static function tableName() {
 		return 'auth_user';
 	}
@@ -181,15 +178,16 @@ class User extends Record implements UserInterface {
 	 *
 	 * {@inheritdoc}
 	 */
-	public static function defineRelations() {		
+	public static function defineRelations() {
+
+		self::hasMany('groups', Group::class, ["id" => "userId"])
+						->via(UserGroup::class, ['groupId' => 'id']);
+
+		self::hasMany('userGroup', UserGroup::class, ['id' => "userId"]);
 		
-		self::hasMany('groups', Group::class, ["id" =>"userId"])
-				->via(UserGroup::class, ['groupId' => 'id']);
-				
-		self::hasMany('userGroup', UserGroup::class, ['id'=>"userId"]);
-		self::hasOne('group', Group::class, ['id'=>'userId']);
-		self::hasMany('tokens', Token::class, ["id"=>"userId"]);					
-		
+		self::hasOne('group', Group::class, ['id' => 'userId']);
+		self::hasMany('tokens', Token::class, ["id" => "userId"]);
+
 		parent::defineRelations();
 	}
 
@@ -201,13 +199,13 @@ class User extends Record implements UserInterface {
 	 * @return User|bool
 	 */
 	public static function login($username, $password, $count = true) {
-		
-		if(self::fireStaticEvent(self::EVENT_BEFORE_LOGIN, $username, $password, $count) === false) {
+
+		if (self::fireStaticEvent(self::EVENT_BEFORE_LOGIN, $username, $password, $count) === false) {
 			return false;
 		}
-		
+
 		$user = User::find(['username' => $username])->single();
-		
+
 		$success = true;
 
 		if (!$user) {
@@ -223,57 +221,57 @@ class User extends Record implements UserInterface {
 		$str = "LOGIN ";
 		$str .= $success ? "SUCCESS" : "FAILED";
 		$str .= " for user: \"" . $username . "\" from IP: ";
-		
+
 		if (isset($_SERVER['REMOTE_ADDR'])) {
 			$str .= $_SERVER['REMOTE_ADDR'];
-		}else {
+		} else {
 			$str .= 'unknown';
 		}
-		
+
 		if (!$success) {
 			return false;
 		} else {
 			GO()->getAuth()->setCurrentUser($user);
-			if($count) {
+			if ($count) {
 				$user->loginCount++;
 				$user->lastLogin = new DateTime();
-				if(!$user->save()) {
+				if (!$user->save()) {
 					throw new Exception("Could not save user in login");
 				}
 			}
-			
+
 			self::fireStaticEvent(self::EVENT_AFTER_LOGIN, $user);
-			
+
 			return $user;
 		}
 	}
-	
+
 	public function internalValidate() {
-		
-		if(!empty($this->password) && $this->isModified('password')){			
+
+		if (!empty($this->password) && $this->isModified('password')) {
 			$this->digest = md5($this->username . ":" . GO()->getConfig()->productName . ":" . $this->password);
 			$this->password = password_hash($this->password, PASSWORD_DEFAULT);
 		}
-			
+
 		return parent::internalValidate();
 	}
 
 	private function logSave() {
-		if($this->isModified('loginCount')) {
+		if ($this->isModified('loginCount')) {
 			GO()->log(self::LOG_ACTION_LOGIN, $this->username, $this);
-		}else if($this->isModified ()){				
-			$logAction = $this->isNew() ? self::LOG_ACTION_UPDATE : self::LOG_ACTION_UPDATE;			
+		} else if ($this->isModified()) {
+			$logAction = $this->isNew() ? self::LOG_ACTION_UPDATE : self::LOG_ACTION_UPDATE;
 			GO()->log($logAction, $this->username, $this);
 		}
-	}	
-	
+	}
+
 	protected function internalSave() {
 		$wasNew = $this->isNew();
-		
+
 		$this->logSave();
-		
+
 		$this->saveBlob('photoBlobId');
-		
+
 		$success = parent::internalSave();
 
 		if ($success && $wasNew) {
@@ -298,23 +296,21 @@ class User extends Record implements UserInterface {
 
 		return $success;
 	}
-	
-	
+
 	protected function internalDelete($hard) {
 		if ($this->id === 1) {
 			throw new \IFW\Exception\Forbidden("Admin can't be deleted!");
 		}
-		
+
 		$this->freeBlob($this->photoBlobId);
-		
+
 		return parent::internalDelete($hard);
 	}
-	
-	
+
 	public function setPassword($password) {
-		if(GO()->getAuth()->user()->isAdmin() || $this->passwordVerified) {
+		if (GO()->getAuth()->user()->isAdmin() || $this->passwordVerified) {
 			$this->password = $password;
-		}  else {
+		} else {
 			throw new IFW\Exception\Forbidden();
 		}
 	}
@@ -326,14 +322,13 @@ class User extends Record implements UserInterface {
 	 * @return boolean
 	 */
 	public function checkPassword($password) {
-		
+
 		$hash = $this->isModified('password') ? $this->getOldAttributeValue('password') : $this->password;
-		
+
 		$this->passwordVerified = password_verify($password, $hash);
 
 		return $this->passwordVerified;
 	}
-	
 
 	/**
 	 * Check if this user is in the admins group
@@ -342,16 +337,16 @@ class User extends Record implements UserInterface {
 	 */
 	public function isAdmin() {
 
-		if(!isset($this->isAdmin)){
+		if (!isset($this->isAdmin)) {
 			$ur = UserGroup::findByPk(['userId' => $this->id, 'groupId' => Group::ID_ADMINS]);
 			$this->isAdmin = $ur !== false;
 		}
 
 		return $this->isAdmin;
 	}
-	
+
 	//for API
-	public function getIsAdmin(){
+	public function getIsAdmin() {
 		return $this->isAdmin();
 	}
 
@@ -361,24 +356,25 @@ class User extends Record implements UserInterface {
 	 * @param self $user
 	 * @return boolean
 	 */
-	public function isInSameGroup(self $user) {	
-						
+	public function isInSameGroup(self $user) {
+
 		return UserGroup::find(
-						(new Query())
-						->select('1')
-						->joinRelation('groupUsers')
-						->andWhere(['!=', ['groupId'=>\GO\Core\Users\Model\Group::ID_EVERYONE]])
-						->andWhere(['userId'=>$this->id])						
-						->andWhere(['groupUsers.userId'=>$user->id])
+										(new Query())
+														->select('1')
+														->joinRelation('groupUsers')
+														->andWhere(['!=', ['groupId' => \GO\Core\Users\Model\Group::ID_EVERYONE]])
+														->andWhere(['userId' => $this->id])
+														->andWhere(['groupUsers.userId' => $user->id])
 						)->single();
-	}	
-	
+	}
+
 	/**
 	 * Used for lost password to verify e-mail link
 	 * 
 	 * @return string
 	 */
 	public function generateToken() {
-		return md5($this->lastLogin->format('c').$this->password);
+		return md5($this->lastLogin->format('c') . $this->password);
 	}
+
 }

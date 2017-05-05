@@ -224,8 +224,7 @@ class Command {
 				throw new \Exception("Failed to execute SQL command: ".$this->replaceBindParameters($build['sql'], $build['params']));
 			}
 
-		} catch (PDOException $e) {
-			
+		} catch (PDOException $e) {			
 			\IFW::app()->debug("FAILED SQL: ".$this->replaceBindParameters($build['sql'], $build['params']));
 			
 			throw $e;

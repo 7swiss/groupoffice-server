@@ -16,66 +16,38 @@ use IFW\Fs\File;
  */
 class Disk implements CacheInterface {
 
-	private $ttls;
-	private $ttlFile;
-	private $ttlsDirty = false;
+
 	private $folder;
-	private $time;
 	
 	private $cache;
 
 	public function __construct() {
 		$this->folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
-
 		$this->folder->create();
-
-		$this->ttlFile = $this->folder->getFile('ttls.txt');
-
-		$this->load();
-
-		$this->time = time();
 	}
 
-	private function load() {
-		if (!isset($this->ttls)) {
-
-			if ($this->ttlFile->exists()) {
-				$data = $this->ttlFile->getContents();
-				$this->ttls = unserialize($data);
-			} else {
-				$this->ttls = array();
-			}
-		}
-	}
+	
 
 	/**
 	 * Store any value in the cache
+	 * 
 	 * @param string $key
 	 * @param mixed $value Will be serialized
-	 * @param int $secondsToLive Seconds to live
+	 * @param boolean $persist Cache must be available in next requests. Use false of it's just for this script run.
 	 */
-	public function set($key, $value, $secondsToLive = 0) {
+	public function set($key, $value, $persist = true) {
 
 		//don't set false values because unserialize returns false on failure.
 		if ($key === false)
 			return true;
 
-		$key = File::stripInvalidChars($key, '-');
-
-		if ($secondsToLive) {
-			$this->ttls[$key] = $this->time + $secondsToLive;
-			$this->ttlsDirty = true;
+		$key = File::stripInvalidChars($key, '-');		
+		if($persist) {
+			$file = $this->folder->getFile($key);
+			$file->putContents(serialize($value));
 		}
-
-		$file = $this->folder->getFile($key);
-
-		$success = $file->putContents(serialize($value));
 		
-		if($success) {
-			$this->cache[$key] = $value;
-		}
-
-		return $success;
+		$this->cache[$key] = $value;
 	}
 
 	/**
@@ -85,22 +57,15 @@ class Disk implements CacheInterface {
 	 * @return mixed null if it doesn't exist
 	 */
 	public function get($key) {
-		
-		
 
 		$key = File::stripInvalidChars($key, '-');
-
-		$file = $this->folder->getFile($key);
-
-		if (!empty($this->ttls[$key]) && $this->ttls[$key] < $this->time) {
-			$file->delete();
-			return null;
-		}
 		
 		if(isset($this->cache[$key])) {
 			return $this->cache[$key];
 		}
 		
+		$file = $this->folder->getFile($key);
+
 		if (!$file->exists()) {
 			return null;
 		} 
@@ -123,11 +88,10 @@ class Disk implements CacheInterface {
 	 */
 	public function delete($key) {
 		$key = File::stripInvalidChars($key, '-');
-
-		unset($this->ttls[$key]);
+		
 		unset($this->cache[$key]);
-		$this->ttlsDirty = true;
-		if (file_exists($tgrouhis->folder . $key)) {
+		
+		if (file_exists($this->folder . $key)) {
 			unlink($this->folder . $key);
 		}
 	}
@@ -152,10 +116,7 @@ class Disk implements CacheInterface {
 		
 		\IFW::app()->debug("Flush cache");
 		$this->cache = [];
-
-		$this->ttls = [];
-		$this->ttlsDirty = true;
-
+	
 		$this->folder->delete();
 		$this->folder->create(0777);
 
@@ -163,13 +124,9 @@ class Disk implements CacheInterface {
 	}
 
 	public function __destruct() {
-
 		if ($this->flushOnDestruct) {
 			$this->flush(false);
 		}
-
-		if ($this->ttlsDirty)
-			$this->ttlFile->putContents(serialize($this->ttls));
 	}
 
 	public function supported() {

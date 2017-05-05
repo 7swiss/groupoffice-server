@@ -215,21 +215,25 @@ class Query extends DbQuery {
 		return $methods;
 	}
 	
-	private $cacheKey = null;
+	private $cacheHash = null;
 	
-	public function enableCache($key) {
-		$this->cacheKey = $key;
+	/**
+	 * Enables caching of single records for the given hash
+	 * The hash is a key value array ['dbField' => $value]
+	 * 
+	 * If repeated queries are made with the same hash then they are returned from cache in {@see Store::single()}
+	 * 
+	 * This is used in {@see Record::findByPk()} and {Relation::get()}
+	 * 
+	 * @param array $hash
+	 */
+	public function enableCache(array $hash) {
+//		\IFW::app()->debug("Query enable cache: ".$key);
+		$this->cacheHash = $hash;
 	}
 	
 	
-	public function getCacheKey () {
-		
-		if(!$this->cacheKey) {
-			return null;
-		}
-		
-		return $this->getRecordClassName().'-'.$this->cacheKey;
-		
-		
+	public function getCacheHash() {		
+		return $this->cacheHash;
 	}
 }
