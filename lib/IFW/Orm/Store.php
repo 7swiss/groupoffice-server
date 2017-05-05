@@ -98,7 +98,6 @@ class Store extends \IFW\Data\Store {
 	 */
 	public function single() {
 		$this->query->limit(1);
-
 		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
 		//Expirimental caching if query is findByPk		
 		$cacheHash = $this->query->getCacheHash();
@@ -110,7 +109,7 @@ class Store extends \IFW\Data\Store {
 		$record = $this->getIterator()->fetch();
 		
 		//cache records by pk() so that if they are found by other they are still cached.
-		if(!$record) {
+		if(!($record instanceof Record)) {
 			return $record;
 		}
 		
