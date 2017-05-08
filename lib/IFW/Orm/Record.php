@@ -1722,8 +1722,10 @@ abstract class Record extends DataModel {
 		
 		$query = new Query();
 		$query->where($pk)->withDeleted();
-		
-		$query->enableCache($pk);
+
+		if(!(IFW::app()->getCache() instanceof \IFW\Cache\None)) {
+			$query->enableCache($pk);
+		}
 		
 		return self::find($query)->single();
 	}
