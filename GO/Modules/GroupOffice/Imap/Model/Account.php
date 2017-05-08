@@ -118,7 +118,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 
 	
 	public static function getDefaultReturnProperties() {
-		return parent::getDefaultReturnProperties().',signatures';
+		return parent::getDefaultReturnProperties().',signatures,smtpAccount';
 	}
 
 	public function setPassword($password) {
