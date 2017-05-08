@@ -38,7 +38,7 @@ class Calendar extends Record {
 	public $color;
 
 	/**
-	 * Everytime something in this calendar changes the number is incresed
+	 * Every time something in this calendar changes the number is incresed
 	 * @var int
 	 */							
 	public $version = 1;
