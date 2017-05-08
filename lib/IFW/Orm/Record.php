@@ -389,7 +389,7 @@ abstract class Record extends DataModel {
 			}
 		}		
 		
-		//filled by joined relations
+		//filled by joined relations in __set
 		foreach($this->relations as $relationName => $relationStore) {
 
 			//check loading from database boolean to prevent infinite loop because 

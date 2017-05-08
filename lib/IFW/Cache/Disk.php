@@ -23,7 +23,10 @@ class Disk implements CacheInterface {
 
 	public function __construct() {
 		$this->folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
-		$this->folder->create();
+		if(!$this->folder->exists()) {
+			$this->folder->create();
+			$this->folder->chmod(0777);
+		}
 	}
 
 	

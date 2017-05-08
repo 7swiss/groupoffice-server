@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<author>Intermesh B.V.</author>
+	<email>info@intermesh.nl</email>
+	<version>0.1</version>
+	<languages>
+		
+		 <language type="en">
+			<name>Test</name>
+			<shortDescription>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc iaculis scelerisque suscipit.
+			</shortDescription>
+			<longDescription>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc iaculis scelerisque suscipit. 
+				Sed malesuada elit vel leo sollicitudin malesuada. In velit arcu, dignissim non nunc ut, molestie hendrerit magna. 
+				Fusce sit amet blandit leo, quis tristique nibh. Mauris in tristique est. 
+				Duis posuere, nisl nec pharetra finibus, magna massa elementum sem, a tristique tellus enim sit amet risus. 
+				Maecenas quis odio eget lorem scelerisque tristique. Ut sit amet est ultrices, varius sapien quis, dignissim risus. 
+				Sed lacinia vehicula sapien, non ultricies tellus bibendum ut. Proin non condimentum purus, sit amet aliquet turpis. 
+				Aenean et lacus ante. Fusce vulputate sed felis ut interdum. In erat est, molestie sed nulla vitae, sollicitudin auctor diam. 
+				In molestie sodales magna, vel viverra magna. 
+				Morbi semper nisl ut erat cursus tempor. 
+				Sed at sodales nisl, eget molestie neque. 
+			</longDescription>
+			<images>
+				<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="EN"></image>
+				<image src="http://www.smartapps.com.br/a/libs/img/block-apps.png" alt="EN"></image>
+			</images>
+		</language>
+							
+		<language type="nl">
+			<name>Test</name>
+			<shortDescription>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc iaculis scelerisque suscipit.
+			</shortDescription>
+			<longDescription>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc iaculis scelerisque suscipit. 
+				Sed malesuada elit vel leo sollicitudin malesuada. In velit arcu, dignissim non nunc ut, molestie hendrerit magna. 
+				Fusce sit amet blandit leo, quis tristique nibh. Mauris in tristique est. 
+				Duis posuere, nisl nec pharetra finibus, magna massa elementum sem, a tristique tellus enim sit amet risus. 
+				Maecenas quis odio eget lorem scelerisque tristique. Ut sit amet est ultrices, varius sapien quis, dignissim risus. 
+				Sed lacinia vehicula sapien, non ultricies tellus bibendum ut. Proin non condimentum purus, sit amet aliquet turpis. 
+				Aenean et lacus ante. Fusce vulputate sed felis ut interdum. In erat est, molestie sed nulla vitae, sollicitudin auctor diam. 
+				In molestie sodales magna, vel viverra magna. 
+				Morbi semper nisl ut erat cursus tempor. 
+				Sed at sodales nisl, eget molestie neque. 
+			</longDescription>
+			<images>
+				<image src="https://cdn2.iconfinder.com/data/icons/crystalproject/crystal_project_256x256/filesystems/blockdevice.png" alt="NL"></image>
+					<image src="http://www.smartapps.com.br/a/libs/img/block-apps.png" alt="NL"></image>					
+			</images>
+		</language>
+		
+	</languages>
+</module>					
+							

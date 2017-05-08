@@ -301,6 +301,7 @@ class Folder extends FileSystemObject {
 		}
 
 		try{
+//			var_dump($permissionsMode);
 			if (mkdir($this->path, $permissionsMode, true)) {
 				//needed for concurrency problems
 				clearstatcache();

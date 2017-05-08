@@ -157,20 +157,17 @@ class Account extends AccountAdaptorRecord {
 		}
 	}
 
-	//TODO account moves
 	private function clientUpdates() {
 		$updatedCards = AccountCard::find(
 										(new Query)
 														->where(['accountId' => $this->id])
-														->withDeleted()
-														->joinRelation('contact', true)
-														->where('contact.modifiedAt > t.modifiedAt')
+														->joinRelation('contact', true, 'LEFT')
+														->where('contact.id IS NULL OR contact.modifiedAt > t.modifiedAt')
 		);
 
 		foreach ($updatedCards as $card) {
 
-			if ($card->contact->deleted) {
-
+			if (!isset($card->contact)) {
 				$this->deleteContact($card);
 			} else {
 				$this->updateContact($card);
