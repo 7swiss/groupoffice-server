@@ -811,7 +811,7 @@ abstract class Record extends DataModel {
 			$relation = $currentRecord::getRelation($part);
 			if($relation && !$currentRecord->relationIsFetched($part)) {
 				$cls = $relation->getToRecordName();
-				$record = new $cls(true);
+				$record = new $cls(false);
 				$currentRecord->$part = $record;
 			}
 
@@ -1493,7 +1493,7 @@ abstract class Record extends DataModel {
 	
 	private function setIsSavedBy($record) {
 		if(!$this->isSaving) {
-			\IFW::app()->debug($this->objectId().' is saved by '.$record->objectId(), \IFW\Debugger::TYPE_GENERAL, 1);
+//			\IFW::app()->debug($this->objectId().' is saved by '.$record->objectId(), \IFW\Debugger::TYPE_GENERAL, 1);
 			$this->isSavedBy = $record;
 		}
 	}

@@ -237,6 +237,17 @@ class Contact extends Record {
 		
 	}
 	
+// public function setAccountId($v) {
+// if($this->accountId != $v) {
+//		throw new \Exception("hier");
+// }
+//	 $this->accountId = $v;
+// }
+// 
+// public function getAccountId() {
+//	 return $this->accountId;
+// }
+	
 	public function internalValidate() {
 		//always fill name field on contact too
 		if(!isset($this->name) && !$this->isOrganization){
