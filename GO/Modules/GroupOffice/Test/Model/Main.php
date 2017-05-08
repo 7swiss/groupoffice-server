@@ -62,6 +62,12 @@ class Main extends Record{
 	 */							
 	public $name;
 	
+	/**
+	 * 
+	 * @var string
+	 */		
+	public $description;
+	
 	protected static function internalGetPermissions() {
 		return new \GO\Core\Auth\Permissions\Model\Owner();
 	}

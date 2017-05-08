@@ -38,6 +38,13 @@ class RelationRecord extends PropertyRecord {
 	 */							
 	public $name;
 	
+	
+	/**
+	 * 
+	 * @var string
+	 */		
+	public $description;
+	
 	protected static function defineRelations() {
 		self::hasOne('main', Main::class, ['mainId' => 'id']);
 	}

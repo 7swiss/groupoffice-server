@@ -73,3 +73,10 @@ ALTER TABLE `test_main`
   ADD CONSTRAINT `test_main_ibfk_1` FOREIGN KEY (`ownedBy`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `test_main_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `auth_user` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `test_main_ibfk_3` FOREIGN KEY (`ownedBy`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE;
+
+
+
+ALTER TABLE `test_relation_record` ADD `description` TEXT NULL AFTER `name`;
+
+
+ALTER TABLE `test_main` ADD `description` TEXT NULL AFTER `name`;

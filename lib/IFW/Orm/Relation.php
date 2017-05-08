@@ -403,31 +403,31 @@ class Relation {
 		return false;
 	}
 
-	
-	/**
-	 * Set's this relation of $record to $value. Don't use this method directly.
-	 * ActiveRecord uses it for you when setting relations directly.
-	 * 
-	 * @param Record $record
-	 * @param mixed $value
-	 * @return RelationStore
-	 */
-	public function set(Record $record, $value) {			
-		$store = $this->get($record);
-		
-		if($this->many) {			
-			if(isset($value)) {
-				foreach($value as $record) {
-					$store[] = $record;
-				}			
-			}
-		}else
-		{
-			$store[] = $value;
-		}
-		return $store;
-	}
-	
+//	
+//	/**
+//	 * Set's this relation of $record to $value. Don't use this method directly.
+//	 * ActiveRecord uses it for you when setting relations directly.
+//	 * 
+//	 * @param Record $record
+//	 * @param mixed $value
+//	 * @return RelationStore
+//	 */
+//	public function set(Record $record, $value) {			
+//		$store = $this->get($record);
+//		
+//		if($this->many) {			
+//			if(isset($value)) {
+//				foreach($value as $record) {
+//					$store[] = $record;
+//				}			
+//			}
+//		}else
+//		{
+//			$store[] = $value;
+//		}
+//		return $store;
+//	}
+//	
 	
 	private function checkKeys() {
 		

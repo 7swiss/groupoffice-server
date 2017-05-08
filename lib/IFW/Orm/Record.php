@@ -848,9 +848,22 @@ abstract class Record extends DataModel {
 		
 		$relation = $this->getRelation($name);
 		//set to null to prevent loops when setting parent relations. 
-		//The relationIsFetched will work within the __set operation this way.
-		$this->relations[$name] = null; 
-		$this->relations[$name] = $relation->set($this, $value);				
+		//The relationIsFetched will work within the __set operation with array_key_exists this way.
+		if(!isset($this->relations[$name])) {
+			//$this->relations[$name] = null; 
+			$this->relations[$name] = $relation->get($this);
+		} 
+		
+		if($relation->hasMany()) {			
+			if(isset($value)) {
+				foreach($value as $record) {
+					$this->relations[$name][] = $record;
+				}			
+			}
+		}else
+		{
+			$this->relations[$name][0] = $value;
+		}	
 		
 		return $this->relations[$name];
 	}
