@@ -189,7 +189,7 @@ class RelationStore extends Store implements ArrayAccess {
 	}
 
 	public function offsetSet($offset, $value) {
-		
+//		\IFW::app()->debug("offsetSet '".$this->getRelation()->getName()."' set on ".$value->objectId().' by '.$this->record->objectId());
 		//If an array and offset are given then apply the array to the existing value
 		if(isset($offset) && is_array($value) && isset($this->modified[$offset])) {
 			$value = $this->modified[$offset]->setValues($value);
@@ -240,9 +240,10 @@ class RelationStore extends Store implements ArrayAccess {
 	 */
 	private function setParentRelation(Record $value) {				
 		$relation = $value::findParentRelation($this->getRelation());		
-		
+//		\IFW::app()->debug("setParentRelation ".$this->getRelation()->getName().' '.$value->objectId().' '.$this->record->objectId().' '.var_export($relation, true));
 		//check if it hasn't been fetched or set already to prevent loops
 		if($relation && !$value->relationIsFetched($relation->getName())) {			
+//			\IFW::app()->debug("Parent relation '".$relation->getName()."' set on ".$value->objectId().' by '.$this->record->objectId());
 			$value->{$relation->getName()} = $this->record;			
 		}		
 	}
@@ -472,6 +473,7 @@ class RelationStore extends Store implements ArrayAccess {
 	 * Clears the modified Records
 	 */
 	public function reset() {
+//		\IFW::app()->debug("Reset relation store ".$this->getRelation()->getName());
 		$this->modified = null;
 	}
 
@@ -480,8 +482,8 @@ class RelationStore extends Store implements ArrayAccess {
 	 * 
 	 * @return boolean
 	 */
-	public function save() {
-
+	public function save() {		
+		
 		if (empty($this->modified)) {
 			return true;
 		}
@@ -672,7 +674,9 @@ class RelationStore extends Store implements ArrayAccess {
 			$replacements[$i] = $this->normalize($replacements[$i]);
 		}		
 		
+		//load all records
 		$this->all();
+		
 		for($i = 0, $c = count($this->modified); $i < $c; $i++) {			
 			$replacement = $this->extractFromReplacements($this->modified[$i], $replacements);
 			if($replacement) {

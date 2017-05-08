@@ -327,7 +327,7 @@ class Field extends Record {
 	 * `````````	 
 	 * $field = Field::findByDbName(\GO\Modules\GroupOffice\Contacts\Model\CustomFields::class, 'testfield');		
 	 * ``````````
-	 * @param string $recordClassName
+	 * @param string $recordClassName Must be a class that extends {@see CustomFieldsRecord}
 	 * @param string $databaseName
 	 * @return self|false
 	 */

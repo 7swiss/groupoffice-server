@@ -141,8 +141,14 @@ class Connection extends Object{
 	
 //	private $transactionSavePointLevel = 0;
 	
+	/**
+	 * Start a database transation
+	 * 
+	 * @return boolean
+	 */
 	public function beginTransaction() {
-//		IFW::app()->debug("Begin DB transation");
+//		IFW::app()->debug("Begin DB transation");		
+//		IFW::app()->getDebugger()->debugCalledFrom();
 		
 //		if($this->transactionSavePointLevel == 0) {
 		$ret = null;
@@ -164,12 +170,11 @@ class Connection extends Object{
 	/**
 	 * Rollback the DB transaction
 	 * 
-	 * Supports nested transactions using savepoints too.
-	 * 
+	 * @return boolean
 	 */
 	public function rollBack() {
 //		IFW::app()->debug("Rollback DB transation");
-		
+//		IFW::app()->getDebugger()->debugCalledFrom();
 //		$this->transactionSavePointLevel--;			
 //					
 //		if($this->transactionSavePointLevel == 0) {
@@ -180,8 +185,15 @@ class Connection extends Object{
 //		}
 	}
 	
+	/**
+	 * Commit the database transaction
+	 * 
+	 * @return boolean
+	 */
 	public function commit() {
+		
 //		IFW::app()->debug("Commit DB transation");
+//		IFW::app()->getDebugger()->debugCalledFrom();
 //		$this->transactionSavePointLevel--;
 			
 			
@@ -193,7 +205,11 @@ class Connection extends Object{
 //		}
 	}
 	
-	
+	/**
+	 * Check if a transaction is active
+	 * 
+	 * @return boolean
+	 */
 	public function inTransaction() {
 		return $this->pdo->inTransaction();
 	}

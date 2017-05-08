@@ -518,11 +518,17 @@ class Relation {
 			}
 		}else
 		{
+			$where = [];
 			foreach($this->keys as $myKey => $theirKey) {
 				if(isset($record->$myKey)) {
 					$isNull = false;
 				}
-				$query->andWhere([$theirKey => $record->$myKey]);			
+				$where[$theirKey] = $record->$myKey;
+			}
+			$query->andWhere($where);			
+			
+			if(!$this->many) {
+				$query->enableCache($where);
 			}
 		}
 		

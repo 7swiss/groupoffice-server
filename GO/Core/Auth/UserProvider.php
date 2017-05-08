@@ -136,7 +136,7 @@ class UserProvider implements UserProviderInterface {
 		$this->inSudo = true;
 		\IFW\Auth\Permissions\Model::$enablePermissions = false;
 		$this->sudoUser = $this->user();		
-		$this->currentUser = User::find((new Query)->select('id,username')->where(['id'=>$userId]))->single();
+		$this->currentUser = User::find(['id' => $userId])->single();
 		\IFW\Auth\Permissions\Model::$enablePermissions = true;
 		
 		try {
