@@ -149,6 +149,11 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 			try {
 				$this->connect();
 			}
+			catch(\IFW\Auth\Exception\BadLogin $e) {
+				$this->setValidationError('password', \IFW\Validate\ErrorCode::INVALID_INPUT, $e->getMessage());
+
+				return false;
+			}
 			catch(\Exception $e) {
 				$this->setValidationError('hostname', \IFW\Validate\ErrorCode::CONNECTION_ERROR, $e->getMessage());
 
@@ -180,12 +185,12 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 			}
 			
 			if($this->encryption == 'tls' && !self::$connections[$this->id]->startTLS()) {
-				throw new Exception("Could not enable TLS encryption");
+				throw new \IFW\Exception\TLSException();
 			}
 		}
 
 		if (!self::$connections[$this->id]->isAuthenticated() && !self::$connections[$this->id]->authenticate($this->username, $this->getDecryptedPassword())) {
-			throw new Exception("Could not authenticate to hostname " . $this->hostname.' : '.self::$connections[$this->id]->lastCommandStatus);
+			throw new \IFW\Auth\Exception\BadLogin("Could not authenticate to hostname " . $this->hostname.' : '.self::$connections[$this->id]->lastCommandStatus);
 		}
 
 		return self::$connections[$this->id];

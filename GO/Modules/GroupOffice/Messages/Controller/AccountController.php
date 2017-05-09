@@ -27,6 +27,10 @@ class AccountController extends Controller {
 		if(isset($q)) {
 			$query->setFromClient($q);			
 		}
+		
+		if(GO()->getAuth()->user()->isAdmin()) {
+			$query->where(['ownedBy' => \GO\Core\Users\Model\Group::ID_ADMINS]);
+		}
 						
 		$accounts = Account::findByCapability(Thread::class, $query);		
 		$this->renderStore($accounts);		
