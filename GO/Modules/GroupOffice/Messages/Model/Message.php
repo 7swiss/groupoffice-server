@@ -277,8 +277,8 @@ class Message extends \GO\Core\Orm\Record {
 					->select('photoBlobId')
 					->joinRelation('emailAddresses')
 					->where(['!=',['photoBlobId' => null]])
-					->where(['emailAddresses.email' =>$address->address])
-					->groupBy(['t.id'])
+					->where(['emailAddresses.email' => $address->address])
+					->groupBy(['t.photoBlobId'])
 					->fetchMode(\PDO::FETCH_COLUMN, 0)
 					)->single();
 			

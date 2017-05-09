@@ -1,0 +1,1 @@
+ALTER TABLE `dav_account` CHANGE `ctag` `ctag` VARCHAR(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;

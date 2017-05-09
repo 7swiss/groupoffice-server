@@ -32,7 +32,7 @@ class RelationParentTest extends \GO\Utils\ModuleCase {
 		
 		
 		
-		$this->assertEquals($emailAddress->contact, $contact);
+		$this->assertEquals(spl_object_hash($emailAddress->contact), spl_object_hash($contact));
 		
 		
 		$contact->save();
@@ -44,7 +44,7 @@ class RelationParentTest extends \GO\Utils\ModuleCase {
 		
 		$firstEmail = $contact->emailAddresses[0];
 		
-		$this->assertEquals($firstEmail->contact, $contact);
+		$this->assertEquals(spl_object_hash($firstEmail->contact), spl_object_hash($contact));
 		
 		$contact->deleteHard();
 		

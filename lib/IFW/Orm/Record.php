@@ -323,7 +323,8 @@ abstract class Record extends DataModel {
 	 * mysql values from PDO are always strings.
 	 * 
 	 * @param bool $isNew Set to false by PDO
-	 * @param bool $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query.
+	 * @param array $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query. See {@see Query::allowPermissionTypes()}
+	 *
 	 */
 	public function __construct($isNew = true, $allowPermissionTypes = []) {
 		
@@ -362,6 +363,11 @@ abstract class Record extends DataModel {
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
 	}
 	
+	/**
+	 * {@see Query::allowPermissionTypes()}
+	 * 
+	 * @return string[]
+	 */
 	public function allowedPermissionTypes() {
 		return $this->allowedPermissionTypes;
 	}
@@ -389,7 +395,7 @@ abstract class Record extends DataModel {
 			}
 		}		
 		
-		//filled by joined relations
+		//filled by joined relations in __set
 		foreach($this->relations as $relationName => $relationStore) {
 
 			//check loading from database boolean to prevent infinite loop because 
@@ -811,7 +817,7 @@ abstract class Record extends DataModel {
 			$relation = $currentRecord::getRelation($part);
 			if($relation && !$currentRecord->relationIsFetched($part)) {
 				$cls = $relation->getToRecordName();
-				$record = new $cls(true);
+				$record = new $cls(false, ['*']);
 				$currentRecord->$part = $record;
 			}
 
@@ -848,9 +854,22 @@ abstract class Record extends DataModel {
 		
 		$relation = $this->getRelation($name);
 		//set to null to prevent loops when setting parent relations. 
-		//The relationIsFetched will work within the __set operation this way.
-		$this->relations[$name] = null; 
-		$this->relations[$name] = $relation->set($this, $value);				
+		//The relationIsFetched will work within the __set operation with array_key_exists this way.
+		if(!isset($this->relations[$name])) {
+			//$this->relations[$name] = null; 
+			$this->relations[$name] = $relation->get($this);
+		} 
+		
+		if($relation->hasMany()) {			
+			if(isset($value)) {
+				foreach($value as $record) {
+					$this->relations[$name][] = $record;
+				}			
+			}
+		}else
+		{
+			$this->relations[$name][0] = $value;
+		}	
 		
 		return $this->relations[$name];
 	}
@@ -1493,7 +1512,7 @@ abstract class Record extends DataModel {
 	
 	private function setIsSavedBy($record) {
 		if(!$this->isSaving) {
-			\IFW::app()->debug($this->objectId().' is saved by '.$record->objectId(), \IFW\Debugger::TYPE_GENERAL, 1);
+//			\IFW::app()->debug($this->objectId().' is saved by '.$record->objectId(), \IFW\Debugger::TYPE_GENERAL, 1);
 			$this->isSavedBy = $record;
 		}
 	}

@@ -111,11 +111,18 @@ class Account extends AccountAdaptorRecord {
 			$this->serverUpdates($etags);
 		}
 
-		$this->clientUpdates();
+		try {
+			$this->clientUpdates();
 
 
-		$this->ctag = $this->getRemoteCtag();
-		return $this->save();
+			$this->ctag = $this->getRemoteCtag();
+			return $this->save();
+		} catch (Exception $e) {
+			$this->ctag = null;
+			$this->save();
+			
+			throw $e;
+		}
 	}
 
 	private function serverUpdates($etags) {
@@ -141,7 +148,13 @@ class Account extends AccountAdaptorRecord {
 			}
 			$card->etag = (string) $subResponse->xpath('//d:getetag')[0];
 			$card->data = $vcard;
-			$card->save();
+			
+			GO()->debug("Update by server: ".$card->uri);
+			
+			if(!$card->save()) {
+				
+				throw new \Exception("Failed to save card");
+			}
 		}
 
 
@@ -153,26 +166,27 @@ class Account extends AccountAdaptorRecord {
 		);
 
 		foreach ($deletedCards as $deletedCard) {
+			GO()->debug("Delete by server: ".$deletedCard->uri);
 			$deletedCard->delete();
 		}
 	}
 
-	//TODO account moves
 	private function clientUpdates() {
 		$updatedCards = AccountCard::find(
 										(new Query)
 														->where(['accountId' => $this->id])
-														->withDeleted()
-														->joinRelation('contact', true)
-														->where('contact.modifiedAt > t.modifiedAt')
+														->joinRelation('contact', true, 'LEFT', ['contact.accountId' => $this->id])
+														->where('contact.id IS NULL OR contact.modifiedAt > t.modifiedAt')
 		);
 
 		foreach ($updatedCards as $card) {
-
-			if ($card->contact->deleted) {
-
+			//joinrelation will create an empty contact model if it's deleted or moved
+			if (!isset($card->contact->id)) {
+				
+				GO()->debug("Delete by client: ".$card->uri);
 				$this->deleteContact($card);
 			} else {
+				GO()->debug("Update by client: ".$card->uri);
 				$this->updateContact($card);
 			}
 		}
@@ -198,20 +212,26 @@ class Account extends AccountAdaptorRecord {
 		
 		foreach($contacts as $contact) {
 			
+			
+			
 			$card = new AccountCard();
 			$card->uri = $this->getPath() . UUIDUtil::getUUID().'.vcf';
 			$card->account = $this;
 			$card->contact = $contact;
 			$card->updateFromContact();
 		
+			GO()->debug("Create by client: ".$card->uri);
 			
 			$response = $this->connect()->put($card->uri, $card->data);
 
 			if ($response->status != 201) { //no content			
 				throw new Exception("DAV server returned " . $response->status . " " . $response->body);
 			}
-
-			$card->etag = $response->headers['etag'];
+			
+			if(isset($response->headers['etag'])) {
+				$card->etag = $response->headers['etag'];
+			}
+			
 			if (!$card->save()) {
 				throw new Exception("Couldn't save card");
 			}
