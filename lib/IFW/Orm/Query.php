@@ -150,10 +150,23 @@ class Query extends DbQuery {
 	private $allowedPermissionTypes = [];
 	
 	/**
-	 * Set permission type as allowed when querying records
+	 * Set permission types as allowed when querying records
 	 * 
 	 * Used by {@see IFW\Auth\Permissions\Model} to set that models returned have
-	 * already been checked for read access.
+	 * already been checked for access.
+	 * 
+	 * You can use the PERMISSION_* constants or * for all permissions
+	 * 
+	 * ```
+	 * (new Query)->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ]);
+	 * ```
+	 * 
+	 * or
+	 * 
+	 * ```
+	 * (new Query)->allowPermissionTypes(["*"]);
+	 * ```
+	 * 
 	 * 
 	 * @param string[] $allowedPermissionTypes An array of permission types defined in the constants.
 	 * @return static

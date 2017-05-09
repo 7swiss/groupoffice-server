@@ -323,7 +323,8 @@ abstract class Record extends DataModel {
 	 * mysql values from PDO are always strings.
 	 * 
 	 * @param bool $isNew Set to false by PDO
-	 * @param bool $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query.
+	 * @param array $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query. See {@see Query::allowPermissionTypes()}
+	 *
 	 */
 	public function __construct($isNew = true, $allowPermissionTypes = []) {
 		
@@ -362,6 +363,11 @@ abstract class Record extends DataModel {
 		$this->fireEvent(self::EVENT_CONSTRUCT, $this);
 	}
 	
+	/**
+	 * {@see Query::allowPermissionTypes()}
+	 * 
+	 * @return string[]
+	 */
 	public function allowedPermissionTypes() {
 		return $this->allowedPermissionTypes;
 	}
@@ -811,7 +817,7 @@ abstract class Record extends DataModel {
 			$relation = $currentRecord::getRelation($part);
 			if($relation && !$currentRecord->relationIsFetched($part)) {
 				$cls = $relation->getToRecordName();
-				$record = new $cls(false);
+				$record = new $cls(false, ['*']);
 				$currentRecord->$part = $record;
 			}
 
