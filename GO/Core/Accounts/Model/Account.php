@@ -86,7 +86,7 @@ class Account extends Record {
 			try {
 				$account->getAdaptor()->sync();
 			} catch(\Exception $e) {
-				GO()->error("An exception occurred in while syncing account: " . $this->name. " (" . $this->id. ") ".$e->getMessage(), $account);
+				GO()->error("An exception occurred in while syncing account: " . $account->name. " (" . $account->id. ") ".$e->getMessage(), $account);
 			
 				GO()->debug((string) $e);
 			}
