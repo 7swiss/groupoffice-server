@@ -115,6 +115,9 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		parent::defineRelations();
 	}
 	
+	public static function getCapabilities() {
+		return [Thread::class];
+	}
 
 	
 	public static function getDefaultReturnProperties() {
