@@ -98,55 +98,56 @@ class Store extends \IFW\Data\Store {
 	 */
 	public function single() {
 		$this->query->limit(1);
-		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
-		//Expirimental caching if query is findByPk		
-		$cacheHash = $this->query->getCacheHash();
-		if ($cacheHash) {
-			return $this->returnCached($cacheHash);			
-		} 
-		
-		
-		$record = $this->getIterator()->fetch();
-		
-		//cache records by pk() so that if they are found by other they are still cached.
-		if(!($record instanceof Record)) {
-			return $record;
-		}
-		
-		$cacheKey = $this->cacheHashToString($record->getClassName(), $record->pk());
-
-		$cached = \IFW::app()->getCache()->get($cacheKey);
-		if($cached) {
-			return $cached;
-		} else {
-			\IFW::app()->getCache()->set($cacheKey, $record, false);
-			return $record;
-		}			
+		return $this->getIterator()->fetch();
+//		// Cause segfault in /var/www/groupoffice-server/GO/Modules/Instructiefilm/Elearning/Model/Course.php
+//		//Expirimental caching if query is findByPk		
+//		$cacheHash = $this->query->getCacheHash();
+//		if ($cacheHash) {
+//			return $this->returnCached($cacheHash);			
+//		} 
+//		
+//		
+//		$record = $this->getIterator()->fetch();
+//		
+//		//cache records by pk() so that if they are found by other they are still cached.
+//		if(!($record instanceof Record)) {
+//			return $record;
+//		}
+//		
+//		$cacheKey = $this->cacheHashToString($record->getClassName(), $record->pk());
+//
+//		$cached = \IFW::app()->getCache()->get($cacheKey);
+//		if($cached) {
+//			return $cached;
+//		} else {
+//			\IFW::app()->getCache()->set($cacheKey, $record, false);
+//			return $record;
+//		}			
 	}
 	
-	private function returnCached($cacheHash) {
-		$cacheKey = $this->cacheHashToString($this->query->getRecordClassName(), $cacheHash);
-			
-		$cached = \IFW::app()->getCache()->get($cacheKey);
-
-		if($cached) {
-			return $cached;
-		}
-
-		$record = $this->getIterator()->fetch();
-		if ($record) {
-			\IFW::app()->getCache()->set($cacheKey, $record, false);
-		}
-
-		return $record;
-	}
-	
-	private function cacheHashToString($recordClassName, $hash) {
-		
-		$str = $recordClassName . '-' . implode('-', array_merge(array_keys($hash), array_values($hash)));
-		
-		return $str;
-	}
+//	private function returnCached($cacheHash) {
+//		$cacheKey = $this->cacheHashToString($this->query->getRecordClassName(), $cacheHash);
+//			
+//		$cached = \IFW::app()->getCache()->get($cacheKey);
+//
+//		if($cached) {
+//			return $cached;
+//		}
+//
+//		$record = $this->getIterator()->fetch();
+//		if ($record) {
+//			\IFW::app()->getCache()->set($cacheKey, $record, false);
+//		}
+//
+//		return $record;
+//	}
+//	
+//	private function cacheHashToString($recordClassName, $hash) {
+//		
+//		$str = $recordClassName . '-' . implode('-', array_merge(array_keys($hash), array_values($hash)));
+//		
+//		return $str;
+//	}
 	
 
 //	/**
