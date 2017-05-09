@@ -579,7 +579,7 @@ abstract class Record extends DataModel {
 		$pk = [];
 		
 		foreach($primaryCols as $colName) {
-			$pk[$colName] = $this->$colName;
+			$pk[$colName] = $this->getColumn($colName)->recordToDb($this->$colName);
 		}
 		
 		return $pk;		
