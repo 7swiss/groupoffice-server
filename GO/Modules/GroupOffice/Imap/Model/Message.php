@@ -190,7 +190,7 @@ class Message extends Record {
 						->joinRelation('emailAddresses')
 						->where(['!=',['photoBlobId' => null]])
 						->where(['emailAddresses.email' => $imapMessage->from->email])
-						->groupBy(['t.id'])
+						->groupBy(['t.photoBlobId'])
 						->fetchMode(PDO::FETCH_COLUMN, 0)
 						)->single();
 
