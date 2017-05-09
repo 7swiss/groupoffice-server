@@ -103,30 +103,30 @@ class RecordTest extends \GO\Utils\ModuleCase {
 		$this->assertEquals($allUsers->getRowCount(), $usersFromEveryOne->getRowCount());
 	}
 
-	public function testFindByPkReference() {
-
-//		$this->markTestIncomplete('Relational queries should be cached too');
-		
-		$user1 = User::find(['username' => "admin"])->single();
-		$user2 = User::findByPk($user1->id);
-		$user3 = User::find(['id' => $user1->id])->single();
-		
-		
-		
-
-//		$user3 = clone User::find(['id' => 1])->single();
-
-		$user1->username = date('Ymdgis');
-
-
-		$this->assertEquals($user1->username, $user2->username);
-		
-		$this->assertEquals($user2->username, $user3->username);
-		
-		$this->assertEquals(spl_object_hash($user3), spl_object_hash($user2));
-		
-		$user1->reset();
-	}
+//	public function testFindByPkReference() {
+//
+////		$this->markTestIncomplete('Relational queries should be cached too');
+//		
+//		$user1 = User::find(['username' => "admin"])->single();
+//		$user2 = User::findByPk($user1->id);
+//		$user3 = User::find(['id' => $user1->id])->single();
+//		
+//		
+//		
+//
+////		$user3 = clone User::find(['id' => 1])->single();
+//
+//		$user1->username = date('Ymdgis');
+//
+//
+//		$this->assertEquals($user1->username, $user2->username);
+//		
+//		$this->assertEquals($user2->username, $user3->username);
+//		
+//		$this->assertEquals(spl_object_hash($user3), spl_object_hash($user2));
+//		
+//		$user1->reset();
+//	}
 
 	public function testCreateUser() {
 		//Set's all groups on test user.
