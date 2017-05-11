@@ -55,7 +55,7 @@ class ErrorHandler {
 	public function exceptionHandler($e) {		
 		$cls = get_class($e);
 		
-		$errorString = $cls.': ' . $e->getMessage();
+		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() ." on line ". $e->getLine();
 		error_log($errorString, 0);
 
 		if(PHP_SAPI == 'cli') {
@@ -71,77 +71,6 @@ class ErrorHandler {
 			\IFW::app()->getResponse()->send($view->render($e));		
 		}
 	}
-
-//	/**
-//	 * Custom error handler that logs to our own error log
-//	 * 
-//	 * @param int $errno
-//	 * @param string $errstr
-//	 * @param string $errfile
-//	 * @param int $errline
-//	 * @return boolean
-//	 */
-//	public function printError($errno, $errstr, $errfile, $errline) {
-//
-//		$type = "Unknown error ($errno)";
-//
-//		switch ($errno) {
-//			case E_CORE_ERROR:
-//			case E_COMPILE_ERROR:
-//			case E_ERROR:
-//			case E_USER_ERROR:
-//				$type = 'Fatal error';
-//				break;
-//
-//			case E_WARNING:
-//			case E_USER_WARNING:
-//				$type = 'Warning';
-//				break;
-//
-//			case E_NOTICE:
-//			case E_USER_NOTICE:
-//				$type = 'Notice';
-//				break;
-//		}
-//
-//		$errorMsg = "[" . date("Ymd H:i:s") . "] PHP $type: $errstr in $errfile on line $errline";
-//
-////		$user = \IFW\$this->auth()->user() ? \IFW\$this->auth()->user()->username : 'notloggedin';
-//		$user = "none";
-//
-//		$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
-//		$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
-//
-//		$errorMsg .= "\nUser: " . $user . " Agent: " . $agent . " IP: " . $ip . "\n";
-//
-//		if (isset($_SERVER['QUERY_STRING']))
-//			$errorMsg .= "Query: " . $_SERVER['QUERY_STRING'] . "\n";
-//
-//
-//		$backtrace = debug_backtrace();
-//		array_shift($backtrace); //first item is this function which we don't have to see
-//
-//		$errorMsg .= "Backtrace:\n";
-//		foreach ($backtrace as $o) {
-//
-//			if (!isset($o['class']))
-//				$o['class'] = 'global';
-//
-//			if (!isset($o['function']))
-//				$o['function'] = 'global';
-//
-//			if (!isset($o['file']))
-//				$o['file'] = 'unknown';
-//
-//			if (!isset($o['line']))
-//				$o['line'] = 'unknown';
-//
-//			$errorMsg .= $o['class'] . '::' . $o['function'] . ' in file ' . $o['file'] . ' on line ' . $o['line'] . "\n";
-//	}
-//		$errorMsg .= "----------------";
-//
-//		echo $errorMsg;
-//	}
 
 	/**
 	 * Custom error handler that logs to our own error log
