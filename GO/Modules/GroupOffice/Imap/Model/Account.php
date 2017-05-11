@@ -660,21 +660,30 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 				$folder->parentFolderId = $parentFolder->id;
 			}
 			
-			if(!$mailbox->noSelect){
+			if(!$mailbox->noSelect) {
 		
-				$folder->syncNeeded = $folder->highestModSeq != $mailbox->getHighestModSeq();				
+				
+				
+//				GO()->debug('UIDValidity check: ' . $folder->uidValidity.' == '.$mailbox->getUidValidity(), 'imapsync');
 
 				if ($folder->uidValidity != $mailbox->getUidValidity()) {
-					//UID's not valid anymore! Set all uid's to null.	
-					//Also set folderId = null. This way we can also detect moves of mail because we search by messageId
+					//UID's not valid anymore! Set all uid's to null.						
+					$deleteCmd = GO()->getDbConnection()
+									->createCommand()
+									->delete(Message::tableName(), ['folderId' => $folder->id]);
+				
+//					echo $deleteCmd."\n";
 					
-					GO()->getDbConnection()->query('DELETE FROM imap_message WHERE folderId='.$folder->id.')');
-//					GO()->dbConnection()->query('UPDATE emailMessage SET imapUid=null, folderId=null WHERE folderId=' . $folder->id);
-
+					$deleteCmd->execute();
+					
 					GO()->debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
 				}
 
-				$folder->uidValidity = $mailbox->getUidValidity();
+				$folder->uidValidity = $mailbox->getUidValidity();				
+				$folder->syncNeeded = true;
+				$folder->resync = true;
+			} else {
+				$folder->syncNeeded = $folder->highestModSeq != $mailbox->getHighestModSeq();				
 			}
 
 			if(!$folder->save()) {
