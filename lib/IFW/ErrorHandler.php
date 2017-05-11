@@ -3,12 +3,14 @@
 namespace IFW;
 
 use ErrorException;
-use Exception;
 use IFW;
 /**
  * Error handler class
  * 
- * Handles's all errors and exceptions
+  * All PHP errors will be converted into ErrorExceptions. If they are not caught
+ * by the developers code then they will be handled by {@see exceptionHandler()}
+ * It will render the error and log it to the system log using error_log 
+ * regardless of the php.ini settings.
  * 
  * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -18,10 +20,12 @@ class ErrorHandler {
 
 	public function __construct() {
 		error_reporting(E_ALL | E_STRICT);
-		ini_set('display_errors', 'off');
+		
+		//doesn't matter because we're catching all errors and handle the display ourselves
+		//ini_set('display_errors', 'off');
+		
 		set_error_handler([$this, 'errorHandler']);
 		register_shutdown_function([$this, 'shutdown']);
-
 		set_exception_handler([$this, 'exceptionHandler']);
 	}
 
@@ -44,16 +48,21 @@ class ErrorHandler {
 	}
 
 	/**
-	 * PHP7 has new throwable interface. We can' use type hinting if we want to support php 5.6 as well.
+	 * PHP7 has new throwable interface. We can' use type hinting if we want to 
+	 * support php 5.6 as well.
 	 * @param Throwable $e
 	 */
-	public function exceptionHandler($e) {
+	public function exceptionHandler($e) {		
+		$cls = get_class($e);
+		
+		$errorString = $cls.': ' . $e->getMessage();
+		error_log($errorString, 0);
 
 		if(PHP_SAPI == 'cli') {
-			echo "[".date(IFW\Util\DateTime::FORMAT_API)."] ERROR: ". (string) $e."\n\n";
+			echo "[".date(IFW\Util\DateTime::FORMAT_API)."] ". $errorString."\n\n";
 		}else
 		{		
-			IFW::app()->debug($e->getMessage());
+			IFW::app()->debug($errorString);
 			foreach(explode("\n", (string) $e) as $line) {
 				IFW::app()->debug($line);
 			}
@@ -145,9 +154,5 @@ class ErrorHandler {
 	 */
 	public static function errorHandler($errno, $errstr, $errfile, $errline) {
 		throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-
-		/* Execute PHP internal error handler too */
-//		return false;
 	}
-
 }
