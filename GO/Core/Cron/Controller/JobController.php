@@ -37,6 +37,8 @@ class JobController extends Controller {
 	}
 	
 
+	
+
 	/**
 	 * Fetch jobs
 	 *

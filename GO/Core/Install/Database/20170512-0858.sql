@@ -1,0 +1,1 @@
+ALTER TABLE `cron_job` ADD `lastError` TEXT NULL DEFAULT NULL AFTER `timezone`;
