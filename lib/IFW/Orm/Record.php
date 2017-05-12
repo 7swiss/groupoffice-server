@@ -326,7 +326,7 @@ abstract class Record extends DataModel {
 	 * @param array $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query. See {@see Query::allowPermissionTypes()}
 	 *
 	 */
-	public function __construct($isNew = true, $allowPermissionTypes = []) {
+	public function __construct($isNew = true, $allowPermissionTypes = [], $values = []) {
 		
 		parent::__construct();
 		
@@ -344,6 +344,8 @@ abstract class Record extends DataModel {
 		$this->loadingFromDatabase = false;
 		
 		$this->init();
+		
+		$this->setValues($values);
 		
 		if($this->isNew) {
 //			Removed this check becuase it caused a problem with join relation. It creates a new object but it's a read action.

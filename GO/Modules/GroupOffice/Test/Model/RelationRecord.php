@@ -11,7 +11,7 @@ use IFW\Orm\PropertyRecord;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class RelationRecord extends PropertyRecord {
+class RelationRecord extends \GO\Core\Orm\Record {
 
 
 	/**
@@ -47,6 +47,10 @@ class RelationRecord extends PropertyRecord {
 	
 	protected static function defineRelations() {
 		self::hasOne('main', Main::class, ['mainId' => 'id']);
+	}
+	
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\ViaRelation('main');
 	}
 
 

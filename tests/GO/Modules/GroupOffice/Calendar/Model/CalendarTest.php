@@ -31,7 +31,7 @@ class CalendarTest extends \GO\Utils\ModuleCase {
 		foreach($all as $calendar) {
 			$count++;
 		}
-		$this->assertCount(1, $all);
+		$this->assertEquals(1, $all->getRowCount());
 		$this->assertTrue($count === 1);
 	}
 	

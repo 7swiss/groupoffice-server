@@ -124,10 +124,24 @@ class Query extends DbQuery {
 				}
 			}
 				
-			$this->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, [false, $this->getAllowedPermissionTypes()]); //for new record			
+			$this->fetchMode(PDO::FETCH_CLASS, $this->recordClassName, $this->recordConstructorArgs); //for new record			
 		}
 		
 		return parent::createCommand();
+	}
+	
+	private $recordConstructorArgs = [false, [], []];
+	
+	
+	/**
+	 * Set values to be passed to the Record constructor
+	 * 
+	 * @param array $values
+	 * @return $this
+	 */
+	public function setValues(array $values) {
+		$this->recordConstructorArgs[2] = $values;
+		return $this;
 	}
 	
 	/**
@@ -147,7 +161,7 @@ class Query extends DbQuery {
 		return new QueryBuilder($this->recordClassName);		
 	}
 	
-	private $allowedPermissionTypes = [];
+//	private $allowedPermissionTypes = [];
 	
 	/**
 	 * Set permission types as allowed when querying records
@@ -172,7 +186,7 @@ class Query extends DbQuery {
 	 * @return static
 	 */
 	public function allowPermissionTypes(array $allowedPermissionTypes) {
-		$this->allowedPermissionTypes = $allowedPermissionTypes;		
+		$this->recordConstructorArgs[1] = $allowedPermissionTypes;		
 		return $this;
 	}
 	
@@ -184,7 +198,7 @@ class Query extends DbQuery {
 	 * @return string[]
 	 */
 	public function getAllowedPermissionTypes(){
-		return $this->allowedPermissionTypes;
+		return $this->recordConstructorArgs[1];
 	}
 	
 	private $requirePermissionType;

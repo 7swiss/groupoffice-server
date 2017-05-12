@@ -48,21 +48,21 @@ class ErrorHandler {
 	}
 
 	/**
-	 * PHP7 has new throwable interface. We can' use type hinting if we want to 
+	 * PHP7 has new throwable interface. We can't use type hinting if we want to 
 	 * support php 5.6 as well.
 	 * @param Throwable $e
 	 */
 	public function exceptionHandler($e) {		
 		$cls = get_class($e);
 		
-		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() ." on line ". $e->getLine();
+		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() .": ". $e->getLine();
 		error_log($errorString, 0);
 
 		if(PHP_SAPI == 'cli') {
 			echo "[".date(IFW\Util\DateTime::FORMAT_API)."] ". $errorString."\n\n";
 		}else
 		{		
-			IFW::app()->debug($errorString);
+//			IFW::app()->debug($errorString);
 			foreach(explode("\n", (string) $e) as $line) {
 				IFW::app()->debug($line);
 			}

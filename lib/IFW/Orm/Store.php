@@ -20,13 +20,6 @@ use PDOStatement;
  */
 class Store extends \IFW\Data\Store {
 
-	
-	/**
-	 * When findByPk is used the results are cached in this variable
-	 * 
-	 * @var Record[] 
-	 */
-	private static $cache;
 
 	/**
 	 *
@@ -42,8 +35,8 @@ class Store extends \IFW\Data\Store {
 	 * @throws Exception
 	 */
 	public function getIterator() {
-		$iterator = new StoreIterator($this->query->createCommand()->execute(), $this);
-		return $iterator;
+//		$iterator = new StoreIterator($this->query->createCommand()->execute(), $this);
+		return $this->query->createCommand()->execute();
 	}
 	
 	public function __toString() {
@@ -65,7 +58,7 @@ class Store extends \IFW\Data\Store {
 	 * @return int
 	 */
 	public function getRowCount() {
-		return $this->getIterator()->getInnerIterator()->rowCount();
+		return $this->getIterator()->rowCount();
 	}
 
 	/**
