@@ -324,7 +324,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * @param bool $isNew Set to false by PDO
 	 * @param array $allowPermissionTypes Set by the permissions object when permissions are already checked by the find() query. See {@see Query::allowPermissionTypes()}
-	 *
+	 * @param array $values These values are set before checking permissions. Used by PDO to set the parent relations when fetching child relations. For example 'contact' is set on $contact->emailAddresses
 	 */
 	public function __construct($isNew = true, $allowPermissionTypes = [], $values = []) {
 		
