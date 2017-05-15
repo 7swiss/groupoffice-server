@@ -47,7 +47,7 @@ class StringUtil {
 			}
 		}
 		
-		$str = $this->convert($str, $sourceCharset, 'UTF-8');
+		$str = self::convert($str, $sourceCharset, 'UTF-8');
 
 		//Check if preg validates it as UTF8
 		if (!mb_check_encoding($str, 'utf8')) {
