@@ -1,0 +1,1 @@
+ALTER TABLE `messages_message` ADD INDEX(`uuid`);

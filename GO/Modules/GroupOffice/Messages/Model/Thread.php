@@ -133,6 +133,10 @@ class Thread extends Record {
 	 * @return Address[]
 	 */
 	public function getFrom(){
+		
+		if(!isset($this->id)) {
+			return null;
+		}
 
 		$q = (new Query())
 				->joinRelation('message.messages', false)

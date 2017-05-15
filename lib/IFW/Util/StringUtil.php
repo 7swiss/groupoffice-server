@@ -38,7 +38,7 @@ class StringUtil {
 	 * @param string $sourceCharset
 	 * @param string
 	 */
-	public static function cleanUtf8($str, $sourceCharset = null, $remove4byteChars = true) {
+	public static function cleanUtf8($str, $sourceCharset = null) {
 		
 		if(!isset($sourceCharset)){
 			$sourceCharset = mb_detect_encoding($str);
@@ -46,19 +46,11 @@ class StringUtil {
 				$sourceCharset = 'UTF-8';
 			}
 		}
-
-		$sourceCharset = strtoupper($sourceCharset);		
-
-		if ($sourceCharset !== 'UTF-8') {
-			try {
-				$str = mb_convert_encoding($str, 'UTF-8', $sourceCharset);			
-			}catch (\ErrorException $e) {
-				\IFW::app()->debug("Could not convert from ".$sourceCharset." to UTF8 ".$e->getMessage());
-			}
-		}
+		
+		$str = $this->convert($str, $sourceCharset, 'UTF-8');
 
 		//Check if preg validates it as UTF8
-		if (!function_exists('mb_check_encoding') || !mb_check_encoding($str, 'utf8')) {
+		if (!mb_check_encoding($str, 'utf8')) {
 
 			//remove non utf8. taken from http://stackoverflow.com/questions/1401317/remove-non-utf8-characters-from-string
 			$regex = <<<'END'
@@ -75,27 +67,35 @@ class StringUtil {
 END;
 
 			$str = preg_replace($regex, '$1', $str);
-		}
-		
-		if($remove4byteChars) {
-			$str = self::strip4ByteChars($str);
-		}
-		
+		}	
 		
 		return $str;
 		
 	}
 	
-	/**
-	 * Removes 4 byte chars from utf8 strings
-	 * 
-	 * They are not supported by mysql utf8. They have a utf8mb4 charset but it has a performance impact.
-	 * @param string $str
-	 * @param string
-	 */
-	public static function strip4ByteChars($str) {		
-		return preg_replace('/[\xF0-\xF7].../s', '?', $str);		
+	private static function convert($str, $fromCharset, $toCharset) {
+		
+		$fromCharset = strtoupper($fromCharset);
+		$toCharset = strtoupper($toCharset);
+		
+		if ($fromCharset == $toCharset) {
+			return $str;
+		}
+		try {
+			if(in_array($fromCharset, array_map("strtoupper", mb_list_encodings()))) {								
+				$str = mb_convert_encoding($str, 'UTF-8', $fromCharset);			
+			} else
+			{
+				$str = iconv($fromCharset, 'UTF-8//TRANSLIT', $str);					
+			}
+		}catch (\ErrorException $e) {
+			\IFW::app()->debug("Could not convert from ".$fromCharset." to UTF8 ".$e->getMessage());
+		}
+		
+		return $str;
 	}
+	
+	
 
 	/**
 	 * Check if string has UTF8 characters
@@ -469,83 +469,6 @@ END;
 	public static function quote($text) {
 		$text = "> " . ereg_replace("\n", "\n> ", trim($text));
 		return ($text);
-	}
-
-	/**
-	 * This function generates a randomized password.
-	 *
-	 * @access static
-	 *
-	 * @param string $characters_allow
-	 * @param string $characters_disallow
-	 * @param int $length
-	 * @param int $repeat
-	 *
-	 * @param string
-	 */
-	public static function random($length = 8, $characters_allow = 'a-z,1-9', $characters_disallow = 'i,o') {
-
-		// Generate array of allowable characters.
-		$characters_allow = explode(',', $characters_allow);
-
-		for ($i = 0, $count = count($characters_allow); $i < $count; $i ++) {
-			if (substr_count($characters_allow[$i], '-') > 0) {
-				$character_range = explode('-', $characters_allow[$i]);
-
-				for ($j = ord($character_range[0]), $max = ord($character_range[1]); $j <= $max; $j ++) {
-					$array_allow[] = chr($j);
-				}
-			} else {
-				$array_allow[] = $characters_allow[$i];
-			}
-		}
-
-		// Generate array of disallowed characters.
-		$characters_disallow = explode(',', $characters_disallow);
-
-		for ($i = 0, $max = count($characters_disallow); $i < $max; $i ++) {
-			if (substr_count($characters_disallow[$i], '-') > 0) {
-				$character_range = explode('-', $characters_disallow[$i]);
-
-				for ($j = ord($character_range[0]), $max = ord($character_range[1]); $j <= $max; $j ++) {
-					$array_disallow[] = chr($j);
-				}
-			} else {
-				$array_disallow[] = $characters_disallow[$i];
-			}
-		}
-
-		mt_srand((double) microtime() * 1000000);
-
-		// Generate array of allowed characters by removing disallowed
-		// characters from array.
-		$array_allow = array_diff($array_allow, $array_disallow);
-
-		// Resets the keys since they won't be consecutive after
-		// removing the disallowed characters.
-		reset($array_allow);
-		$new_key = 0;
-		while (list ($key, $val) = each($array_allow)) {
-			$array_allow_tmp[$new_key] = $val;
-			$new_key ++;
-		}
-
-		$array_allow = $array_allow_tmp;
-		$password = '';
-		while (strlen($password) < $length) {
-			$character = mt_rand(0, count($array_allow) - 1);
-
-			// If characters are not allowed to repeat,
-			// only add character if not found in partial password string.
-//			if ($repeat == 0) {
-			if (substr_count($password, $array_allow[$character]) == 0) {
-				$password .= $array_allow[$character];
-			}
-//			} else {
-//				$password .= $array_allow[$character];
-//			}
-		}
-		return $password;
 	}
 
 	/**
