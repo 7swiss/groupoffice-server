@@ -539,7 +539,7 @@ class Relation {
 
 		//check if it hasn't been fetched or set already to prevent loops			
 		if($parentRelation) {				
-			\IFW::app()->debug("Parent relation '".$parentRelation->getName()."' set to ".$record->objectId());
+//			\IFW::app()->debug("Parent relation '".$parentRelation->getName()."' set to ".$record->objectId());
 			
 			$query->setValues([$parentRelation->getName() => $record]);
 		}
