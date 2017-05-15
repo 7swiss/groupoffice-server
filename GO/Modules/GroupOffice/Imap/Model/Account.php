@@ -434,12 +434,16 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 			$message->addBcc($address->address, $address->personal);
 		}
 		
+		$html = $messagesMessage->getBody(false);
+		
+		$html = \IFW\Util\StringUtil::normalizeCrlf($html);
+//		$html = str_replace("\r\n\r\n", "\r\n", $html);
+		
 		//use get attribute here so images are not replaced
-		$message->setBody($messagesMessage->getBody(false), 'text/html');			
+		$message->setBody($html, 'text/html');			
 
 		//add converted text body
-		$html = new Html2Text($messagesMessage->body);			
-		$part = $message->addPart($html->getText());
+		$part = $message->addPart(\IFW\Util\StringUtil::htmlToText($html));
 
 		//Override qupted-prinatble encdoding with base64 because it uses much less memory on larger bodies. See also:
 		//https://github.com/swiftmailer/swiftmailer/issues/356

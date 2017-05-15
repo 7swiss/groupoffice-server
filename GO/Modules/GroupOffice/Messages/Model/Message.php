@@ -412,6 +412,7 @@ class Message extends \GO\Core\Orm\Record {
 				}
 			}
 		}
+		
 		return $html;
 	}
 	

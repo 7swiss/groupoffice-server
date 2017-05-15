@@ -194,6 +194,22 @@ END;
 
 		return $text;
 	}
+	
+	/**
+	 * Convert HTML to plain text
+	 * 
+	 * @param string $html
+	 * @return string
+	 */
+	public static function htmlToText($html) {
+		
+		//normalize html and remove line breaks
+		$html = \IFW\Util\StringUtil::normalizeCrlf($html, "\r\n");
+		
+		$html = new Html2Text($html);
+		
+		return trim($html);
+	}
 
 	/**
 	 * Convert Dangerous HTML to safe HTML for display inside of Group-Office
