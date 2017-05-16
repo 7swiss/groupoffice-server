@@ -57,16 +57,15 @@ class ErrorHandler {
 		
 		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() .": ". $e->getLine();
 		error_log($errorString, 0);
+		
+		foreach(explode("\n", (string) $e) as $line) {
+			IFW::app()->debug($line);
+		}
 
 		if(PHP_SAPI == 'cli') {
 			echo "[".date(IFW\Util\DateTime::FORMAT_API)."] ". $errorString."\n\n";
 		}else
 		{		
-//			IFW::app()->debug($errorString);
-			foreach(explode("\n", (string) $e) as $line) {
-				IFW::app()->debug($line);
-			}
-			
 			$view = new IFW\View\Web\Exception();
 			\IFW::app()->getResponse()->send($view->render($e));		
 		}
