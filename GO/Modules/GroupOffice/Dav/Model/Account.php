@@ -105,7 +105,7 @@ class Account extends AccountAdaptorRecord {
 		GO()->getDbConnection()->createCommand()->delete(AccountCard::tableName(), ['accountId' => $this->id])->execute();
 		$this->ctag = null;
 		
-//		return $this->sync();
+		return $this->sync();
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Account extends AccountAdaptorRecord {
 	 * @return boolean
 	 */
 	public function sync() {		
-		$this->resync();
+//		$this->resync();
 
 		if ($this->syncRequired()) {
 			$etags = $this->getRemoteEtags();
