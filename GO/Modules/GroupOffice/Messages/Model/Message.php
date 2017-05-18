@@ -231,6 +231,14 @@ class Message extends \GO\Core\Orm\Record {
 		return new ViaRelation('coreAccount');
 	}	
 	
+	/**
+	 * Default attributes to return suitable for the composer and viewer
+	 * 
+	 * @return string
+	 */
+	public static function getDefaultReturnProperties() {
+		return parent::getDefaultReturnProperties() . ',thread[*],from,to,cc,attachments';
+	}
 	
 	
 	/**
