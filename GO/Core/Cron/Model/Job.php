@@ -247,9 +247,13 @@ class Job extends Record {
 		$this->nextRun = null;
 		//set runningSince to now
 		$this->runningSince = new \DateTime();
+		$this->lastError = null;
+		
 		if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}
+		
+		GO()->debug("Running CRON method: " . $this->cronClassName . "::" . $this->method);
 		
 		GO()->log("info", "Running CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 		

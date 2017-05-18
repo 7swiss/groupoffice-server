@@ -2,6 +2,11 @@
 
 namespace IFW\Util;
 
+use ErrorException;
+use Exception;
+use Html2Text\Html2Text;
+use IFW;
+
 /**
  * Collection of string functions
  * 
@@ -88,8 +93,8 @@ END;
 			{
 				$str = iconv($fromCharset, 'UTF-8//TRANSLIT', $str);					
 			}
-		}catch (\ErrorException $e) {
-			\IFW::app()->debug("Could not convert from ".$fromCharset." to UTF8 ".$e->getMessage());
+		}catch (ErrorException $e) {
+			IFW::app()->debug("Could not convert from ".$fromCharset." to UTF8 ".$e->getMessage());
 		}
 		
 		return $str;
@@ -204,11 +209,11 @@ END;
 	public static function htmlToText($html) {
 		
 		//normalize html and remove line breaks
-		$html = \IFW\Util\StringUtil::normalizeCrlf($html, "\r\n");
+		$html = StringUtil::normalizeCrlf($html, "\r\n");
 		
 		$html = new Html2Text($html);
 		
-		return trim($html);
+		return trim($html->getText());
 	}
 
 	/**
