@@ -73,6 +73,8 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	 * @var bool 
 	 */
 	public $syncNeeded = false;
+	
+	public $resync = false;
 
 	/**
 	 * Used for sorting. prioriy first and then name. Used for putting inbox, trash, sent and drafts on top.
@@ -109,13 +111,15 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		GO()->debug("Sync new ".$this->name);
 		$count = $this->syncNewFromImap();
 		
-		GO()->getProcess()->setProgress(null);
-		GO()->debug("Sync updates ".$this->name);
-		$this->syncUpdatesFromImap();
-		
-		GO()->getProcess()->setProgress(null);
-		GO()->debug("Sync deletes ".$this->name);
-		$this->syncDeletesFromImap();
+		if(!$this->resync) {
+			GO()->getProcess()->setProgress(null);
+			GO()->debug("Sync updates ".$this->name);
+			$this->syncUpdatesFromImap();
+
+			GO()->getProcess()->setProgress(null);
+			GO()->debug("Sync deletes ".$this->name);
+			$this->syncDeletesFromImap();
+		}
 		
 		GO()->getProcess()->setProgress(null);
 		
@@ -243,8 +247,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 //		GO()->getDebugger()->enabled = true;
 
 		$uids = $this->diffUids();
-		
-		
+
 
 		//limit to avoid too long imap command error		
 		$chunks = array_chunk($uids, 1000);		
@@ -302,7 +305,7 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 				}
 
 				try{					
-					$message->applyMessage($imapMessage);					
+					$message->applyMessage($imapMessage);		
 										
 					if (!$message->save()) {
 						throw new Exception("Failed to save message: ".var_export($message->getValidationErrors(), true));
@@ -426,79 +429,79 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 	}
 
 	private function diffUids() {
-
-
-
-		//Get all UID's and get the ones higher than our highest synced uid and lower
-		//than our lowest synced uid.		
-//		$lowestSyncedUid = $this->getLowestSyncedUid();
+		
 		$highestSyncedUid = $this->getHighestSyncedUid();
 		
 		if(!$highestSyncedUid) {
-			return ["*"];
+			return ["1:*"];
 		}else
 		{
 			return [($highestSyncedUid+1).':*'];
 		}
-
-//		GO()->debug("UID's in db for " . $this->name . ": " . $lowestSyncedUid . ':' . $highestSyncedUid, 'sync');
-
-		$allUids = $fetchUids = $this->findAllUidsFromImap();
-		if ($allUids === false) {
-//			GO()->debug("Could not fetch UID's of folder ".$this->name);
-			return [];
-		}
-
-		if ($lowestSyncedUid) {
-
-			$arrayObject = new ArrayUtil($fetchUids);
-
-			//chop off allready synced uids			
-			$startKey = $arrayObject->findKey(function($uid) use ($lowestSyncedUid) {
-				return $uid <= $lowestSyncedUid;
-			});
-
-			if (!$startKey) {
-				$startKey = 0;
-			}
-
-			$endKey = $arrayObject->findKey(function($uid) use ($highestSyncedUid) {
-				return $uid >= $highestSyncedUid;
-			});
-
-			if (!$endKey) {
-				//highest not found. Then we must have everything and our latest will be removed.
-				$endKey = count($fetchUids);
-			}
-			array_splice($fetchUids, $startKey, $endKey - $startKey + 1);
-		}
-
-		$fetchUids = array_reverse($fetchUids);
-
-		//uid search always returns the latest UID
-		if (empty($fetchUids)) {
-
-			//double check if we have all UID's
-			$dbUids = $this->findAllUidsFromDb();
-//			GO()->debug("DB UID's: " . var_export($dbUids, true));
-			$fetchUids = array_diff($allUids, $dbUids);
-
-			if (empty($fetchUids)) {
-				return [];
-			} else {
-				GO()->debug("Fetched ".count($fetchUids)." missing UID's");
-			}
-		}
-
-//		if (count($fetchUids) > self::$maxSyncMessages) {
-
-//			$slice = array_slice($fetchUids, 0, self::$maxSyncMessages);
-//			return $slice;
-//		} else {
-//			$this->syncComplete = true;
-
-			return $fetchUids;
+//
+////		GO()->debug("UID's in db for " . $this->name . ": " . $lowestSyncedUid . ':' . $highestSyncedUid, 'sync');
+//
+//		$allUids = $fetchUids = $this->findAllUidsFromImap();
+//		if ($allUids === false) {
+////			GO()->debug("Could not fetch UID's of folder ".$this->name);
+//			return [];
 //		}
+//		
+//		//Get all UID's and get the ones higher than our highest synced uid and lower
+//		//than our lowest synced uid.		
+//
+//		$lowestSyncedUid = $this->getLowestSyncedUid();
+//
+//		if ($lowestSyncedUid) {
+//
+//			$arrayObject = new ArrayUtil($fetchUids);
+//
+//			//chop off allready synced uids			
+//			$startKey = $arrayObject->findKey(function($uid) use ($lowestSyncedUid) {
+//				return $uid <= $lowestSyncedUid;
+//			});
+//
+//			if (!$startKey) {
+//				$startKey = 0;
+//			}
+//
+//			$endKey = $arrayObject->findKey(function($uid) use ($highestSyncedUid) {
+//				return $uid >= $highestSyncedUid;
+//			});
+//
+//			if (!$endKey) {
+//				//highest not found. Then we must have everything and our latest will be removed.
+//				$endKey = count($fetchUids);
+//			}
+//			array_splice($fetchUids, $startKey, $endKey - $startKey + 1);
+//		}
+//
+//		$fetchUids = array_reverse($fetchUids);
+//
+//		//uid search always returns the latest UID
+//		if (empty($fetchUids)) {
+//
+//			//double check if we have all UID's
+//			$dbUids = $this->findAllUidsFromDb();
+////			GO()->debug("DB UID's: " . var_export($dbUids, true));
+//			$fetchUids = array_diff($allUids, $dbUids);
+//
+//			if (empty($fetchUids)) {
+//				return [];
+//			} else {
+//				GO()->debug("Fetched ".count($fetchUids)." missing UID's");
+//			}
+//		}
+//
+////		if (count($fetchUids) > self::$maxSyncMessages) {
+//
+////			$slice = array_slice($fetchUids, 0, self::$maxSyncMessages);
+////			return $slice;
+////		} else {
+////			$this->syncComplete = true;
+//
+//			return $fetchUids;
+////		}
 	}
 	
 	/**

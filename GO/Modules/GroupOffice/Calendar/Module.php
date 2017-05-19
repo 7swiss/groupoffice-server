@@ -10,7 +10,7 @@ use GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper;
 use GO\Modules\GroupOffice\Calendar\Model\Event;
 use IFW\Web\Router;
 
-class Module extends InstallableModule {	
+class Module extends InstallableModule implements \IFW\Event\EventListenerInterface {	
 
 	//TODO: implement
 	public static $notifications = [

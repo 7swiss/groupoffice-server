@@ -36,22 +36,5 @@ class Module extends InstallableModule {
 		return [\GO\Modules\GroupOffice\Tasks\Module::class];
 	}
 
-//	public static function defineEvents() {		
-//		PriorityList::on(PriorityList::EVENT_CALCULATE, self::class, 'calculatePriorityList');
-//	}
-//	
-//	public static function calculatePriorityList(PriorityList $list, DateTime $findEnd = null) {
-//		
-//		if(!isset($findEnd)) {
-//			$findEnd = new DateTime("+6 months");
-//		}
-//		
-//		foreach(Account::find(['ownerUserId' => $list->userId]) as $account) {
-//			$events = $account->findEvents(new DateTime(), $findEnd);
-//
-//			foreach ($events as $event) {
-//				$list->addEvent($event->start, $event->end, $event);
-//			}
-//		}
-//	}
+
 }

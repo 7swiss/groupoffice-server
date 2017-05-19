@@ -49,7 +49,7 @@ class Phone extends \IFW\Orm\PropertyRecord {
 	
 	const TYPE_HOME = 'home';
 	
-	const TYPE_MOBILE = 'mobile';
+	const TYPE_MOBILE = 'cell';
 	
 	const TYPE_FAX = 'fax';
 	

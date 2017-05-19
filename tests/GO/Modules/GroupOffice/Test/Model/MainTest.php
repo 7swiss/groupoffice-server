@@ -8,9 +8,13 @@ namespace GO\Modules\GroupOffice\Test\Model;
  * like the configuration, reqeuest, debugger etc.
  */
 class MainTest extends \GO\Utils\ModuleCase {
+	
+	use \GO\Utils\UserTrait;
 
 
 	public function testJoinRelation() {
+		
+		$this->changeUser('henk');
 	
 		$main = new Main();
 		$main->name = 'test';
@@ -60,6 +64,8 @@ class MainTest extends \GO\Utils\ModuleCase {
 	}
 	
 	public function testSetValues() {
+		$this->changeUser('henk');
+		
 		$main = new Main();
 		$main->name = 'test 2';
 		$main->hasOne = [
@@ -81,6 +87,37 @@ class MainTest extends \GO\Utils\ModuleCase {
 		
 		$this->assertEquals('Already set', $main->hasOne->description);
 		$this->assertEquals('test 3', $main->hasOne->name);
+	}
+	
+	
+	public function testParentRelationReference() {
+		
+		$this->changeUser('henk');
+		
+		$main = new Main();
+		$main->name = 'test 1';
+		$main->hasOne = [
+			'name' => 'hasOne 1'			
+		];
+		
+		$main->hasMany = [
+			['name' => 'hasMany 1'],
+			['name' => 'hasMany 2']
+		];
+		
+		
+		$this->assertEquals(spl_object_hash($main->hasMany[0]->main), spl_object_hash($main));
+		
+		$this->assertEquals(spl_object_hash($main->hasOne->main), spl_object_hash($main));
+		
+		
+		$main->save();
+		
+		$mainFind = Main::findByPk($main->id);
+		
+		$this->assertEquals(spl_object_hash($mainFind->hasMany[0]->main), spl_object_hash($mainFind));
+		
+		$this->assertEquals(spl_object_hash($mainFind->hasOne->main), spl_object_hash($mainFind));
 	}
 
 	

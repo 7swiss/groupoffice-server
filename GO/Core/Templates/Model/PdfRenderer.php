@@ -121,10 +121,18 @@ class PdfRenderer extends PdfModel {
 				$block->width = $this->w-$this->lMargin - $this->rMargin;
 			}
 			
+
 			$method = 'renderBlock'.$block->type;
 			
 			if(!method_exists($this, $method)) {
-				throw new Exception("Invalid block tag ".$block->type);
+				if($this->previewMode) {
+					$block->type = 'text';
+					$method = 'renderBlock'.$block->type;
+				} else {
+					throw new Exception("Invalid block tag ".$block->type);
+				}
+				
+				
 			}
 			
 			$this->setCellPaddings($block->marginLeft, $block->marginTop, $block->marginRight, $block->marginBottom);

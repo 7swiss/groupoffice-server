@@ -679,7 +679,7 @@ class QueryBuilder {
 			$columnParts = $this->splitTableAndColumn($column);
 			
 			if(empty($columnParts[0])){
-				throw new \Exception("Invalid column name '".$column.'"');
+				throw new \Exception("Invalid column name '" . $column . "'");
 			}
 			
 			$col = $this->quoteTableName($columnParts[0]). '.' .$this->quoteColumnName($columnParts[1]);

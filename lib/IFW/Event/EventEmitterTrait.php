@@ -5,14 +5,19 @@ namespace IFW\Event;
 /**
  * Enable events for an object
  * 
- * All objects within Group-Office are searched for a static method called 
+ * All objects that implement {@see EventListenerInterface} within the 
+ *  application are searched for a static method called 
  * "defineEvents()". In this function you can call
  * 
  * Object::on(Object::EVENT_SOME, self, 'listenerMethod');
  * 
  * Event names should be defined as constants prefixed with EVENT_
  * 
- * See {@see \IFW\Db\AbstractRecord} for an example.
+ * See {@see \IFW\Orm\Record} for an example.
+ * 
+ * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
+ * @author Merijn Schering <mschering@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 trait EventEmitterTrait {
 	

@@ -101,7 +101,7 @@ class Entry extends Record {
 				$this->userAgent = 'cli';
 			}
 		}
-		//$this->parsedUserAgent = parse_user_agent($this->userAgent);
+		$this->parsedUserAgent = parse_user_agent($this->userAgent);
 		
 	}
 	

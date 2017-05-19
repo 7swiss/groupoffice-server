@@ -87,6 +87,22 @@ class Message extends Record {
 	}
 	
 	
+	public function findMessage($uuid) {
+		$message = MessagesMessage::find(
+						(new Query)
+						->where(['accountId' => $this->folder->accountId, 'uuid' => $uuid, 'type' => $this->folder->getMessageType()])
+						->where(['NOT EXISTS', self::find('t.id = sub.messageId')])
+						)->single();
+		
+		if($message) {
+			$this->message = $message;
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+	
 	/**
 	 * Set's all attributes from an IMAP message
 	 * 
@@ -105,6 +121,28 @@ class Message extends Record {
 			if(empty($uuid)) {
 				$uuid = $imapMessage->uid.'-'.$this->folder->id;
 			}
+		}
+		
+		if($this->findMessage($uuid)) {
+			
+			if($this->isNew()) {
+				
+				//relink imap attachments with messages attachments
+				$imapAttachments = $imapMessage->getAttachments();
+				$savedAttachments = $this->message->attachments->all();
+
+				for($i = 0; $i < count($imapAttachments); $i++) {
+
+					$imapAttachment = new Attachment();
+					$imapAttachment->partNo = $imapAttachments[$i]->partNumber;
+					$imapAttachment->encoding = $imapAttachments[$i]->encoding;
+					$imapAttachment->attachment = $savedAttachments[$i];
+
+					$this->attachments[] = $imapAttachment;
+				}
+			}
+			
+			return $this->updateMessage($imapMessage);
 		}
 		
 		$this->message = new MessagesMessage();

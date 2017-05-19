@@ -98,17 +98,30 @@ class Account extends AccountAdaptorRecord {
 		$xml = $response->getBodyAsXml();
 		return (string) $xml->xpath('d:response//cs:getctag')[0];
 	}
+	
+	
+	public function resync() {
+		GO()->getDbConnection()->createCommand()->delete(Contact::tableName(), ['accountId' => $this->id])->execute();
+		GO()->getDbConnection()->createCommand()->delete(AccountCard::tableName(), ['accountId' => $this->id])->execute();
+		$this->ctag = null;
+		
+		return $this->sync();
+	}
 
 	/**
 	 * 
 	 * @link http://sabre.io/dav/building-a-carddav-client/
 	 * @return boolean
 	 */
-	public function sync() {
+	public function sync() {		
+//		$this->resync();
 
 		if ($this->syncRequired()) {
 			$etags = $this->getRemoteEtags();
 			$this->serverUpdates($etags);
+		} else
+		{
+			GO()->debug("ctag unchanged, not requesting server updates");
 		}
 
 		try {
@@ -126,6 +139,10 @@ class Account extends AccountAdaptorRecord {
 	}
 
 	private function serverUpdates($etags) {
+		
+		if(empty($etags)) {
+			return;
+		}
 		$fetch = [];
 		foreach ($etags as $uri => $etag) {
 			$card = AccountCard::find(['accountId' => $this->id, 'uri' => $uri])->single();
@@ -206,7 +223,7 @@ class Account extends AccountAdaptorRecord {
 		
 		$contacts = Contact::find(
 						(new Query)
-						->where(['accountId' => $this->id])
+						->where(['accountId' => $this->id, 'isOrganization' => false])
 						->where(['NOT EXISTS', $cards])
 						);
 		
@@ -268,6 +285,9 @@ class Account extends AccountAdaptorRecord {
 	}
 
 	private function getRemoteEtags() {
+		
+		GO()->debug("Getting all remote etags");
+		
 		$client = $this->connect();
 
 		//	$response = $client->report($this->getPath(), ['{DAV:}getetag','{card:}address-data'], 1);
@@ -305,7 +325,11 @@ class Account extends AccountAdaptorRecord {
 
 		 */
 		$response = $client->report($this->getPath(), ['{DAV:}getetag'], 1);
-
+		
+		if ($response->status != 207) { //multistatus
+			throw new \Exception("Invalid server response with status ".$response->status.": \n\n".$response->body);
+		}
+		
 		$etags = [];
 
 		foreach ($response->getMultiResponse() as $subResponse) {
@@ -313,6 +337,8 @@ class Account extends AccountAdaptorRecord {
 			$etag = (string) $subResponse->xpath('//d:getetag')[0];
 			$etags[$uri] = $etag;
 		}
+		
+		GO()->debug("Found ".count($etags).' etags on server');
 
 		return $etags;
 	}

@@ -178,6 +178,9 @@ class RelationStore extends Store implements ArrayAccess {
 	}
 
 	public function offsetExists($offset) {
+		if(!isset($this->modified)) {
+			$this->modified = parent::all();
+		}	
 		return isset($this->modified[$offset]);
 	}
 

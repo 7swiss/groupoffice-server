@@ -1,4 +1,5 @@
 <?php
+
 namespace IFW\Event;
 
 use IFW;
@@ -14,26 +15,28 @@ use ReflectionClass;
  * This class is not used directly. Objects can use the {@see EventEmiterTrait} 
  * to emit events. Because we need all listeners together in one object this 
  * singleton class  holds them all.
+ * 
+ * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
+ * @author Merijn Schering <mschering@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class StaticListeners {
-	
+
 	private static $singleton;
-	
 	private $listeners;
-	
+
 	/**
 	 * 
 	 * @return static
 	 */
 	public static function singleton() {
-		if(isset(self::$singleton)) {
+		if (isset(self::$singleton)) {
 			return self::$singleton;
-		}else
-		{
+		} else {
 			return self::$singleton = new static;
 		}
 	}
-	
+
 	/**
 	 * Add an event listener
 	 * 
@@ -41,14 +44,14 @@ class StaticListeners {
 	 * @param callable $fn 
 	 * @return int $index Can be used for removing the listener.
 	 */
-	public function on($firingClass, $event, $listenerClass, $method){
-		
-		if(!isset($this->listeners[$firingClass][$event])){
+	public function on($firingClass, $event, $listenerClass, $method) {
+
+		if (!isset($this->listeners[$firingClass][$event])) {
 			$this->listeners[$firingClass][$event] = [];
 		}
 		$this->listeners[$firingClass][$event][] = [$listenerClass, $method];
 	}
-	
+
 	/**
 	 * 
 	 * Initialize the static events.
@@ -56,52 +59,51 @@ class StaticListeners {
 	 * 
 	 */
 	public function initListeners() {
-		if(isset($this->listeners)) {
-			return;
-		}	
-		
-		$this->listeners = IFW::app()->getCache()->get('listeners');
-
-		if($this->listeners !== false)
-		{
+		if (isset($this->listeners)) {
 			return;
 		}
-		
+
+		$this->listeners = IFW::app()->getCache()->get('listeners');
+
+		if ($this->listeners !== false) {
+			return;
+		}
+
 		IFW::app()->debug("Initializing event listeners");
-		
+
 		$this->listeners = [];
-			
-		
+
+
 		//disable events to prevent recursion
 		EventEmitterTrait::$disableEvents = true;
-		
-		foreach(\IFW::app()->getModules() as $module) {
-		
-			$classFinder = new ClassFinder();		
-			$classFinder->setNamespace($module::getNamespace());
-		
-			$classes = $classFinder->find();
 
-			foreach($classes as $className) {				
-				if(!method_exists($className, 'defineEvents')) {
+		foreach (\IFW::app()->getModules() as $module) {
+
+			$classFinder = new ClassFinder();
+			$classFinder->setNamespace($module::getNamespace());
+
+			$classes = $classFinder->findByParent(EventListenerInterface::class);
+
+			foreach ($classes as $className) {
+				if (!method_exists($className, 'defineEvents')) {
 					continue;
 				}
 
 				$reflection = new ReflectionClass($className);
-				if($reflection->isAbstract()){
+				if ($reflection->isAbstract()) {
 					continue;
 				}
-				$className::defineEvents();				
+				$className::defineEvents();
 			}
 		}
-		
+
 		//disable events to prevent recursion
 		EventEmitterTrait::$disableEvents = false;
-		
-		
-		IFW::app()->getCache()->set('listeners', $this->listeners);		
+
+
+		IFW::app()->getCache()->set('listeners', $this->listeners);
 	}
-	
+
 	/**
 	 * Fire an event and execute all listeners
 	 * 
@@ -112,21 +114,21 @@ class StaticListeners {
 	 */
 	public function fireEvent($calledClass, $event, $args) {
 
-		if(!isset($this->listeners[$calledClass][$event])){
+		if (!isset($this->listeners[$calledClass][$event])) {
 			return true;
 		}
-		
-		foreach($this->listeners[$calledClass][$event] as $listener) {
+
+		foreach ($this->listeners[$calledClass][$event] as $listener) {
 			$return = call_user_func_array($listener, $args);
-			
-			if($return === false){
-				
-				\IFW::app()->debug("Listener returned false for event ".$event." ".var_export($listener, true));
+
+			if ($return === false) {
+
+				\IFW::app()->debug("Listener returned false for event " . $event . " " . var_export($listener, true));
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 }

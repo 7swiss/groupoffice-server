@@ -7,7 +7,7 @@ use GO\Modules\GroupOffice\Dav\Controller\SyncController;
 use IFW\Cli\Router;
 use IFW\Orm\Record;
 
-class Module extends InstallableModule {
+class Module extends InstallableModule implements \IFW\Event\EventListenerInterface {
 
 	public function depends() {
 		return [ContactsModule::class];

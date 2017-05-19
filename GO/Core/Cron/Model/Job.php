@@ -108,6 +108,14 @@ class Job extends Record {
 	 * @var boolean 
 	 */
 	public $enabled;
+	
+	
+	/**
+	 * Set to the last error message if it occurred
+	 * 
+	 * @var string 
+	 */
+	public $lastError;
 
 	protected static function defineRelations() {
 		self::hasOne('module', Module::class, ['moduleId'=>'id']);
@@ -239,9 +247,13 @@ class Job extends Record {
 		$this->nextRun = null;
 		//set runningSince to now
 		$this->runningSince = new \DateTime();
+		$this->lastError = null;
+		
 		if(!$this->save()) {
 			throw new \Exception("Could not save CRON job");
 		}
+		
+		GO()->debug("Running CRON method: " . $this->cronClassName . "::" . $this->method);
 		
 		GO()->log("info", "Running CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 		
@@ -260,6 +272,8 @@ class Job extends Record {
 			GO()->error("An exception occurred in CRON method: " . $this->cronClassName . "::" . $this->method . " ".$ex->getMessage(), $this);
 			
 			GO()->debug((string) $ex);
+			
+			$this->lastError = $ex->getMessage().' in '.$ex->getFile().' at line '.$ex->getLine();
 		}
 		
 		$this->lastRun = new \DateTime();
