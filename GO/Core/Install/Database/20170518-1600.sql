@@ -9,15 +9,11 @@ ALTER TABLE `notifications_watch` ADD FOREIGN KEY (`groupId`) REFERENCES `auth_g
 ALTER TABLE `orm_record_type` DROP FOREIGN KEY `orm_record_type_ibfk_1`; ALTER TABLE `orm_record_type` ADD CONSTRAINT `orm_record_type_ibfk_1` FOREIGN KEY (`moduleId`) REFERENCES `modules_module`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 
-ALTER TABLE `blob_blob_user` CHANGE `modelTypeId` `recordTypeId` INT(11) NOT NULL;
-ALTER TABLE `blob_blob_user` CHANGE `modelPk` `recordPk` VARCHAR(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
-
-
-ALTER TABLE `blob_blob_user` ADD FOREIGN KEY (`recordTypeId`) REFERENCES `orm_record_type`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
-
 ALTER TABLE `blob_blob` CHANGE `expireAt` `expiresAt` DATETIME NULL DEFAULT NULL;
 
 
 ALTER TABLE `blob_blob` ADD `used` BOOLEAN NOT NULL DEFAULT FALSE AFTER `size`;
 
 ALTER TABLE `blob_blob` ADD `deleted` BOOLEAN NOT NULL DEFAULT FALSE AFTER `used`;
+
+drop table `blob_blob_user`;
