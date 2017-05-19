@@ -131,8 +131,6 @@ class UserProvider implements UserProviderInterface {
 			return call_user_func_array($callback, $args);
 		}
 		
-		\GO()->debug("sudo start");	
-		
 		$this->inSudo = true;
 		\IFW\Auth\Permissions\Model::$enablePermissions = false;
 		$this->sudoUser = $this->user();		
@@ -149,7 +147,6 @@ class UserProvider implements UserProviderInterface {
 			$this->currentUser = $this->sudoUser;
 			$this->sudoUser = null;
 			$this->inSudo = false;
-			\GO()->debug("sudo end");
 		}
 		
 		return $ret;
