@@ -46,7 +46,7 @@ use IFW\Orm\Record;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class Token extends Record {	
+class Token extends Record implements \GO\Core\GarbageCollection\GarbageCollectionInterface {	
 	
 	/**
 	 * 
@@ -85,6 +85,20 @@ class Token extends Record {
 	 * @var boolean 
 	 */
 	public $checkXSRFToken = true;
+	/**
+	 * The remote IP address of the client connecting to the server
+	 * 
+	 * @var string 
+	 */
+	public $remoteIpAddress;
+	
+	/**
+	 * The user agent sent by the client
+	 * 
+	 * @var string 
+	 */
+	public $userAgent;
+	
 	
 	/**
 	 * A date interval for the lifetime of a token
@@ -97,6 +111,17 @@ class Token extends Record {
 		parent::init();
 		
 		if($this->isNew()) {
+			
+			if(isset($_SERVER['REMOTE_ADDR'])) {
+				$this->remoteIpAddress = $_SERVER['REMOTE_ADDR'];
+			}
+
+			if(isset($_SERVER['HTTP_USER_AGENT'])) {
+				$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+			}else if(GO()->getEnvironment()->isCli()) {
+				$this->userAgent = 'cli';
+			}
+			
 			$this->refresh();
 		}else
 		{
@@ -122,34 +147,8 @@ class Token extends Record {
 		return bin2hex(openssl_random_pseudo_bytes(16));
 	}
 	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function internalSave() {
-		
-		$ret = parent::internalSave();
-		
-		if($ret) {
-			
-			//clean garbage in 10% of the logins
-			if (rand(1, 10) === 1) {
-				$this->collectGarbage();
-			}
-		}
-		
-		return $ret;
-	}
 	
-	private function collectGarbage() {
-		
-		\GO()->getAuth()->sudo(function() {		
-			$tokens = Token::find(['<=', ['expiresAt' => gmdate('Y-m-d H:i:s', time())]]);
-
-			foreach ($tokens as $token) {
-				$token->delete();
-			}
-		});
-	}
+	
 
 	/**
 	 * Check if the token is expired.
@@ -307,4 +306,13 @@ class Token extends Record {
 		
 		return implode(',', $props);
 	}
+
+	public static function collectGarbage() {
+		//cleanup expired tokens
+		$tokens = Token::find(['<=', ['expiresAt' => gmdate('Y-m-d H:i:s', time())]]);
+		foreach ($tokens as $token) {
+			$token->delete();
+		}
+	}
+
 }

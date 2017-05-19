@@ -64,13 +64,7 @@ class Account extends Record {
 		}
 	}
 
-//	public static function defineEvents() {
-//
-//		TaskController::on(TaskController::EVENT_STORE, self::class, 'addEvents');
-//		TaskSorter::on(TaskSorter::EVENT_BEFORE_SORT, self::class, 'blockEventsInWorkingWeek');
-//		
-//		parent::defineEvents();
-//	}
+
 
 	/**
 	 * Synchronizes the account

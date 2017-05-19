@@ -5,7 +5,7 @@ use GO\Core\Modules\Model\InstallableModule;
 use GO\Core\Users\Model\User;
 use GO\Modules\GroupOffice\GroupOfficeLegacy\Model\Authenticator;
 
-class Module extends InstallableModule {
+class Module extends InstallableModule implements \IFW\Event\EventListenerInterface {
 	
 	public static function defineEvents() {
 		User::on(User::EVENT_BEFORE_LOGIN, self::class, 'beforeLogin');

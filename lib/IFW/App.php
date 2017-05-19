@@ -28,6 +28,10 @@ use IFW\Web\Router;
  * ```````````````````````````````````````````````````````````````````````````
  * $this->config()->getTempFolder();
  * ```````````````````````````````````````````````````````````````````````````
+ * 
+ * @copyright (c) 2014, Intermesh BV http://www.intermesh.nl
+ * @author Merijn Schering <mschering@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 abstract class App {
 

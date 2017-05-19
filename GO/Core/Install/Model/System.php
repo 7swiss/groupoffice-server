@@ -88,8 +88,10 @@ class System extends Model {
 		$cronJob->name = 'Account sync service';
 		$cronJob->cronClassName = \GO\Core\Accounts\Model\Account::class;
 		$cronJob->method = 'syncAll';
-		$cronJob->cronExpression = '* * * * * *';
-		$cronJob->save();
+		$cronJob->cronExpression = '*/5 * * * *';
+		if(!$cronJob->save()) {
+			throw new \Exception("Could not install cron job");
+		}
 	}
 
 	private function setUtf8Collation() {
