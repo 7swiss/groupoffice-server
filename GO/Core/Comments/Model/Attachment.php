@@ -13,9 +13,6 @@ use GO\Core\Orm\Record;
 
 class Attachment extends Record{
 
-
-	use \GO\Core\Blob\Model\BlobNotifierTrait;
-	
 	/**
 	 * 
 	 * @var int
@@ -44,11 +41,7 @@ class Attachment extends Record{
 		self::hasOne('comment', Comment::class, ['commentId' => 'id']);
 		self::hasOne('blob', \GO\Core\Blob\Model\Blob::class, ['blobId' => 'blobId']);
 	}
-	
-	protected function internalSave() {
-		$this->saveBlob('blobId');
-		return parent::internalSave();
-	}
+
 	
 	protected static function internalGetPermissions() {
 		return new \IFW\Auth\Permissions\ViaRelation('comment');

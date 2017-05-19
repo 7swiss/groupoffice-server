@@ -22,10 +22,6 @@ use GO\Core\Tags\Controller\TagController;
 use GO\Core\Templates\Controller\MessageController;
 use GO\Core\Templates\Controller\PdfController;
 use GO\Core\Upload\Controller\TempThumbController;
-use GO\Core\Users\Controller\AdminUserController;
-use GO\Core\Users\Controller\ForgotPasswordController;
-use GO\Core\Users\Controller\GroupController;
-use GO\Core\Users\Controller\UserController;
 use IFW\Cli\Router as Router2;
 use IFW\Modules\Module as BaseModule;
 use IFW\Web\Router;
@@ -172,6 +168,8 @@ class Module extends BaseModule {
 						->set('accounts/sync', 'syncAll');
 		
 		$router->addRoutesFor(JobController::class)->set('cron/run', 'run');
+		
+		$router->addRoutesFor(BlobController::class)->set('blob/test', 'test');
 	}
 	
 }

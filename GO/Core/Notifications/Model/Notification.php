@@ -2,7 +2,7 @@
 
 namespace GO\Core\Notifications\Model;
 
-use GO\Core\Blob\Model\BlobNotifierTrait;
+use DateTime;
 use GO\Core\Install\Model\System;
 use GO\Core\Orm\Model\RecordType;
 use GO\Core\Orm\Record;
@@ -47,7 +47,7 @@ use function GO;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Notification extends Record {
+class Notification extends Record implements \GO\Core\GarbageCollection\GarbageCollectionInterface {
 
 	/**
 	 * 
@@ -63,13 +63,13 @@ class Notification extends Record {
 
 	/**
 	 * 
-	 * @var \DateTime
+	 * @var DateTime
 	 */
 	public $createdAt;
 
 	/**
 	 * 
-	 * @var \DateTime
+	 * @var DateTime
 	 */
 	public $triggerAt;
 
@@ -81,7 +81,7 @@ class Notification extends Record {
 
 	/**
 	 * 
-	 * @var \DateTime
+	 * @var DateTime
 	 */
 	public $expiresAt;
 
@@ -124,7 +124,6 @@ class Notification extends Record {
 	const CATEGORY_MESSAGE = 'message';
 	const CATEGORY_PROGRESS = 'progress';
 
-	use BlobNotifierTrait;
 	
 	private static $suspended = false;
 
@@ -205,20 +204,7 @@ class Notification extends Record {
 		return self::find(['recordId' => $recordId, 'recordTypeId' => $recordTypeId, 'type' => $type]);
 	}
 
-	protected function internalSave() {
 
-		$this->saveBlob('iconBlobId');
-
-
-		return parent::internalSave();
-	}
-
-	protected function internalDelete($hard) {
-
-		$this->freeBlob($this->iconBlobId);
-
-		return parent::internalDelete($hard);
-	}
 
 	/**
 	 * Links this notification to a record
@@ -241,8 +227,8 @@ class Notification extends Record {
 	protected function init() {
 		parent::init();
 
-		$this->triggerAt = new \DateTime();
-		$this->expiresAt = new \DateTime('+1 month');
+		$this->triggerAt = new DateTime();
+		$this->expiresAt = new DateTime('+1 month');
 	}
 
 	/**
@@ -258,7 +244,7 @@ class Notification extends Record {
 			$a->userId = $userId;
 			$a->notificationId = $this->id;
 		}
-		$a->dismissedAt = new \DateTime();
+		$a->dismissedAt = new DateTime();
 		return $a->save();
 	}
 
@@ -275,10 +261,15 @@ class Notification extends Record {
 						->joinRelation('for.groupUsers')
 						->where(['for.groupUsers.userId' => $currentUserId])
 						->joinRelation('appearances', false, 'LEFT', ['appearances.userId' => $currentUserId])
-						->andWhere(['>', ['expiresAt' => new \DateTime()]])
+						->andWhere(['>', ['expiresAt' => new DateTime()]])
 						->andWhere(['appearances.userId' => null]);
 
 		return (int) Notification::find($query)->single();
+	}
+
+	public static function collectGarbage() {		
+		//delete expired notifications
+		GO()->getDbConnection()->createCommand()->delete(self::tableName(), ['<=', ['expiresAt' => new DateTime()]])->execute();
 	}
 
 }

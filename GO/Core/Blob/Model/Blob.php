@@ -10,67 +10,90 @@ namespace GO\Core\Blob\Model;
 
 use DateInterval;
 use DateTime;
+use Exception;
+use GO\Core\Orm\Model\RecordType;
 use GO\Core\Orm\Record;
+use IFW\Auth\Permissions\Everyone;
 use IFW\Fs\File;
+use IFW\Orm\Record as Record2;
+use IFW\Orm\Relation;
+use IFW\Util\ClassFinder;
+use function GO;
 
 /**
  * This represents the data in disk.
+ * 
  * Without a file module Group-Office still has (temp) file
- * The expireAt property is set when a file is uploaded.
+ * The expireAst property is set when a file is uploaded.
  * This is removed when the Blob is link to an object (email, event, contact photo or file in files module.
  * 
  * @example
  * `````````````````````
  * $blob = \GO\Core\Blob\Model\Blob::fromFile(new \IFW\Fs\File(dirname(__DIR__).'/Resources/intermesh-logo.png'));
  * `````````````````````````````
+ * 
+ * IMPORTANT
+ * 
+ * When using blobs make sure you define:
+ * 1. A restricting foreign key relation to the blob_blob table to prevent data loss
+ * 2. A relation to the blob model so the garbage collector will detect usage of the blob. Otherwise it will try to delete it and the foreign key relation will fail.
  *
  * @property string $id SHA1 40-char hash of the binary data,
  * @property int $ownedBy the PK of the user tha thas uploaded this file,
  * @property string $filename fiel name,
  */
-class Blob extends Record {
+class Blob extends Record implements \GO\Core\GarbageCollection\GarbageCollectionInterface {
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $blobId;
 
 	/**
 	 * ctime,
 	 * @var \DateTime
-	 */							
+	 */
 	public $createdAt;
 
 	/**
 	 * 
 	 * @var int
-	 */							
+	 */
 	public $createdBy;
 
 	/**
 	 * This record will be removed by garbage collection of this is set
 	 * @var \DateTime
-	 */							
-	public $expireAt;
+	 */
+	public $expiresAt;
 
 	/**
 	 * the contentType type of the file
 	 * @var string
-	 */							
+	 */
 	public $contentType;
 
 	/**
 	 * 
 	 * @var string
-	 */							
+	 */
 	public $name;
 
 	/**
 	 * filesize in bytes
 	 * @var int
-	 */							
+	 */
 	public $size;
+	
+	/**
+	 * Used by garbage collection
+	 * 
+	 * @var boolean
+	 */
+	protected $used;
+	
+	public $deleted;
 
 	const IMAGE = 'Image';
 	const EXPIRE_TIME = 'PT1H';
@@ -90,12 +113,10 @@ class Blob extends Record {
 	}
 
 	protected static function internalGetPermissions() {
-		return new \IFW\Auth\Permissions\Everyone();
+		return new Everyone();
 	}
 
-	protected static function defineRelations() {
-		self::hasMany('users', BlobUser::class, ['blobId' => 'blobId']);
-	}
+
 
 	/**
 	 * Create a new blob from a given file.
@@ -106,12 +127,12 @@ class Blob extends Record {
 	 * ```
 	 * @param File $file
 	 * @return Blob
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	static public function fromFile(File $file, \DateTime $expireAt = null) {
 
 		if (!$file->exists()) {
-			throw new \Exception("Given file does not exist!");
+			throw new Exception("Given file does not exist!");
 		}
 
 		$blobId = $file->getSha1Hash();
@@ -127,10 +148,10 @@ class Blob extends Record {
 		$blob->size = $file->getSize();
 		$blob->name = $file->getName();
 
-		$blob->expireAt = $expireAt;
+		$blob->expiresAt = $expireAt;
 
 		if (!$blob->save()) {
-			throw new \Exception("Could not save blob!");
+			throw new Exception("Could not save blob!");
 		}
 
 		return $blob;
@@ -163,7 +184,7 @@ class Blob extends Record {
 	 * @return bool
 	 */
 	public function isStale() {
-		return $this->expireAt < new \DateTime();
+		return $this->expiresAt < new \DateTime();
 	}
 
 	protected function internalSave() {
@@ -184,19 +205,7 @@ class Blob extends Record {
 		return $success && parent::internalSave();
 	}
 
-	public function addUser($pk, \GO\Core\Orm\Model\RecordType $recordType) {
-		$blobUser = BlobUser::findByPk(['blobId' => $this->blobId, 'modelTypeId' => $recordType->id, 'modelPk' => implode('-', $pk)]);
-		if (!empty($blobUser)) {
-			return; // already using (by other fields)
-		}
-		$blobUser = new BlobUser();
-		$blobUser->modelPk = implode('-', $pk);
-		$blobUser->modelTypeId = $recordType->id;
-		$blobUser->blobId = $this->blobId;
-		$this->expireAt = null;
-		$this->users[] = $blobUser;
-		return $this->save();
-	}
+
 
 	/**
 	 * By default an uploaded file is valid for 1 hour
@@ -205,14 +214,10 @@ class Blob extends Record {
 	public function expire($interval = self::EXPIRE_TIME) {
 		$expireDate = new \DateTime();
 		$expireDate->add(new DateInterval($interval));
-		$this->expireAt = $expireDate;
+		$this->expiresAt = $expireDate;
 		return $this;
 	}
 
-	public function isUsed() {
-		$firstUser = BlobUser::find(['blobId' => $this->blobId])->single();
-		return !empty($firstUser);
-	}
 
 	public function getType() {
 
@@ -234,15 +239,100 @@ class Blob extends Record {
 	}
 
 	private function storagePath() {
-		
+
 		return GO()->getConfig()->getDataFolder()->getPath() . '/blob/' . $this->createdAt->format('Y') . '/' . $this->createdAt->format('m') . '/';
 	}
 
 	public function getPath() {
-		if(!isset($this->createdAt)) {
+		if (!isset($this->createdAt)) {
 			return null;
 		}
 		return $this->storagePath() . $this->blobId;
 	}
+	
+	protected function internalDelete($hard) {
+		if(!parent::internalDelete($hard)) {
+			return false;
+		}
+		
+		if($hard && file_exists($this->getPath()) && !unlink($this->getPath())) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	
+	
+	public static function collectGarbage() {
+		//cleanup expired blobs
+		$blobs = self::find(['<=', ['expiresAt' => new \DateTime()]]);
+		foreach ($blobs as $blob) {
+			$blob->delete();
+		}
+		
+		self::updateBlobUsage();
+		
+		//soft delete unused blobs
+		GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['deleted' => true], ['used' => false])->execute();
+	}
+	
+	
+	private static function updateBlobUsage() {
+		GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['used' => false])->execute();
+		
+		$users = self::findUsers();
+		
+		foreach($users as $user) {
+			
+			$select = (new \IFW\Db\Query)
+							->select('*')
+							->tableAlias('sub')							
+							->from($user['tableName'])
+							->withDeleted()
+							->where('sub.'.$user['columnName'].' = t.blobId');
+			
+			GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['used' => true], ['EXISTS', $select])->execute();
+		}
+	}
+	
+	
+	private static function findUsers() {
+		
+		$users = [];
+		
+		$classFinder = new ClassFinder();
+		$classes = $classFinder->findByParent(Record2::class);
+		foreach($classes as $recordClass) {
+			
+			$recordClass::defineRelations(); //for disabled modules
+			
+			$relations = (array) $recordClass::getRelations();
+			
+			/* @var $relations Relation  */
+			
+			foreach($relations as $relation) {
+				if($relation->getToRecordName() == Blob::class) {
+					
+					$keys = array_keys($relation->getKeys());
+					$tableName = $recordClass::tableName();
+					
+					if(\IFW\Db\Utils::tableExists($tableName)) {
+
+						$users[] = [
+								'tableName' => $tableName,
+								'columnName' => $keys[0],
+								'pk' => $recordClass::getPrimaryKey()
+										];
+						
+					}
+				
+				}
+			}
+		}
+		
+		return $users;
+	}
+	
 
 }

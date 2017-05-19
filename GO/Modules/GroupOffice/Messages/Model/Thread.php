@@ -119,6 +119,9 @@ class Thread extends Record {
 					->via(ThreadTag::class,['tagId'=>'id'])
 					->setQuery((new Query())->orderBy(['name'=>'ASC']));
 		
+		
+		self::hasOne('blob', \GO\Core\Blob\Model\Blob::class, ['photoBlobId' => 'blobId']);
+		
 		parent::defineRelations();
 		
 	}

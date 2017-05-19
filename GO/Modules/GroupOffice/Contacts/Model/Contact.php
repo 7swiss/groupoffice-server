@@ -9,7 +9,6 @@ namespace GO\Modules\GroupOffice\Contacts\Model;
 use DateTime;
 use GO\Core\Auth\Permissions\Model\GroupPermissions;
 use GO\Core\Blob\Model\Blob;
-use GO\Core\Blob\Model\BlobNotifierTrait;
 use GO\Core\Notifications\Model\Notification;
 use GO\Core\Orm\Record;
 use GO\Core\Tags\Model\Tag;
@@ -183,7 +182,6 @@ class Contact extends Record {
 	 */							
 	protected $language;
 
-	use BlobNotifierTrait;
 
 	public static function defineRelations(){
 		
@@ -270,8 +268,7 @@ class Contact extends Record {
 	
 	public function internalSave() {
 		
-		$this->saveBlob('photoBlobId');
-		
+
 		if($this->userId && $this->isModified('photoBlobId')) {
 			$this->user->photoBlobId = $this->photoBlobId;
 			
@@ -300,7 +297,6 @@ class Contact extends Record {
 		
 		GO()->log(self::LOG_ACTION_DELETE, $this->name, $this);
 		
-		$this->freeBlob($this->photoBlobId);
 		
 		return parent::internalDelete($hard);
 	}

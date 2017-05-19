@@ -33,8 +33,6 @@ class EventAttachment extends Record {
 	 */							
 	public $recurrenceId;
 
-	use \GO\Core\Blob\Model\BlobNotifierTrait;
-
 	protected static function defineRelations() {
 		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
 	}
@@ -55,17 +53,4 @@ class EventAttachment extends Record {
 		return $this->blob->getType();
 	}
 
-	protected function internalSave() {
-		if(!$this->isNew() && !empty($this->getOldAttributeValue('blobId'))) {
-			$this->freeBlob($this->getOldAttributeValue('blobId'));
-		}
-		$this->useBlob($this->blobId);
-
-		return parent::internalSave();
-	}
-
-	protected function internalDelete($hard) {
-		$this->freeBlob($this->blobId);
-		return parent::internalDelete($hard);
-	}
 }

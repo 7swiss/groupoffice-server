@@ -3,7 +3,6 @@
 namespace GO\Modules\GroupOffice\Messages\Model;
 
 use GO\Core\Blob\Model\Blob;
-use GO\Core\Blob\Model\BlobNotifierTrait;
 use GO\Core\Blob\Model\TransportUtil;
 use GO\Core\Orm\Record;
 use Sabre\VObject\Reader;
@@ -74,7 +73,6 @@ class Attachment extends Record {
 	 */							
 	public $contentType;
 
-	use BlobNotifierTrait;
 	
 	private $src;
 	
@@ -144,6 +142,8 @@ class Attachment extends Record {
 
 	protected static function defineRelations() {
 		self::hasOne('message', Message::class, ['messageId' => 'id']);
+		
+		self::hasOne('blob', Blob::class, ['blobId' => 'blobId']);
 	}
 
 	public static function internalGetPermissions() {
@@ -154,31 +154,14 @@ class Attachment extends Record {
 		if(!parent::internalValidate()) {
 			return false;
 		}
-		
-		$this->saveBlob('blobId');
-		
+				
 		if(isset($this->blobId) && !isset($this->contentType)) {
 			$this->contentType = Blob::findByPk($this->blobId)->contentType;
 		}
 		return true;
 	}
 	
-	public function internalSave() {		
 
-		$success = parent::internalSave();
-
-//		if($success && $this->isNew() && $this->contentType === 'text/calendar') {
-//			
-//			//delay fire event until complete message has been saved. Otherwise
-//			$this->message->attach(self::EVENT_AFTER_SAVE, function($record, $success) {
-//				if($success) {
-//					$this->fireEvent('newIcsAttachment', $this->getEvent('vobject'));
-//				}
-//			});			
-//		}
-		
-		return $success;
-	}
 	
 	/**
 	 * 

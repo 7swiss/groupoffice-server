@@ -70,12 +70,23 @@ class BlobController extends Controller {
 		$image->output();
 	}
 
-	/**
-	 * Garbage Collector
-	 * Drop all the Blob records were the expireAt time is in the past
-	 * Should run in a daily cron job
-	 */
-	public function actionRemoveExpired() {
-		//drop all record where expireAt is lower than Now
+
+	public function actionTest() {
+		
+		GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['used' => false])->execute();
+		
+		$users = Blob::findUsers();
+		
+		foreach($users as $user) {
+			
+			$select = (new \IFW\Db\Query)
+							->select('*')
+							->tableAlias('sub')							
+							->from($user['tableName'])
+							->withDeleted()
+							->where('sub.'.$user['columnName'].' = t.blobId');
+			
+			GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['used' => true], ['EXISTS', $select])->execute();
+		}
 	}
 }

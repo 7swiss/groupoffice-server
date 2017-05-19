@@ -3,7 +3,6 @@ namespace GO\Modules\GroupOffice\Messages\Model;
 
 use DateTime;
 use GO\Core\Accounts\Model\AccountAdaptorRecord;
-use GO\Core\Blob\Model\BlobNotifierTrait;
 use GO\Core\Users\Model\User;
 use GO\Modules\GroupOffice\Contacts\Model\Contact;
 use IFW\Auth\Permissions\ViaRelation;
@@ -195,7 +194,6 @@ class Message extends \GO\Core\Orm\Record {
 	 */							
 	public $photoBlobId;
 
-	use BlobNotifierTrait;
 	
 	private $isAnswered;
 	
@@ -327,8 +325,6 @@ class Message extends \GO\Core\Orm\Record {
 	
 	
 	protected function internalSave() {	
-		
-		$this->saveBlob('photoBlobId');	
 					
 		//caused problems with modified messages after sync (sync loop)
 		$syncThread = $this->isNew() && $this->isModified('thread');

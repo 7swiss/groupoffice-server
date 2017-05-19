@@ -3,12 +3,12 @@ namespace GO\Core\Auth\Model;
 
 use DateInterval;
 use DateTime;
-use Exception;
+use GO\Core\GarbageCollection\GarbageCollectionInterface;
 use GO\Core\Users\Model\User;
-use IFW;
 use IFW\Auth\Permissions\CreatorOnly;
 use IFW\Fs\Folder;
 use IFW\Orm\Record;
+use function GO;
 
 /**
  * The Token model
@@ -46,7 +46,7 @@ use IFW\Orm\Record;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 
-class Token extends Record implements \GO\Core\GarbageCollection\GarbageCollectionInterface {	
+class Token extends Record implements GarbageCollectionInterface {	
 	
 	/**
 	 * 
@@ -206,7 +206,7 @@ class Token extends Record implements \GO\Core\GarbageCollection\GarbageCollecti
 	/**
 	 * Set new tokens and expiry date
 	 * 
-	 * @return \GO\Core\Auth\Model\Token
+	 * @return Token
 	 */
 	public function refresh() {
 		
@@ -309,7 +309,7 @@ class Token extends Record implements \GO\Core\GarbageCollection\GarbageCollecti
 
 	public static function collectGarbage() {
 		//cleanup expired tokens
-		$tokens = Token::find(['<=', ['expiresAt' => gmdate('Y-m-d H:i:s', time())]]);
+		$tokens = Token::find(['<=', ['expiresAt' => new \DateTime()]]);
 		foreach ($tokens as $token) {
 			$token->delete();
 		}

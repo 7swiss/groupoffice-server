@@ -6,6 +6,14 @@ namespace GO\Core\GarbageCollection;
  * 
  * When you need to collect garbage use this interface
  * 
+ * @example
+ * ````
+ * public static function collectGarbage() {		
+ *	 //delete expired notifications
+ * 	 GO()->getDbConnection()->createCommand()->delete(self::tableName(), ['<=', ['expiresAt' => new DateTime()]])->execute();
+ * }
+ * ```
+ * 
  * @copyright (c) 2017, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3

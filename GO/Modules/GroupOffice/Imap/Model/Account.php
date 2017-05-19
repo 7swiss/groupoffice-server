@@ -584,7 +584,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		//set expiry dates on the attachment blobs
 		foreach($message->attachments as $attachment) {
 			$blob = $attachment->createBlob();
-			$blob->expireAt = new DateTime(self::EXPIRE_INTERVAL_ATTACHMENTS);
+			$blob->expiresAt = new DateTime(self::EXPIRE_INTERVAL_ATTACHMENTS);
 			$blob->save();
 		}
 	}

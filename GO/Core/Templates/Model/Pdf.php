@@ -2,7 +2,6 @@
 namespace GO\Core\Templates\Model;
 
 use GO\Core\Blob\Model\Blob;
-use GO\Core\Blob\Model\BlobNotifierTrait;
 use GO\Core\Orm\Record;
 use IFW\Orm\Query;
 
@@ -98,20 +97,14 @@ class Pdf extends Record {
 	 */							
 	public $measureUnit = 'mm';
 
-	use BlobNotifierTrait;
+
 	
 	protected static function defineRelations() {
 		
 		self::hasMany('blocks', PdfBlock::class, ['id'=>'pdfTemplateId'])->setQuery((new Query())->orderBy(['sortOrder' => 'ASC']));
 		self::hasOne('stationaryPdfBlob', Blob::class, ['stationaryPdfBlobId' => 'blobId']);
 	}
-	
-	protected function internalSave() {
-		
-		$this->saveBlob('stationaryPdfBlobId');
-		
-		return parent::internalSave();
-	}
+
 	
 	public function setModuleClassName($moduleClassName) {
 		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleClassName])->single();

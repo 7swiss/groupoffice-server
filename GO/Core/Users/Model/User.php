@@ -109,8 +109,6 @@ class User extends Record implements UserInterface {
 	 */
 	public $photoBlobId;
 
-	use \GO\Core\Blob\Model\BlobNotifierTrait;
-
 	const LOG_ACTION_LOGIN = 'login';
 	const LOG_ACTION_LOGOUT = 'logout';
 
@@ -270,7 +268,6 @@ class User extends Record implements UserInterface {
 
 		$this->logSave();
 
-		$this->saveBlob('photoBlobId');
 
 		$success = parent::internalSave();
 
@@ -302,7 +299,6 @@ class User extends Record implements UserInterface {
 			throw new \IFW\Exception\Forbidden("Admin can't be deleted!");
 		}
 
-		$this->freeBlob($this->photoBlobId);
 
 		return parent::internalDelete($hard);
 	}
