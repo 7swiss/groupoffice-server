@@ -6,7 +6,7 @@ INSERT INTO `cron_job` (`deleted`, `moduleId`, `name`, `cronClassName`, `method`
 
 ALTER TABLE `notifications_watch` ADD FOREIGN KEY (`groupId`) REFERENCES `auth_group`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT; ALTER TABLE `notifications_watch` ADD FOREIGN KEY (`recordTypeId`) REFERENCES `orm_record_type`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
-ALTER TABLE `orm_record_type` ADD CONSTRAINT `orm_record_type_ibfk_1` FOREIGN KEY (`moduleId`) REFERENCES `modules_module`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE `orm_record_type` ADD CONSTRAINT `orm_record_type_module_module_id` FOREIGN KEY (`moduleId`) REFERENCES `modules_module`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 
 ALTER TABLE `blob_blob` CHANGE `expireAt` `expiresAt` DATETIME NULL DEFAULT NULL;
