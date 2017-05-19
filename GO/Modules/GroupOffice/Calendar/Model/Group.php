@@ -38,8 +38,9 @@ class Group extends FWGroup { // implements PrincipalInterface {
 //	}
 
 	public function getEmail() {
-		if(empty($this->user))
-			return null;
+		if(empty($this->user)) {
+			return null; //throw new \Exception('Every Group must have an owner');
+		}
 		return $this->user->email;
 	}
 

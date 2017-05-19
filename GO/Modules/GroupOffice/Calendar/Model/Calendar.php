@@ -38,7 +38,7 @@ class Calendar extends Record {
 	public $color;
 
 	/**
-	 * Everytime something in this calendar changes the number is incresed
+	 * Every time something in this calendar changes the number is incresed
 	 * @var int
 	 */							
 	public $version = 1;
@@ -100,7 +100,7 @@ class Calendar extends Record {
 
 	/**
 	 * Test
-	 * @return Attendee
+	 * @return CalendarEvent
 	 */
 	public function newEvent() {
 		$calEvent = new CalendarEvent();
@@ -109,6 +109,7 @@ class Calendar extends Record {
 		$calEvent->calendarId = $this->id;
 		$calEvent->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
+		$event->parent = $calEvent;
 		$event->organizerEmail = $this->owner->getEmail();
 		$calEvent->event = $event;
 		return $calEvent;

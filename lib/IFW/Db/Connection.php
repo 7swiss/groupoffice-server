@@ -151,6 +151,8 @@ class Connection extends Object{
 //		IFW::app()->getDebugger()->debugCalledFrom();
 		
 //		if($this->transactionSavePointLevel == 0) {
+		$ret = null;
+		if(!$this->inTransaction())
 			$ret = $this->pdo->beginTransaction();
 			
 //		}else

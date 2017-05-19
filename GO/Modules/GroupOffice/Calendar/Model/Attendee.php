@@ -60,24 +60,6 @@ class Attendee extends Record {
 	 */							
 	public $groupId;
 
-	public $deleted;
-
-	// DEFINE
-
-	static public function me() {
-		$me = new self();
-		$me->email = \GO()->getAuth()->user()->email;
-		$me->groupId = Group::current()->id;
-		$defaultCalendar = $me->findDefaultCalendar();
-		$me->setCalendar($defaultCalendar);
-		$me->responseStatus = AttendeeStatus::Accepted;
-		$event = new Event();
-		$me->event = $event;
-		//$me->event->attendees[] = $me;
-		$me->event->organizerEmail = $me->email;
-		return $me;
-	}
-
 	/**
 	 * For now just the first this attendee owns
 	 * @return type
@@ -100,7 +82,6 @@ class Attendee extends Record {
 	protected static function defineRelations() {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
 		self::hasOne('calendar', Calendar::class, ['calendarId' => 'id']);
-		self::hasMany('alarms', Alarm::class, ['eventId' => 'eventId', 'groupId' => 'groupId']);
 		self::hasOne('group', Group::class, ['groupId'=> 'id']);
 
 		self::hasMany('calendarGroups', CalendarGroup::class, ['calendarId' => 'calendarId']);
@@ -132,29 +113,6 @@ class Attendee extends Record {
 	}
 	
 	// ATTRIBUTES
-	/**
-	 * True is this attendee is the organizer of the event it attends to.
-	 * @return bool
-	 */
-	public function getIsOrganizer() {
-		if(!empty($this->event)) {
-			return $this->event->organizerEmail == $this->email;
-		}
-		return false;
-	}
-
-	public function getCanWrite() {
-		if(empty($this->calendarId)) {
-			return false; // when attendee has no calendar
-		}
-		return $this->getPermissions()->can("update") && $this->getIsOrganizer();
-	}
-
-	public function addAlarms($defaultAlarms) {
-		foreach($defaultAlarms as $defaultAlarm) {
-			$defaultAlarm->addTo($this);
-		}
-	}
 
 	public function setCalendar($calendar) {
 		if(empty($calendar)) {

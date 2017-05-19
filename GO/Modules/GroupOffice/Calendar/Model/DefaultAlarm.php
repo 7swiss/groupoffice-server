@@ -43,11 +43,4 @@ class DefaultAlarm extends Record {
 	const RelativeNone = 0; // use $triggerAt
 	const RelativeToStartTime = 1;
 	const RelativeToEndTime = 2;
-
-	public function addTo(Attendee $attendee) {
-		$alarm = new Alarm();
-		$alarm->trigger = $this->trigger;
-		$alarm->relativeTo = $this->relativeTo;
-		$attendee->alarms[] = $alarm;
-	}
 }

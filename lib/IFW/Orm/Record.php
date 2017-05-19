@@ -245,7 +245,7 @@ abstract class Record extends DataModel {
 	 * True if this record doesn't exit in the database yet
 	 * @var boolean
 	 */
-	private $isNew = true;
+	protected $isNew = true;
 
 	/**
 	 * Holds the accessed relations
@@ -587,7 +587,7 @@ abstract class Record extends DataModel {
 		$pk = [];
 		
 		foreach($primaryCols as $colName) {
-			$pk[$colName] = $this->$colName;
+			$pk[$colName] = $this->getColumn($colName)->recordToDb($this->$colName);
 		}
 		
 		return $pk;		
@@ -1743,8 +1743,10 @@ abstract class Record extends DataModel {
 		
 		$query = new Query();
 		$query->where($pk)->withDeleted();
-		
-		$query->enableCache($pk);
+
+		if(!(IFW::app()->getCache() instanceof \IFW\Cache\None)) {
+			$query->enableCache($pk);
+		}
 		
 		return self::find($query)->single();
 	}

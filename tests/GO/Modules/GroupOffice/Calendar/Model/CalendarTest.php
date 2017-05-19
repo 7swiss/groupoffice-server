@@ -1,38 +1,54 @@
 <?php
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
+
 class CalendarTest extends \GO\Utils\ModuleCase {
 
-	protected static $module = '\GO\Modules\GroupOffice\Calendar\Module';
-
-	function testCreateCalendar() {
+	function testCRUDCalendar() {
 
 		$calendar = new Calendar();
 		$calendar->name = 'Test calendar';
 		$calendar->color = '000000';
 
 		$this->assertTrue($calendar->save());
-   }
+		$calendarId = $calendar->id;
 
-	function testReadWriteCalendar() {
+		$calendar = Calendar::findByPk($calendarId);
+		$this->assertNotEmpty(Calendar::findByPk($calendarId));
 
-		$calendar = Calendar::findByPk(1);
-		
 		$this->assertTrue($calendar instanceof Calendar);
 
 		$calendar->name = 'New name';
 
 		$this->assertTrue($calendar->save());
-	}
+
+		$calendar = Calendar::findByPk($calendarId);
+		$this->assertNotEmpty(Calendar::findByPk($calendarId));
+
+		$this->assertTrue($calendar->delete());
+		// there is no soft delete
+
+		$calendar = Calendar::findByPk($calendarId);
+		$this->assertEmpty($calendar);
+   }
+
 
 	function testListCalendar() {
 		$all = Calendar::find();
-		$count = 0;
-		foreach($all as $calendar) {
-			$count++;
-		}
-		$this->assertEquals(1, $all->getRowCount());
-		$this->assertTrue($count === 1);
+		$this->assertCount(0, $all);
+
+		$calendar = new Calendar();
+		$calendar->name = 'Test calendar';
+		$calendar->color = '000000';
+
+		$this->assertTrue($calendar->save());
+		$all = Calendar::find();
+		$this->assertCount(1, $all);
+
+		$this->changeUser('henk');
+		$all = Calendar::find();
+		$this->assertCount(0, $all);
+		$this->changeUser('admin');
 	}
 	
 	function testShareCalendar() {
@@ -41,23 +57,24 @@ class CalendarTest extends \GO\Utils\ModuleCase {
 
 		$this->assertTrue($henk instanceof \GO\Core\Users\Model\User);
 
-		$cal = Calendar::findByPk(1);
-		$cal->setValues(['groups' => [
-			['groupId' => $henk->group->id, 'write' => true]
-		]]);
+		$calendar = new Calendar();
+		$calendar->name = 'Test calendar';
+		$calendar->color = '000000';
+		$calendar->groups[] = ['groupId' => $henk->group->id, 'write' => true];
+		$this->assertTrue($calendar->save());
 
-		$this->assertTrue($cal->save());
+		$calendarId = $calendar->id;
 
 		$this->changeUser('henk');
 
-		$cal = Calendar::findByPk(1);
-		$this->assertNotEmpty($cal);
+		$calendar = Calendar::findByPk($calendarId);
+		$this->assertNotEmpty($calendar);
 
-		$this->assertFalse($cal->ownedBy == $henk->id);
+		$this->assertFalse($calendar->ownedBy == $henk->id);
 		//$this->assertTrue($cal->getPermissions()->can('write')); // fails??
 		
-		$cal->color = '111111';
-		$this->assertTrue($cal->save());
+		$calendar->color = '111111';
+		$this->assertTrue($calendar->save());
 
 		$this->changeUser('admin');
 	}
