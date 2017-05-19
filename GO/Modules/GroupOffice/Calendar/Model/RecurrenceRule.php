@@ -132,9 +132,6 @@ class RecurrenceRule extends Record {
 	}
 	protected static function defineRelations() {
 		self::hasOne('event', Event::class, ['eventId' => 'id']);
-		self::hasMany('exceptions', RecurrenceException::class, ['eventId' => 'eventId']);
-		self::hasMany('overrides', Event::class, ['eventId' => 'id'])->setQuery((new Query)->select('*'))
-				->via(Event::class,['uid'=>'uid']);
 	}
 
 	protected function internalValidate() {
@@ -163,7 +160,7 @@ class RecurrenceRule extends Record {
 	 */
 	public function stopBefore(DateTime $date) {
 		$this->until = clone $date;
-		$this->until->sub(new \DateInterval('P1D')); // gisteren
+		$this->until->sub(new \DateInterval('PT1S')); // until is in an inclusive manner
 	}
 
 	/**
@@ -183,9 +180,9 @@ class RecurrenceRule extends Record {
 
 	/**
 	 *
-	 * @param \Datetime $start
-	 * @param \Datetime $end
-	 * @return \Datetime[]
+	 * @param Datetime $start
+	 * @param Datetime $end
+	 * @return Datetime[Event]
 	 */
 	public function getOccurences($start, $end) {
 		if($this->forAttendee === null) {
@@ -196,38 +193,28 @@ class RecurrenceRule extends Record {
 		while($recurrenceId = $this->getIterator()->current()) {
 			if($recurrenceId > $end)
 				break;
-			$calEvent = clone $this->forAttendee;
-			$calEvent->event = clone $this->forAttendee->event;
+			$calEvent = new CalendarEvent();
+			$calEvent->setValues($this->forAttendee->toArray());
 			$calEvent->addRecurrenceId($recurrenceId);
-			$result[$recurrenceId->getTimestamp()] = $calEvent;
+			$result[$recurrenceId->format('Y-m-d').$this->event->id] = $calEvent;
 			$this->getIterator()->next();
 		}
-		foreach($this->exceptions as $exception) { // @todo fetch only exceptions between $start and $end
-			if(isset($result[$exception->at->getTimestamp()])) {
-				unset($result[$exception->at->getTimestamp()]);
-			}
-		}
-		foreach($this->overrides as $exception) { // @todo fetch only exceptions between $start and $end
-			if(!empty($exception->recurrenceId) && isset($result[$exception->recurrenceId->getTimestamp()])) {
-				unset($result[$exception->recurrenceId->getTimestamp()]);
+		$overrides = $this->event->overrides($start, $end);
+		foreach($overrides as $override) {
+			if(isset($result[$override->recurrenceId->format('Y-m-d').$override->eventId])) {
+				if($override->isPatched()) { // PATCH
+					// @todo: move the patched to the none recurring list.
+					// The patch could be outside $start - $end timespan
+					$result[$override->recurrenceId->format('Y-m-d').$override->eventId]->instance = $override;
+					$result[$override->recurrenceId->format('Y-m-d').$override->eventId]->event = $override->patch();
+				} else { //EXDATE
+					unset($result[$override->recurrenceId->format('Y-m-d').$override->eventId]); // !!!
+				}
+			} else { // RDATE
+				// TODO
 			}
 		}
 		return $result;
-	}
-
-	/**
-	 * Add exception to the current event, and pass the replacementEvent if any
-	 * Replacement event will not be saved
-	 * @param DateTime $recurrenceId time to except the recurrent
-	 * @param array $attrs the replacement attributes
-	 * @return bool successful
-	 */
-	public function addException(DateTime $recurrenceId, $attrs = null) {
-		$exception = new RecurrenceException();
-		empty($attrs) ? $exception->isRemoved = true : $exception->setValues($attrs);
-		$exception->recurrenceId = $recurrenceId;
-		$exception->eventId = $this->eventId;
-		$this->exceptions[] = $exception;
 	}
 	
 }

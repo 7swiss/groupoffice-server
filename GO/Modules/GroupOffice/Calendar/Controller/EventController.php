@@ -48,7 +48,7 @@ class EventController extends Controller {
 		} else {
 			$query->where('event.startAt <= :until AND event.endAt > :from')
 					->bind([':until' => $until, ':from' => $from]);
-			$recurringEvents = CalendarEvent::findRecurring(new \DateTime($from), new \DateTime($until));
+			$recurringEvents = CalendarEvent::findRecurring(new DateTime($from), new DateTime($until));
 			$recurringEvents->setReturnProperties($returnProperties);
 		}
 
@@ -64,7 +64,7 @@ class EventController extends Controller {
 		}
 
 		$events = CalendarEvent::find($query);
-		$events->setReturnProperties($returnProperties.',event');
+		$events->setReturnProperties($returnProperties);
 
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
@@ -77,7 +77,6 @@ class EventController extends Controller {
 			throw new NotFound();
 		}
 		if($recurrenceId !== null) {
-			// fake a start time and ask to change single instance or start new series
 			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
 		}
 
@@ -133,16 +132,12 @@ class EventController extends Controller {
 			throw new NotFound();
 		}
 	
-		$calEvent->setValues(IFW::app()->getRequest()->body['data']);
 		if($recurrenceId !== null) {
 			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
-			// modified is cleared after appling exception so set it again
-			if(isset(IFW::app()->getRequest()->body['data']['event'])) {
-				$calEvent->event->setValues(IFW::app()->getRequest()->body['data']['event']);
-			}
 		}
-		$calEvent->singleInstance = ($single === '1') ? true : false;
-		$calEvent->save();
+		
+		$calEvent->setValues(IFW::app()->getRequest()->body['data']);
+		$success = ($single === '1') ? $calEvent->save() : $calEvent->saveFromHere();
 
 		$this->renderModel($calEvent, $returnProperties);
 	}
@@ -165,11 +160,10 @@ class EventController extends Controller {
 		if (!$calEvent) {
 			throw new NotFound();
 		}
-		$calEvent->singleInstance = ($single === '1') ? true : false;
 		if($recurrenceId !== null) {
 			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
 		}
-		$calEvent->delete();
+		$success = ($single === '1') ? $calEvent->delete() : $calEvent->deleteFromHere();
 
 		$this->renderModel($calEvent);
 	}

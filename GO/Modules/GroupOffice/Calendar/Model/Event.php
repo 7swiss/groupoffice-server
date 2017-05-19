@@ -7,9 +7,10 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use IFW\Orm\Record;
+use IFW\Orm\PropertyRecord;
 use IFW\Util\DateTime;
 use IFW\Util\UUID;
+use IFW\Orm\Query;
 
 /**
  * This holds information about a single event. The event can occur one-time or
@@ -24,7 +25,7 @@ use IFW\Util\UUID;
  * @property Attendee[] $attendees all attendees that are added including organizer
  * @property EventAttachment[] $attachments File attachments
  */
-class Event extends Record {
+class Event extends PropertyRecord {
 
 	/**
 	 * Primary key auto increment.
@@ -55,13 +56,13 @@ class Event extends Record {
 	 * The start time of the event
 	 * @var DateTime
 	 */							
-	public $startAt;
+	protected $startAt;
 
 	/**
 	 * The end time of the event (or the occurence)
 	 * @var DateTime
 	 */							
-	public $endAt;
+	protected $endAt;
 
 	/**
 	 * The creation time
@@ -103,7 +104,7 @@ class Event extends Record {
 	 * auto tagging to give the event some flair. See Resource folder
 	 * @var string
 	 */							
-	public $tag;
+	private $tag;
 
 	/**
 	 * PUBLIC, PRIVATE, CONFIDENTIAL
@@ -125,9 +126,15 @@ class Event extends Record {
 
 	/**
 	 * The exception object that is applied to this instance
-	 * @var RecurrenceException
+	 * @var DateTime
 	 */
 	public $recurrenceId = null;
+
+	/**
+	 * This is the calendar event that this event is a property of
+	 * @var CalendarEvent
+	 */
+	public $parent;
 
 	protected function init() {
 		if ($this->isNew()) {
@@ -160,6 +167,10 @@ class Event extends Record {
 	public function getTitle() {
 		return $this->title;
 	}
+	public function getTag() {
+		return $this->tag;
+	}
+
 	/**
 	 * Set the tag property when the title contains a certain word
 	 * @todo function is not called when the attributes of events are set relational
@@ -189,12 +200,49 @@ class Event extends Record {
 		self::hasOne('recurrenceRule', RecurrenceRule::class, ['id' => 'eventId']);
 		self::hasMany('attendees', Attendee::class, ['id' => 'eventId']);
 		self::hasMany('attachments', EventAttachment::class, ['id' => 'eventId']);
+		self::hasMany('instances', EventInstance::class, ['id' => 'eventId']);
+		//self::hasMany('overrides', Event::class, ['uid' => 'uid'])->setQuery((new Query)->select('*')->where('recurrenceId IS NOT NULL'));
 	}
 
 	// ATTRIBUTES
 	
 	public function getIsRecurring() {
-		return !empty($this->recurrenceRule) && !empty($this->recurrenceRule->frequency);
+		return (!empty($this->recurrenceRule)); // && !empty($this->recurrenceRule->frequency));
+	}
+	public function getStartAt() {
+		if(is_string($this->startAt)) {
+			$this->startAt = new DateTime($this->startAt);
+		}
+		return empty($this->startAt) ? $this->recurrenceId : $this->startAt;
+	}
+
+	public function getEndAt() {
+		if(!empty($this->endAt)) {
+			if(is_string($this->endAt)) {
+				$this->endAt = new DateTime($this->endAt);
+			}
+			return $this->endAt;
+		}
+		$endAt = clone $this->getStartAt();
+		$endAt->add($this->getDuration());
+		return $endAt;
+	}
+
+	public function setStartAt($val) {
+		$this->startAt = $val;
+	}
+	public function setEndAt($val) {
+		$this->endAt = $val;
+	}
+
+
+	/**
+	 * When the recurrenceId of an event was set it represents a single instance
+	 * of a recurring event. When editing we create an exception
+	 * @return bool
+	 */
+	public function getIsInstance() {
+		return !empty($this->recurrenceId);
 	}
 
 	/**
@@ -237,7 +285,7 @@ class Event extends Record {
 		if(empty($this->endAt)){
 			return new \DateInterval('PT1H');
 		}
-		return $this->startAt->diff($this->endAt);
+		return $this->getStartAt()->diff($this->endAt);
 	}
 
 	// OVERRIDES
@@ -255,13 +303,18 @@ class Event extends Record {
 
 	// OPERATIONS
 
-	public function applyExceptionTODO(RecurrenceException $exception) {
-		$this->exception = $exception;
-		foreach($exception->getTable()->getColumns() as $colName => $name) {
-			if($exception->{$colName} !== null && !in_array($colName, ['id', 'eventId', 'isRemoved', 'recurrenceId'])) {
-				$this->{$colName} = $exception->{$colName};
-			}
+	/**
+	 * Create a patch object for instance
+	 */
+	public function createInstance($recurrenceId) {
+		if(!$this->getIsRecurring()) {
+			throw new \Exception('Cannot create instance for none recurring event');
 		}
+		$instance = new EventInstance();
+		$instance->eventId = $this->id;
+		$instance->serie = $this;
+		$instance->recurrenceId = $recurrenceId;
+		return $instance;
 	}
 
 	/**
@@ -272,28 +325,46 @@ class Event extends Record {
 		return $this;
 	}
 
+	/**
+	 * Changed instances of a recurring event
+	 * @param DateTime $start
+	 * @param DateTime $end
+	 * @return EventInstance store
+	 */
+	public function overrides(DateTime $start, DateTime $end) {
+		return EventInstance::find((new Query)
+				//->joinRelation('event', ['sequence', 'startAt', 'endAt', 'createdAt', 'modifiedAt', 'description', 'location', 'status'])
+				->where('eventId = :id AND recurrenceId > :start AND recurrenceId < :end')
+				->bind([':id'=>$this->id, ':start'=>$start->format('Y-m-d'), ':end'=>$end->format('Y-m-d')])
+		);
+	}
+
+	/**
+	 * Make a copy of the event for exceptions or a new series
+	 * The organizer is the only one cloning and his attendense is therefor skipped
+	 * @return \self
+	 */
 	public function cloneMe() {
 		$event = new self();
 		$properties = $this->toArray();
-		//unset($properties['recurrenceId']);
+		unset($properties['recurrenceId']);
+		unset($properties['id']);
 		$event->setValues($properties);
-		$event->id = null;
-		$event->uid = UUID::v4();
-
+		$event->parent = $this->parent;
 		foreach($this->attendees as $attendee) {
-			$clone = new Attendee();
-			$clone->setValues($attendee->toArray());
-			$clone->eventId = null;
-			$event->attendees[] = $clone;
-			// Maybe clone alarms to?
+			if($this->organizerEmail == $attendee->email){
+				continue;
+			}
+			$new = new Attendee();
+			$new->setValues($attendee->toArray());
+			$event->attendees[] = $new;
 		}
 		foreach($this->attachments as $attachment) {
-			$clone = new EventAttachment();
-			$clone->setValues($attachment->toArray());
-			$clone->eventId = null;
-			$event->attachments[] = $clone;
+			$new = new EventAttachment();
+			$new->setValues($attachment->toArray());
+			$event->attachments[] = $new;
 		}
-		//Todo: clone Resources when they are implemented
+		
 		return $event;
 	}
 

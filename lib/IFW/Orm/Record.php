@@ -245,7 +245,7 @@ abstract class Record extends DataModel {
 	 * True if this record doesn't exit in the database yet
 	 * @var boolean
 	 */
-	private $isNew = true;
+	protected $isNew = true;
 
 	/**
 	 * Holds the accessed relations

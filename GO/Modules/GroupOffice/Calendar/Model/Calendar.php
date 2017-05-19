@@ -100,7 +100,7 @@ class Calendar extends Record {
 
 	/**
 	 * Test
-	 * @return Attendee
+	 * @return CalendarEvent
 	 */
 	public function newEvent() {
 		$calEvent = new CalendarEvent();
@@ -109,6 +109,7 @@ class Calendar extends Record {
 		$calEvent->calendarId = $this->id;
 		$calEvent->responseStatus = AttendeeStatus::Accepted;
 		$event = new Event();
+		$event->parent = $calEvent;
 		$event->organizerEmail = $this->owner->getEmail();
 		$calEvent->event = $event;
 		return $calEvent;

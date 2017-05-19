@@ -16,6 +16,9 @@ use GO\Core\Orm\Record;
  */
 class Alarm extends Record {
 
+	const RelStart = 1;
+	const RelEnd = 2;
+
 	/**
 	 * auto increment primary key
 	 * @var int
@@ -26,7 +29,7 @@ class Alarm extends Record {
 	 * ISO 8061 period specification (without fractions)
 	 * @var string
 	 */							
-	public $trigger;
+	public $offsetDuration;
 
 	/**
 	 * Time to trigger the alarm. If this is set secondsFrom will be ignorerd
@@ -35,10 +38,9 @@ class Alarm extends Record {
 	public $triggerAt;
 
 	/**
-	 * 1=starttime, 2=endtime
 	 * @var int
 	 */							
-	public $relativeTo = 1;
+	public $relativeTo = self::RelStart;
 
 	/**
 	 * PK of the evetn this alarm is set on
@@ -76,16 +78,9 @@ class Alarm extends Record {
 	protected static function defineRelations() {
 		self::hasOne('attendee', Attendee::class, ['eventId'=>'eventId', 'groupId' => 'groupId']);
 	}
-	
-	public function ring() {
-		// Implement when notification system is ready.
+
+	public function addTo(Attendee $attendee) {
+		$attendee->alarms[] = $this;
 	}
-	
-	public function snooze($for = 'PT5M') {
-		// change the notification time to $for in the future
-	}
-	
-	public function dismiss() {
-		// remove all created notifications
-	}
+
 }
