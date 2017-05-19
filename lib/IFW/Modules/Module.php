@@ -73,11 +73,16 @@ abstract class Module extends Model implements ModuleInterface {
 	 *  
 	 * @return string
 	 */
-	public function getPath() {
+	public function findPath() {
 		$r = new ReflectionClass($this);
 
 		return dirname($r->getFileName());
 	}	
+	
+	
+	public function getName() {
+		return static::class;
+	}
 		
 	
 	/**
@@ -89,7 +94,7 @@ abstract class Module extends Model implements ModuleInterface {
 	 */
 	public function getModuleInformation(){
 		
-		$moduleInfoFile = new File($this->getPath().'/Module.xml');
+		$moduleInfoFile = new File($this->findPath().'/Module.xml');
 		
 		if(!$moduleInfoFile->exists()){
 			throw new Exception("Module information file not found: \n\n" . $moduleInfoFile->getPath());
@@ -154,5 +159,13 @@ abstract class Module extends Model implements ModuleInterface {
 		}
 		
 		return $info;
+	}
+	
+	public function getPermissions() {
+		return new \IFW\Auth\Permissions\Everyone();
+	}
+	
+	public function getCapabilities() {
+		return [];
 	}
 }

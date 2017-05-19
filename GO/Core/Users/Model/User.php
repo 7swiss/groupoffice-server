@@ -372,5 +372,20 @@ class User extends Record implements UserInterface {
 	public function generateToken() {
 		return md5($this->lastLogin->format('c') . $this->password);
 	}
+	
+	public function getModules() {
+				
+		$ret = [];
+		
+		$modules = GO()->getModules();		
+		foreach($modules as $moduleName) {
+			GO()->getAuth()->sudo(function() use (&$ret, $moduleName) {
 
+				$ret[] = (new $moduleName)->toArray('name,permissions,capabilities');
+
+			}, $this->id);
+		}
+
+		return $ret;
+	}
 }

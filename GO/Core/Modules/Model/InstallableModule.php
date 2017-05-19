@@ -83,8 +83,6 @@ abstract class InstallableModule extends IFWModule {
 	 */
 	public final function getPermissions() {
 
-
-
 		if (!isset($this->permissions)) {
 			$this->permissions = $this->internalGetPermissions();
 		}
@@ -114,7 +112,7 @@ abstract class InstallableModule extends IFWModule {
 	 */
 	public function databaseUpdates() {
 
-		$folder = new Folder($this->getPath());
+		$folder = new Folder($this->findPath());
 		$dbFolder = $folder->getFolder('Install/Database');
 		if (!$dbFolder->exists()) {
 			return [];
@@ -198,6 +196,11 @@ abstract class InstallableModule extends IFWModule {
 	 * @return boolean
 	 */
 	public function isInstalled() {
+		
+		if(GO()->getCache()->get(self::class.'::isInstalled')) {
+			return true;
+		}
+		
 		if (!System::isDatabaseInstalled()) {
 			return false;
 		}
@@ -205,6 +208,9 @@ abstract class InstallableModule extends IFWModule {
 			return false;
 		}
 
+//		GO()->getCache()->set(self::class.'::isInstalled', true);
+			
+		
 		return true;
 	}
 
@@ -265,9 +271,6 @@ abstract class InstallableModule extends IFWModule {
 		return $allDepends;
 	}
 
-	public function toArray($returnProperties = "*,model") {
-		return parent::toArray($returnProperties);
-	}
 
 //	/**
 //	 * Get the configuration object for this module.

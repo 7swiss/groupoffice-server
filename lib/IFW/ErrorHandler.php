@@ -18,15 +18,15 @@ use IFW;
  */
 class ErrorHandler {
 
-	public function __construct() {
-		error_reporting(E_ALL | E_STRICT);
+	public function __construct() {		
 		
-		//doesn't matter because we're catching all errors and handle the display ourselves
-		//ini_set('display_errors', 'off');
+		if(\IFW::app()->getDebugger()->enabled) {
+			error_reporting(E_ALL);
+		}
 		
 		set_error_handler([$this, 'errorHandler']);
 		register_shutdown_function([$this, 'shutdown']);
-		set_exception_handler([$this, 'exceptionHandler']);
+		set_exception_handler([$this, 'exceptionHandler']);		
 	}
 
 	/**

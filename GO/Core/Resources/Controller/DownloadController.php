@@ -9,7 +9,7 @@ class DownloadController extends Controller {
 	protected function actionDownload($moduleName, $path) {
 		$module = new $moduleName;
 		
-		$moduleFolder = new Folder($module->getPath());
+		$moduleFolder = new Folder($module->findPath());
 		$resourcesFolder = $moduleFolder->getFolder('Resources');
 		
 		$file = $resourcesFolder->getFile($path);
