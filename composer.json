@@ -22,7 +22,7 @@
 
 		"flowjs/flow-php-server": "@stable",
 		"sabre/dav": "@stable",
-		"swiftmailer/swiftmailer": "@stable",
+		"swiftmailer/swiftmailer": "^5.0@stable",
 		"html2text/html2text": "@stable",
 		"mtdowling/cron-expression": "@stable",
 		"ralouphie/mimey": "dev-master",
