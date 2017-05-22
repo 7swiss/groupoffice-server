@@ -21,12 +21,6 @@ class Sudo {
 	}
 	
 	public function execute($args = []) {
-		
-		//if permissions are disabled then ignore sudo
-		if(!\IFW\Auth\Permissions\Model::$enablePermissions) {
-			return call_user_func_array($this->callable, $args);
-		}		
-		
 		try {			
 			\IFW::app()->getAuth()->setCurrentUser($this->sudoUser);			
 			$ret = call_user_func_array($this->callable, $args);

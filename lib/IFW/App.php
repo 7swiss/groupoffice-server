@@ -245,7 +245,9 @@ abstract class App {
 		if (!isset($this->cache)) {			
 			$cls = $this->getConfig()->cacheClass;
 			$this->cache = new $cls;
-
+			if(!$this->cache->isSupported()) {
+				$this->cache = new None();
+			}
 		}
 		return $this->cache;
 	}

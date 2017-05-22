@@ -107,7 +107,11 @@ class UserProvider implements UserProviderInterface {
 	 * @param User $user The user to run the function as
 	 * @param array $args The method arguments
 	 */
-	public function sudo(callable $callable, UserInterface $user = null, $args = []) {						
+	public function sudo(callable $callable, UserInterface $user = null, $args = []) {				
+
+		if(!\IFW\Auth\Permissions\Model::$enablePermissions) {
+			return call_user_func_array($callable, $args);
+		}				
 		
 		if(!isset($user)) {			
 			//get admin
@@ -121,9 +125,10 @@ class UserProvider implements UserProviderInterface {
 	
 	private function getAdmin() {
 		if(!isset($this->admin)) {
+			$old = \IFW\Auth\Permissions\Model::$enablePermissions;
 			\IFW\Auth\Permissions\Model::$enablePermissions = false;
 			$this->admin = User::find(['id' => 1])->single();
-			\IFW\Auth\Permissions\Model::$enablePermissions = true;
+			\IFW\Auth\Permissions\Model::$enablePermissions = $old;
 		}
 
 		return $this->admin;

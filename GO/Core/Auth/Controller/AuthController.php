@@ -200,6 +200,12 @@ class AuthController extends Controller {
 	 * @return Response {@see actionLogin()}
 	 */
 	public function actionIsLoggedIn($returnProperties = '*,user[*]') {
+		
+		if(!\GO\Core\Install\Model\System::isDatabaseInstalled()) {
+			throw new \IFW\Exception\HttpException(503);
+		}
+		
+		
 		$token = GO()->getAuth()->sudo(function() {
 
 			$token = Token::findByCookie(false);

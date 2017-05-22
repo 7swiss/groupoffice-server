@@ -14,7 +14,6 @@ use IFW\Util\ClassFinder;
 use PDOException;
 
 class System extends Model {
-//	private static $isDbInstalled;
 
 	/**
 	 * Check if the GroupOffice database has been installed
@@ -23,10 +22,6 @@ class System extends Model {
 	 */
 	public static function isDatabaseInstalled() {
 
-//		if(isset(self::$isDbInstalled)) {
-//			return self::$isDbInstalled;
-//		}
-		
 		if(\IFW::app()->getCache()->get('System::isDatabaseInstalled')) {
 			return true;
 		}

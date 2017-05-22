@@ -57,7 +57,7 @@ class ErrorHandler {
 		
 		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() .": ". $e->getLine();
 		error_log($errorString, 0);
-		
+	
 		foreach(explode("\n", (string) $e) as $line) {
 			IFW::app()->debug($line);
 		}

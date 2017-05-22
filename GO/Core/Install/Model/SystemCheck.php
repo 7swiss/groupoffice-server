@@ -2,93 +2,84 @@
 
 namespace GO\Core\Install\Model;
 
-use IFW\Data\Model;
 use IFW;
+use IFW\Data\Model;
 use PDOException;
+use function GO;
 
-/**
- * System check result model
- * 
- * It contains a boolean and feedback.
- */
-class SystemCheckResult extends Model {
-
-	public $success;
-	public $msg;
-
-	public function __construct($success, $msg = "OK") {
-
-		parent::__construct();
-
-		$this->success = $success;
-		$this->msg = $msg;
-	}
-
-}
 /**
  * System check model to test if the system meets the system requirements
  */
 class SystemCheck extends Model {
 
-	private $_checks = [];
+	private $checks = [];
+	
+	private $requiredExtensions = [
+			'mbstring', 
+			'zip', 
+			'pcre', 
+			'date', 
+			'iconv', 
+			'pdo', 
+			'gd', 
+			'ctype', 
+			'curl',
+			'openssl'
+			];
 
 	public function __construct() {
 		parent::__construct();
-
-		$this->_registerCheck(
-						"PHP version", function() {
+		
+		$this->checks[] = new Check("PHP version", function($check) {
+			
 			$version = phpversion();
-			
-			$requiredVersion = "5.6";
-			
-			if (version_compare($version, $requiredVersion, ">=")) {
-				return new SystemCheckResult(true, "OK (" . $version . ")");
-			} else {
 
-				return new SystemCheckResult(false, "Your PHP version '$version' is older then the minimum required version '$requiredVersion'");
-			}
+			$requiredVersion = "5.6";
+
+			$check->success = version_compare($version, $requiredVersion, ">=");
+			$check->message = $check->success ? "OK" : "Your PHP version '$version' is older then the minimum required version '$requiredVersion'";
 		});
 		
-//		$this->_registerCheck("Mcrypt extension", function(){			
-//			if(function_exists("mcrypt_create_iv")) {
-//				return new SystemCheckResult(true);
-//			}else
-//			{
-//				return new SystemCheckResult(false, "Required, but not installed");
-//			}
-//		});
+		$this->checks[] = new Check("Memory limit", function($check) {			
+			$check->success = IFW::app()->getEnvironment()->getMemoryLimit() >= 128 * 1024 * 1024; 
+			$check->message = $check->success ? "OK" : "The php 'memory_limit' settings is low (".(IFW::app()->getEnvironment()->getMemoryLimit() / 1024 / 1024)." MB). Please set to a minimum of 128 MB";
+		});
+		
 
-		$this->_registerCheck(
-						"Database connection", function() {
+		
+
+
+		$this->checks[] = new Check("Database connection", function($check) {
 			try {
-				$conn = GO()->getDbConnection()->getPDO();
-				return new SystemCheckResult(true, "Connection established");
+				$conn = GO()->getDbConnection()->getPDO();								
 			} catch (PDOException $e) {
-				return new SystemCheckResult(false, "Couldn't connect to database. Please check the config. PDO Exception: " . $e->getMessage());
+				$check->message = "Couldn't connect to database. Please check the config. PDO Exception: " . $e->getMessage();
+				$check->success = false;
 			}
 		});
 
-		$this->_registerCheck(
-						"Temp folder", function() {
+		$this->checks[] = new Check("Temp folder", function($check) {
 			$file = GO()->getConfig()->getTempFolder()->getFile("test.txt");
 
 			if ($file->touch()) {
 
 				$file->delete();
 
-				return new SystemCheckResult(true, 'Is writable');
+				
 			} else {
-				return new SystemCheckResult(false, "'" . GO()->getConfig()->getTempFolder() . "' is not writable!");
+				$check->success = false;
+				$check->message = "'" . \IFW\Config::class. "::tempFolder' is not writable!";
 			}
 		});
 
-		$this->_registerCheck(
-						"Data folder", function() {
+		$this->checks[] = new Check("Data folder", function($check) {
 
 			$folder = GO()->getConfig()->getDataFolder();
 
 			if (!$folder->exists()) {
-				return new SystemCheckResult(false, '"' . $folder . '" doesn\'t exist');
+				$check->success = false;
+				$check->message = '"' . \IFW\Config::class . '::dataFolder" doesn\'t exist';
+				return;
 			}
 
 			$file = $folder->getFile("test.txt");
@@ -97,16 +88,32 @@ class SystemCheck extends Model {
 
 				$file->delete();
 
-				return new SystemCheckResult(true, "Is writable");
 			} else {
-				return new SystemCheckResult(false, "'" . $folder . "' is not writable!");
+				$check->success = false;
+				$check->message = '"' . \IFW\Config::class . '::dataFolder" is not writable';
 			}
 		});
+		
+		
+		$this->checkExtensions();
+		
+		
+		
+	}
+	
+	private function checkExtensions() {
+		
+		foreach($this->requiredExtensions as $extension) {
+			$this->checks[] = new Check("PHP Extension '".$extension."'", function($check) use ($extension) {
+				
+				$check->success = extension_loaded($extension);
+				if(!$check->success) {
+					$check->message =  "PHP extension '$extension' is required but not available on your system";
+				}
+			});
+		}
 	}
 
-	private function _registerCheck($name, $function) {
-		$this->_checks[$name] = $function;
-	}
 	
 	/**
 	 * Run all system checks
@@ -125,16 +132,12 @@ class SystemCheck extends Model {
 			'checks' => []
 			];
 		
-		foreach($this->_checks as $name => $function){
-			
-			$result = $function();
-			
-			/* @var $result SystemCheckResult */			
-			if(!$result->success){
+		foreach($this->checks as $check){
+			$check->run();
+			if(!$check->success) {
 				$response['success'] = false;
 			}
-			
-			$response['checks'][$name] = $result->toArray();
+			$response['checks'][] = $check->toArray();
 		}
 		
 		return $response;		
