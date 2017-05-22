@@ -50,6 +50,23 @@ class Environment {
 	public function getMemoryLimit() {
 		return $this->configToBytes(ini_get('memory_limit'));
 	}
+	
+	/**
+	 * Get the maximum size of a file upload
+	 * 
+	 * To increase increase in php.ini:
+	 * 
+	 * 1. memory_limit
+	 * 2. post_max_size
+	 * 3. upload_max_filesize
+	 * 
+	 * The smallest value will apply here.
+	 * 
+	 * @return int
+	 */
+	public function getMaxUploadSize() {
+		return min($this->configToBytes(ini_get('post_max_size')), $this->configToBytes(ini_get('upload_max_filesize')), $this->configToBytes(ini_get('memory_limit')));
+	}
 
 	/**
 	 * Converts shorthand memory notation value to bytes
@@ -63,6 +80,10 @@ class Environment {
 		$val = substr($val, 0, -1);
 		switch ($last) {
 			// The 'G' modifier is available since PHP 5.1.0
+			case 'P':  
+        $val *= 1024;  
+			case 'T':  
+				$val *= 1024;
 			case 'g':
 				$val *= 1024;
 			case 'm':

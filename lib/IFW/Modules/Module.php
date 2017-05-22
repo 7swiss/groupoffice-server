@@ -165,6 +165,20 @@ abstract class Module extends Model implements ModuleInterface {
 		return new \IFW\Auth\Permissions\Everyone();
 	}
 	
+	/**
+	 * Capabilities the client must use
+	 * 
+	 * This is a key value array.
+	 * 
+	 * Eg.:
+	 * 
+	 * ```
+	 * "capabilities": {
+	 *                    "uploadMaxFileSize": 52428800
+	 *                }
+	 * ```
+	 * @return array
+	 */
 	public function getCapabilities() {
 		return [];
 	}

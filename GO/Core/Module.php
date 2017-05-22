@@ -172,4 +172,10 @@ class Module extends BaseModule {
 		$router->addRoutesFor(BlobController::class)->set('blob/test', 'test');
 	}
 	
+	public function getCapabilities() {
+		return [
+			"uploadMaxFileSize" => \IFW::app()->getEnvironment()->getMaxUploadSize()
+		];
+	}
+	
 }
