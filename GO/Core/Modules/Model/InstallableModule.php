@@ -10,6 +10,7 @@ use IFW\Auth\Permissions\Model;
 use IFW\Fs\File;
 use IFW\Fs\Folder;
 use IFW\Modules\Module as IFWModule;
+use function GO;
 
 /**
  * @todo rename to Module. A problem with this exists because the Record is already called Module.
@@ -197,7 +198,7 @@ abstract class InstallableModule extends IFWModule {
 	 */
 	public function isInstalled() {
 		
-		if(GO()->getCache()->get(self::class.'::isInstalled')) {
+		if(\IFW::app()->getCache()->get(self::class.'::isInstalled')) {
 			return true;
 		}
 		
