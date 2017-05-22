@@ -122,12 +122,13 @@ class Token extends Record implements GarbageCollectionInterface {
 				$this->userAgent = 'cli';
 			}
 			
-			$this->refresh();
+			$this->internalRefresh();
 		}else
 		{
-			//update expiry date on every access			
-			$this->setExpiryDate();
-			$this->update();
+			//update expiry date on every access		
+			// Only done on GET auth	
+//			$this->setExpiryDate();
+//			$this->update();
 		}
 	}
 	
@@ -196,13 +197,18 @@ class Token extends Record implements GarbageCollectionInterface {
 	 */
 	public function setCookies() {				
 		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', $this->accessToken, 0, "/", null, false, true);
+		setcookie('accessToken', $this->accessToken, $this->expiresAt->format('U'), "/", null, false, true);
 		
 		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', $this->XSRFToken, 0, "/", null, false, false);		
+		setcookie('XSRFToken', $this->XSRFToken, $this->expiresAt->format('U'), "/", null, false, false);		
 	}
 	
-	
+	private function internalRefresh() {
+		$this->accessToken = $this->generateToken();
+		$this->XSRFToken = $this->generateToken();			
+		
+		$this->setExpiryDate();
+	}
 	/**
 	 * Set new tokens and expiry date
 	 * 
@@ -210,12 +216,9 @@ class Token extends Record implements GarbageCollectionInterface {
 	 */
 	public function refresh() {
 		
-		$this->accessToken = $this->generateToken();
-		$this->XSRFToken = $this->generateToken();			
+		$this->internalRefresh();
 		
-		$this->setExpiryDate();
-		
-		return $this;
+		return $this->save();
 	}
 	
 	private function setExpiryDate() {

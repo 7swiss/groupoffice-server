@@ -161,23 +161,19 @@ class AuthController extends Controller {
 	 */
 	public function actionLogin($returnProperties = '*,user[*]') {
 
-		$token = GO()->getAuth()->sudo(function() {
+		$user = User::login(
+										GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
 
-			$user = User::login(
-											GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
+		if (!$user) {
+			throw new BadLogin();
+		}
 
-			if (!$user) {
-				throw new BadLogin();
-			}
+		$token = new Token();
+		$token->user = $user;
+		$token->save();
 
-			$token = new Token();
-			$token->user = $user;
-			$token->save();
+		$token->setCookies();
 
-			$token->setCookies();
-
-			return $token;
-		});
 
 		$this->renderModel($token, $returnProperties);
 	}
@@ -220,7 +216,7 @@ class AuthController extends Controller {
 		});
 
 		if ($token) {
-//			$token->refresh();
+			$token->refresh();
 			$token->setCookies();
 			$this->renderModel($token, $returnProperties);
 		} else {

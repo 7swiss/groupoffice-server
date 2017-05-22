@@ -202,7 +202,9 @@ class User extends Record implements UserInterface {
 			return false;
 		}
 
-		$user = User::find(['username' => $username])->single();
+		$user = GO()->getAuth()->sudo(function() use ($username) {
+			return User::find(['username' => $username])->single();
+		});
 
 		$success = true;
 
