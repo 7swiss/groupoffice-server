@@ -238,7 +238,8 @@ class Message extends Model {
 			$response = $conn->getResponse();
 
 			if(!isset($response['data'][0][0])){
-				throw new \Exception("No structure returned");
+//				throw new \Exception("No structure returned");
+				return false;
 			}
 
 			$this->bodyStructureStr = $response['data'][0][0];
@@ -256,7 +257,12 @@ class Message extends Model {
 	public function getStructure() {
 		
 		if (!isset($this->structure)) {
-			$this->structure = new Structure($this, $this->getBodyStructureStr());
+			$struct =  $this->getBodyStructureStr();
+			
+			if(!$struct) {
+				return false;
+			}
+			$this->structure = new Structure($this, $struct);
 		}
 
 		return $this->structure;

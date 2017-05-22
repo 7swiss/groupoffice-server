@@ -383,7 +383,7 @@ class User extends Record implements UserInterface {
 
 				$ret[] = (new $moduleName)->toArray('name,permissions,capabilities');
 
-			}, $this->id);
+			}, $this);
 		}
 
 		return $ret;

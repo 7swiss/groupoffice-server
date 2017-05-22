@@ -233,7 +233,7 @@ class Message extends Record {
 						)->single();
 
 				return empty($id) ? null : $id;
-			}, $this->folder->account->createdBy);
+			}, $this->folder->account->creator);
 		}
 		           		
 		$this->message->seen = $imapMessage->getSeen();

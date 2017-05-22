@@ -181,7 +181,9 @@ abstract class InstallableModule extends IFWModule {
 	 */
 	public function getRecord() {
 		if (!isset($this->record)) {
-			$this->record = Module::find(['name' => static::class])->single();
+			$this->record = IFW::app()->getAuth()->sudo(function() {
+				return Module::find(['name' => static::class])->single();
+			});
 		}
 
 		return $this->record;
