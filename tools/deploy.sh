@@ -20,4 +20,7 @@ gulp build
 
 mkdir ../groupoffice-server/webclient
 mv build/* ../groupoffice-server/webclient
+cd ../groupoffice-server
+
+rm -rf .git .gitignore
 
