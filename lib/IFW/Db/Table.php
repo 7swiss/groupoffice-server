@@ -57,7 +57,7 @@ class Table {
 	 * Clear the columns cache
 	 */
 	public function clearCache() {
-		IFW::app()->getCache()->delete($this->getCacheKey($this->tableName));
+		IFW::app()->getCache()->delete($this->getCacheKey());
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Table {
 			return $this->columns;
 		}
 		
-		$cacheKey = $this->getCacheKey($this->tableName);
+		$cacheKey = $this->getCacheKey();
 
 		if (($columns = IFW::app()->getCache()->get($cacheKey))) {
 			$this->columns = $columns;
