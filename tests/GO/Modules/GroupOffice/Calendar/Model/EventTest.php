@@ -36,7 +36,7 @@ class EventTest extends \GO\Utils\ModuleCase {
 		'uid' => '555-003@phpunit',
 		'title' => 'Recurring Event',
 		'startAt' => '2017-04-07T11:00:00.000Z',
-		'endAt' => '2017-04-07T11:00:00.000Z',
+		'endAt' => '2017-04-07T12:00:00.000Z',
 		'location' => 'In Space',
 		'visibility' => 2,
 		'allDay' => true,
@@ -162,8 +162,14 @@ class EventTest extends \GO\Utils\ModuleCase {
 		$this->assertEquals($this->eventRecurring['event']['title'], $calEvent->event->title);
 		$instance = $calEvent->addRecurrenceId(new DateTime($this->recurEditAt));
 		$calEvent->event->title = 'Recur Update 1';
+		$calEvent->event->startAt = '2017-04-07T11:30:00+0000';
+		$calEvent->event->endAt = '2017-04-07T12:30:00+0000';
 		$this->assertTrue($instance->isNew());
 		$this->assertTrue($calEvent->save());
+
+		$instance = $calEvent->addRecurrenceId(new DateTime($this->recurEditAt));
+		$this->assertEquals('2017-04-07T11:30:00+0000', $instance->patch->startAt->format(\DateTime::ISO8601));
+		$this->assertEquals('2017-04-07T12:30:00+0000', $instance->patch->endAt->format(\DateTime::ISO8601));
 
 		// change this 1 occurence again
 		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId, 'calendarId'=>$calendarId]);
@@ -173,9 +179,14 @@ class EventTest extends \GO\Utils\ModuleCase {
 		$this->assertFalse($instance->isNew());
 		$this->assertFalse($instance->patch->isNew());
 		$calEvent->event->title = 'Recur Update 2';
+		$calEvent->event->startAt = '2017-04-07T11:30:00+0000';
+		$calEvent->event->endAt = '2017-04-07T12:30:00+0000';
 		$this->assertTrue($calEvent->save());
+
 		$instance = $calEvent->addRecurrenceId(new DateTime($this->recurEditAt));
 		$this->assertEquals('Recur Update 2', $instance->patch->title);
+		$this->assertEquals('2017-04-07T11:30:00+0000', $instance->patch->startAt->format(\DateTime::ISO8601));
+		$this->assertEquals('2017-04-07T12:30:00+0000', $instance->patch->endAt->format(\DateTime::ISO8601));
 		$this->assertEquals($this->adminCalendar->id, $calEvent->calendarId);
 
 		// update from here (new series)
