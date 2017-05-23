@@ -7,7 +7,7 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use IFW\Orm\PropertyRecord;
+use IFW\Orm\Record;
 use IFW\Util\DateTime;
 use IFW\Util\UUID;
 use IFW\Orm\Query;
@@ -25,7 +25,7 @@ use IFW\Orm\Query;
  * @property Attendee[] $attendees all attendees that are added including organizer
  * @property EventAttachment[] $attachments File attachments
  */
-class Event extends PropertyRecord {
+class Event extends Record {
 
 	/**
 	 * Primary key auto increment.
