@@ -54,16 +54,16 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionUpgrade($skipFirstError = false) {
+	public function actionUpgrade() {
 		
 		$this->lock();
 
 		//run as admin
 		GO()->getCache()->flush(); // Sudo cant fetch user with old cache
 
-		GO()->getAuth()->sudo(function() use ($skipFirstError) {
+		GO()->getAuth()->sudo(function() {
 			$system = new System();
-			$system->upgrade($skipFirstError);
+			$system->upgrade();
 		});
 
 		$this->render([]);

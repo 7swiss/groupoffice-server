@@ -12,6 +12,9 @@ use IFW\Fs\Folder;
  * ````````````````````````````````````````````````````````````````````````````
  * IFW::app()->getAuth();
  * ````````````````````````````````````````````````````````````````````````````
+ * @copyright (c) 2017, Intermesh BV http://www.intermesh.nl
+ * @author Merijn Schering <mschering@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 interface UserProviderInterface {
 	/**
@@ -60,7 +63,7 @@ interface UserProviderInterface {
 	 * 
 	 * @param UserInterface $user
 	 */
-	public function setCurrentUser(UserInterface $user);
+	public function setCurrentUser(UserInterface $user = null);
 	
 	
 	/**
@@ -71,9 +74,11 @@ interface UserProviderInterface {
 	 * permissions to do that while adding it.
 	 * 
 	 * @param callable $callback Code in this function will run as administrator
+	 * @param UserInterface $user The user to run the function as. If null is given then run as admin.
+	 * @param array $args The method arguments
 	 * @return mixed return value of the callback
 	 */
-	public function sudo(callable $callnack);
+	public function sudo(callable $callable, UserInterface $user = null, $args = []);
 	
 	/**
 	 * Get a temporary folder that is cleanned up when the user is logged out

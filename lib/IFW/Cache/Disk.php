@@ -23,10 +23,10 @@ class Disk implements CacheInterface {
 
 	public function __construct() {
 		$this->folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
-		if(!$this->folder->exists()) {
-			$this->folder->create();
-			$this->folder->chmod(0777);
-		}
+//		if(!$this->folder->exists()) {
+//			$this->folder->create();
+//			$this->folder->chmod(0777);
+//		}
 	}
 
 	
@@ -132,7 +132,18 @@ class Disk implements CacheInterface {
 		}
 	}
 
-	public function supported() {
+	public function isSupported() {
+		$folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
+		
+		if(!$folder->isWritable()) {
+			return false;
+		}
+		
+		if(!$folder->exists()) {
+			$folder->create();
+			$folder->chmod(0777);
+		}
+		
 		return true;
 	}
 

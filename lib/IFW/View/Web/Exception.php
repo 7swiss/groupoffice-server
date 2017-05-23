@@ -38,7 +38,12 @@ class Exception extends Api implements ViewInterface {
 		$data['date'] = date(IFW\Util\DateTime::FORMAT_API);
 		
 		$data['success'] = false;
-		$data['errors'][] = $exception->getMessage();
+		
+		$cls = get_class($exception);
+		
+		$errorString = $cls.': ' . $exception->getMessage()." in " . $exception->getFile() .": ". $exception->getLine();
+		
+		$data['errors'][] = $errorString;
 //		$data['exception'] = explode("\n", (string) $exception);
 		
 		$httpStatus = $exception instanceof IFW\Exception\HttpException ? $exception->getCode() : 500;

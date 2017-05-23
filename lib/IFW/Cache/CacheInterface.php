@@ -55,5 +55,5 @@ interface CacheInterface {
 	 * 
 	 * @return boolean
 	 */
-	public function supported();
+	public function isSupported();
 }

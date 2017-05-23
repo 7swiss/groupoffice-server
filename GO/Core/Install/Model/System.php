@@ -14,7 +14,6 @@ use IFW\Util\ClassFinder;
 use PDOException;
 
 class System extends Model {
-//	private static $isDbInstalled;
 
 	/**
 	 * Check if the GroupOffice database has been installed
@@ -23,12 +22,16 @@ class System extends Model {
 	 */
 	public static function isDatabaseInstalled() {
 
-//		if(isset(self::$isDbInstalled)) {
-//			return self::$isDbInstalled;
-//		}
+		if(\IFW::app()->getCache()->get('System::isDatabaseInstalled')) {
+			return true;
+		}
 
 		try {
 			$isDbInstalled = IFW::app()->getDbConnection()->getPDO() && Utils::tableExists('modules_module');
+			
+			if($isDbInstalled) {
+				\IFW::app()->getCache()->set('System::isDatabaseInstalled', true);
+			}
 		} catch (PDOException $e) {
 			$isDbInstalled = false;
 		}
@@ -110,7 +113,7 @@ class System extends Model {
 	 *
 	 * @return boolean
 	 */
-	public function upgrade($skipFirstError = false) {
+	public function upgrade() {
 
 		if (!$this->isDatabaseInstalled()) {
 			throw new \Exception("The database is not installed");
@@ -121,8 +124,8 @@ class System extends Model {
 
 		$this->setUtf8Collation();
 
-		$this->runCoreUpdates($skipFirstError);
-		Module::runModuleUpdates($skipFirstError);
+		$this->runCoreUpdates();
+		Module::runModuleUpdates();
 
 
 		GO()->getCache()->flush();
@@ -130,16 +133,16 @@ class System extends Model {
 		return true;
 	}
 
-	private function runCoreUpdates($skipFirstError = false) {
+	private function runCoreUpdates() {
 
 		$updates = $this->databaseUpdates();
 
 
 		foreach ($updates as $file) {
 			if ($file->getExtension() === 'php') {
-				$this->runScript($file, $skipFirstError);
+				$this->runScript($file);
 			} else {
-				$this->runQueries($file, $skipFirstError);
+				$this->runQueries($file);
 			}
 
 			$this->getInstallation()->dbVersion++;
@@ -165,21 +168,18 @@ class System extends Model {
 		}
 	}
 
-	private function runQueries(File $file, &$skipFirstError) {
+	private function runQueries(File $file) {
 		$queries = Utils::getSqlQueries($file);
 		foreach ($queries as $query) {
 			try {
 				IFW::app()->getDbConnection()->query($query);
 			} catch (\Exception $e) {
-				if (!$skipFirstError) {
-					$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
-									"\nIf you're a developer, you might need to skip this file "
-									. "because you already applied the changes to your database. "
-									. "Empty the file temporarily and rerun the upgrade.\n\n"
-							. "PDO ERROR: \n\n" . $e->getMessage();
-					throw new \Exception($msg);
-				}
-				$skipFirstError = false;
+				$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
+								"\nIf you're a developer, you might need to skip this file "
+								. "because you already applied the changes to your database. "
+								. "Empty the file temporarily and rerun the upgrade.\n\n"
+						. "PDO ERROR: \n\n" . $e->getMessage()."\n\nQuery:\n".$query;
+				throw new \Exception($msg);	
 			}
 		}
 	}

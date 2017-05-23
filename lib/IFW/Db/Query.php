@@ -504,7 +504,7 @@ class Query extends Criteria {
 	 * @return Command
 	 */
 	public function createCommand() {
-		return GO()->getDbConnection()->createCommand()->select($this);
+		return \IFW::app()->getDbConnection()->createCommand()->select($this);
 	}
 	
 	

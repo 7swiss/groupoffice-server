@@ -243,12 +243,10 @@ abstract class App {
 	 */
 	public function getCache() {
 		if (!isset($this->cache)) {			
-			if(!System::isDatabaseInstalled()) {				
+			$cls = $this->getConfig()->cacheClass;
+			$this->cache = new $cls;
+			if(!$this->cache->isSupported()) {
 				$this->cache = new None();
-			}else
-			{			
-				$cls = $this->getConfig()->cacheClass;
-				$this->cache = new $cls;
 			}
 		}
 		return $this->cache;

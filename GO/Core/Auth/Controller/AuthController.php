@@ -161,23 +161,19 @@ class AuthController extends Controller {
 	 */
 	public function actionLogin($returnProperties = '*,user[*]') {
 
-		$token = GO()->getAuth()->sudo(function() {
+		$user = User::login(
+										GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
 
-			$user = User::login(
-											GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
+		if (!$user) {
+			throw new BadLogin();
+		}
 
-			if (!$user) {
-				throw new BadLogin();
-			}
+		$token = new Token();
+		$token->user = $user;
+		$token->save();
 
-			$token = new Token();
-			$token->user = $user;
-			$token->save();
+		$token->setCookies();
 
-			$token->setCookies();
-
-			return $token;
-		});
 
 		$this->renderModel($token, $returnProperties);
 	}
@@ -204,6 +200,12 @@ class AuthController extends Controller {
 	 * @return Response {@see actionLogin()}
 	 */
 	public function actionIsLoggedIn($returnProperties = '*,user[*]') {
+		
+		if(!\GO\Core\Install\Model\System::isDatabaseInstalled()) {
+			throw new \IFW\Exception\HttpException(503);
+		}
+		
+		
 		$token = GO()->getAuth()->sudo(function() {
 
 			$token = Token::findByCookie(false);
@@ -220,7 +222,7 @@ class AuthController extends Controller {
 		});
 
 		if ($token) {
-//			$token->refresh();
+			$token->refresh();
 			$token->setCookies();
 			$this->renderModel($token, $returnProperties);
 		} else {

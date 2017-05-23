@@ -200,7 +200,7 @@ class Command {
 		
 		$build = $this->build();
 		
-		IFW::app()->debug($this->replaceBindParameters($build['sql'], $build['params']), \IFW\Debugger::TYPE_SQL);
+		IFW::app()->debug($this->replaceBindParameters($build['sql'], $build['params']), \IFW\Debugger::TYPE_SQL, 3);
 		
 		try {
 			

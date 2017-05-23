@@ -109,7 +109,7 @@ class Module extends Record {
 	 */
 	public function getIcon() {
 		
-		$iconFile = (new IFW\Fs\Folder($this->manager()->getPath()))->getFile('Resources/icon.svg');
+		$iconFile = (new IFW\Fs\Folder($this->manager()->findPath()))->getFile('Resources/icon.svg');
 		
 		if($iconFile->exists()) {		
 			return GO()->getRouter()->buildUrl('resources/'.urlencode($this->name).'/icon.svg');
@@ -189,7 +189,7 @@ class Module extends Record {
 		
 		if($this->isNew() && !$this->dontInstallDatabase) {			
 			$depends = $this->manager()->getRecursiveDependencies();				
-			$this->runModuleUpdates(false, $depends);
+			$this->runModuleUpdates($depends);
 			
 			if(!$this->manager()->install($this)) {
 				return false;
@@ -217,7 +217,7 @@ class Module extends Record {
 	 * @param array $moduleManagers
 	 * @throws Exception
 	 */
-	public static function runModuleUpdates($skipFirstError = false, array $moduleManagers = null){
+	public static function runModuleUpdates(array $moduleManagers = null){
 		
 		$updates = self::collectModuleUpgrades($moduleManagers);
 		
@@ -240,9 +240,9 @@ class Module extends Record {
 			GO()->debug("Running installation file '".$file->getPath()."'");
 
 			if ($file->getExtension() === 'php') {
-				self::runScript($file, $skipFirstError);
+				self::runScript($file);
 			} else {
-				self::runQueries($file, $skipFirstError);
+				self::runQueries($file);
 			}
 			
 			$module->version++;
@@ -255,41 +255,34 @@ class Module extends Record {
 		}	 
 	}
 	
-	private static function runScript(\IFW\Fs\File $file, &$skipFirstError) {
+	private static function runScript(\IFW\Fs\File $file) {
 		try {
 			require($file->getPath());
 		} catch (\Exception $e) {
-			if (!$skipFirstError) {
-				$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
-								"\nIf you're a developer, you might need to skip this file "
-								. "because you already applied the changes to your database. "
-								. "Empty the file temporarily and rerun the upgrade.\n\n"
-							. "PDO ERROR: \n\n" . $e->getMessage();
-				throw new \Exception($msg);
-			}else
-			{
-				GO()->debug("Skipping error: ".$e->getMessage());
-				$skipFirstError = false;
-			}
+			$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
+							"\nIf you're a developer, you might need to skip this file "
+							. "because you already applied the changes to your database. "
+							. "Empty the file temporarily and rerun the upgrade.\n\n"
+						. "PDO ERROR: \n\n" . $e->getMessage();
+			throw new \Exception($msg);
+		
 			
 		}
 	}
 
-	private static function runQueries(\IFW\Fs\File $file, &$skipFirstError) {
+	private static function runQueries(\IFW\Fs\File $file) {
 		$queries = Utils::getSqlQueries($file);
 		foreach ($queries as $query) {
 			try {
 				IFW::app()->getDbConnection()->query($query);
 			} catch (\Exception $e) {
-				if (!$skipFirstError) {
-					$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
-									"\nIf you're a developer, you might need to skip this file "
-									. "because you already applied the changes to your database."
-									. "Empty the file temporarily and rerun the upgrade.\n\n"
-									. "PDO ERROR: \n\n" . $e->getMessage();
-					throw new \Exception($msg);
-				}
-				$skipFirstError = false;
+				$msg = "An exception ocurred in upgrade file " . $file->getPath() . 
+								"\nIf you're a developer, you might need to skip this file "
+								. "because you already applied the changes to your database."
+								. "Empty the file temporarily and rerun the upgrade.\n\n"
+								. "PDO ERROR: \n\n" . $e->getMessage() . "\n\nQuery:\n".$query;
+				throw new \Exception($msg);
+				
 			}
 		}
 	}

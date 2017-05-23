@@ -17,19 +17,6 @@ class UserProvider implements UserProviderInterface {
 	 * @var User 
 	 */
 	private $currentUser;
-	
-	/**
-	 * When sudo() is used this var holds the logged in user calling sudo()
-	 * @var User	 
-	 */
-	private $sudoUser;
-	
-	/**
-	 * True when sudo() is calling a closure as admin.
-	 * 
-	 * @var boolean 
-	 */
-	private $inSudo = false;
 
 	/**
 	 * Check if there's an authenticated user
@@ -75,13 +62,8 @@ class UserProvider implements UserProviderInterface {
 	 * 
 	 * @param UserInterface $user
 	 */
-	public function setCurrentUser(UserInterface $user) {
-		if($this->inSudo) {
-			$this->sudoUser = $user;
-		}else
-		{
-			$this->currentUser = $user;
-		}
+	public function setCurrentUser(UserInterface $user = null) {
+		$this->currentUser = $user;
 	}
 
 	/**
@@ -121,46 +103,40 @@ class UserProvider implements UserProviderInterface {
 	 * allowed to. For example when you create a contact you don't have the 
 	 * permissions to do that while adding it.
 	 * 
-	 * @param callable $callback Code in this function will run as administrator
-	 * @param int $userId The user to run the function as
+	 * @param callable $callable Code in this function will run as administrator
+	 * @param User $user The user to run the function as
 	 * @param array $args The method arguments
 	 */
-	public function sudo(callable $callback, $userId = 1, $args = []) {		
+	public function sudo(callable $callable, UserInterface $user = null, $args = []) {				
 
-		if($this->inSudo || !\IFW\Auth\Permissions\Model::$enablePermissions) {
-			return call_user_func_array($callback, $args);
+		if(!\IFW\Auth\Permissions\Model::$enablePermissions) {
+			return call_user_func_array($callable, $args);
+		}				
+		
+		if(!isset($user)) {			
+			//get admin
+			$user = $this->getAdmin();
 		}
 		
-		$this->inSudo = true;
-		\IFW\Auth\Permissions\Model::$enablePermissions = false;
-		$this->sudoUser = $this->user();		
-		$this->currentUser = User::find(['id' => $userId])->single();
-		\IFW\Auth\Permissions\Model::$enablePermissions = true;
+		$sudo = new \IFW\Auth\Sudo($callable, $user);
 		
-		try {
-			$ret = call_user_func_array($callback, $args);
-		} catch (Exception $ex) {			
-			\GO()->debug("sudo exception ".$ex->getMessage());
-			throw $ex;
-		} finally {
-			\IFW\Auth\Permissions\Model::$enablePermissions = true;
-			$this->currentUser = $this->sudoUser;
-			$this->sudoUser = null;
-			$this->inSudo = false;
+		return $sudo->execute($args);
+	}
+	
+	private function getAdmin() {
+		if(!isset($this->admin)) {
+			$old = \IFW\Auth\Permissions\Model::$enablePermissions;
+			\IFW\Auth\Permissions\Model::$enablePermissions = false;
+			$this->admin = User::find(['id' => 1])->single();
+			\IFW\Auth\Permissions\Model::$enablePermissions = $old;
 		}
-		
-		return $ret;
+
+		return $this->admin;
 	}
 	
-	/**
-	 * Get the user calling sudo
-	 * 
-	 * @return User
-	 */
-	public function getSudoUser() {
-		return $this->sudoUser;
-	}
+	private $admin;
 	
+
 	private $tempFolder;
 
 	/**

@@ -24,7 +24,7 @@ use Swift_Mime_ContentEncoder_Base64ContentEncoder;
 /**
  * The Account model
  *
- * 
+ * @proeprty \GO\Core\Users\Model\User $creator
  * @property SmtpAccount $smtpAccount
  * @properry Signature[] $signatures
  * @properry Folder[] $folders
@@ -106,6 +106,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 	
 	protected static function defineRelations() {
 		
+		self::hasOne('creator', \GO\Core\Users\Model\User::class, ['createdBy' => 'id']);
 		self::hasOne('smtpAccount', SmtpAccount::class, ['smtpAccountId' => 'id']);
 		self::hasMany('signatures', Signature::class, ['id' => 'accountId']);
 		

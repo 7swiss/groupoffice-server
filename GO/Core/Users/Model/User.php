@@ -202,7 +202,9 @@ class User extends Record implements UserInterface {
 			return false;
 		}
 
-		$user = User::find(['username' => $username])->single();
+		$user = GO()->getAuth()->sudo(function() use ($username) {
+			return User::find(['username' => $username])->single();
+		});
 
 		$success = true;
 
@@ -372,5 +374,20 @@ class User extends Record implements UserInterface {
 	public function generateToken() {
 		return md5($this->lastLogin->format('c') . $this->password);
 	}
+	
+	public function getModules() {
+				
+		$ret = [];
+		
+		$modules = GO()->getModules();		
+		foreach($modules as $moduleName) {
+			GO()->getAuth()->sudo(function() use (&$ret, $moduleName) {
 
+				$ret[] = (new $moduleName)->toArray('name,permissions,capabilities');
+
+			}, $this);
+		}
+
+		return $ret;
+	}
 }

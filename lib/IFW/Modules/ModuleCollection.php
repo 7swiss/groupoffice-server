@@ -29,8 +29,15 @@ class ModuleCollection implements ArrayAccess, IteratorAggregate{
 	 * @param boolean $installedOnly Return only installed modules by default
 	 */
 	public function __construct() {
-		$cf = new ClassFinder();
-		$this->modules = $cf->findByParent(ModuleInterface::class);	
+		
+		$this->modules = \IFW::app()->getCache()->get('ifw-modules');
+						
+		if(!$this->modules) {
+			$cf = new ClassFinder();
+			$this->modules = $cf->findByParent(ModuleInterface::class);	
+			
+			\IFW::app()->getCache()->set('ifw-modules', $this->modules);
+		}
 	}
 
 	public function offsetExists($offset) {		
