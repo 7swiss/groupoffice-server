@@ -43,7 +43,7 @@ class EventController extends Controller {
 			->orderBy([$orderColumn => $orderDirection]);
 		
 		if (!empty($searchQuery)) {
-			$query->search($searchQuery, ['title']);
+			$query->search($searchQuery, ['event.title']);
 			$recurringEvents = new IFW\Data\Store([]); // does not find recurring events
 		} else {
 			$query->where('event.startAt <= :until AND event.endAt > :from')
