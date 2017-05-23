@@ -46,6 +46,7 @@ ALTER TABLE `contacts_account_group`
 
 
 INSERT INTO `contacts_account_group` (`accountId`, `groupId`, `write`) select id, 2, 1 from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account" limit 0,1;
+INSERT INTO `contacts_account_group` (`accountId`, `groupId`, `write`) select id, 2, 2 from accounts_account where modelName="GO\\Modules\\GroupOffice\\Contacts\\Model\\Account" limit 0,1;
 
 
 DROP TABLE contacts_contact_group;
