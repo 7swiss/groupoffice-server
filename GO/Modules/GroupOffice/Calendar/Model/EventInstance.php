@@ -151,7 +151,8 @@ class EventInstance extends Record {
 		$event->endAt = clone $this->recurrenceId;
 		$event->endAt->add($this->getDuration());
 		foreach($this->patch->toArray() as $col => $val) {
-			$event->$col = $val; // will set start + end again when overridden
+			if($val !== null)
+				$event->$col = $val; // will set start + end again when overridden
 		}
 		$event->id = $this->serie->id; // always
 		return $event;

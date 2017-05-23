@@ -4,7 +4,9 @@
 	colors="true"
 	processIsolation="false"
 	backupGlobals="false"
-	backupStaticAttributes="false">
+	backupStaticAttributes="false"
+	convertErrorsToExceptions="true"
+	convertWarningsToExceptions="true">
 
 	<testsuites>
 		<testsuite name="go-ifw">

@@ -35,7 +35,8 @@ class CalendarTest extends \GO\Utils\ModuleCase {
 
 	function testListCalendar() {
 		$all = Calendar::find();
-		$this->assertCount(0, $all);
+
+		$this->assertEquals(0, $all->getRowCount());
 
 		$calendar = new Calendar();
 		$calendar->name = 'Test calendar';
@@ -43,11 +44,11 @@ class CalendarTest extends \GO\Utils\ModuleCase {
 
 		$this->assertTrue($calendar->save());
 		$all = Calendar::find();
-		$this->assertCount(1, $all);
+		$this->assertEquals(1, $all->getRowCount());
 
 		$this->changeUser('henk');
 		$all = Calendar::find();
-		$this->assertCount(0, $all);
+		$this->assertEquals(0, $all->getRowCount());
 		$this->changeUser('admin');
 	}
 	
