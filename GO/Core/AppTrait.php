@@ -62,6 +62,23 @@ trait AppTrait {
 
 		return $record;
 	}
+	
+	
+	private static $logEnabled = true;
+	
+	/**
+	 * Suspend logging to the database via the {@see log()} function
+	 */
+	public static function logSuspend() {
+		self::$logEnabled = false;
+	}
+	
+	/**
+	 * Resume logging to the database via the {@see log()} function
+	 */
+	public static function logResume() {
+		self::$logEnabled = true;
+	}
 
 	/**
 	 * 
@@ -72,6 +89,11 @@ trait AppTrait {
 	 * @throws Exception
 	 */
 	public function log($type, $description, Record $record = null) {
+		
+		if(!self::$logEnabled) {
+			return false;
+		}
+		
 		$log = new Entry();
 
 		$log->setRecord($record);
