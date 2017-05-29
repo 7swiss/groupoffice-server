@@ -570,6 +570,11 @@ https://tools.ietf.org/html/rfc3501#section-2.3.1.1
 		foreach($messages as $message) {
 			
 			$imapMessage = $imapMailbox->getMessage($message->imapMessage->imapUid, false, ['FLAGS']);
+			if(!$imapMessage) {
+
+				throw new \Exception("Message not found on IMAP: ".$message->objectId().' '.$message->imapMessage->objectId());
+//
+			}
 			
 			GO()->debug("Modified message: ".$imapMessage->uid." in mailbox : ".$imapMailbox->getName().' '.$message->imapMessage->syncedAt->format('c').' < '.$message->modifiedAt->format('c'));
 			
