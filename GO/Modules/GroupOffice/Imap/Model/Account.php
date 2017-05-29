@@ -6,7 +6,7 @@ use Exception;
 use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use GO\Core\Accounts\Model\SyncableInterface;
 use GO\Core\Blob\Model\Blob;
-use GO\Core\Email\Model\Attachment;
+use GO\Core\Email\Model\Attachment as CoreAttachment;
 use GO\Core\Email\Model\Message as CoreMessage;
 use GO\Core\Notifications\Model\Notification;
 use GO\Core\Smtp\Model\Account as SmtpAccount;
@@ -465,7 +465,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		foreach ($messagesMessage->attachments as $attachment) {
 			$blob = Blob::findByPk($attachment->blobId);
 			
-			$swiftAttachment = Attachment::fromPath($blob->getPath(), $blob->contentType);
+			$swiftAttachment = CoreAttachment::fromPath($blob->getPath(), $blob->contentType);
 			$swiftAttachment->setFilename($attachment->name);
 			
 			if(isset($attachment->contentId)) {
