@@ -20,6 +20,10 @@
 		<testsuite name="go-calendar">
 			<directory>./GO/Modules/GroupOffice/Calendar</directory>
 		</testsuite>
+
+		<testsuite name="go-files">
+			<directory>./GO/Modules/GroupOffice/Files</directory>
+		</testsuite>
 		
 		<testsuite name="go-test">
 			<directory>./GO/Modules/GroupOffice/Test</directory>
