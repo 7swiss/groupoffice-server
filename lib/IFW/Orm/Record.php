@@ -282,7 +282,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * @var Record 
 	 */
-	private $isSavedBy = null;
+	protected $isSavedBy = null;
 	
 	/**
 	 * When the record is saved this is set to true.
