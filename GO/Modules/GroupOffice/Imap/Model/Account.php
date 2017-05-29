@@ -410,6 +410,8 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 				
 				$data = ['message' => $message->toArray('*'), 'error' => $e->getMessage()];
 				
+				//clear previous error
+				Notification::deleteByRecord($message, Notification::LOG_ACTION_ERROR);				
 				Notification::create(Notification::LOG_ACTION_ERROR, $data, $message, $message->thread->photoBlobId, [$this->coreAccount->ownedBy]);
 			}
 		}

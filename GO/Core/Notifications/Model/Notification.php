@@ -211,11 +211,32 @@ class Notification extends Record implements \GO\Core\GarbageCollection\GarbageC
 		}
 	}
 	
+	/**
+	 * Find a notification by record and type
+	 * 
+	 * @param Record $record
+	 * @param string $type
+	 * @return self
+	 */
 	public static function findByRecord(Record $record, $type) {
 		$recordId = implode('-', $record->pk());
 		$recordTypeId = $record->getRecordType()->id;
 		
 		return self::find(['recordId' => $recordId, 'recordTypeId' => $recordTypeId, 'type' => $type]);
+	}
+	
+	/**
+	 * Delete a notification by record and type
+	 * 
+	 * @param Record $record
+	 * @param string $type
+	 * @return bool
+	 */
+	public static function deleteByRecord(Record $record, $type) {
+		$recordId = implode('-', $record->pk());
+		$recordTypeId = $record->getRecordType()->id;
+		
+		return GO()->getDbConnection()->createCommand()->delete(self::tableName(), ['recordId' => $recordId, 'recordTypeId' => $recordTypeId, 'type' => $type])->execute();
 	}
 
 
