@@ -306,9 +306,9 @@ class Event extends Record {
 	}
 
 	protected function internalSave() {
-		if($this->isSavedBy !== null && $this->isSavedBy instanceof CalendarEvent) {
+		if($this->savedBy !== null && $this->savedBy instanceof CalendarEvent) {
 			foreach($this->attendees as $key => $attendee) {
-				if($this->isSavedBy->calendarId == $attendee->calendarId){
+				if($this->savedBy->calendarId == $attendee->calendarId){
 					unset($this->attendees[$key]); // don't save self twice
 				}
 			}

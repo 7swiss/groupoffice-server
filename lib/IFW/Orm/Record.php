@@ -282,7 +282,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * @var Record 
 	 */
-	protected $isSavedBy = null;
+	private $savedBy = null;
 	
 	/**
 	 * When the record is saved this is set to true.
@@ -1342,7 +1342,7 @@ abstract class Record extends DataModel {
 			
 		} finally {
 			//only commit or rollback when we're the record that started the save
-			if(!$this->isSavedBy) {
+			if(!$this->savedBy) {
 				if(!$success) {				
 					$this->rollBack();				
 				}else {			
@@ -1370,19 +1370,19 @@ abstract class Record extends DataModel {
 				$this->{$aiCol->name} = null;
 			}
 		}		
-		$this->isSavedBy = null;
+		$this->savedBy = null;
 		$this->isSaving = false;
 		
 		foreach($this->savedRelations as $relationStore) {
 			foreach($relationStore as $record) {
 				//only commit if this record initated the save of this relation
-				if($record->isSaving && $record->isSavedBy == $this) {
+				if($record->isSaving && $record->savedBy == $this) {
 					$record->rollBack();
 				}else
 				{						
 					//might have beeen set but save never started because it wasn't modified
-					if($record->isSavedBy == $this) {
-						$record->isSavedBy = null;
+					if($record->savedBy == $this) {
+						$record->savedBy = null;
 					}
 				}
 			}
@@ -1406,7 +1406,7 @@ abstract class Record extends DataModel {
 		
 		$this->isNew = false;
 		$this->setOldAttributes();
-		$this->isSavedBy = null;
+		$this->savedBy = null;
 		$this->isSaving = false;
 		
 		//Unset the accessed relations so user set relations are queried from the db after save.
@@ -1414,13 +1414,13 @@ abstract class Record extends DataModel {
 			
 			foreach($relationStore as $record) {
 				//only commit if this record initated the save of this relation
-				if($record->isSaving && $record->isSavedBy == $this) {
+				if($record->isSaving && $record->savedBy == $this) {
 					$record->commit();
 				}else
 				{						
 					//might have beeen set but save never started because it wasn't modified
-					if($record->isSavedBy == $this) {
-						$record->isSavedBy = null;
+					if($record->savedBy == $this) {
+						$record->savedBy = null;
 					}
 				}
 
@@ -1515,7 +1515,7 @@ abstract class Record extends DataModel {
 	private function setIsSavedBy($record) {
 		if(!$this->isSaving) {
 //			\IFW::app()->debug($this->objectId().' is saved by '.$record->objectId(), \IFW\Debugger::TYPE_GENERAL, 1);
-			$this->isSavedBy = $record;
+			$this->savedBy = $record;
 		}
 	}
 	
@@ -1601,10 +1601,10 @@ abstract class Record extends DataModel {
 	/**
 	 * Can be used to check if this record is saved directly or by a parent relation.
 	 * 
-	 * @return boolean
+	 * @return Record
 	 */
-	protected function isSavedByRelation() {
-		return $this->isSavedBy;
+	protected function getSavedBy() {
+		return $this->savedBy;
 	}
 
 	/**
