@@ -79,7 +79,7 @@ CREATE TABLE `calendar_event_instance` (
   PRIMARY KEY (`eventId`,`recurrenceId`),
   KEY `fk_calendar_exception_calendar_recurrence_rule1_idx` (`eventId`),
   KEY `fk_calendar_event_patch_1_idx` (`patchEventId`),
-  CONSTRAINT `fk_calendar_event_patch_event` FOREIGN KEY (`patchEventId`) REFERENCES `calendar_event` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_calendar_event_patch_event` FOREIGN KEY (`patchEventId`) REFERENCES `calendar_event` (`id`)  ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_calendar_exception_calendar_recurrence_rule1` FOREIGN KEY (`eventId`) REFERENCES `calendar_recurrence_rule` (`eventId`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 

@@ -107,7 +107,7 @@ class NodeController extends Controller {
 	}
 
 	/**
-	 * Create a new calendar.
+	 * Create a new node.
 	 *
 	 * @param array|JSON $returnProperties The attributes to return to the client.
 	 */
@@ -126,7 +126,7 @@ class NodeController extends Controller {
 	}
 
 	/**
-	 * Update calendar
+	 * Update node
 	 *
 	 * @param int $id The ID of the field
 	 * @param array|JSON $returnProperties The attributes to return to the client.
@@ -150,7 +150,7 @@ class NodeController extends Controller {
 	}
 
 	/**
-	 * Delete an event
+	 * Delete a node
 	 *
 	 * @param int $id
 	 * @throws NotFound

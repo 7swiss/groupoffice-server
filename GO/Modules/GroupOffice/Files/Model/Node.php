@@ -21,6 +21,7 @@ use GO;
  *
  * @property DateTime $modfiedAt time of last edit
  * @property string[] $path parent directory stack (parent fist, root last)
+ * @property Drive $drive The drive this node is in
  */
 class Node extends Record {
 
@@ -98,8 +99,6 @@ class Node extends Record {
 	public $ownedBy;
 
 	public $driveId;
-
-	private $isDrive = false;
 
 	/**
 	 * 
@@ -191,8 +190,19 @@ class Node extends Record {
 		if(!empty($this->nodeUser)) {
 			$this->nodeUser->touchedAt = new \DateTime();
 		}
-
+		if($this->isNew() && !$this->isDirectory)
+			$this->drive->usage += $this->getSize();
 		return parent::internalSave();
+	}
+
+	protected function internalDelete($hard) {
+		$success = true;
+		if($hard && !$this->isDirectory) {
+			$this->drive->usage -= $this->getSize();
+			$success = $this->drive->save();
+		}
+		
+		return $success && parent::internalDelete($hard);
 	}
 
 	/**
@@ -232,11 +242,11 @@ class Node extends Record {
 	}
 
 	public function setParentId($id) {
-		$this->parentId = $id;
-		if($this->isModified('parentId')) {
-			$this->driveId = $this->parent->driveId;
+		if($id !== $this->parentId) {
+			$newParent = Node::findByPk($id);
+			$this->driveId = $newParent->driveId;
+			$this->parentId = $newParent->id;
 		}
-		
 	}
 
 	public function getParentId() {
@@ -252,7 +262,7 @@ class Node extends Record {
 	}
 
 	public function getSize() {
-		return isset($this->blob) ? $this->blob->size : null;
+		return isset($this->blob) ? $this->blob->size : 0;
 	}
 
 	protected static function internalGetPermissions() {
@@ -260,9 +270,6 @@ class Node extends Record {
 	}
 
 	public function getType() {
-		if($this->isDrive) {
-			return FileType::Drive;
-		}
 		if (empty($this->blob)) {
 			return FileType::Folder;
 		}

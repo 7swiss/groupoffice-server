@@ -11,7 +11,7 @@ use GO\Core\Orm\Record;
 /**
  * A Node can be a File or a Folder
  * The time depends on the object it is attached to
- *
+ * @property Node $root the ghost root folder for this drive
  */
 class Drive extends Record {
 
@@ -31,7 +31,7 @@ class Drive extends Record {
 	 * 
 	 * @var int
 	 */							
-	public $quota = 1024 * 1024 * 1024; // 1GB
+	public $quota = 1024 * 1024 * 1024; // 1GB but doesn't work like this. @see init()
 
 	/**
 	 * 
@@ -50,6 +50,12 @@ class Drive extends Record {
 	 * @var int FK to files_node
 	 */
 	public $rootId;
+
+	protected function init() {
+		if($this->isNew()) {
+			$this->quota = 1024 * 1024 * 1024; // 1GB
+		}
+	}
 
 	protected static function defineRelations() {
 		//TODO: join events to this and select by timespan
@@ -136,5 +142,11 @@ class Drive extends Record {
 		return $mount->delete();
 	}
 
+	public function newNode() {
+		$node = new Node();
+		$node->drive = $this;
+		$node->parentId = $this->rootId;
+		return $node;
+	}
 
 }

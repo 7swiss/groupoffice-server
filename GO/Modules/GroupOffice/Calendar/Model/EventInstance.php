@@ -172,4 +172,12 @@ class EventInstance extends Record {
 		empty($this->classification) ?: $props['CLASS'] = Visibility::$text[$this->classification];
 	}
 
+	protected function internalDelete($hard) {
+
+		if($this->patch) {
+			$this->patch->delete();
+		}
+		return parent::internalDelete($hard);
+	}
+
 }
