@@ -193,10 +193,13 @@ class Field extends Record {
 				return "VARCHAR(".$this->findLargestSelectOption().") NOT NULL DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
 			case self::TYPE_NUMBER:
 				
-				$sql = "DOUBLE NULL";
+				$sql = "DECIMAL(19,4) NULL";
 				
 				if(!empty($this->defaultValue)){
-					$sql .= " DEFAULT ".GO()->getDbConnection()->getPDO()->quote($this->defaultValue);
+					$sql .= " DEFAULT ".GO()->getDbConnection()->getPDO()->quote(floatval($this->defaultValue));
+				} else
+				{
+					$sql .= " DEFAULT NULL";
 				}
 				
 				return $sql;

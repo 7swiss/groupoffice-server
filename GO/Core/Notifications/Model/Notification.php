@@ -124,6 +124,7 @@ class Notification extends Record implements \GO\Core\GarbageCollection\GarbageC
 	const CATEGORY_MESSAGE = 'message';
 	const CATEGORY_PROGRESS = 'progress';
 
+	const LOG_ACTION_ERROR = 'error';
 	
 	private static $suspended = false;
 
@@ -155,12 +156,25 @@ class Notification extends Record implements \GO\Core\GarbageCollection\GarbageC
 	}
 
 	/**
+	 * Create a notification
 	 * 
+	 * @example inside Record::internalSave()
+	 * ```
+	 * protected function internalSave()
+	 * 	if(!Notification::create(\IFW\Orm\Record::LOG_ACTION_CREATE, $this->toArray('id,name'), $this, $this->photoBlobId)) {
+				return false;
+			}
 	 * 
-	 * @param string $type
-	 * @param array $data
-	 * @param Record $record
-	 * @param int $iconBlobId
+	 *	return parent::internalSave()'
+	 * }
+	 * 
+	 * ```
+	 * 
+	 * @param string $type eg. \IFW\Orm\Record::LOG_ACTION_UPDATE
+	 * @param array $data Arbitrary data to include
+	 * @param Record $record The record this notification belongs to.
+	 * @param int $iconBlobId An icon
+	 * @param int[] $forGroupId  Groups that should see this notification
 	 * 
 	 * @return self
 	 */
