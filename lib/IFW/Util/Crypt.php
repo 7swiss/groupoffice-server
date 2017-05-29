@@ -56,6 +56,10 @@ class Crypt {
 	 */
 	public function decrypt($ciphertext) {
 		
+		if(empty($ciphertext)) {
+			return "";
+		}
+		
 		if(!$this->isEncrypted($ciphertext)) {
 			throw new \Exception("Not encrypted with this utility");
 		}
