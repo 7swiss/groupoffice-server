@@ -53,7 +53,7 @@ class CalendarEvent extends Record {
 		}
 		return parent::find($query);
 	}
-
+	
 	static public function findRecurring(DateTime $start, DateTime $end, $query = null) {
 		if($query === null) {
 			$query = new \IFW\Orm\Query();

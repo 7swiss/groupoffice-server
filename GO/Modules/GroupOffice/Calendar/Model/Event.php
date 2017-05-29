@@ -235,6 +235,10 @@ class Event extends Record {
 		$this->endAt = $val;
 	}
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone(); //parent::internalGetPermissions();
+	}
+
 
 	/**
 	 * When the recurrenceId of an event was set it represents a single instance
@@ -301,6 +305,17 @@ class Event extends Record {
 		return $success;
 	}
 
+	protected function internalSave() {
+		if($this->isSavedBy !== null && $this->isSavedBy instanceof CalendarEvent) {
+			foreach($this->attendees as $key => $attendee) {
+				if($this->isSavedBy->calendarId == $attendee->calendarId){
+					unset($this->attendees[$key]); // don't save self twice
+				}
+			}
+		}
+		return parent::internalSave();
+	}
+
 	// OPERATIONS
 
 	/**
@@ -352,9 +367,6 @@ class Event extends Record {
 		$event->setValues($properties);
 		$event->parent = $this->parent;
 		foreach($this->attendees as $attendee) {
-			if($this->organizerEmail == $attendee->email){
-				continue;
-			}
 			$new = new Attendee();
 			$new->setValues($attendee->toArray());
 			$event->attendees[] = $new;

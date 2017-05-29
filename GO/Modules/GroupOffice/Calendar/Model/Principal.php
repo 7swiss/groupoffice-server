@@ -7,15 +7,11 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-interface PrincipalInterface {
+interface Principal {
     
 	const Individual = 1;
 	const Resource = 2;
 	const Group = 3; // not implemented
 	
-	public function getName();
-	public function getEmail();
-	public function getPrincipalType();
-	public function getSchedual();
 }
 

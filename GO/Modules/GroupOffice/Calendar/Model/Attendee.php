@@ -130,7 +130,7 @@ class Attendee extends Record {
 	 * @return PrincipalType
 	 */
 	public function getType() {
-		return PrincipalInterface::Individual;
+		return Principal::Individual;
 	}
 
 	public function getName() {
