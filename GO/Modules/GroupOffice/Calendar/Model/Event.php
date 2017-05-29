@@ -298,6 +298,10 @@ class Event extends Record {
 
 		$success = parent::internalValidate();
 
+		if($this->isModified('allDay') && $this->getIsInstance()) {
+			$this->setValidationError('allDay', \IFW\Validate\ErrorCode::INVALID_INPUT, 'Cannot change allDay for single instance');
+		}
+
 		if($this->startAt > $this->endAt) {
 			$this->setValidationError('startAt', \IFW\Validate\ErrorCode::MALFORMED, 'Start date is greater than end date');
 			$success = false;
