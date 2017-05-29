@@ -6,20 +6,23 @@ use Exception;
 use GO\Core\Accounts\Model\AccountAdaptorRecord;
 use GO\Core\Accounts\Model\SyncableInterface;
 use GO\Core\Blob\Model\Blob;
+use GO\Core\Email\Model\Attachment as CoreAttachment;
+use GO\Core\Email\Model\Message as CoreMessage;
+use GO\Core\Notifications\Model\Notification;
 use GO\Core\Smtp\Model\Account as SmtpAccount;
+use GO\Core\Users\Model\User;
 use GO\Modules\GroupOffice\Messages\Model\Address;
 use GO\Modules\GroupOffice\Messages\Model\Attachment as MessagesAttachment;
 use GO\Modules\GroupOffice\Messages\Model\Message as MessagesMessage;
 use GO\Modules\GroupOffice\Messages\Model\Thread;
-use Html2Text\Html2Text;
 use IFW;
 use IFW\Imap\Connection;
 use IFW\Imap\Mailbox;
 use IFW\Orm\Query;
 use PDO;
-use Swift_Attachment;
 use Swift_Message;
 use Swift_Mime_ContentEncoder_Base64ContentEncoder;
+use function GO;
 
 /**
  * The Account model
@@ -106,7 +109,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 	
 	protected static function defineRelations() {
 		
-		self::hasOne('creator', \GO\Core\Users\Model\User::class, ['createdBy' => 'id']);
+		self::hasOne('creator', User::class, ['createdBy' => 'id']);
 		self::hasOne('smtpAccount', SmtpAccount::class, ['smtpAccountId' => 'id']);
 		self::hasMany('signatures', Signature::class, ['id' => 'accountId']);
 		
@@ -397,10 +400,19 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 										])
 						);
 		
-		foreach($messages as $message) {
-			$swiftMessage = $this->sendMessage($message);
-			if($swiftMessage) {
-				$this->saveToSent($swiftMessage, $message);
+		foreach($messages as $message) {			
+			try {
+				$swiftMessage = $this->sendMessage($message);
+				if($swiftMessage) {
+					$this->saveToSent($swiftMessage, $message);
+				}
+			} catch (\Exception $e) {
+				
+				$data = ['message' => $message->toArray('*'), 'error' => $e->getMessage()];
+				
+				//clear previous error
+				Notification::deleteByRecord($message, Notification::LOG_ACTION_ERROR);				
+				Notification::create(Notification::LOG_ACTION_ERROR, $data, $message, $message->thread->photoBlobId, [$this->coreAccount->ownedBy]);
 			}
 		}
 	}
@@ -415,7 +427,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		
 		GO()->debug("Sending ".$messagesMessage->subject);
 		
-		$message = (new \GO\Core\Email\Model\Message($this->smtpAccount, $messagesMessage->subject))
+		$message = (new CoreMessage($this->smtpAccount, $messagesMessage->subject))
 				->setFrom($messagesMessage->from->address, $messagesMessage->from->personal);
 		
 		
@@ -455,7 +467,7 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 		foreach ($messagesMessage->attachments as $attachment) {
 			$blob = Blob::findByPk($attachment->blobId);
 			
-			$swiftAttachment = \GO\Core\Email\Model\Attachment::fromPath($blob->getPath(), $blob->contentType);
+			$swiftAttachment = CoreAttachment::fromPath($blob->getPath(), $blob->contentType);
 			$swiftAttachment->setFilename($attachment->name);
 			
 			if(isset($attachment->contentId)) {

@@ -140,24 +140,33 @@ class Debugger extends Object {
 		}
 		
 		$bt = debug_backtrace(null, 4+$traceBackSteps);
-		$caller = $lastCaller = array_shift($bt);
+		$caller = array_shift($bt);
 		//can be called with IFW::app()->debug(). We need to go one step back (no class for closure)
 		while(isset($caller['class']) && ($caller['function'] == 'debug' || $caller['class'] == self::class)) {
-			$lastCaller = $caller;
+//			$lastCaller = $caller;
 			$caller = array_shift($bt);
 		}
 		
+		$count = count($bt);
+		
+		$traceBackSteps = min([$count, $traceBackSteps]);
+		
 		while($traceBackSteps > 0) {			
-			$lastCaller = $caller;
+
 			$caller = array_shift($bt);
 			$traceBackSteps--;			
 		}
 		
 		if(empty($caller['class'])) {
+			
 			$caller['class'] = 'closure';
 		}
 		
-		$entry = "[" . $this->getTimeStamp() . "][" . $caller['class'] . ":".$lastCaller['line']."] " . $mixed;
+		if(!isset($caller['line'])) {
+			$caller['line'] = '[unknown line]';
+		}
+		
+		$entry = "[" . $this->getTimeStamp() . "][" . $caller['class'] . ":".$caller['line']."] " . $mixed;
 
 		if(!empty($this->logPath)) {
 			$debugLog = new Fs\File($this->logPath);

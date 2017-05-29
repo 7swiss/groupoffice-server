@@ -83,7 +83,7 @@ class ThreadController extends Controller {
 				$subquery->andWhere(['type'=>  Message::TYPE_SENT]);				
 				break;
 			
-			case 'drafts':
+			case 'draft':
 				$subquery->andWhere(['type'=>  Message::TYPE_DRAFT]);
 				break;
 			case 'trash':
