@@ -682,13 +682,14 @@ class Account extends AccountAdaptorRecord implements SyncableInterface{
 					$deleteCmd->execute();
 					
 					GO()->debug('UID\'s not valid anymore for folder: ' . $folder->name, 'imapsync');
+					
+					
+					$folder->uidValidity = $mailbox->getUidValidity();				
+					$folder->syncNeeded = true;
+					$folder->resync = true;
+				} else {
+					$folder->syncNeeded = $folder->highestModSeq != $mailbox->getHighestModSeq();				
 				}
-
-				$folder->uidValidity = $mailbox->getUidValidity();				
-				$folder->syncNeeded = true;
-				$folder->resync = true;
-			} else {
-				$folder->syncNeeded = $folder->highestModSeq != $mailbox->getHighestModSeq();				
 			}
 
 			if(!$folder->save()) {

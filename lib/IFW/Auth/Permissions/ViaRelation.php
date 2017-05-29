@@ -62,6 +62,10 @@ class ViaRelation extends Model {
 
 		$relation = $recordClassName::getRelation($this->relationName);
 		
+		if(!$relation) {
+			throw new \Exception("ViaRelation error: '". $this->relationName . "' doesn't exist in '" . $recordClassName . "'");
+		}
+		
 		/* @var $relation  Relation */
 		
 	

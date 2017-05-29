@@ -40,33 +40,33 @@ class AccountController extends Controller {
 		
 		
 	}
-
-	/**
-	 * Fetch accounts
-	 *
-	 * @param string $orderColumn Order by this column
-	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
-	 * @param int $limit Limit the returned records
-	 * @param int $offset Start the select on this offset
-	 * @param string $searchQuery Search on this query.
-	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
-	 * @return array JSON Model data
-	 */
-	protected function actionStore($orderColumn = 'hostname', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $mine = false) {
-
-		$query = (new Query())
-														->orderBy([$orderColumn => $orderDirection])
-														->limit($limit)
-														->offset($offset)
-														->search($searchQuery, array('t.hostname'));
-		
-		$query->where(['t.createdBy' => \GO()->getAuth()->user()->id()]);
-		
-		$accounts = Account::find($query);
-		$accounts->setReturnProperties($returnProperties);
-
-		$this->renderStore($accounts);
-	}
+//
+//	/**
+//	 * Fetch accounts
+//	 *
+//	 * @param string $orderColumn Order by this column
+//	 * @param string $orderDirection Sort in this direction 'ASC' or 'DESC'
+//	 * @param int $limit Limit the returned records
+//	 * @param int $offset Start the select on this offset
+//	 * @param string $searchQuery Search on this query.
+//	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
+//	 * @return array JSON Model data
+//	 */
+//	protected function actionStore($orderColumn = 'hostname', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $mine = false) {
+//
+//		$query = (new Query())
+//														->orderBy([$orderColumn => $orderDirection])
+//														->limit($limit)
+//														->offset($offset)
+//														->search($searchQuery, array('t.hostname'));
+//		
+//		//$query->where(['t.ownedBy' => \GO()->getAuth()->user()->id()]);
+//		
+//		$accounts = Account::find($query);
+//		$accounts->setReturnProperties($returnProperties);
+//
+//		$this->renderStore($accounts);
+//	}
 
 	/**
 	 * GET a list of accounts or fetch a single account
