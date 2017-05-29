@@ -335,7 +335,7 @@ class Thread extends Record {
 	
 	
 	protected function internalSave() {
-		if(!$this->isSavedByRelation() && $this->isModified(['flagged','seen'])) {
+		if(!$this->getSavedBy() && $this->isModified(['flagged','seen'])) {
 			if(($this->isModified('flagged') && $this->flagged) || ($this->isModified('seen') && !$this->seen)) {
 				$latestMessage = $this->findLatestMessage();
 				$latestMessage->flagged = $this->flagged;

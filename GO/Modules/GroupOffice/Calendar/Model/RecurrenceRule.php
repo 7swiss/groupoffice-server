@@ -11,7 +11,6 @@ namespace GO\Modules\GroupOffice\Calendar\Model;
 use IFW\Orm\Record;
 use IFW\Orm\Query;
 use IFW\Util\DateTime;
-use IFW\Auth\Permissions\ViaRelation;
 
 /**
  * This class defines how an Event needs to be recurred
@@ -140,6 +139,10 @@ class RecurrenceRule extends Record {
 			return true; // save nothing when there is no frequency
 		}
 		return parent::internalValidate();
+	}
+
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone(); //parent::internalGetPermissions();
 	}
 
 	protected function internalSave() {

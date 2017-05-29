@@ -77,7 +77,7 @@ class EventController extends Controller {
 			throw new NotFound();
 		}
 		if($recurrenceId !== null) {
-			$calEvent->addRecurrenceId(new DateTime($recurrenceId));
+			$calEvent->addRecurrenceId(new DateTime($recurrenceId), true);
 		}
 
 		$this->renderModel($calEvent, $returnProperties);

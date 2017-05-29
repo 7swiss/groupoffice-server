@@ -9,7 +9,6 @@ class EventTest extends \GO\Utils\ModuleCase {
 	protected $henkCalendar;
 
 	private $eventAllDay = ['event' => [
-		'uid' => '555-001@phpunit',
 		'title' => 'Test Event',
 		'startAt' => '2017-04-06T11:00:00.000Z',
 		'endAt' => '2017-04-06T11:00:00.000Z',
@@ -76,11 +75,9 @@ class EventTest extends \GO\Utils\ModuleCase {
 //		$this->henkCalendar->delete();
 	}
 
-
-	function testCrudEvent() {
-
+	private function crud($calendar) {
 		//create
-		$calEvent = $this->adminCalendar->newEvent();
+		$calEvent = $calendar->newEvent();
 		$calEvent->setValues($this->eventAllDay); // TODO test set values directly
 		$this->assertTrue($calEvent->save());
 		$this->assertTrue($calEvent->getIsOrganizer());
@@ -88,7 +85,7 @@ class EventTest extends \GO\Utils\ModuleCase {
 
 		$eventId = $calEvent->eventId;
 		//read
-		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$this->adminCalendar->id]);
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendar->id]);
 
 		$this->assertNotEmpty($calEvent);
 		$this->assertTrue($calEvent instanceof CalendarEvent);
@@ -99,18 +96,29 @@ class EventTest extends \GO\Utils\ModuleCase {
 		$this->assertFalse($calEvent->event->isRecurring);
 
 		//update
-		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$this->adminCalendar->id]);
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendar->id]);
 		$this->assertNotEmpty($calEvent);
 		$calEvent->event->title = 'Change the title'; // todo change more values
 		$calEvent->event->visibility = Visibility::cPrivate;
 		$this->assertTrue($calEvent->save());
 
 		//delete
-		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$this->adminCalendar->id]);
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendar->id]);
 		$this->assertTrue($calEvent->delete());
-		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$this->adminCalendar->id]);
+		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendar->id]);
 		$this->assertEmpty($calEvent);
+	}
 
+	function testCrudEvent() {
+
+		$this->crud($this->adminCalendar);
+
+	}
+
+	function testCrudAsUser() {
+
+		$this->changeUser('henk');
+		$this->crud($this->henkCalendar);
 	}
 
 //	function testEventAttachment() {

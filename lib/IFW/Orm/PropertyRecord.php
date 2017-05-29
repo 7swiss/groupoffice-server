@@ -18,7 +18,7 @@ class PropertyRecord extends Record {
 	
 	protected function internalSave() {
 		
-		if(!$this->isSavedByRelation()) {
+		if(!$this->getSavedBy()) {
 			throw new Exception("Property '".static::class."' can't be saved directly. Use as relation only.");
 		}
 		

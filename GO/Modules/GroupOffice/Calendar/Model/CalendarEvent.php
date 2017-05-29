@@ -53,7 +53,7 @@ class CalendarEvent extends Record {
 		}
 		return parent::find($query);
 	}
-
+	
 	static public function findRecurring(DateTime $start, DateTime $end, $query = null) {
 		if($query === null) {
 			$query = new \IFW\Orm\Query();
@@ -115,11 +115,13 @@ class CalendarEvent extends Record {
 	 * represents an instance of the series. This instance is loaded
 	 * @param Datetime $recurrenceId
 	 */
-	public function addRecurrenceId(DateTime $recurrenceId) {
+	public function addRecurrenceId(DateTime $recurrenceId, $view = false) {
 		
 		$instance = EventInstance::find(['eventId'=>$this->event->id, 'recurrenceId'=>$recurrenceId])->single();
 		if(empty($instance)) { // new override (should not save if not changed)
 			$instance = $this->event->createInstance($recurrenceId);
+		} elseif($view && $instance->isPatched()) {
+			$this->event = $instance->patch();
 		}
 		$this->instance = $instance;
 		return $this->instance;

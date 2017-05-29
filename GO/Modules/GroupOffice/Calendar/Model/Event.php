@@ -7,7 +7,7 @@
 
 namespace GO\Modules\GroupOffice\Calendar\Model;
 
-use IFW\Orm\PropertyRecord;
+use IFW\Orm\Record;
 use IFW\Util\DateTime;
 use IFW\Util\UUID;
 use IFW\Orm\Query;
@@ -25,7 +25,7 @@ use IFW\Orm\Query;
  * @property Attendee[] $attendees all attendees that are added including organizer
  * @property EventAttachment[] $attachments File attachments
  */
-class Event extends PropertyRecord {
+class Event extends Record {
 
 	/**
 	 * Primary key auto increment.
@@ -235,6 +235,10 @@ class Event extends PropertyRecord {
 		$this->endAt = $val;
 	}
 
+	protected static function internalGetPermissions() {
+		return new \IFW\Auth\Permissions\Everyone(); //parent::internalGetPermissions();
+	}
+
 
 	/**
 	 * When the recurrenceId of an event was set it represents a single instance
@@ -301,6 +305,17 @@ class Event extends PropertyRecord {
 		return $success;
 	}
 
+	protected function internalSave() {
+		if($this->savedBy !== null && $this->savedBy instanceof CalendarEvent) {
+			foreach($this->attendees as $key => $attendee) {
+				if($this->savedBy->calendarId == $attendee->calendarId){
+					unset($this->attendees[$key]); // don't save self twice
+				}
+			}
+		}
+		return parent::internalSave();
+	}
+
 	// OPERATIONS
 
 	/**
@@ -352,9 +367,6 @@ class Event extends PropertyRecord {
 		$event->setValues($properties);
 		$event->parent = $this->parent;
 		foreach($this->attendees as $attendee) {
-			if($this->organizerEmail == $attendee->email){
-				continue;
-			}
 			$new = new Attendee();
 			$new->setValues($attendee->toArray());
 			$event->attendees[] = $new;

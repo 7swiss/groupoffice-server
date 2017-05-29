@@ -108,9 +108,18 @@ class Calendar extends Record {
 		$calEvent->groupId = $this->ownedBy;
 		$calEvent->calendarId = $this->id;
 		$calEvent->responseStatus = AttendeeStatus::Accepted;
+		
 		$event = new Event();
-		$event->parent = $calEvent;
 		$event->organizerEmail = $this->owner->getEmail();
+		$event->parent = $calEvent;
+
+		$attendee = new Attendee();
+		$attendee->email = $event->organizerEmail;
+		$attendee->calendarId = $this->id;
+		$attendee->groupId = $this->ownedBy;
+		$attendee->responseStatus = AttendeeStatus::Accepted;
+		$event->attendees[] = $attendee;
+		
 		$calEvent->event = $event;
 		return $calEvent;
 	}
