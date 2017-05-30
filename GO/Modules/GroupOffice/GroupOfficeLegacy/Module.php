@@ -8,7 +8,7 @@ use GO\Modules\GroupOffice\GroupOfficeLegacy\Model\Authenticator;
 class Module extends InstallableModule implements \IFW\Event\EventListenerInterface {
 	
 	public static function defineEvents() {
-		User::on(User::EVENT_BEFORE_LOGIN, self::class, 'beforeLogin');
+//		User::on(User::EVENT_BEFORE_LOGIN, self::class, 'beforeLogin');
 	}
 	
 	public static function beforeLogin($username, $password, $count) {
@@ -16,5 +16,10 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 		$authenticator = new Authenticator($baseUrl);		
 		$authenticator->login($username, $password);		
 	}	
+	
+	public static function defineCliRoutes(\IFW\Cli\Router $router) {
+		$router->addRoutesFor(Controller\InvoicesController::class)
+						->set('groupoffice-legacy/sync/invoices', 'sync');
+	}
 
 }

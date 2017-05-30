@@ -2043,20 +2043,32 @@ abstract class Record extends DataModel {
 		
 		if ($column->required && !in_array($column->name, $ignore)) {
 
-			switch ($column->pdoType) {
-				case PDO::PARAM_BOOL:
-				case PDO::PARAM_INT:
+			switch ($column->dbType) {
+
+				case 'int':
+				case 'tinyint':
+				case 'bigint':
+
+				case 'float':
+				case 'double':
+				case 'decimal':
+
+				case 'datetime':
+
+				case 'date':
+
+				case 'binary':
 					if (!isset($this->{$column->name})) {
 						$this->setValidationError($column->name, \IFW\Validate\ErrorCode::REQUIRED);
 						return false;
 					}
-					break;
-				default:
+				break;
+				default:				
 					if (empty($this->{$column->name})) {
 						$this->setValidationError($column->name, \IFW\Validate\ErrorCode::REQUIRED);
 						return false;
 					}
-					break;
+				break;
 			}
 		}
 		
