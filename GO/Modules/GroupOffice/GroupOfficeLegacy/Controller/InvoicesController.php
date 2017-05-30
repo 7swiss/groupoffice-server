@@ -4,12 +4,19 @@ namespace GO\Modules\GroupOffice\GroupOfficeLegacy\Controller;
 use DateTime;
 use Exception;
 use GO\Core\Controller;
+use GO\Core\Notifications\Model\Notification;
 use GO\Modules\GroupOffice\Contacts\Model\Address;
 use GO\Modules\GroupOffice\Contacts\Model\Contact;
 use GO\Modules\GroupOffice\Contacts\Model\EmailAddress;
+use GO\Modules\Intermesh\Invoices\Model\Contract;
 use GO\Modules\Intermesh\Invoices\Model\Invoice;
+use GO\Modules\Intermesh\Invoices\Model\InvoiceItem;
+use GO\Modules\Intermesh\Invoices\Model\InvoicePayment;
+use GO\Modules\Intermesh\Invoices\Model\VatCode;
 use IFW\Http\Client;
 use IFW\Orm\Query;
+use IFW\Util\StringUtil;
+use function GO;
 
 
 class InvoicesController extends Controller {
@@ -31,13 +38,44 @@ class InvoicesController extends Controller {
 	public function actionSync() {
 		
 		GO()->logSuspend();
-		\GO\Core\Notifications\Model\Notification::suspend();
+		Notification::suspend();
 		
 		$this->client = new Client($this->host);
 		$this->client->setAuth($this->username, $this->password);
 		
-		$response = $this->client->request('/index.php?r=billing/sync/stat&book_id='.$this->book_id);
+		$this->syncInvoices();
 		
+		$this->syncContracts();
+		
+		
+	}
+	
+	private function syncContracts() {
+		
+		$response = $this->client->request('/index.php?r=billing/syncContracts/stat&book_id='.$this->book_id);
+		$stat = json_decode($response->body, true);
+		
+		foreach($stat as $statItem) {
+			$contract = Contract::find(['businessId' => $this->businessId, 'name' => $statItem['name']])->single();
+						
+			if(!$contract) {
+				$contract = new Contract();
+				$contract->businessId = $this->businessId;
+				$contract->name = $statItem['name'];
+			}
+			
+			$remoteModifiedAt = new DateTime($statItem['mtime']);
+			
+			if($contract->isNew() || $remoteModifiedAt > $contract->modifiedAt)
+			{
+				$this->updateContract($contract, $statItem['id']);
+			}
+		}
+	}
+	
+	private function syncInvoices() {
+		
+		$response = $this->client->request('/index.php?r=billing/sync/stat&book_id='.$this->book_id);
 		$stat = json_decode($response->body, true);
 		
 		foreach($stat as $statItem) {
@@ -57,6 +95,39 @@ class InvoicesController extends Controller {
 		}
 	}
 	
+	private function updateContract(Contract $contract, $remoteId) {
+			
+		$response = $this->client->request('/index.php?r=billing/sync/read&id='.$remoteId);		
+		$remoteData = json_decode($response->body, true);
+		
+		$contact = $this->getContact($remoteData);
+		$contract->contactId = $contact->id;
+		
+		$contract->startsAt = \DateTime::createFromFormat("U", $remoteData['btime']);
+		$interval = new \DateInterval("P" . $remoteData['recur_type']);
+		$contract->intervalMonths = $interval->format('%Y')*12 + $interval->format('%m');
+		
+		$items = [];
+		
+		foreach($remoteData['items'] as $i) {			
+			$item = new \GO\Modules\Intermesh\Invoices\Model\ContractItem();
+			$item->description = $i['description'];
+			$item->unit = $i['unit'];
+			$item->discount = $i['discount'];
+			$item->quantity = $i['amount'];
+			$item->unitPrice = $i['unit_price'];
+			$item->vatCode = VatCode::findByRate($i['vat']);
+			
+			$items[] = $item;
+		}
+		
+		$contract->items->replace($items);
+		
+		if(!$contract->save()) {
+			throw new Exception("Failed to save invoice");
+		}
+		
+	}
 
 	
 	private function updateInvoice(Invoice $invoice, $remoteId) {
@@ -75,20 +146,20 @@ class InvoicesController extends Controller {
 		$invoice->invoiceDate = \DateTime::createFromFormat("U", $remoteData['btime']);
 		$invoice->dueAt = \DateTime::createFromFormat("U", $remoteData['due_date']);
 		
-		$invoice->note = \IFW\Util\StringUtil::htmlToText($remoteData['frontpage_text']);
+		$invoice->note = StringUtil::htmlToText($remoteData['frontpage_text']);
 		$invoice->vatReverseCharge = $remoteData['vat'] == 0;
 		$invoice->setCustomer($contact);
 		
 		$items = [];
 		$remoteData = $this->fixItemsBug($remoteData);
 		foreach($remoteData['items'] as $i) {			
-			$item = new \GO\Modules\Intermesh\Invoices\Model\InvoiceItem();
+			$item = new InvoiceItem();
 			$item->description = $i['description'];
 			$item->unit = $i['unit'];
 			$item->discount = $i['discount'];
 			$item->quantity = $i['amount'];
 			$item->unitPrice = $i['unit_price'];
-			$item->vatCode = \GO\Modules\Intermesh\Invoices\Model\VatCode::findByRate($i['vat']);
+			$item->vatCode = VatCode::findByRate($i['vat']);
 			
 			$items[] = $item;
 		}
@@ -99,7 +170,7 @@ class InvoicesController extends Controller {
 		
 		$payments = [];
 		foreach($remoteData['payments'] as $i) {			
-			$payment = new \GO\Modules\Intermesh\Invoices\Model\InvoicePayment();
+			$payment = new InvoicePayment();
 			$payment->amount = $i['amount'];
 			$payment->paidAt = \DateTime::createFromFormat('U', $i['date']);
 			
@@ -119,7 +190,7 @@ class InvoicesController extends Controller {
 		if(!$invoice->getIsPaid() && $remoteData['status']['payment_required'] == 0) {
 			
 			//status indicates the invoice is paid but payments are incorrect. Fix the payment table.
-			$payment = new \GO\Modules\Intermesh\Invoices\Model\InvoicePayment();
+			$payment = new InvoicePayment();
 			$payment->amount = $invoice->grossTotal;
 			$payment->paidAt = \DateTime::createFromFormat('U', $remoteData['ptime']);
 			$invoice->payments->replace($payments);
