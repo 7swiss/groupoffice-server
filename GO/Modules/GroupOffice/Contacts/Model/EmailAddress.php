@@ -51,6 +51,8 @@ class EmailAddress extends \IFW\Orm\PropertyRecord{
 	
 	const TYPE_HOME = 'home';
 	
+	const TYPE_INVOICE = 'invoice';
+	
 	const TYPE_OTHER = 'other';
 	
 	

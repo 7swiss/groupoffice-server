@@ -1,22 +1,14 @@
 <?php
 namespace IFW\Dav;
 
-class Response {
-	
-	public $status;
-	public $body;
-	public $headers;
-	
-	public function __construct($status, $body, $headers) {
-		$this->status = $status;
-		$this->body = $body;
-		$this->headers = $headers;
+use IFW\Http\Response as HttpResponse;
+use SimpleXMLElement;
+
+class Response extends HttpResponse {
 		
-	}
-	
 	/**
 	 * 
-	 * @return \SimpleXMLElement
+	 * @return SimpleXMLElement
 	 */
 	public function getBodyAsXml() {
 		$xml = simplexml_load_string($this->body);
