@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
+ * @author Michael de Hart <mdhart@intermesh.nl>
+ * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
+ */
 namespace GO\Modules\GroupOffice\Files\Controller;
 
 use IFW;
@@ -10,15 +14,7 @@ use GO\Modules\GroupOffice\Files\Model\Drive;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 
-/**
- * The controller for calendars
- *
- * See {@see Event} model for the available properties
 
- * @copyright (c) 2016, Intermesh BV http://www.intermesh.nl
- * @author Michael de Hart <mdhart@intermesh.nl>
- * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
- */
 class NodeController extends Controller {
 
 	/**
@@ -81,10 +77,15 @@ class NodeController extends Controller {
 		$this->responseData['path'] = [];
 		if(!empty($directory)){
 			$dir = Directory::findByPk($directory);
+			
 			$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
+
 			while ($dir = $dir->parent) {
 				$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
 			}
+//			if(!empty($filter)) {
+//				array_pop($this->responseData['path']);
+//			}
 		}
 		$this->renderStore($nodes);
 
