@@ -61,6 +61,8 @@ class MainTest extends \GO\Utils\ModuleCase {
 		foreach($mains as $main) {
 			$this->assertEquals(null, $main->hasOne->id);
 		}
+		
+		$this->changeUser('admin');
 	}
 	
 	public function testSetValues() {
@@ -87,6 +89,8 @@ class MainTest extends \GO\Utils\ModuleCase {
 		
 		$this->assertEquals('Already set', $main->hasOne->description);
 		$this->assertEquals('test 3', $main->hasOne->name);
+		
+		$this->changeUser('admin');
 	}
 	
 	
@@ -118,6 +122,8 @@ class MainTest extends \GO\Utils\ModuleCase {
 		$this->assertEquals(spl_object_hash($mainFind->hasMany[0]->main), spl_object_hash($mainFind));
 		
 		$this->assertEquals(spl_object_hash($mainFind->hasOne->main), spl_object_hash($mainFind));
+		
+		$this->changeUser('admin');
 	}
 
 	

@@ -17,8 +17,17 @@ abstract class ModuleCase extends \PHPUnit\Framework\TestCase {
 		
 		return implode('\\', $moduleParts).'\\Module';		
 	}
+	
+	protected function setUp() {
+		parent::setUp();
+		
+		$this->changeUser('admin');
+	}
 
 	static function setUpBeforeClass() {
+		
+		self::changeUser('admin');
+		
 		$cls = static::module();
 		
 

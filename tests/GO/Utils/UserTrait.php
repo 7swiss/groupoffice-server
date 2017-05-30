@@ -9,7 +9,7 @@ trait UserTrait {
 	 *
 	 * @return PDO
 	 */
-	function changeUser($username) {
+	static function changeUser($username) {
 		$user = \GO()->getAuth()->sudo(function() use($username){
 			return \GO\Core\Users\Model\User::find(['username' => $username])->single();
 		});
@@ -18,14 +18,14 @@ trait UserTrait {
 		return $user;
 	}
 
-	function getUser($username) {
+	static function getUser($username) {
 		$user = \GO()->getAuth()->sudo(function() use($username){
 			return \GO\Core\Users\Model\User::find(['username' => $username])->single();
 		});
 		return $user;
 	}
 
-	function currentUser() {
+	static function currentUser() {
 		return \GO()->getAuth()->user();
 	}
 }

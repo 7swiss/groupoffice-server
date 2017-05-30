@@ -119,6 +119,7 @@ class EventTest extends \GO\Utils\ModuleCase {
 
 		$this->changeUser('henk');
 		$this->crud($this->henkCalendar);
+		$this->changeUser('admin');
 	}
 
 //	function testEventAttachment() {

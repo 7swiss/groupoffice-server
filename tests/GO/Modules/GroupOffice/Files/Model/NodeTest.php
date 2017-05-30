@@ -115,6 +115,8 @@ class NodeTest extends ModuleCase {
 		$this->fileData['parentId'] = self::$henkDrive->rootId;
 		$this->folderData['parentId'] = self::$henkDrive->rootId;
 		$this->crud(self::$henkDrive);
+		
+		$this->changeUser('admin');
 	}
 
 }
