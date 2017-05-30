@@ -199,22 +199,23 @@ class RecurrenceRule extends Record {
 			$calEvent = new CalendarEvent();
 			$calEvent->setValues($this->forAttendee->toArray());
 			$calEvent->addRecurrenceId($recurrenceId);
-			$result[$recurrenceId->format('Y-m-d').$this->event->id] = $calEvent;
+			$result[$recurrenceId->format('Y-m-d').$this->forAttendee->calendarId.'-'.$this->eventId] = $calEvent;
 			$this->getIterator()->next();
 		}
 		$overrides = $this->event->overrides($start, $end);
 		foreach($overrides as $override) {
-			if(isset($result[$override->recurrenceId->format('Y-m-d').$override->eventId])) {
+			$id = $override->recurrenceId->format('Y-m-d').$this->forAttendee->calendarId.'-'.$override->eventId;
+			if(isset($result[$id])) {
 				if($override->isPatched()) { // PATCH
 					// @todo: move the patched to the none recurring list.
 					// The patch could be outside $start - $end timespan
-					$result[$override->recurrenceId->format('Y-m-d').$override->eventId]->instance = $override;
-					$result[$override->recurrenceId->format('Y-m-d').$override->eventId]->event = $override->patch();
+					$result[$id]->instance = $override;
+					$result[$id]->event = $override->patch();
 				} else { //EXDATE
-					unset($result[$override->recurrenceId->format('Y-m-d').$override->eventId]); // !!!
+					unset($result[$id]);
 				}
-			} else { // RDATE
-				// TODO
+			} else { 
+				// RDATE, not yet supported
 			}
 		}
 		return $result;
