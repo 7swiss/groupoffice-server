@@ -32,9 +32,10 @@ class AuthController extends Controller {
 	 */
 	protected function actionLogout() {
 
-		GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
+		
 		$token = Token::findByCookie();
 		if ($token) {
+			GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
 			$token->unsetCookies();
 			$token->delete();
 		}
