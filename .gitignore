@@ -12,3 +12,4 @@ GO/Modules/*
 !GO/Modules/GroupOffice
 !GO/Modules/Tutorial
 !GO/Modules/README.TXT
+/tests/config.php
