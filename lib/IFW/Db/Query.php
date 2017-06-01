@@ -511,7 +511,7 @@ class Query extends Criteria {
 	
 	
 	
-	/**
+/**
 	 * Allows clients to configure the Query object.
 	 * 
 	 * Clients must pass a JSON encoded array as a "q" GET parameter.
@@ -555,6 +555,29 @@ class Query extends Criteria {
 	 *				'languages.language.key':'en',
 	 *				'activities.activityId':  null
 	 *			}]
+	 *		]
+	 *	]
+	 * ```````````````````````````````````````````````````````````````````````````		
+	 * 
+	 * Sometimes it's needed to group conditions for example with:
+	 * 
+	 * WHERE col1 = 1 AND (col2 = 2 OR col3 = 3);
+	 * 
+	 * You can do this with 'whereGroup' with the client:
+	 * 
+	 * @example Javascript
+	 * 
+	 * ``````````````````````````````````````````````````````````````````````````
+	 * q: [					 
+	 *		['andWhere', {
+	 *				'col1': 1,
+	 *		}],
+	 *		['whereGroup', 
+	 *			['orWhere', {
+	 *				'col2': 2,
+	 *				'col3': 3,
+	 *			}],	
+	 *		, 'AND']
 	 *		]
 	 *	]
 	 * ```````````````````````````````````````````````````````````````````````````		
@@ -605,7 +628,7 @@ class Query extends Criteria {
 		foreach($data as $params) {
 			$method = array_shift($params);
 			if(!in_array($method, $allowed)){
-				throw new \Exception("Query::$method method is not allowed!");
+				throw new \Exception(self::class . "::" . $method . " method is not allowed!");
 			}
 			call_user_func_array([$this, $method], $params);
 		}
@@ -614,6 +637,8 @@ class Query extends Criteria {
 		
 		return $this;
 	}
+	
+	
 	
 	/**
 	 * Returns methods that can be set by the client
@@ -636,7 +661,8 @@ class Query extends Criteria {
 				'orderBy',
 				'limit',
 				'offset',
-				'search'
+				'search',
+				'whereGroup'
 				];
 	}
 	

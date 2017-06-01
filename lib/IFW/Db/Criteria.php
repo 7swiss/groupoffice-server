@@ -223,7 +223,7 @@ class Criteria extends Object {
 	}
 
 	/**
-	 * Concatonate where condition with AND
+	 * Concatenate where condition with AND
 	 * 
 	 * {@see where()}
 	 * 
@@ -233,9 +233,9 @@ class Criteria extends Object {
 	public function andWhere($condition) {
 		return $this->where($condition, 'AND');
 	}
-
+	
 	/**
-	 * Concatonate where condition with OR
+	 * Concetonate where condition with OR
 	 * 
 	 * {@see where()}
 	 * 
@@ -286,5 +286,71 @@ class Criteria extends Object {
 		
 		return $this;
 	}
+	
+	
+	/**
+	 * Allows clients to configure the Query object.
+	 * 
+	 * {@see Query::setFromClient()}
+	 * 
+	 * @param array $data
+	 * @throws \Exception
+	 * @return static
+	 */
+	public function setFromClient($data) {	
+		
+		$allowed = $this->getAllowedClientMethods();		
+		
+		$this->safeMode = true;
+		
+		foreach($data as $params) {
+			$method = array_shift($params);
+			if(!in_array($method, $allowed)){
+				throw new \Exception(self::class . "::" . $method . " method is not allowed!");
+			}
+			call_user_func_array([$this, $method], $params);
+		}
+		
+		$this->safeMode = false;
+		
+		return $this;
+	}
+	
+	
+	/**
+	 * Returns methods that can be set by the client
+	 * 
+	 * {@see setFromClient()}
+	 * 
+	 * @return string[]
+	 */
+	protected function getAllowedClientMethods() {
+		return [
+				'andWhere',
+				'where',
+				'orWhere',				
+				'whereGroup'
+				];
+	}
+	
+	/**
+	 * Group conditions
+	 * 
+	 * Used with the q parameter by clients.
+	 * 
+	 * {@see Query::setFromClient()}
+	 * 
+	 * @param mixed $json
+	 * @param string $operator
+	 * 
+	 * @retrun self
+	 */
+	public function whereGroup($json, $operator = 'AND') {
+		$c = new Criteria();
+		$c->setFromClient($json);
+		
+		return $this->where($c, $operator);		
+	}
+	
 	
 }
