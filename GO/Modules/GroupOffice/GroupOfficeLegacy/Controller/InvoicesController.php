@@ -100,6 +100,10 @@ class InvoicesController extends Controller {
 		$response = $this->client->request('/index.php?r=billing/sync/read&id='.$remoteId);		
 		$remoteData = json_decode($response->body, true);
 		
+		if(!isset($remoteData)) {
+			throw new \Exception("Could not read ".$remoteId);
+		}
+		
 		$contact = $this->getContact($remoteData);
 		$contract->contactId = $contact->id;
 		
@@ -134,6 +138,10 @@ class InvoicesController extends Controller {
 			
 		$response = $this->client->request('/index.php?r=billing/sync/read&id='.$remoteId);		
 		$remoteData = json_decode($response->body, true);
+		
+		if(!isset($remoteData)) {
+			throw new \Exception("Could not read ".$remoteId);
+		}
 		
 		$contact = $this->getContact($remoteData);
 		
@@ -225,6 +233,11 @@ class InvoicesController extends Controller {
 	
 	
 	private function getContact($remoteData) {
+		
+		if(empty($remoteData['customer_name'])) {
+			var_dump($remoteData);
+			exit();
+		}
 		
 		$query = new Query();
 		$query->where(['name' => $remoteData['customer_name'], 'isOrganization' => true]);
