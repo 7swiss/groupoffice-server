@@ -56,12 +56,12 @@ class InvoicesController extends Controller {
 		$stat = json_decode($response->body, true);
 		
 		foreach($stat as $statItem) {
-			$contract = Contract::find(['businessId' => $this->businessId, 'name' => $statItem['name']])->single();
+			$contract = Contract::find(['businessId' => $this->businessId, 'number' => $statItem['name']])->single();
 						
 			if(!$contract) {
 				$contract = new Contract();
 				$contract->businessId = $this->businessId;
-				$contract->name = $statItem['name'];
+				$contract->number = $statItem['name'];
 			}
 			
 			$remoteModifiedAt = new DateTime($statItem['mtime']);
