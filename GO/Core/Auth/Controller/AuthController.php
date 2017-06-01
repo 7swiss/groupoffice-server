@@ -32,16 +32,14 @@ class AuthController extends Controller {
 	 */
 	protected function actionLogout() {
 
-		$token = Token::findByCookie();
-		if (!$token) {
-			throw new \IFW\Exception\NotFound();
-		}
-
 		GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
-
-		$token->unsetCookies();
-		$token->delete();
-		$this->renderModel($token, '*,user[*]');
+		$token = Token::findByCookie();
+		if ($token) {
+			$token->unsetCookies();
+			$token->delete();
+		}
+		
+		$this->render(['success' => true]);
 	}
 
 	/**
