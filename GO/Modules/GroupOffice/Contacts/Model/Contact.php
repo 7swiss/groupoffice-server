@@ -144,13 +144,13 @@ class Contact extends Record {
 	 * 
 	 * @var string
 	 */							
-	public $IBAN = '';
+	public $IBAN;
 
 	/**
 	 * Company trade registration number
 	 * @var string
 	 */							
-	public $registrationNumber = '';
+	public $registrationNumber;
 
 	/**
 	 * 
@@ -247,15 +247,19 @@ class Contact extends Record {
 // }
 	
 	public function internalValidate() {
-		//always fill name field on contact too
-		if(!isset($this->name) && !$this->isOrganization){
-			$this->name = $this->firstName;
-			
-			if(!empty($this->middleName)){
-					$this->name .= ' '.$this->middleName;
+		//always fill name field on contact too		
+		if(!$this->isOrganization) {
+			if(!isset($this->name)){
+				$this->name = $this->firstName;
+
+				if(!empty($this->middleName)){
+						$this->name .= ' '.$this->middleName;
+				}
+
+				$this->name .= ' '.$this->lastName;
 			}
-			
-			$this->name .= ' '.$this->lastName;
+		} else {
+			$this->firstName = $this->lastName = $this->middleName = $this->prefixes = $this->suffixes = null;
 		}
 		
 		return parent::internalValidate();

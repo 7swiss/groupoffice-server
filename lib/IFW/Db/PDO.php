@@ -18,7 +18,7 @@ use PDO as PhpPdo;
  */
 class PDO extends PhpPdo {
 
-	public $sqlMode = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
+	public $sqlMode = "ONLY_FULL_GROUP_BY,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
 
 	public function __construct($dsn, $username, $passwd, $options = null) {
 		parent::__construct($dsn, $username, $passwd, $options);
@@ -30,6 +30,8 @@ class PDO extends PhpPdo {
 
 		$this->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
 
+		\IFW::app()->debug($this->sqlMode);
+		
 		if (isset($this->sqlMode)) {
 			$this->query("SET sql_mode='" . $this->sqlMode . "'");
 		}
