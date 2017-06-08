@@ -820,10 +820,10 @@ abstract class Record extends DataModel {
 			if($relation && !$currentRecord->relationIsFetched($part)) {
 				$cls = $relation->getToRecordName();
 				$record = new $cls(false, ['*']);
-				$currentRecord->$part = $record;
+				$currentRecord->setRelated($part, $record);
 			}
 
-			$currentRecord = &$currentRecord->$part;
+			$currentRecord = $currentRecord->getRelated($part);			
 			
 		}
 		$currentRecord->loadingFromDatabase = true; //swichted back in castDatabaseAttributes()

@@ -5,6 +5,7 @@ use DateInterval;
 use DateTime;
 use GO\Core\GarbageCollection\GarbageCollectionInterface;
 use GO\Core\Users\Model\User;
+use IFW\Auth\Exception\BadLogin;
 use IFW\Auth\Permissions\CreatorOnly;
 use IFW\Fs\Folder;
 use IFW\Orm\Record;
@@ -112,15 +113,8 @@ class Token extends Record implements GarbageCollectionInterface {
 		
 		if($this->isNew()) {
 			
-			if(isset($_SERVER['REMOTE_ADDR'])) {
-				$this->remoteIpAddress = $_SERVER['REMOTE_ADDR'];
-			}
-
-			if(isset($_SERVER['HTTP_USER_AGENT'])) {
-				$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
-			}else if(GO()->getEnvironment()->isCli()) {
-				$this->userAgent = 'cli';
-			}
+			
+			$this->setClient();
 			
 			$this->internalRefresh();
 		}else
@@ -129,6 +123,19 @@ class Token extends Record implements GarbageCollectionInterface {
 			// Only done on GET auth	
 //			$this->setExpiryDate();
 //			$this->update();
+		}
+	}
+	
+	
+	private function setClient() {
+		if(isset($_SERVER['REMOTE_ADDR'])) {
+			$this->remoteIpAddress = $_SERVER['REMOTE_ADDR'];
+		}
+
+		if(isset($_SERVER['HTTP_USER_AGENT'])) {
+			$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+		}else if(GO()->getEnvironment()->isCli()) {
+			$this->userAgent = 'cli';
 		}
 	}
 	
@@ -316,6 +323,34 @@ class Token extends Record implements GarbageCollectionInterface {
 		foreach ($tokens as $token) {
 			$token->delete();
 		}
+	}
+	
+	
+	/**
+	 * Login by given access token
+	 * 
+	 * @param string $accessTokenStr
+	 * @return self
+	 */
+	public static function loginByToken($accessTokenStr) {
+		$token = GO()->getAuth()->sudo(function() use ($accessTokenStr) {
+
+			$token = Token::find(['accessToken' => $accessTokenStr])->single();
+			if (!$token) {
+				throw new BadLogin();
+			}
+
+			
+			$token->setCookies();
+			$token->setClient();
+			$token->save();
+			
+			return $token;
+		});
+		
+		GO()->getAuth()->setCurrentUser($token->user);
+		
+		return $token;
 	}
 
 }

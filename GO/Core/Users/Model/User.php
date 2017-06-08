@@ -387,4 +387,31 @@ class User extends Record implements UserInterface {
 
 		return $ret;
 	}
+	
+	
+	/**
+	 * Create a token to use for login without password
+	 * 
+	 * @return Token
+	 */
+	public function createLoginToken() {
+		
+		
+		return GO()->getAuth()->sudo(function() {
+			$token = \GO\Core\Auth\Model\Token::find(['userId' => $this->id, 'userAgent' => null])->single();
+		
+			if(!$token) {			
+				$token = new \GO\Core\Auth\Model\Token();
+				$token->user = $this;
+			}
+			$token->expiresAt = new \IFW\Util\DateTime();
+			$token->expiresAt->modify("+1 month");
+
+			$token->userAgent = null;
+			$token->remoteIpAddress = null;
+			$token->save();
+
+			return $token;
+		});
+	}
 }
