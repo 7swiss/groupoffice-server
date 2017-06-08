@@ -270,7 +270,6 @@ class User extends Record implements UserInterface {
 
 		$this->logSave();
 
-
 		$success = parent::internalSave();
 
 		if ($success && $wasNew) {
@@ -279,18 +278,16 @@ class User extends Record implements UserInterface {
 			$group = new Group();
 			$group->userId = $this->id;
 			$group->name = $this->username;
-			$group->save();
+			if(!$group->save()) {
+				throw new Exception("Could not save user group");
+			}
 
 			$ur = new UserGroup();
 			$ur->userId = $this->id;
 			$ur->groupId = $group->id;
-			$ur->save();
-
-			//add this user to the everyone group
-			$ur = new UserGroup();
-			$ur->userId = $this->id;
-			$ur->groupId = Group::findEveryoneGroup()->id;
-			$ur->save();
+			if(!$ur->save()) {
+				throw new Exception("Could not save user group");
+			}
 		}
 
 		return $success;
@@ -360,7 +357,7 @@ class User extends Record implements UserInterface {
 										(new Query())
 														->select('1')
 														->joinRelation('groupUsers')
-														->andWhere(['!=', ['groupId' => \GO\Core\Users\Model\Group::ID_EVERYONE]])
+														->andWhere(['!=', ['groupId' => \GO\Core\Users\Model\Group::ID_INTERNAL]])
 														->andWhere(['userId' => $this->id])
 														->andWhere(['groupUsers.userId' => $user->id])
 						)->single();

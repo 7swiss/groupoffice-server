@@ -65,7 +65,7 @@ abstract class InstallableModule extends IFWModule {
 				$moduleGroup = new ModuleGroup();
 				$moduleGroup->moduleId = $record->id;
 				$moduleGroup->action = $type['name'];
-				$moduleGroup->groupId = Group::ID_EVERYONE;
+				$moduleGroup->groupId = Group::ID_INTERNAL;
 				if (!$moduleGroup->save()) {
 					throw \Exception("Could not save module group record");
 				}

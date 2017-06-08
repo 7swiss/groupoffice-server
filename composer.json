@@ -28,7 +28,8 @@
 		"ralouphie/mimey": "dev-master",
 		"setasign/fpdi-tcpdf": "*"	,
 		"donatj/phpuseragentparser": "*",
-		"defuse/php-encryption": "^2.0"
+		"defuse/php-encryption": "^2.0",
+		"paypal/rest-api-sdk-php": "*"
 		
 	},
 	"require-dev": {

@@ -52,8 +52,8 @@ class UserGroup extends Record{
 			throw new \IFW\Exception\Forbidden("Admins group can't be deleted!");
 		}
 		
-		if($this->groupId == Group::ID_EVERYONE) {
-			throw new \IFW\Exception\Forbidden("Everyone group can't be deleted!");
+		if($this->groupId == Group::ID_INTERNAL) {
+			throw new \IFW\Exception\Forbidden("Internal group can't be deleted!");
 		}
 		return parent::internalDelete($hard);
 	}
