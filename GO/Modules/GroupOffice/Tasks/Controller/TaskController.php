@@ -31,12 +31,18 @@ class TaskController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
-
-		$query = (new Query)										
-				->orderBy([new IFW\Db\Expression('ISNULL(t.dueAt) ASC'), 'dueAt' => 'ASC'])				
+	public function actionStore($orderColumn = 't.dueAt', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+		
+		$query = (new Query)
 				->limit($limit)
 				->offset($offset);
+		
+		if($orderColumn == 't.dueAt') {
+			$query->orderBy([new IFW\Db\Expression('ISNULL(t.dueAt) '.($orderDirection == 'ASC' ? 'ASC' : 'DESC')), 'dueAt' => $orderDirection]);
+		} else
+		{
+			$query->orderBy([$orderColumn => $orderDirection]);
+		}
 
 		if (!empty($searchQuery)) {
 			$query->search($searchQuery, ['description']);
