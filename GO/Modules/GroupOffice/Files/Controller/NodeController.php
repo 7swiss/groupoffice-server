@@ -114,6 +114,7 @@ class NodeController extends Controller {
 			$data = [$data];
 		foreach($data as $attr) {
 			$node = new Node();
+			$node->parentId = $attr['parentId']; // must be set first
 			$node->setValues($attr);
 			$node->save();
 		}
