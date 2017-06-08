@@ -33,7 +33,6 @@ class UserPermissions extends ReadOnly {
 		
 		$query->joinRelation('userGroup.groupUsers')
 						->distinct()
-						->andWhere(['userGroup.groupUsers.userId' => $user->id])
-						->andWhere(['!=',['userGroup.groupUsers.groupId' => Group::ID_EVERYONE]]);
+						->andWhere(['userGroup.groupUsers.userId' => $user->id]);
 	}
 }

@@ -115,15 +115,12 @@ abstract class Controller extends Object {
 	 */
 	public function run($action, array $routerParams) {	
 		
-		
+		$this->action = strtolower($action);
 
 		if(!$this->checkAccess()){
 			throw new Forbidden();
 		}
-		
 		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
-		
-		$this->action = strtolower($action);
 		
 		\IFW::app()->debug("Running controller action: ".static::class.'::action' . $this->action);
 		

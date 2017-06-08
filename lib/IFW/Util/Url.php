@@ -21,7 +21,7 @@ class Url implements ArrayableInterface{
 	 * @param string $location eg. http://localhost/ or /relative
 	 * @param array $params
 	 */
-	public function __construct($location, array $params) {
+	public function __construct($location, array $params = []) {
 		$this->location = $location;
 		$this->params = $params;
 	}
@@ -87,5 +87,26 @@ class Url implements ArrayableInterface{
 	
 	public function toArray($attributes = null) {
 		return (string) $this;
+	}
+	
+	/**
+	 * Parse URL with params into URL object
+	 * 
+	 * @param string $url
+	 * @return \self
+	 */
+	public static function parse($url) {
+		
+		$pos = strpos($url, '?');
+		if(!$pos) {
+			return new self($url);
+		} else {
+			$components = parse_url($url, PHP_URL_QUERY);
+			$params = parse_str($components['query']);
+			
+			return new self(substr($url,0, $pos), $params);
+		}
+		
+		
 	}
 }

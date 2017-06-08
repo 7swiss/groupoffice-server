@@ -77,7 +77,7 @@ class CsvController extends Controller {
 				} else {
 					$cr = new AclGroup();
 					$cr->contactId = $model->id;
-					$cr->groupId = Group::ID_EVERYONE;
+					$cr->groupId = Group::ID_INTERNAL;
 					$cr->readAccess = true;
 					$cr->save();
 				}

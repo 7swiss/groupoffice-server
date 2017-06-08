@@ -84,7 +84,6 @@ abstract class Model extends DataModel {
 	 * @var Record
 	 */
 	protected $record;
-	private $cache = [];
 	
 	/**
 	 * The record class name that this permissions object is instantiated from
@@ -98,8 +97,6 @@ abstract class Model extends DataModel {
 	 */
 	public function setRecord(DataModel $record) {
 		$this->record = $record;
-		$this->cache = [];
-		
 		$this->setRecordClassName($record->getClassName());
 	}
 	/**
@@ -214,9 +211,13 @@ abstract class Model extends DataModel {
 		
 		try {
 			
-			if(!isset($this->cache[$permissionType.'-'.$user->id()])) {
+			$cacheKey = $this->record->objectId().'-'.$permissionType.'-'.$user->id();
+			
+			$cached = \IFW::app()->getCache()->get($cacheKey);
+			
+			if(!isset($cached)) {
 				if($user->isAdmin()){
-					$this->cache[$permissionType.'-'.$user->id()] = true;
+					 \IFW::app()->getCache()->set($cacheKey, true, false);
 				}else
 				{					
 					if(in_array($permissionType, $this->record->allowedPermissionTypes()) || in_array('*', $this->record->allowedPermissionTypes())) {
@@ -230,7 +231,7 @@ abstract class Model extends DataModel {
 //						IFW::app()->debug("User ".$user->id." has no permission for ".$this->record->getClassName().' permissionType:'.var_export($permissionType, true).' '.var_export($this->record->pk(), true));
 //					}
 					
-					$this->cache[$permissionType.'-'.$user->id()] = $can;
+					\IFW::app()->getCache()->set($cacheKey, $can, false);
 				}
 			}
 		} finally {
@@ -239,7 +240,7 @@ abstract class Model extends DataModel {
 		}		
 		
 
-		return $this->cache[$permissionType.'-'.$user->id()];
+		return \IFW::app()->getCache()->get($cacheKey);
 	}
 	
 	public final function applyToQuery($query = null) {

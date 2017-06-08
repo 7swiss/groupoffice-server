@@ -1,0 +1,1 @@
+update auth_group set `name` = 'Internal' where id = 2;

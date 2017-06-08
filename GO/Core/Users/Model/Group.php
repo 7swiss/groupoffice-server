@@ -59,7 +59,8 @@ class Group extends Record{
 	/**
 	 * The ID of the Everyone group
 	 */
-	const ID_EVERYONE = 2;
+	const ID_INTERNAL = 2;
+	
 
 	protected static function defineRelations() {		
 		self::hasMany('users', User::class, ['id' => 'groupId'])
@@ -117,96 +118,17 @@ class Group extends Record{
 	 *
 	 * @return Group
 	 */
-	public static function findEveryoneGroup(){
+	public static function findInternalGroup(){
 
-		$group = Group::findByPk(self::ID_EVERYONE);
+		$group = Group::findByPk(self::ID_INTERNAL);
 
 		if(!$group){
 			$group = new Group();
-			$group->id=self::ID_EVERYONE;
+			$group->id=self::ID_INTERNAL;
 			$group->name='Everyone';
 			$group->save();
 		}
 
 		return $group;
 	}
-	
-	/**
-	 * Get groups that should automatically be added with maximum permissions.
-	 * 
-	 * @return Group[]
-	 */
-	public static function findAutoGroups(){
-		return Group::find(['autoAdd' => true]);
-	}
-
-	
-
-
-//	public function setPermissionTypes($)
-	
-//	private $_modulesWithPermissions;
-//			
-//	public function setModulesWithPermissions(array $modules){
-//		$this->_modulesWithPermissions = $modules;
-//	}
-	
-//	public function save() {
-//		
-//		if(parent::save()){
-//			
-//			if(isset($this->_modulesWithPermissions)){
-//				foreach($this->_modulesWithPermissions as $m){
-//				
-//					$mr = ModuleGroup::findByPk(['groupId' => $this->id, 'moduleId' => $m['attributes']['id']]);		
-//
-//					if(!$mr){
-//						$mr = new ModuleGroup();
-//						$mr->moduleId = $m['attributes']['id'];
-//						$mr->groupId = $this->id;
-//					}
-//					
-//					unset($m['attributes']['id']);
-//					
-//					$mr->setAttributes($m['attributes']);
-//					if($mr->useAccess || $mr->createAccess){
-//						if(!$mr->save()){
-//							throw new Exception("Could not save group: ".var_export($mr->getValidationErrors(), true));
-//						}
-//					}else
-//					{
-//						$mr->delete();
-//					}
-//					
-//				}
-//			}
-//			
-//			return true;
-//		}else
-//		{
-//			return false;
-//		}
-//	}
-	
-//	public function getModulesWithPermissions(){
-//		
-//		$q = (new Query())
-//				->select('t.*, groups.useAccess, groups.createAccess')
-//				->joinRelation(
-//						'groups', 
-//						false, 
-//						'LEFT', 
-//						(new Criteria())->where(['groups.groupId' => $this->id])
-//					);
-//		
-//		$models = Module::find($q)->all();
-//		
-//		//return as booleans
-//		foreach($models as $model){
-//			$model->useAccess = (bool) $model->useAccess;		
-//			$model->createAccess = (bool) $model->createAccess;			
-//		}
-//
-//		return $models;
-//	}
 }

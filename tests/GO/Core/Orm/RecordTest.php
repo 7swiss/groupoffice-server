@@ -94,7 +94,7 @@ class RecordTest extends \GO\Utils\ModuleCase {
 
 		$query = (new Query())
 						->joinRelation('groups', false)
-						->where(['groups.id' => Group::ID_EVERYONE]);
+						->where(['groups.id' => Group::ID_INTERNAL]);
 
 		$usersFromEveryOne = User::find($query);
 

@@ -270,7 +270,6 @@ class User extends Record implements UserInterface {
 
 		$this->logSave();
 
-
 		$success = parent::internalSave();
 
 		if ($success && $wasNew) {
@@ -279,18 +278,16 @@ class User extends Record implements UserInterface {
 			$group = new Group();
 			$group->userId = $this->id;
 			$group->name = $this->username;
-			$group->save();
+			if(!$group->save()) {
+				throw new Exception("Could not save user group");
+			}
 
 			$ur = new UserGroup();
 			$ur->userId = $this->id;
 			$ur->groupId = $group->id;
-			$ur->save();
-
-			//add this user to the everyone group
-			$ur = new UserGroup();
-			$ur->userId = $this->id;
-			$ur->groupId = Group::findEveryoneGroup()->id;
-			$ur->save();
+			if(!$ur->save()) {
+				throw new Exception("Could not save user group");
+			}
 		}
 
 		return $success;
@@ -360,7 +357,7 @@ class User extends Record implements UserInterface {
 										(new Query())
 														->select('1')
 														->joinRelation('groupUsers')
-														->andWhere(['!=', ['groupId' => \GO\Core\Users\Model\Group::ID_EVERYONE]])
+														->andWhere(['!=', ['groupId' => \GO\Core\Users\Model\Group::ID_INTERNAL]])
 														->andWhere(['userId' => $this->id])
 														->andWhere(['groupUsers.userId' => $user->id])
 						)->single();
@@ -389,5 +386,32 @@ class User extends Record implements UserInterface {
 		}
 
 		return $ret;
+	}
+	
+	
+	/**
+	 * Create a token to use for login without password
+	 * 
+	 * @return Token
+	 */
+	public function createLoginToken() {
+		
+		
+		return GO()->getAuth()->sudo(function() {
+			$token = \GO\Core\Auth\Model\Token::find(['userId' => $this->id, 'userAgent' => null])->single();
+		
+			if(!$token) {			
+				$token = new \GO\Core\Auth\Model\Token();
+				$token->user = $this;
+			}
+			$token->expiresAt = new \IFW\Util\DateTime();
+			$token->expiresAt->modify("+1 month");
+
+			$token->userAgent = null;
+			$token->remoteIpAddress = null;
+			$token->save();
+
+			return $token;
+		});
 	}
 }

@@ -347,5 +347,52 @@ class Contact extends Record {
 		
 		return implode(',', $props);
 	}
+	
+	/**
+	 * 
+	 * @return User
+	 * @throws \Exception
+	 */
+	public function createUser() {
+		
+		if($this->user) {
+			return $this->user;
+		}
+		
+		if(!isset($this->emailAddresses[0])) {
+			throw new \Exception("No e-mail address known");
+		}
+		
+		return GO()->getAuth()->sudo(function() {
+			$username = $this->emailAddresses[0]->email;
+
+			GO()->getDbConnection()->beginTransaction();
+			try {
+				$user = User::find(['username' => $username])->single();
+				if(!$user) {
+					$user = new \GO\Core\Users\Model\User();
+					$user->username = $user->email = $username;
+					if(!$user->save()) {
+						throw new \Exception("Failed to save user");
+					}				
+				}
+
+				$this->userId = $user->id;
+
+				if(!$this->save()) {
+					throw new \Exception("Failed to save user");
+				}
+			}catch(\Exception $e) {
+				GO()->getDbConnection()->rollBack();
+				throw $e;
+			}
+			
+			GO()->getDbConnection()->commit();
+			
+			return $user;
+			
+		});	
+		
+	}
 
 }
