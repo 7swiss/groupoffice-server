@@ -46,9 +46,11 @@ class EventController extends Controller {
 			$query->search($searchQuery, ['event.title']);
 			$recurringEvents = new IFW\Data\Store([]); // does not find recurring events
 		} else {
-			$query->where('event.startAt <= :until AND event.endAt > :from')
-					->bind([':until' => $until, ':from' => $from]);
-			$recurringEvents = CalendarEvent::findRecurring(new DateTime($from), new DateTime($until));
+			$untilInclusive = new DateTime($until);
+			$untilInclusive->add(new \DateInterval('P1D'));
+			$query->where('event.startAt < :until AND event.endAt > :from')
+					->bind([':until' => $untilInclusive->format('c'), ':from' => $from]);
+			$recurringEvents = CalendarEvent::findRecurring(new DateTime($from), $untilInclusive);
 			$recurringEvents->setReturnProperties($returnProperties);
 		}
 
