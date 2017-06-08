@@ -82,6 +82,9 @@ class RecordTest extends \GO\Utils\ModuleCase {
 //	}
 
 	public function testJoinRelation() {
+		
+		$this->markTestSkipped("Needs to be rewritten");
+		
 		$query = (new Query())->joinRelation('group', true);
 
 		$usersWithGroups = User::find($query);
