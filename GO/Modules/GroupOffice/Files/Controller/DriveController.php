@@ -97,7 +97,11 @@ class DriveController extends Controller {
 				  ->where('m.userId = '.GO()->getAuth()->user()->id);
 
 		$mountedDrives = Drive::find($query);
+		$all = $mountedDrives->all();
+		$home = Drive::home();
+		$this->responseData['home'] = $home->id;
+		$all[] = $home;
 
-		$this->renderStore($mountedDrives);
+		$this->renderStore($all);
 	}
 }

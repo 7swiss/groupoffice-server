@@ -47,16 +47,8 @@ class NodeController extends Controller {
 			$query->setFromClient($q);
 			$flat = true;
 		}
-		if($directory === "home" || $directory === null) {
-			$directory = Drive::home()->rootId;
-		}
-		if(!empty($filter['locations'])) {
-			$query->join(Drive::tableName(),'d', 't.id = d.rootId');
-			$query->select('t.*, 1 as isDrive');
-			$flat = true;
-		}
 
-		if(empty($flat) && empty($filter['trash']) && empty($filter['shared'])) {
+		if(empty($flat) && empty($filter)) {
 			$query->where(['parentId' => $directory]);
 		}
 		if (!empty($filter['starred'])) {
@@ -75,18 +67,21 @@ class NodeController extends Controller {
 		$nodes->setReturnProperties($returnProperties);
 
 		$this->responseData['path'] = [];
-		if(!empty($directory)){
+		if(empty($directory)){
+			$dir = Drive::home()->root;
+		} else {
 			$dir = Directory::findByPk($directory);
-			
-			$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
+		}
+		
+		$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
 
-			while ($dir = $dir->parent) {
-				$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
-			}
+		while ($dir = $dir->parent) {
+			$this->responseData['path'][] = ['id'=>$dir->id, 'name'=>$dir->getName()];
+		}
 //			if(!empty($filter)) {
 //				array_pop($this->responseData['path']);
 //			}
-		}
+		
 		$this->renderStore($nodes);
 
 	}
@@ -150,20 +145,36 @@ class NodeController extends Controller {
 		$this->renderModel($node, $returnProperties);
 	}
 
+	public function actionMove($dirId, $copy = true) {
+		$nodes = Node::find(['id'=>IFW::app()->getRequest()->body['ids']]);
+		$success = true;
+		foreach($nodes as $node) {
+			if($copy) {
+				$attrs = $node->toArray();
+				unset($attrs['id']);
+				$node = new Node();
+				$node->setValues($attrs);
+			}
+			$node->parentId = $dirId;
+			$success = $success && $node->save();
+		}
+		$this->render(['success' => $success]);
+	}
+
 	/**
 	 * Delete a node
 	 *
 	 * @param int $id
 	 * @throws NotFound
 	 */
-	public function actionDelete($id, $hard = false, $returnProperties = "*") {
+	public function actionDelete($id, $returnProperties = "*") {
 		$node = Node::findByPk($id);
 
 		if (!$node) {
 			throw new NotFound();
 		}
 		
-		$hard ? $node->deleteHard() : $node->delete();
+		$node->deleted ? $node->deleteHard() : $node->delete();
 
 		$this->renderModel($node, $returnProperties);
 	}

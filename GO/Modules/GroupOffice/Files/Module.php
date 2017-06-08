@@ -31,6 +31,7 @@ class Module extends InstallableModule {
 			->get('files/:id', 'read')
 			->put('files/:id', 'update')
 			->post('files', 'create')
+			->post('files/:dirId', 'move')
 			->delete('files/:id', 'delete');
 		//->get("files/*path", 'store');
 
