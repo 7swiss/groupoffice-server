@@ -244,7 +244,8 @@ class Node extends Record {
 	}
 
 	public function setParentId($id) {
-		if(!$this->isModified('parentId') && $id !== $this->parentId) {
+
+		if(!$this->relParentId && $id !== $this->parentId) {
 			$newParent = Node::findByPk($id);
 			$this->driveId = $newParent->driveId;
 			$this->parentId = $newParent->id;
