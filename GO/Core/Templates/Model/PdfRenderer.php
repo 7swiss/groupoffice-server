@@ -70,11 +70,18 @@ class PdfRenderer extends PdfModel {
 		
 		// Set the source PDF file		
 		if(isset($template->stationaryPdfBlob)) {
-			$numberOfPages = $this->setSourceFile($template->stationaryPdfBlob->getPath());
+			
+			if(!file_exists($template->stationaryPdfBlob->getPath())) {
+				error_log("template blob ID not found on disk! ".$template->stationaryPdfBlob->getPath());
+			}else
+			{
+			
+				$numberOfPages = $this->setSourceFile($template->stationaryPdfBlob->getPath());
 
-			// Import the first page of the template PDF
-			for($i = 1; $i <= $numberOfPages; $i++) {
-				$this->tplIdx[$i] = $this->importPage($i);			
+				// Import the first page of the template PDF
+				for($i = 1; $i <= $numberOfPages; $i++) {
+					$this->tplIdx[$i] = $this->importPage($i);			
+				}
 			}
 		}
 	}	

@@ -29,11 +29,14 @@ class AlarmTest extends \GO\Utils\ModuleCase {
 		parent::tearDownAfterClass();
 	}
 
-//	function testAddAlarm() {
+	function testAddAlarm() {
+		
+		$this->markTestSkipped("Needs to be written");
+		
 //		$alarm = new Alarm();
 //		$this->event->addAlarms($alarm);
 //		$this->event->save();
-//	}
+	}
 //
 //	function testTriggerAlarm() {
 //
