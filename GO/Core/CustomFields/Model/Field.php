@@ -161,8 +161,8 @@ class Field extends Record {
 		switch($this->type){
 			
 			case self::TYPE_DATE:
-				if($this->getData()['withTime']) {
-					$sql = "DATE";
+				if(!empty($this->getData()['withTime'])) {
+					$sql = "DATETIME";
 				} else {
 					$sql = "DATE NULL";
 				}
@@ -176,7 +176,7 @@ class Field extends Record {
 			
 			case self::TYPE_TEXT:	
 				
-				if($this->getData()['multiline']){
+				if(!empty($this->getData()['multiline'])){
 					
 					return "TEXT NULL";
 					
@@ -249,7 +249,7 @@ class Field extends Record {
 				
 			case self::TYPE_TEXT:
 				
-				if($this->getData()['multiline'] && !empty($this->defaultValue)) {
+				if(!empty($this->getData()['multiline']) && !empty($this->defaultValue)) {
 					$this->setValidationError('defaultValue', IFW\Validate\ErrorCode::INVALID_INPUT, 'Text can\'t have a default value');
 				}
 				
