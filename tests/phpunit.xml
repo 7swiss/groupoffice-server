@@ -5,8 +5,7 @@
 	processIsolation="false"
 	backupGlobals="false"
 	backupStaticAttributes="false"
-	convertErrorsToExceptions="true"
-	convertWarningsToExceptions="true">
+	convertErrorsToExceptions="true">
 
 	<testsuites>
 		<testsuite name="go-ifw">

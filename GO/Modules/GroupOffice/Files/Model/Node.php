@@ -206,7 +206,7 @@ class Node extends Record {
 	}
 
 	/**
-	 * Will create folder stucture from relative path if it doesn't exist
+	 * Will create folder structure from relative path if it doesn't exist
 	 */
 	public function setRelativePath($path) {
 		$parts = explode('/', $path);
@@ -219,7 +219,9 @@ class Node extends Record {
 				$folder->isDirectory = true;
 				$folder->name = $dirName;
 				$folder->setParentId($parentId);
-				$folder->save(); // if not saved then it is not found when saving the second uploaded file
+				if(!$folder->save()){ // if not saved then it is not found when saving the second uploaded file
+					throw new \Exception(var_export($folder->toArray(),true). ' '. var_export($folder->getValidationErrors(),true));
+				}
 			}
 			$parentId = $folder->id;
 		}
@@ -242,7 +244,8 @@ class Node extends Record {
 	}
 
 	public function setParentId($id) {
-		if($id !== $this->parentId) {
+
+		if(!$this->relParentId && $id !== $this->parentId) {
 			$newParent = Node::findByPk($id);
 			$this->driveId = $newParent->driveId;
 			$this->parentId = $newParent->id;
