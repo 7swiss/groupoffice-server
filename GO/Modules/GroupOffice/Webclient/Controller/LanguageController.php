@@ -97,10 +97,10 @@ class LanguageController extends Controller {
 	private function getJsLanguageVars($file) {
 		$content = file_get_contents($file);
 
-			preg_match_all('/Translate\.t\s*\(\s*[\'"](.+)[\'"]\s*[\),]/', $content, $matches);
+			preg_match_all('/Translate\.t\s*\(\s*[\'"](.+?)[\'"]\s*[\),]/', $content, $matches);
 
 			$keys = $matches[1];
-
+			
 			preg_match_all('/App.addLauncher\s*\(\s*[\'"]([^\'"]+)[\'"]/', $content, $matches);
 			$keys = array_merge($keys, $matches[1]);
 			
