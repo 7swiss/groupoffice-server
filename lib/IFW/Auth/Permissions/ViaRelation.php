@@ -28,20 +28,32 @@ class ViaRelation extends Model {
 	
 	protected function internalCan($permissionType, UserInterface $user) {		
 		
-		$relationName = $this->relationName;	
-		$relatedRecord = $this->record->{$relationName};
+		$relatedRecord = $this->getRelatedRecord();
 		
 		if($permissionType != self::PERMISSION_READ) {
 			$permissionType = $relatedRecord->isNew() ? self::PERMISSION_CREATE : self::PERMISSION_WRITE;		
-		}
-
-		if(!isset($relatedRecord)) {
-			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select or set the key?");
 		}
 		
 		return $relatedRecord->permissions->can($permissionType, $user);
 	}
 	
+	
+	/**
+	 * Get the record the permissions are relayed to.
+	 * 
+	 * @return \IFW\Orm\Record
+	 * @throws Exception
+	 */
+	protected function getRelatedRecord() {
+		$relationName = $this->relationName;	
+		$relatedRecord = $this->record->{$relationName};
+
+		if(!isset($relatedRecord)) {
+			throw new Exception("Relation $relationName is not set in ".$this->record->getClassName().", Maybe you didn't select or set the key?");
+		}
+		
+		return $relatedRecord;
+	}
 
 	protected function internalApplyToQuery(Query $query, UserInterface $user) {
 		

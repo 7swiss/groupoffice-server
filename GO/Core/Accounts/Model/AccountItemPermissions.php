@@ -1,24 +1,47 @@
 <?php 
 namespace GO\Core\Accounts\Model;
 
+use IFW\Auth\Permissions\Model;
+use IFW\Auth\Permissions\ViaRelation;
+use IFW\Auth\UserInterface;
+use IFW\Orm\Query;
+
 /**
  * Permission model for account items
  * 
  */
-class AccountItemPermissions extends \GO\Core\Auth\Permissions\Model\GroupPermissions {
+class AccountItemPermissions extends ViaRelation {
 	
 	
 	public function __construct() {
-		parent::__construct(AccountGroup::class, 'accountId');
+		parent::__construct('account');
 	}
 	
 	
-	
-	protected function internalApplyToQuery(\IFW\Orm\Query $query, \IFW\Auth\UserInterface $user) {
+	protected function internalCan($permissionType, UserInterface $user) {		
 		
-		$query->joinRelation('account');
+		$relatedRecord = $this->getRelatedRecord();
 		
-		return parent::internalApplyToQuery($query, $user);
+		if($permissionType == self::PERMISSION_WRITE || $permissionType == self::PERMISSION_CREATE) {
+			$permissionType = AccountPermissions::PERMISSION_WRITE_CONTENTS;
+		}
+		
+		return $relatedRecord->permissions->can($permissionType, $user);
 	}
+	
+	
+	protected function internalApplyToQuery(Query $query, UserInterface $user) {
+		$subQuery = (new Query())
+						->tableAlias('groupAccess')						
+						->joinRelation('groupUsers')
+						->where(['groupUsers.userId' => $user->id()])
+						->andWhere('groupAccess.accountId = '.$query->getTableAlias(). '.accountId');
+		
+		$groupAccess = AccountGroup::find($subQuery);
+		
+		$query->allowPermissionTypes([Model::PERMISSION_READ])
+						->andWhere(['EXISTS', $groupAccess]);
+	}
+
 
 }
