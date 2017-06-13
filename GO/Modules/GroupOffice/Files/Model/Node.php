@@ -171,8 +171,11 @@ class Node extends Record {
 
 	private function exists() {
 		$sameNode = Node::find(['parentId'=> $this->parentId, 'name'=> $this->name])->single();
-		if(!empty($sameNode) && $sameNode->blobId != $this->blobId) { // if file not changed, do save record
-			return true;
+		if(!empty($sameNode)) { // if file not changed, do save record
+//			if($sameNode->blobId == $this->blobId) {
+//				return true; // could skip anyway when file is the same
+//			}
+			return $sameNode;
 		}
 		return false;
 	}
@@ -198,8 +201,14 @@ class Node extends Record {
 				$this->setParentId($this->parentId);
 			}
 
-			if($this->exists() && !$this->allowOverwrite) {
-				return true; // skip, PS client should not post this without allow overwrite
+			$sameNode = $this->exists();
+			if(!empty($sameNode)) {
+				if($this->allowOverwrite && $sameNode !== true) {
+					$sameNode->blobId = $this->blobId;
+					return $sameNode->save();
+				} else {
+					return true; // skip, PS client should not post this without allow overwrite
+				}
 			}
 			
 			$nodeUser = new NodeUser();
@@ -213,10 +222,15 @@ class Node extends Record {
 			$this->drive->usage += $this->getSize();
 		}
 		if(!$this->isNew() && $this->isModified('blobId')) {
-			$diff = $this->size = $this->getOldAttributeValue('size');
+			$diff = $this->getSize() - $this->oldSize();
 			$this->drive->usage += $diff;
 		}
 		return parent::internalSave();
+	}
+
+	private function oldSize() {
+		$blob = Blob::findByPk($this->getOldAttributeValue('blobId'));
+		return $blob->size;
 	}
 
 	protected function internalDelete($hard) {
