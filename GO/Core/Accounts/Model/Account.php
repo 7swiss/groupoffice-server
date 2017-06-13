@@ -147,7 +147,7 @@ class Account extends Record {
 	 * 
 	 * @param string $modelName eg. Contact::class
 	 * @param Query $query
-	 * @return self[]
+	 * @return static
 	 */
 	public static function findByCapability($modelName, Query $query = null) {
 		$query = Query::normalize($query)
