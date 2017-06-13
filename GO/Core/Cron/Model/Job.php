@@ -251,7 +251,7 @@ class Job extends Record {
 
 		GO()->debug("Running CRON method: " . $this->cronClassName . "::" . $this->method);
 
-		GO()->log("info", "Running CRON method: " . $this->cronClassName . "::" . $this->method, $this);
+//		GO()->log("info", "Running CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 
 		try {
 			$callable = [$this->cronClassName, $this->method];
@@ -260,9 +260,15 @@ class Job extends Record {
 			}
 
 			GO()->getAuth()->sudo($callable, $this->runUser, $this->getParams());
+			
+			\GO\Core\Notifications\Model\Notification::resume();
+			GO()->logResume();
 
-			GO()->log("info", "Finished CRON method: " . $this->cronClassName . "::" . $this->method, $this);
+//			GO()->log("info", "Finished CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 		} catch (Exception $ex) {
+			
+			\GO\Core\Notifications\Model\Notification::resume();
+			GO()->logResume();
 
 			GO()->error("An exception occurred in CRON method: " . $this->cronClassName . "::" . $this->method . " " . $ex->getMessage(), $this);
 

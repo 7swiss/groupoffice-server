@@ -96,7 +96,10 @@ trait AppTrait {
 		
 		$log = new Entry();
 
-		$log->setRecord($record);
+		if(isset($record)) {
+			$log->setRecord($record);
+		}
+		
 		$log->type = $type;
 		$log->description = $description;
 		$log->moduleName = $record->findModuleName();
