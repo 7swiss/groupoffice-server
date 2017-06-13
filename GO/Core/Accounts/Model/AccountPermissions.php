@@ -15,6 +15,13 @@ class AccountPermissions extends \GO\Core\Auth\Permissions\Model\GroupPermission
 	
 	const PERMISSION_WRITE_CONTENTS = 'writeContents';
 	
+	protected function definePermissionTypes() {
+		$types = parent::definePermissionTypes();
+		$types[] = self::PERMISSION_WRITE_CONTENTS;
+		
+		return $types;
+	}
+	
 	public function __construct() {
 		parent::__construct(AccountGroup::class, 'id');
 	}

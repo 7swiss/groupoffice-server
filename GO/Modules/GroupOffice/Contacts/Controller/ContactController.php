@@ -148,13 +148,9 @@ class ContactController extends Controller {
 	 */
 	protected function actionRead($contactId, $returnProperties = "*"){
 	
-		if($contactId == "current"){
-			$contact = \GO()->getAuth()->user()->contact;
-		}else
-		{
-			$contact = Contact::findByPk($contactId);
-		}
-	
+
+		$contact = Contact::findByPk($contactId);
+			
 		if (!$contact) {
 			throw new NotFound();
 		}
@@ -242,13 +238,8 @@ class ContactController extends Controller {
 	 */
 	public function actionUpdate($contactId, $returnProperties = "") {
 
-		if($contactId == "current"){
-			$contact = \GO()->getAuth()->user()->contact;
-		}else
-		{
-			$contact = Contact::findByPk($contactId);
-		}
-
+		$contact = Contact::findByPk($contactId);
+		
 		if (!$contact) {
 			throw new NotFound();
 		}

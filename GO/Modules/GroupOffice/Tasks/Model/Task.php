@@ -94,6 +94,12 @@ class Task extends Record {
 	 * @var int
 	 */							
 	public $assignedTo;
+	
+	/**
+	 * 
+	 * @var int
+	 */							
+	public $accountId;
 
 	const STATUS_FINISHED = 1;
 
@@ -103,7 +109,7 @@ class Task extends Record {
 	
 	
 	public static function defineRelations(){
-		
+		self::hasOne('account', \GO\Core\Accounts\Model\Account::class, ['accountId' => 'id']);		
 		self::hasOne('creator', User::class, ['createdBy'=>'id']);
 		self::hasMany('tags',Tag::class, ['id'=>'taskId'], true)
 						->via(TaskTag::class,['tagId'=>'id'])
@@ -133,32 +139,28 @@ class Task extends Record {
 	protected function init() {
 		parent::init();
 		
-		$this->assignedTo = $this->createdBy;
+		if($this->isNew()) {
+			$this->assignee = GO()->getAuth()->user();
+			$this->account = \GO\Core\Accounts\Model\Account::findByCapability(self::class)->single();
+		}
 	}
 	
 	protected function internalSave() {
-		
-		$isNew = $this->isNew();
-		
+
 		
 		if(!parent::internalSave()) {
 			return false;
 		}		
 		
-		$notifyType = $isNew ? self::NOTIFY_TYPE_CREATE : self::NOTIFY_TYPE_UPDATE;
+		$notifyType = $this->isNew() ? self::NOTIFY_TYPE_CREATE : self::NOTIFY_TYPE_UPDATE;
 		
 		if($this->isModified('completedAt') && isset($this->completedAt)) {
 			$notifyType = self::NOTIFY_TYPE_COMPLETED;
 		}
 		
-		if($this->isModified('assignedTo') && $this->assignedTo != $this->createdBy) {			
+		if($this->isModified('assignedTo') || !empty($this->assignedTo)) {			
 			Watch::create($this, $this->assignee->group->id);
-		}
-		
-		if($isNew) {			
-			Watch::create($this, $this->creator->group->id);			
-		}
-		
+		}	
 		
 		if(!Notification::create($notifyType, $this->toArray('id,description,dueAt'), $this)) {
 			return false;
@@ -169,6 +171,6 @@ class Task extends Record {
 	}
 	
 	protected static function internalGetPermissions() {
-		return new TaskPermissions();
+		return new \GO\Core\Accounts\Model\AccountItemPermissions();
 	}
 }

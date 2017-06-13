@@ -31,7 +31,7 @@ class QueryBuilder {
 	 * we can't determine easily then if the find was a simple query on primary key.
 	 * {@see Finder::single()}
 	 */
-	const EVENT_BUILD_QUERY = 0;
+	const EVENT_BUILD_QUERY = 0;	
 
 	/**
 	 *
@@ -330,10 +330,10 @@ class QueryBuilder {
 //		} else {
 			return ['sql' => $this->sql, 'params' => $this->getBindParameters()];
 //		}
-	}
+	}	
 
 	protected function buildSelectFields() {
-		$select = "SELECT ";
+		$select = "SELECT ";		
 
 		//		if ($this->_query->calcFoundRows && $this->_query->limit > 0) {
 		//			$select .= "SQL_CALC_FOUND_ROWS ";

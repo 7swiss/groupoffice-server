@@ -126,7 +126,6 @@ class SystemCheck extends Model {
 		$response = [
 			'success' => true, 
 			'databaseInstalled' => System::isDatabaseInstalled(),
-			'cacheFlushed' => GO()->getCache()->flush(),
 			'installUrl' => (string) GO()->getRouter()->buildUrl('/system/install'),
 			'upgradeUrl' => (string) GO()->getRouter()->buildUrl('/system/upgrade'),
 			'checks' => []

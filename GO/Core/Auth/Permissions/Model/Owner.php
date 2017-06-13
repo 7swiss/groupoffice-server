@@ -35,6 +35,8 @@ use IFW\Orm\Query;
 class Owner extends Model {	
 		
 	private $userGroup;
+	
+	protected $colName = 'ownedBy';
 
 	
 	protected function internalCan($permissionType, UserInterface $user) {		
@@ -51,7 +53,7 @@ class Owner extends Model {
 	private function getUserGroup($user) {
 		if(!isset($this->userGroup)) {			
 			
-			return $this->userGroup = UserGroup::find(['groupId' => $this->record->ownedBy, 'userId' => $user->id()])->single();
+			return $this->userGroup = UserGroup::find(['groupId' => $this->record->{$this->colName}, 'userId' => $user->id()])->single();
 		}
 		
 		return $this->userGroup;
@@ -63,7 +65,7 @@ class Owner extends Model {
 						(new Query())
 						->tableAlias('ug')
 						->where(['userId' => $user->id()])
-						->andWhere('ug.groupId = '.$query->getTableAlias().'.ownedBy')
+						->andWhere('ug.groupId = '.$query->getTableAlias(). '.' . $this->colName)
 						);
 		
 		$query->allowPermissionTypes([\IFW\Auth\Permissions\Model::PERMISSION_READ])

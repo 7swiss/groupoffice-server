@@ -50,6 +50,11 @@ class Watch extends Record implements GarbageCollectionInterface {
 	}
 
 	public static function create(Record $record, $groupId) {
+		
+		if(self::exists($record, $groupId)) {
+			return true;
+		}
+		
 		$watch = new self;
 		$watch->groupId = $groupId;
 		$watch->recordTypeId = $record->getRecordType()->id;
@@ -58,12 +63,12 @@ class Watch extends Record implements GarbageCollectionInterface {
 		return $watch->save();
 	}
 
-	public function exists(Record $record, $groupId) {
+	public static function exists(Record $record, $groupId) {
 		return self::findByPk([
 								'groupId' => $groupId,
 								'recordTypeId' => $record->getRecordType()->id,
 								'recordId' => $record->id
-						])->single();
+						]);
 	}
 
 	public static function collectGarbage() {

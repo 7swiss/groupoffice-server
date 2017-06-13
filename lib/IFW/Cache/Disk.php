@@ -72,11 +72,13 @@ class Disk implements CacheInterface {
 		if (!$file->exists()) {
 			return null;
 		} 
+		
+		$serialized = $file->getContents();
 
-		$this->cache[$key] = unserialize($file->getContents());
+		$this->cache[$key] = unserialize($serialized);
 
 		if ($this->cache[$key] === false) {
-			trigger_error("Could not unserialize cache from file " . $key);
+			trigger_error("Could not unserialize cache from file " . $key.' data: '.var_export($serialized, true));
 			$this->delete($key);
 			return null;
 		} else {
@@ -111,7 +113,8 @@ class Disk implements CacheInterface {
 	 * @return bool
 	 */
 	public function flush($onDestruct = true) {
-
+		
+//		throw new \Exception("Flush?");
 		if ($onDestruct) {
 			$this->flushOnDestruct = true;
 			return true;
@@ -122,7 +125,7 @@ class Disk implements CacheInterface {
 	
 		$this->folder->delete();
 		$this->folder->create(0777);
-
+		
 		return true;
 	}
 
