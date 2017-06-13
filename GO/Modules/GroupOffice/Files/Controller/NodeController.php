@@ -108,8 +108,8 @@ class NodeController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client.
 	 * @param string[] $overwrites The uploaded filenames that should be overwritten
 	 */
-	public function actionCreate($returnProperties = "*", $overwrites = []) {
-		$overwrites = IFW::app()->getRequest()->body['overwrites'];
+	public function actionCreate($returnProperties = "*") {
+		$overwrites = array_flip(IFW::app()->getRequest()->body['overwrites']);
 		$data = IFW::app()->getRequest()->body['data'];
 		if(!isset($data[0])) {
 			$data = [$data];
