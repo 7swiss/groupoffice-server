@@ -112,6 +112,8 @@ class Node extends Record {
 	 */
 	private $relParentId;
 
+	private $allowOverwrite = false;
+
 	/**
 	 * These directories do not exist and need to be created to save the node
 	 * @var Node[]
@@ -163,6 +165,18 @@ class Node extends Record {
 		return $relations;
 	}
 
+	public function setAllowOverwrite($val) {
+		$this->allowOverwrite = $val;
+	}
+
+	private function exists() {
+		$sameNode = Node::find(['parentId'=> $this->parentId, 'name'=> $this->name])->single();
+		if(!empty($sameNode) && $sameNode->blobId != $this->blobId) { // if file not changed, do save record
+			return true;
+		}
+		return false;
+	}
+
 	protected function internalValidate() {
 		$this->name = preg_replace(self::InvalidNameRegex, "_", $this->name);
 
@@ -183,6 +197,11 @@ class Node extends Record {
 			} else {
 				$this->setParentId($this->parentId);
 			}
+
+			if($this->exists() && !$this->allowOverwrite) {
+				return true; // skip, PS client should not post this without allow overwrite
+			}
+			
 			$nodeUser = new NodeUser();
 			$nodeUser->userId = \GO()->getAuth()->user()->id;
 			$this->nodeUser = $nodeUser;
@@ -190,8 +209,13 @@ class Node extends Record {
 		if(!empty($this->nodeUser)) {
 			$this->nodeUser->touchedAt = new \DateTime();
 		}
-		if($this->isNew() && !$this->isDirectory)
+		if($this->isNew() && !$this->isDirectory) {
 			$this->drive->usage += $this->getSize();
+		}
+		if(!$this->isNew() && $this->isModified('blobId')) {
+			$diff = $this->size = $this->getOldAttributeValue('size');
+			$this->drive->usage += $diff;
+		}
 		return parent::internalSave();
 	}
 
