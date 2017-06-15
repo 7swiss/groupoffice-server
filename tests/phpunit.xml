@@ -27,6 +27,10 @@
 		<testsuite name="go-test">
 			<directory>./GO/Modules/GroupOffice/Test</directory>
 		</testsuite>
+		
+		<testsuite name="go-tasks">
+			<directory>./GO/Modules/GroupOffice/Tasks</directory>
+		</testsuite>
 	</testsuites>
 
 	<filter>

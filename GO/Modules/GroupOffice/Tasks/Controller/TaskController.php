@@ -165,14 +165,14 @@ class TaskController extends Controller {
 	
 	public function actionAssignees () {
 		
-		$users = \GO\Core\Users\Model\User::find(
+		$groups = \GO\Core\Users\Model\Group::find(
 						(new Query())
 						
 						
 						->where(['EXISTS' , Task::find((new Query)->tableAlias('tasks')->where('tasks.assignedTo = t.id'))])
 						);
-		$users->setReturnProperties('id,username');
-		$this->renderStore($users);
+		$groups->setReturnProperties('id,name');
+		$this->renderStore($groups);
 		
 	}
 	

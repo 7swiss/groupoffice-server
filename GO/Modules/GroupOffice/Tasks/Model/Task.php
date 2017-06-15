@@ -15,7 +15,7 @@ use IFW\Orm\Query;
  
  *  
  * @property User $creator
- * @property User $assignee
+ * @property \GO\Core\Users\Model\Group $assignee
  * 
  * @property TaskReminders[] $reminders
  * @property TaskTags[] $tags
@@ -117,7 +117,7 @@ class Task extends Record {
 		self::hasMany('reminders',Reminder::class, ['id'=>'taskId'], true)
 						->via(Taskreminder::class,['tagId'=>'id'])
 						->setQuery((new Query())->orderBy(['time'=>'ASC']));
-		self::hasOne('assignee', User::class, ['assignedTo'=>'id']);
+		self::hasOne('assignee', \GO\Core\Users\Model\Group::class, ['assignedTo'=>'id']);
 		
 		self::hasMany('comments', \GO\Core\Comments\Model\Comment::class, ['id'=>'taskId'])->via(TaskComment::class, ['commentId'=>'id']);
 		
@@ -140,7 +140,7 @@ class Task extends Record {
 		parent::init();
 		
 		if($this->isNew()) {
-			$this->assignee = GO()->getAuth()->user();
+			$this->assignee = GO()->getAuth()->user()->group;
 			$this->account = \GO\Core\Accounts\Model\Account::findByCapability(self::class)->single();
 		}
 	}
@@ -159,7 +159,7 @@ class Task extends Record {
 		}
 		
 		if($this->isModified('assignedTo') || !empty($this->assignedTo)) {			
-			Watch::create($this, $this->assignee->group->id);
+			Watch::create($this, $this->assignedTo);
 		}	
 		
 		if(!Notification::create($notifyType, $this->toArray('id,description,dueAt'), $this)) {
