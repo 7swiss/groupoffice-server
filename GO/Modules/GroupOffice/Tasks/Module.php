@@ -16,12 +16,7 @@ class Module extends InstallableModule{
 	public static function defineWebRoutes(Router $router){
 		
 		$router->addRoutesFor(TaskController::class)
-				->get('tasks', 'store')
-				->get('tasks/0','new')
-				->get('tasks/:taskId','read')
-				->put('tasks/:taskId', 'update')
-				->post('tasks', 'create')
-				->delete('tasks/:taskId','delete')
+				->crud('tasks', 'taskId')
 				->get('tasks/assignees', 'assignees');
 		
 		$router->addRoutesFor(Controller\CommentController::class)

@@ -2,10 +2,12 @@
 namespace GO\Modules\GroupOffice\Tasks\Controller;
 
 use GO\Core\Controller;
+use GO\Core\Users\Model\Group;
 use GO\Modules\GroupOffice\Tasks\Model\Task;
 use IFW;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use function GO;
 
 /**
  * The controller for tasks
@@ -163,9 +165,47 @@ class TaskController extends Controller {
 	}
 	
 	
+	/**
+	 * Update multiple Tasks at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function actionMultiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$task = Task::findByPk($values['id']);
+
+				if (!$task) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$task = new Task();
+			}
+			
+			$task->setValues($values);
+			$task->save();
+			
+			$response['data'][] = $task->toArray('id');
+		}
+		
+		$this->render($response);
+	}
+	
+	
 	public function actionAssignees () {
 		
-		$groups = \GO\Core\Users\Model\Group::find(
+		$groups = Group::find(
 						(new Query())
 						
 						
