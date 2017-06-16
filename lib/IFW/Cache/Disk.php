@@ -95,10 +95,9 @@ class Disk implements CacheInterface {
 		$key = File::stripInvalidChars($key, '-');
 		
 		unset($this->cache[$key]);
-		
-		if (file_exists($this->folder . $key)) {
-			unlink($this->folder . $key);
-		}
+
+		$file = $this->folder->getFile($key);
+		$file->delete();
 	}
 
 	private $flushOnDestruct = false;
