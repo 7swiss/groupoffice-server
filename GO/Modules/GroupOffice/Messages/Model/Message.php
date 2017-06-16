@@ -226,7 +226,7 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	public static function internalGetPermissions() {
-		return new ViaRelation('coreAccount');
+		return new \GO\Core\Accounts\Model\AccountItemPermissions('coreAccount');
 	}	
 	
 	/**

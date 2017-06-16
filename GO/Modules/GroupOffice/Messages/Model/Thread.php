@@ -127,7 +127,7 @@ class Thread extends Record {
 	}
 	
 	public static function internalGetPermissions() {
-		return new ViaRelation('account');
+		return new \GO\Core\Accounts\Model\AccountItemPermissions();
 	}
 	
 	/**

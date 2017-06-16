@@ -13,8 +13,8 @@ use IFW\Orm\Query;
 class AccountItemPermissions extends ViaRelation {
 	
 	
-	public function __construct() {
-		parent::__construct('account');
+	public function __construct($accountRelation = 'account') {
+		parent::__construct($accountRelation);
 	}
 	
 	
