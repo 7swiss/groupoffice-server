@@ -415,6 +415,9 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 		});
 	}
 
+	/**
+	 * For {@see \GO\Core\Email\Model\RecipientInterface}
+	 */
 	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
 		$query = (new Query())
 						->distinct()

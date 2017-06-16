@@ -22,14 +22,6 @@ class Config {
 	 * API version number
 	 */
 	const VERSION = "7.0";
-
-	/**
-	 * The moduleName for which the configuration files need to be saved.
-	 * For the core framework this will be "core".
-	 * 
-	 * @var string 
-	 */
-	protected $moduleName = 'core';
 	
 	/**
 	 * Name of the application

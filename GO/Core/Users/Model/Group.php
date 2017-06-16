@@ -69,6 +69,8 @@ class Group extends Record{
 		self::hasMany('userGroup', UserGroup::class, ['id'=>'groupId']);
 		self::hasMany('moduleGroups', ModuleGroup::class, ['id' => 'groupId']);
 		
+		self::hasMany('accountGroups', \GO\Core\Accounts\Model\AccountGroup::class, ['id' => 'groupId']);
+		
 		self::hasOne('user', User::class, ['userId'=>'id'])
 						->setDeleteAction(Relation::DELETE_RESTRICT);		
 	

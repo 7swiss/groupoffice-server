@@ -395,6 +395,9 @@ class Contact extends Record implements \GO\Core\Email\Model\RecipientInterface 
 		
 	}
 
+	/**
+	 * For {@see \GO\Core\Email\Model\RecipientInterface}
+	 */
 	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
 		$query = (new Query())
 					->distinct()

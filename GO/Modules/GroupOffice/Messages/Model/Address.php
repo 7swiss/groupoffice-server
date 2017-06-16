@@ -92,6 +92,9 @@ class Address extends Record implements RecipientInterface {
 		return parent::internalValidate();
 	}
 
+	/**
+	 * For {@see \GO\Core\Email\Model\RecipientInterface}
+	 */
 	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
 		$query = (new Query())
 						->select('t.personal, t.address')

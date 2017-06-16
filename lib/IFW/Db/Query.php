@@ -615,7 +615,7 @@ class Query extends Criteria {
 	 */
 	public function setFromClient($json) {
 		
-		if(empty($json)) {
+		if(empty($json) || $json == 'null') {
 			return $this;
 		}
 		
