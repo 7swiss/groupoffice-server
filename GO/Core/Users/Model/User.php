@@ -29,7 +29,7 @@ use IFW\Validate\ValidatePassword;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class User extends Record implements UserInterface {
+class User extends Record implements UserInterface, \GO\Core\Email\Model\RecipientInterface{
 
 	/**
 	 * Primary key of the model.
@@ -414,4 +414,22 @@ class User extends Record implements UserInterface {
 			return $token;
 		});
 	}
+
+	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
+		$query = (new Query())
+						->distinct()
+						->fetchMode(\PDO::FETCH_ASSOC)
+						->orderBy(['username' => 'ASC'])
+						->limit($limit)
+						->select('t.username AS personal, t.email AS address')						
+						->search($searchQuery, ['t.username', 't.email']);
+		
+		if (!empty($foundEmailAddresses)) {
+			$query->where(['!=', ['t.email' => $foundEmailAddresses]]);
+		}
+						
+		
+		return \GO\Core\Users\Model\User::find($query)->all();		
+	}
+
 }

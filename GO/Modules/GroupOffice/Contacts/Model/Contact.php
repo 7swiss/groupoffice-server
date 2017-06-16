@@ -31,7 +31,7 @@ use IFW\Orm\Query;
  * @property Blob $photoBlob The Blob object representing the contact picture
  *
  */
-class Contact extends Record {
+class Contact extends Record implements \GO\Core\Email\Model\RecipientInterface {
 	
 	const GENDER_MALE = 'M'; 
 	
@@ -393,6 +393,24 @@ class Contact extends Record {
 			
 		});	
 		
+	}
+
+	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
+		$query = (new Query())
+					->distinct()
+					->limit($limit)
+					->joinRelation('emailAddresses')
+					->fetchMode(\PDO::FETCH_ASSOC)
+					->select('t.name AS personal, emailAddresses.email AS address')						
+					->orderBy(['emailAddresses.email' => 'ASC'])
+					->search($searchQuery, ['t.name', 'emailAddresses.email']);
+
+		if (!empty($foundEmailAddresses)) {
+			$query->where(['!=', ['emailAddresses.email' => $foundEmailAddresses]]);
+		}
+
+		return Contact::find($query)->all();
+
 	}
 
 }

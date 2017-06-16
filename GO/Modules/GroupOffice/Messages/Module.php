@@ -20,8 +20,7 @@ class Module extends InstallableModule {
 		$router->addRoutesFor(MessageController::class)
 						->crud('messages', 'messageId');
 		
-		$router->addRoutesFor(Controller\RecipientController::class)
-						->get('messages/recipients','recipients');
+		
 
 		$router->addRoutesFor(AttachmentController::class)
 						->get('messages/:messageId/attachments/:attachmentId', 'read');

@@ -47,7 +47,7 @@ trait EventEmitterTrait {
 	 * Fire an event
 	 * 
 	 * @param int $event Defined in constants prefixed by EVENT_
-	 * @param mixed $args Multiple extra agruments to be passed to the callbacks
+	 * @param mixed $args Multiple extra arguments to be passed to the listener functions
 	 * @return boolean
 	 */
 	public function fireEvent($event){

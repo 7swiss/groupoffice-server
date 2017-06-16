@@ -2,8 +2,11 @@
 
 namespace GO\Modules\GroupOffice\Messages\Model;
 
-use IFW\Auth\Permissions\ViaRelation;
+use GO\Core\Email\Model\RecipientInterface;
+use IFW\Auth\Permissions\Everyone;
+use IFW\Orm\Query;
 use IFW\Orm\Record;
+use PDO;
 
 
 
@@ -17,7 +20,7 @@ use IFW\Orm\Record;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Address extends Record {	
+class Address extends Record implements RecipientInterface {	
 	
 	/**
 	 * 
@@ -60,7 +63,7 @@ class Address extends Record {
 	
 	public static function internalGetPermissions() {
 //		return new ViaRelation( 'message');
-		return new \IFW\Auth\Permissions\Everyone();	
+		return new Everyone();	
 	}
 
 //	/**
@@ -88,4 +91,22 @@ class Address extends Record {
 		$this->truncateModifiedAttributes();
 		return parent::internalValidate();
 	}
+
+	public static function findRecipients($searchQuery, $limit, $foundEmailAddresses = array()) {
+		$query = (new Query())
+						->select('t.personal, t.address')
+						->distinct()
+						->fetchMode(PDO::FETCH_ASSOC)
+						->search($searchQuery, ['t.personal', 't.address'])
+						->limit($limit)
+						->orderBy(['address' => 'ASC']);
+
+
+		if (!empty($foundEmailAddresses)) {
+			$query->andWhere(['!=', ['address' => $foundEmailAddresses]]);
+		}
+
+		return Address::find($query)->all();
+	}
+
 }

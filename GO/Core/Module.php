@@ -10,6 +10,7 @@ use GO\Core\Cron\Controller\JobController;
 use GO\Core\CustomFields\Controller\FieldController;
 use GO\Core\CustomFields\Controller\FieldSetController;
 use GO\Core\CustomFields\Controller\ModelController;
+use GO\Core\Email\Controller\RecipientController;
 use GO\Core\Install\Controller\SystemController;
 use GO\Core\Log\Controller\EntryController;
 use GO\Core\Modules\Controller\ModuleController;
@@ -22,6 +23,7 @@ use GO\Core\Tags\Controller\TagController;
 use GO\Core\Templates\Controller\MessageController;
 use GO\Core\Templates\Controller\PdfController;
 use GO\Core\Upload\Controller\TempThumbController;
+use IFW;
 use IFW\Cli\Router as Router2;
 use IFW\Modules\Module as BaseModule;
 use IFW\Web\Router;
@@ -152,9 +154,8 @@ class Module extends BaseModule {
 		$router->addRoutesFor(CommentController::class)
 						->crud('comments', 'commentId');
 		
-		
-		$router->addRoutesFor(Selections\Controller\SelectionsController::class)
-						->post('selections', 'create');
+		$router->addRoutesFor(RecipientController::class)
+						->get('recipients', 'store');
 	}
 
 	public static function defineCliRoutes(Router2 $router) {
@@ -174,7 +175,7 @@ class Module extends BaseModule {
 	
 	public function getCapabilities() {
 		return [
-			"uploadMaxFileSize" => \IFW::app()->getEnvironment()->getMaxUploadSize()
+			"uploadMaxFileSize" => IFW::app()->getEnvironment()->getMaxUploadSize()
 		];
 	}
 	
