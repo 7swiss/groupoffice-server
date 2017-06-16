@@ -686,7 +686,10 @@ abstract class Record extends DataModel {
 	 * Apply permissions to relational query
 	 */
 	private function applyRelationPermissions(Relation $relation, RelationStore $store) {
-		if($relation->hasMany ()) {
+		$allowedPermissionTypes = static::relationIsAllowed($relation->getName());
+		if($allowedPermissionTypes) {
+			$store->getQuery()->allowPermissionTypes($allowedPermissionTypes);
+		}else if($relation->hasMany ()) {
 			//only apply query to has many. On single relational records it's better 
 			//to get the permission denied error when the read permissions are checked 
 			//in the constructor.
@@ -2493,6 +2496,48 @@ abstract class Record extends DataModel {
 	protected static function internalGetPermissions() {
 		return new AdminsOnly();
 	}	
+	
+	private static $allowRelations = [];
+	
+	/**
+	 * Bypass record read permissions for specific relational queries
+	 * 
+	 * @example Allow the customer contact of an invoice to be queried even if 
+	 * the user doesn't have read permissions for the contact.
+	 * 
+	 * ```php
+	 * Invoice::allow('customer');
+	 * ```
+	 * 
+	 * @param string $relationPath "contact" or deeper "contact.organizations"
+	 */
+	public static function allow($relationPath, array $permissionTypes = [PermissionsModel::PERMISSION_READ]) {
+		
+		if(!isset(self::$allowRelations[static::class])) {
+			self::$allowRelations[static::class] = [];
+		}
+		
+		$parts = explode('.', $relationPath);		
+		self::$allowRelations[static::class][$parts[0]] = $permissionTypes;
+		
+		if(count($parts) > 1) {
+			$model = static::getRelation(array_shift($parts))->getToRecordName();
+			foreach($parts as $part) {
+
+				$model::allow($part, $permissionTypes);
+				$model = $model::getRelation($part)->getToRecordName();			
+			}
+		}
+	}	
+	
+	private static function relationIsAllowed($relationName) {
+
+		if(!isset(self::$allowRelations[static::class][$relationName])) {
+			return false;
+		}
+		
+		return self::$allowRelations[static::class][$relationName];
+	}
 	
 	/**
 	 * Get the permissions model
