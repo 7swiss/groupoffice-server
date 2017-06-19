@@ -267,7 +267,7 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 
 	protected function internalSave() {
 		$wasNew = $this->isNew();
-
+		
 		$this->logSave();
 
 		$success = parent::internalSave();
@@ -281,13 +281,13 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 			if(!$group->save()) {
 				throw new Exception("Could not save user group");
 			}
-
+			
 			$ur = new UserGroup();
 			$ur->userId = $this->id;
 			$ur->groupId = $group->id;
 			if(!$ur->save()) {
 				throw new Exception("Could not save user group");
-			}
+		}
 		}
 
 		return $success;
@@ -333,8 +333,9 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 	public function isAdmin() {
 
 		if (!isset($this->isAdmin)) {
-			$ur = UserGroup::findByPk(['userId' => $this->id, 'groupId' => Group::ID_ADMINS]);
-			$this->isAdmin = $ur !== false;
+			
+			$command = (new Query())->select(1)->from(UserGroup::tableName())->where(['userId' => $this->id, 'groupId' => Group::ID_ADMINS])->createCommand();
+			$this->isAdmin = $command->execute()->fetch() != false;
 		}
 
 		return $this->isAdmin;

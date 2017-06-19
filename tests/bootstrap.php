@@ -8,37 +8,41 @@ use GO\Core\Web\App;
 $autoLoader = require(__DIR__."/../vendor/autoload.php");
 $autoLoader->add('GO\\', __DIR__);
 
+try{ 
+	$app = new App($autoLoader, require(__DIR__.'/config.php'));
 
-$app = new App($autoLoader, require(__DIR__.'/config.php'));
-
-$old = umask(0); //world readable
-$app->getConfig()->getDataFolder()->delete();
-$app->getConfig()->getDataFolder()->create();
-umask($old);
-
-
-//cleanup previous database
-GO()->getDbConnection()->query("DROP DATABASE IF EXISTS `" . $app->getDbConnection()->database ."`");
-GO()->getDbConnection()->query("CREATE DATABASE `" . $app->getDbConnection()->database ."`");
-GO()->getDbConnection()->disconnect();
-$app->reinit();
-
-$controller = new SystemController();
-$response = $controller->actionInstall();
+	$old = umask(0); //world readable
+	$app->getConfig()->getDataFolder()->delete();
+	$app->getConfig()->getDataFolder()->create();
+	umask($old);
 
 
-$internalGroup = Group::findInternalGroup();
+	//cleanup previous database
+	GO()->getDbConnection()->query("DROP DATABASE IF EXISTS `" . $app->getDbConnection()->database ."`");
+	GO()->getDbConnection()->query("CREATE DATABASE `" . $app->getDbConnection()->database ."`");
+	GO()->getDbConnection()->disconnect();
+	$app->reinit();
 
-// create 2 test users (admin already exists
-// Use \Util\UserTrait to switch between the, in test cases
-$henk = new User();
-$henk->username = 'henk';
-$henk->email = 'henk@phpunit.dev';
-$henk->groups[] = $internalGroup;
-$henk->save();
+	$controller = new SystemController();
+	$response = $controller->actionInstall();
 
-$piet = new User();
-$piet->username = 'piet';
-$piet->email = 'piet@phpunit.dev';
-$piet->groups[] = $internalGroup;
-$piet->save();
+
+	$internalGroup = Group::findInternalGroup();
+
+	// create 2 test users (admin already exists
+	// Use \Util\UserTrait to switch between the, in test cases
+	$henk = new User();
+	$henk->username = 'henk';
+	$henk->email = 'henk@phpunit.dev';
+	$henk->groups[] = $internalGroup;
+	$henk->save();
+
+	$piet = new User();
+	$piet->username = 'piet';
+	$piet->email = 'piet@phpunit.dev';
+	$piet->groups[] = $internalGroup;
+	$piet->save();
+}catch(\Exception $e) {
+	echo $e;
+	throw $e;
+}

@@ -44,7 +44,11 @@ class Owner extends Model {
 			case self::PERMISSION_CREATE:
 				return true;
 			default:
-				return $this->getUserGroup($user) != false;			
+				
+				$userGroup = $this->getUserGroup($user);
+
+				
+				return $userGroup != false;			
 		}
 
 		return false;
@@ -52,7 +56,7 @@ class Owner extends Model {
 	
 	private function getUserGroup($user) {
 		if(!isset($this->userGroup)) {			
-			
+//			echo UserGroup::find(['groupId' => $this->record->{$this->colName}, 'userId' => $user->id()]);
 			return $this->userGroup = UserGroup::find(['groupId' => $this->record->{$this->colName}, 'userId' => $user->id()])->single();
 		}
 		

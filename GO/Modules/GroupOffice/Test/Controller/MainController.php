@@ -193,4 +193,12 @@ class MainController extends Controller {
 		
 		$this->render($response);
 	}
+	public function test() {
+		
+		
+		
+	
+		
+		
+	}
 }

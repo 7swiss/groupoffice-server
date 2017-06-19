@@ -190,15 +190,46 @@ class RelationStore extends Store implements ArrayAccess {
 		}	
 		return isset($this->modified[$offset]) ? $this->modified[$offset] : null;
 	}
+	
+	
+	private function newIsEqualToExisting($offset, $value) {
+			
+		if(!isset($offset) || !is_array($value) || !isset($this->modified[$offset])) {				
+			return false;
+		}
+		//this offset already holds a record. Compare new with old
+
+		$valuePk = $this->buildPk($value);
+		if(!$valuePk && $this->modified[0]->IsNew()) {
+			//both new
+			return true;
+		}
+
+		if($this->modified[0]->pk() == $valuePk) {
+			//PK matches
+			return true;
+		}
+		
+		return false;
+
+	}
 
 	public function offsetSet($offset, $value) {
 //		\IFW::app()->debug("offsetSet '".$this->getRelation()->getName()."' set on ".$value->objectId().' by '.$this->record->objectId());
 		//If an array and offset are given then apply the array to the existing value
-		if(isset($offset) && is_array($value) && isset($this->modified[$offset])) {
+//		if(isset($offset) && is_array($value) && isset($this->modified[$offset])) {
+//			$value = $this->modified[$offset]->setValues($value);
+//		}else {
+//			$value = $this->normalize($value);
+//		}
+		
+		if($this->newIsEqualToExisting($offset, $value)) {
 			$value = $this->modified[$offset]->setValues($value);
-		}else {
+		} else
+		{
 			$value = $this->normalize($value);
 		}
+		
 		
 		if(!isset($value)) {
 			if($this->getRelation()->hasMany()) {
@@ -348,7 +379,7 @@ class RelationStore extends Store implements ArrayAccess {
 		}
 		
 		$toRecordName = $this->relation->getToRecordName();
-		$toPks = $toRecordName::getPrimaryKey();		
+			
 		
 		if (is_a($newToRecord, $toRecordName)) {
 			//it's already a record so set the relation keys
@@ -382,17 +413,17 @@ class RelationStore extends Store implements ArrayAccess {
 		}
 
 
-		//isNew = false is selected with Query::joinRelation 
-		//(set in Record::extractJoinedRelations). We can instantiate an existing record this way.
-		if(isset($propArray['isNew'])) {
-			$newToRecord = new $toRecordName(true, $this->relation->getAllowedPermissionTypes());
-			$newToRecord->setValues($propArray);
-			
-			return $newToRecord;
-		}
+//		//isNew = false is selected with Query::joinRelation 
+//		//(set in Record::extractJoinedRelations). We can instantiate an existing record this way.
+//		if(isset($propArray['isNew'])) {
+//			$newToRecord = new $toRecordName(true, $this->relation->getAllowedPermissionTypes());
+//			$newToRecord->setValues($propArray);
+//			
+//			return $newToRecord;
+//		}
 		
 		//try to find an existing record.
-		$pk = $this->buildPk($toPks, $propArray);		
+		$pk = $this->buildPk($propArray);		
 		$query = new Query();		
 		$query->where($pk)->setRelation($this->relation, $this->record)->allowPermissionTypes($this->relation->getAllowedPermissionTypes()); //for propery record
 
@@ -402,6 +433,7 @@ class RelationStore extends Store implements ArrayAccess {
 		}		
 
 		$newToRecord->setValues($propArray);
+		
 
 		if (!$this->relation->getViaRecordName()) {
 			$this->applyKeys($newToRecord);
@@ -411,10 +443,16 @@ class RelationStore extends Store implements ArrayAccess {
 		
 	}
 	
-	private function buildPk($primaryKey, $attributes) {
+//	public function isWritable() {
+//		return is_a($this->relation->getToRecordName(), PropertyRecord::class, true);		
+//	}
+	
+	private function buildPk($attributes) {
+		$toRecordName = $this->relation->getToRecordName();
+		$toPks = $toRecordName::getPrimaryKey();	
 		$pk = [];
 
-		foreach ($primaryKey as $col) {
+		foreach ($toPks as $col) {
 			//negative id handled as empty too for extjs :(				
 			if (empty($attributes[$col]) || $attributes[$col] < 0) {
 				return false;
