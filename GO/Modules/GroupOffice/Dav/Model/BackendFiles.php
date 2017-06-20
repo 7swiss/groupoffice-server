@@ -67,7 +67,7 @@ class BackendFiles extends Directory {
 
 	public function getChild($name) {
 		if($name === self::$home) {
-			return new Directory(Drive::home()->getRoot());
+			return new Directory(Drive::home()->root);
 		} else {
 			return new Directory($this->drives($name)->single()->root);
 		}

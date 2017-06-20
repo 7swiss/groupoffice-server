@@ -17,6 +17,7 @@ class Directory extends Node implements DAV\ICollection, DAV\IQuota {
 	function createDirectory($name) {
 		$dir = new GoNode();
 		$dir->name = $name;
+		$dir->isDirectory = true;
 		$dir->parentId = $this->node->id;
 		$dir->save();
 	}
