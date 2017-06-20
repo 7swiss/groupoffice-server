@@ -109,7 +109,10 @@ class NodeController extends Controller {
 	 * @param string[] $overwrites The uploaded filenames that should be overwritten
 	 */
 	public function actionCreate($returnProperties = "*") {
-		$overwrites = array_flip(IFW::app()->getRequest()->body['overwrites']);
+		$overwrites = [];
+		if(isset(IFW::app()->getRequest()->body['overwrites'])) {
+			$overwrites = array_flip(IFW::app()->getRequest()->body['overwrites']);
+		}
 		$data = IFW::app()->getRequest()->body['data'];
 		if(!isset($data[0])) {
 			$data = [$data];
