@@ -137,6 +137,10 @@ class Blob extends Record implements \GO\Core\GarbageCollection\GarbageCollectio
 
 		$blobId = $file->getSha1Hash();
 		if (($blob = self::findByPk($blobId))) {
+			if($blob->deleted) {
+				$blob->deleted = false;
+				$blob->save();
+			}
 			return $blob;
 		} else {
 			$blob = new self();
