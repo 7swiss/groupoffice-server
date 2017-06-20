@@ -235,6 +235,9 @@ class Node extends Record {
 
 	protected function internalDelete($hard) {
 		$success = true;
+		if($this->parentId == null) {
+			return false;
+		}
 		if($hard && !$this->isDirectory) {
 			$this->drive->usage -= $this->getSize();
 			$success = $this->drive->save();
