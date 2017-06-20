@@ -93,7 +93,26 @@ class Attendee extends Record {
 		];
 	}
 
+	private function isCurrentViewer() {
+		$event = $this->getSavedBy();
+		if(!$event) {
+			return false;
+		}
+
+		$calendarEvent = $event->getSavedBy();
+		if($calendarEvent->email == $this->email) {
+			$calendarEvent->role = $this->role;
+			return true;
+		}
+		return false;
+	}
+
 	protected function internalSave() {
+
+		if($this->isCurrentViewer()) {
+			return true;
+		}
+		
 		if(empty($this->calendarId)) {
 			GO()->getAuth()->sudo(function(){
 				$user = User::find(['email'=>$this->email])->single();

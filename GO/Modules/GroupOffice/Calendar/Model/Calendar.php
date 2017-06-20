@@ -73,6 +73,15 @@ class Calendar extends Record {
 		self::hasMany('attendees', Attendee::class, ['id' => 'calendarId']);
 		self::hasMany('defaultAlarms', DefaultAlarm::class, ['id' => 'calendarId']);
 	}
+
+	protected function internalSave() {
+
+		if($this->isNew && empty($this->color)) {
+			$this->color = '0E9CC5'; // goblue
+		}
+
+		return parent::internalSave();
+	}
 	
 	// ATTRIBUTES
 	
@@ -114,10 +123,6 @@ class Calendar extends Record {
 		$event->parent = $calEvent;
 
 		$attendee = new Attendee();
-		$attendee->email = $event->organizerEmail;
-		$attendee->calendarId = $this->id;
-		$attendee->groupId = $this->ownedBy;
-		$attendee->responseStatus = AttendeeStatus::Accepted;
 		$event->attendees[] = $attendee;
 		
 		$calEvent->event = $event;
