@@ -123,6 +123,7 @@ class Calendar extends Record {
 		$event->parent = $calEvent;
 
 		$attendee = new Attendee();
+		$attendee->email = $event->organizerEmail;
 		$event->attendees[] = $attendee;
 		
 		$calEvent->event = $event;
