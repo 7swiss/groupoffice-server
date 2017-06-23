@@ -260,6 +260,20 @@ class Token extends Record implements GarbageCollectionInterface {
 	
 	private static $current;
 	
+	private static function getFromRequest() {
+		
+		$auth = GO()->getRequest()->getHeader('Authorization');
+		if(!$auth) {
+			return false;
+		}
+		preg_match('/Token (.*)/', $auth, $matches);
+    if(!isset($matches[1])){
+      return false;
+    }
+		
+		return $matches[1];
+	}
+	
 	/**
 	 * Get the user by token cookie
 	 * 
@@ -270,14 +284,21 @@ class Token extends Record implements GarbageCollectionInterface {
 	 */
 	public static function findByCookie(){
 		
-		if(!isset($_COOKIE['accessToken'])) {
-			return false;
-		}
-		
 		
 		if(!isset(self::$current)) {
+			
+			$tokenStr = false;
+			if(isset($_COOKIE['accessToken'])) {
+				$tokenStr = $_COOKIE['accessToken'];
+			} else {
+				$tokenStr = self::getFromRequest();
+			}
+
+			if(!$tokenStr) {
+				return false;
+			}
 		
-			$token = Token::find(['accessToken' => $_COOKIE['accessToken']])->single();
+			$token = Token::find(['accessToken' => $tokenStr])->single();
 
 			if(!$token) {
 				return false;

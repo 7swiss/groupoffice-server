@@ -8,7 +8,7 @@ use IFW\Data\Model;
 use IFW\Data\Store;
 use IFW\Orm\Record;
 
-class Controller extends IFWController {
+abstract class Controller extends IFWController {
 	
 	/**
 	 * Set data to render

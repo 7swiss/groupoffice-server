@@ -32,6 +32,8 @@ class Module extends BaseModule {
 
 	public static function defineWebRoutes(Router $router) {
 		
+	
+		
 		$router->addRoutesFor(SettingsController::class)
 						->get('settings', 'read')
 						->put('settings', 'update')
@@ -118,7 +120,9 @@ class Module extends BaseModule {
 						->get('cron/run', 'run');
 
 
+		//Add options route that consumes all routes
 		$router->addRoutesFor(AuthController::class)
+						->addRoute('OPTIONS', "*route", 'options')
 						->get('auth', 'isLoggedIn')
 						->get('auth/login-by-token/:token', 'loginByToken')
 						->post('auth', 'login')

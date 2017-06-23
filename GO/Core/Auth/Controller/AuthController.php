@@ -24,6 +24,14 @@ class AuthController extends Controller {
 	protected function checkAccess() {
 		return true;
 	}
+	
+	protected function actionOptions($route) {
+		//Allow all origins		
+		
+
+		
+//		echo $route;
+	}
 
 	/**
 	 * Logs the current user out.
