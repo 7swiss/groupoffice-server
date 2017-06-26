@@ -282,8 +282,11 @@ class Token extends Record implements GarbageCollectionInterface {
 	 * @param boolean $checkXSRFToken 
 	 * @return boolean|self
 	 */
-	public static function findByCookie(){
+	public static function findByRequest(){
 		
+		if(GO()->getEnvironment()->isCli()) {
+			return false;
+		}		
 		
 		if(!isset(self::$current)) {
 			

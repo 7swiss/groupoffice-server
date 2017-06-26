@@ -41,7 +41,7 @@ class AuthController extends Controller {
 	protected function actionLogout() {
 
 		
-		$token = Token::findByCookie();
+		$token = Token::findByRequest();
 		if ($token) {
 			GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
 			$token->unsetCookies();
@@ -65,7 +65,7 @@ class AuthController extends Controller {
 			throw new Forbidden();
 		}
 
-		$token = Token::findByCookie();
+		$token = Token::findByRequest();
 		$token->user = User::findByPk($userId);
 		$token->save();
 
@@ -205,7 +205,7 @@ class AuthController extends Controller {
 		
 		$token = GO()->getAuth()->sudo(function() {
 
-			$token = Token::findByCookie(false);
+			$token = Token::findByRequest();
 
 
 //			if($token && $token->user->password == null) {

@@ -38,7 +38,7 @@ class UserProvider implements UserProviderInterface {
 		if (!isset($this->currentUser)) {
 			$old = \IFW\Auth\Permissions\Model::$enablePermissions;
 			\IFW\Auth\Permissions\Model::$enablePermissions = false;			
-			$token = Token::findByCookie();
+			$token = Token::findByRequest();
 			if ($token) {				
 				$this->setCurrentUser($token->user);
 			}
@@ -75,7 +75,7 @@ class UserProvider implements UserProviderInterface {
 	 */
 	public function checkXSRF() {
 
-		$accessToken = Token::findByCookie();
+		$accessToken = Token::findByRequest();
 
 		if (!$accessToken) {
 			return true;
@@ -85,7 +85,7 @@ class UserProvider implements UserProviderInterface {
 	}
 
 	public function XSRFToken() {
-		$accessToken = Token::findByCookie();
+		$accessToken = Token::findByRequest();
 
 		if (!$accessToken) {
 			return null;
@@ -147,7 +147,7 @@ class UserProvider implements UserProviderInterface {
 	public function getTempFolder($autoCreate = true) {
 
 		if(!isset($this->tempFolder)) {
-			$accessToken = Token::findByCookie();
+			$accessToken = Token::findByRequest();
 			if(!$accessToken) {
 				$this->tempFolder = new \IFW\Fs\TempFolder();
 			} else {
