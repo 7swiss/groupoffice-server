@@ -30,7 +30,7 @@ class PDO extends PhpPdo {
 
 		$this->query("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
 
-		\IFW::app()->debug($this->sqlMode);
+//		\IFW::app()->debug($this->sqlMode);
 		
 		if (isset($this->sqlMode)) {
 			$this->query("SET sql_mode='" . $this->sqlMode . "'");
