@@ -46,21 +46,33 @@ class ErrorHandler {
 
 //		$this->debug("shutdown");
 	}
+	
+	/**
+	 * Log exception to PHP logging system and debug the exception in GO
+	 * 
+	 * @param Exception $e
+	 * @return string The string that was logged
+	 */
+	public static function logException($e) {
+		$cls = get_class($e);
+		
+		$errorString = $cls . " in " . $e->getFile() ." at line ". $e->getLine().': '.$e->getMessage();
+		error_log($errorString, 0);
+		
+		foreach(explode("\n", (string) $e) as $line) {
+			IFW::app()->debug($line);
+		}
+		
+		return $errorString;
+	}
 
 	/**
 	 * PHP7 has new throwable interface. We can't use type hinting if we want to 
 	 * support php 5.6 as well.
 	 * @param Throwable $e
 	 */
-	public function exceptionHandler($e) {		
-		$cls = get_class($e);
-		
-		$errorString = $cls.': ' . $e->getMessage()." in " . $e->getFile() .": ". $e->getLine();
-		error_log($errorString, 0);
-	
-		foreach(explode("\n", (string) $e) as $line) {
-			IFW::app()->debug($line);
-		}
+	public function exceptionHandler($e) {				
+		$errorString = self::logException($e);
 
 		if(PHP_SAPI == 'cli') {
 			echo "[".date(IFW\Util\DateTime::FORMAT_API)."] ". $errorString."\n\n";

@@ -1,0 +1,1 @@
+ALTER TABLE `log_entry` CHANGE `recordId` `recordId` VARCHAR(190) NULL DEFAULT NULL;

@@ -269,12 +269,11 @@ class Job extends Record {
 			
 			\GO\Core\Notifications\Model\Notification::resume();
 			GO()->logResume();
+			
+			$errorString = \IFW\ErrorHandler::logException($ex);
+			GO()->error($errorString, $this);		
 
-			GO()->error("An exception occurred in CRON method: " . $this->cronClassName . "::" . $this->method . " " . $ex->getMessage(), $this);
-
-			GO()->debug((string) $ex);
-
-			$this->lastError = $ex->getMessage() . ' in ' . $ex->getFile() . ' at line ' . $ex->getLine();
+			$this->lastError = $errorString;
 		}
 
 		$this->lastRun = new \DateTime();
