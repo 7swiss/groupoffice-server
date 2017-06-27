@@ -170,6 +170,18 @@ class Notification extends Record implements \GO\Core\GarbageCollection\GarbageC
 	 * 
 	 * ```
 	 * 
+	 * @example plain text
+	 * 
+	 * ```
+	 * \GO\Core\Notifications\Model\Notification::create(
+								'plain',
+								"Just testing with plain text message", 
+								$debtor->contact, 
+								$debtor->business->sender->photoBlobId, 
+								[$debtor->business->ownedBy]
+								);
+	 * ```
+	 * 
 	 * @param string $type eg. \IFW\Orm\Record::LOG_ACTION_UPDATE
 	 * @param array $data Arbitrary data to include
 	 * @param Record $record The record this notification belongs to.
