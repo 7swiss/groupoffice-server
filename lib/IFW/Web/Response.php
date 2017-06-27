@@ -218,7 +218,7 @@ class Response {
 		
 		GO()->getResponse()->setHeader('Access-Control-Allow-Origin', '*');
 		GO()->getResponse()->setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
-		GO()->getResponse()->setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Auth-Token');
+		GO()->getResponse()->setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization');
 		
 
 		if (isset($body)) {
