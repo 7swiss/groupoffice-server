@@ -223,7 +223,7 @@ class AuthController extends Controller {
 			$token->setCookies();
 			$this->renderModel($token, $returnProperties);
 		} else {
-			$this->render(['success' => false]);
+			throw new \IFW\Exception\NotFound();
 		}
 	}
 
