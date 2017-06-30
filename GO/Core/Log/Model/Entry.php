@@ -130,6 +130,7 @@ class Entry extends Record {
 	public function setRecord(\GO\Core\Orm\Record $record) {
 		$this->recordClassName = $record->getClassName();
 		$this->recordId = implode('-', $record->pk());
+		$this->moduleName = $record->findModuleName();
 	}
 	
 	public function getModule() {
