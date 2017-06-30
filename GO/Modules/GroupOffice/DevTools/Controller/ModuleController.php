@@ -90,7 +90,7 @@ EOD;
 //		$this->convertClass($className);
 //		
 //		exit();
-
+	
 		$folder = new Folder(getcwd());
 		$folder->getFolder('Model')->create();
 		$folder->getFolder('Controller')->create();

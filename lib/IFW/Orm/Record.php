@@ -44,6 +44,14 @@ use IFW\Util\StringUtil;
  * 
  * Enables soft delete functionality
  * 
+ * 4. Date and date time columns
+ * 
+ * Columns of type DATE and DATETIME are automatically converted into {@see \DateTime} objects.
+ * 
+ * Note: When using DATE columns use an exclamation mark to remove time so comparisons work:
+ * ```
+ * $record->dateCol = DateTime::createFromFormat('!Ymd', '20170101')
+ * ```
  *
  * Basic usage
  * -----------
