@@ -75,13 +75,12 @@ abstract class Controller extends IFWController {
 		}
 
 		$response = ['data' => $model->toArray($returnProperties)];
-
+		$response['success'] = true;
+		
 		//add validation errors even when not requested		
-		if(method_exists($model, 'hasValidationErrors')){			
-			$response['success'] = !$model->hasValidationErrors();
-		}else
-		{		
-			$response['success'] = true;
+		if(method_exists($model, 'hasValidationErrors') && $model->hasValidationErrors()){			
+			$response['success'] = false;
+			GO()->getResponse()->setStatus(422, 'Record validation failed');
 		}
 		return $this->render($response);
 		

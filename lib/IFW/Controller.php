@@ -191,7 +191,7 @@ abstract class Controller extends Object {
 		$name = strtolower(str_replace('\\', '_', $this->getClassName()).'_'.$this->getAction());
 
 		$this->lockFile = $lockFolder->getFile($name . '.lock');
-
+		
 		//needs to be put in a private variable otherwise the lock is released outside the function scope
 		$this->lockFp = $this->lockFile->open('w+');
 		

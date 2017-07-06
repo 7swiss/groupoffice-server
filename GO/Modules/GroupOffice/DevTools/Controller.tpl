@@ -174,7 +174,7 @@ class {modelUcfirst}Controller extends Controller {
 		
 		foreach(GO()->getRequest()->getBody()['data'] as $values) {
 			
-			if(!empty($contactValues['id'])) {
+			if(!empty($values['id'])) {
 				${modelLowerCase} = {modelUcfirst}::findByPk($values['id']);
 
 				if (!${modelLowerCase}) {
