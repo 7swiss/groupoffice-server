@@ -29,7 +29,7 @@ class AnnouncementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 				->orderBy(['id' => 'DESC'])
@@ -51,7 +51,7 @@ class AnnouncementController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new Announcement();
 
@@ -72,7 +72,7 @@ class AnnouncementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($announcementId = null, $returnProperties = "") {	
+	public function read($announcementId = null, $returnProperties = "") {	
 		$announcement = Announcement::findByPk($announcementId);
 
 
@@ -97,7 +97,7 @@ class AnnouncementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$announcement = new Announcement();
 		$announcement->setValues(GO()->getRequest()->body['data']);
@@ -121,7 +121,7 @@ class AnnouncementController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($announcementId, $returnProperties = "") {
+	public function update($announcementId, $returnProperties = "") {
 
 		$announcement = Announcement::findByPk($announcementId);
 
@@ -141,7 +141,7 @@ class AnnouncementController extends Controller {
 	 * @param int $announcementId
 	 * @throws NotFound
 	 */
-	public function actionDelete($announcementId) {
+	public function delete($announcementId) {
 		$announcement = Announcement::findByPk($announcementId);
 
 		if (!$announcement) {

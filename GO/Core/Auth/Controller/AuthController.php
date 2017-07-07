@@ -25,7 +25,7 @@ class AuthController extends Controller {
 		return true;
 	}
 	
-	public function actionOptions($route) {
+	public function options($route) {
 		//Allow all origins		
 		
 
@@ -38,7 +38,7 @@ class AuthController extends Controller {
 	 * 
 	 * @return Response {@see actionLogin()}
 	 */
-	public function actionLogout() {
+	public function logout() {
 
 		
 		$token = Token::findByRequest();
@@ -60,7 +60,7 @@ class AuthController extends Controller {
 	 * @return Response {@see actionLogin()}
 	 * @throws Forbidden
 	 */
-	public function actionSwitchTo($userId) {
+	public function switchTo($userId) {
 		if (!GO()->getAuth()->isAdmin()) {
 			throw new Forbidden();
 		}
@@ -166,7 +166,7 @@ class AuthController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * 
 	 */
-	public function actionLogin($returnProperties = '*,user[*]') {
+	public function login($returnProperties = '*,user[*]') {
 
 		$user = User::login(
 										GO()->getRequest()->body['data']['username'], GO()->getRequest()->body['data']['password'], true);
@@ -185,7 +185,7 @@ class AuthController extends Controller {
 		$this->renderModel($token, $returnProperties);
 	}
 
-	public function actionLoginByToken($token, $returnProperties = '*,user[*]') {
+	public function loginByToken($token, $returnProperties = '*,user[*]') {
 		$accessToken = Token::loginByToken($token);
 
 		$this->renderModel($accessToken, $returnProperties);
@@ -196,7 +196,7 @@ class AuthController extends Controller {
 	 * 
 	 * @return Response {@see actionLogin()}
 	 */
-	public function actionIsLoggedIn($returnProperties = '*,user[*]') {
+	public function isLoggedIn($returnProperties = '*,user[*]') {
 		
 		if(!\GO\Core\Install\Model\System::isDatabaseInstalled()) {
 			throw new \IFW\Exception\HttpException(503);

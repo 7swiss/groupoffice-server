@@ -6,7 +6,7 @@ use IFW\Exception\NotFound;
 use IFW\Fs\Folder;
 
 class DownloadController extends Controller {
-	public function actionDownload($moduleName, $path) {
+	public function download($moduleName, $path) {
 		$module = new $moduleName;
 		
 		$moduleFolder = new Folder($module->findPath());

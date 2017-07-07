@@ -27,7 +27,7 @@ class PdfController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($moduleClassName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($moduleClassName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 		
 		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
 
@@ -53,7 +53,7 @@ class PdfController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new Pdf();
 
@@ -74,7 +74,7 @@ class PdfController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($pdfTemplateId = null, $returnProperties = "") {	
+	public function read($pdfTemplateId = null, $returnProperties = "") {	
 		$pdftemplate = Pdf::findByPk($pdfTemplateId);
 
 
@@ -99,7 +99,7 @@ class PdfController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($moduleClassName, $returnProperties = "") {
+	public function create($moduleClassName, $returnProperties = "") {
 
 		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
 
@@ -127,7 +127,7 @@ class PdfController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($pdfTemplateId, $returnProperties = "") {
+	public function update($pdfTemplateId, $returnProperties = "") {
 
 		$pdftemplate = Pdf::findByPk($pdfTemplateId);
 
@@ -147,7 +147,7 @@ class PdfController extends Controller {
 	 * @param int $pdfTemplateId
 	 * @throws NotFound
 	 */
-	public function actionDelete($pdfTemplateId) {
+	public function delete($pdfTemplateId) {
 		$pdftemplate = Pdf::findByPk($pdfTemplateId);
 
 		if (!$pdftemplate) {
@@ -160,7 +160,7 @@ class PdfController extends Controller {
 	}
 	
 	
-	public function actionPreview($pdfTemplateId) {
+	public function preview($pdfTemplateId) {
 		$pdftemplate = Pdf::findByPk($pdfTemplateId);
 
 		if (!$pdftemplate) {
@@ -178,7 +178,7 @@ class PdfController extends Controller {
 		echo $pdfRenderer->render();
 	}
 	
-	public function actionDuplicate($pdfTemplateId) {
+	public function duplicate($pdfTemplateId) {
 		$pdf = Pdf::findByPk($pdfTemplateId);
 
 		if (!$pdf) {

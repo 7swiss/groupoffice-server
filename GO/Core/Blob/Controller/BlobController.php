@@ -28,7 +28,7 @@ class BlobController extends Controller {
 		return true;
 	}
 
-	public function actionDownload($id) {
+	public function download($id) {
 		
 		$blob = Blob::findByPk($id);
 		if(!$blob) {
@@ -38,7 +38,7 @@ class BlobController extends Controller {
 		TransportUtil::download($blob);
 	}
 
-	public function actionUpload() {
+	public function upload() {
 		$blob = TransportUtil::upload();
 		$this->renderModel($blob);
 	}
@@ -49,7 +49,7 @@ class BlobController extends Controller {
 	 * @param int $w width of the image
 	 * @param int $h height of the image
 	 */
-	public function actionThumb($id, $w, $h, $zoomCrop = 1) {
+	public function thumb($id, $w, $h, $zoomCrop = 1) {
 
 		$blob = Blob::findByPk($id);
 		if($blob->getType() != Blob::IMAGE) {
@@ -71,7 +71,7 @@ class BlobController extends Controller {
 	}
 
 
-	public function actionTest() {
+	public function test() {
 		
 		GO()->getDbConnection()->createCommand()->update(Blob::tableName(), ['used' => false])->execute();
 		

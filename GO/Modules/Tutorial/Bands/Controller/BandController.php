@@ -35,7 +35,7 @@ class BandController extends Controller {
 	 * @param StringUtil $where {@see \IFW\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where = null) {
+	public function store($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -65,7 +65,7 @@ class BandController extends Controller {
 		$this->renderStore($bands);
 	}
 	
-	public function actionFilters() {
+	public function filters() {
 		$this->render(Band::createFilterCollection()->toArray());		
 	}
 	
@@ -77,7 +77,7 @@ class BandController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($bandId = null, $returnProperties = '*,albums') {
+	public function read($bandId = null, $returnProperties = '*,albums') {
 
 		$store = Band::find(['id' => $bandId]);
 		$store->setReturnProperties($returnProperties);
@@ -96,7 +96,7 @@ class BandController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = '*,albums') {
+	public function newInstance($returnProperties = '*,albums') {
 
 		//Check edit permission		
 		$band = new Band();
@@ -117,7 +117,7 @@ class BandController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = '*,albums') {
+	public function create($returnProperties = '*,albums') {
 
 		$band = new Band();
 		$band->setValues(IFW::app()->getRequest()->body['data']);
@@ -141,7 +141,7 @@ class BandController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($bandId, $returnProperties = '*,albums') {
+	public function update($bandId, $returnProperties = '*,albums') {
 
 		$band = Band::findByPk($bandId);
 
@@ -161,7 +161,7 @@ class BandController extends Controller {
 	 * @param int $bandId
 	 * @throws NotFound
 	 */
-	public function actionDelete($bandId) {
+	public function delete($bandId) {
 		$band = Band::findByPk($bandId);
 
 		if (!$band) {

@@ -37,7 +37,7 @@ class TimeEntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($projectId = 0, $orderColumn = 'user_id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function store($projectId = 0, $orderColumn = 'user_id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -63,7 +63,7 @@ class TimeEntryController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	public function actionNew($projectId, $returnProperties = "") {
+	public function newInstance($projectId, $returnProperties = "") {
 
 		$timeEntry = new GO_Advprojects_Model_TimeEntry();
 		$timeEntry->project_id = $projectId;
@@ -87,7 +87,7 @@ class TimeEntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($timeEntryId = null, $returnProperties = "") {
+	public function read($timeEntryId = null, $returnProperties = "") {
 		$timeEntry = GO_Advprojects_Model_TimeEntry::model()->findByPk($timeEntryId);
 
 
@@ -111,7 +111,7 @@ class TimeEntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($projectId, $returnProperties = "") {
+	public function create($projectId, $returnProperties = "") {
 
 		$timeEntry = new GO_Advprojects_Model_TimeEntry();
 		$timeEntry->project_id = $projectId;
@@ -136,7 +136,7 @@ class TimeEntryController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($timeEntryId, $returnProperties = "") {
+	public function update($timeEntryId, $returnProperties = "") {
 
 		$timeEntry = GO_Advprojects_Model_TimeEntry::model()->findByPk($timeEntryId);
 
@@ -156,7 +156,7 @@ class TimeEntryController extends Controller {
 	 * @param int $timeEntryId
 	 * @throws NotFound
 	 */
-	public function actionDelete($timeEntryId) {
+	public function delete($timeEntryId) {
 		$timeEntry = GO_Advprojects_Model_TimeEntry::model()->findByPk($timeEntryId);
 
 		if (!$timeEntry) {

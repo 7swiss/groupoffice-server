@@ -34,7 +34,7 @@ class EventController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'event.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*, event", $where = null) {
+	public function store($orderColumn = 'event.startAt', $orderDirection = 'ASC', $from = false, $until = false, $searchQuery = "", $returnProperties = "*, event", $where = null) {
 
 		$query = (new Query)
 			//->join(Attendee::tableName(), 'a', 't.id = a.eventId', 'LEFT')
@@ -71,7 +71,7 @@ class EventController extends Controller {
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	public function actionRead($calendarId, $eventId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function read($calendarId, $eventId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$calEvent = CalendarEvent::findByPk(['calendarId'=>$calendarId,'eventId'=>$eventId]);
 
@@ -85,7 +85,7 @@ class EventController extends Controller {
 		$this->renderModel($calEvent, $returnProperties);
 	}
 
-	public function actionNew($calendarId, $returnProperties = "*,alarms,event[*,attendees]") {
+	public function newInstance($calendarId, $returnProperties = "*,alarms,event[*,attendees]") {
 
 		$calendar = Calendar::findByPk($calendarId);
 		if(empty($calendar)) {
@@ -108,7 +108,7 @@ class EventController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($calendarId, $returnProperties = "") {
+	public function create($calendarId, $returnProperties = "") {
 
 		$calEvent = Calendar::findByPk($calendarId)->newEvent(); 
 		$calEvent->setValues(IFW::app()->getRequest()->body['data']);
@@ -126,7 +126,7 @@ class EventController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($calendarId, $eventId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function update($calendarId, $eventId, $recurrenceId = null, $single = '1', $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId,'calendarId'=>$calendarId]);
 
@@ -157,7 +157,7 @@ class EventController extends Controller {
 	 * @param bool $single when true delete a single occurrence
 	 * @throws NotFound
 	 */
-	public function actionDelete($calendarId, $eventId, $recurrenceId = null, $single = '1') {
+	public function delete($calendarId, $eventId, $recurrenceId = null, $single = '1') {
 		$calEvent = CalendarEvent::findByPk(['eventId'=>$eventId, 'calendarId'=>$calendarId]);
 		if (!$calEvent) {
 			throw new NotFound();
@@ -170,11 +170,11 @@ class EventController extends Controller {
 		$this->renderModel($calEvent);
 	}
 
-	public function actionImportICS() {
+	public function importICS() {
 
 	}
 
-	public function actionDownload($id) {
+	public function download($id) {
 		$event = Event::findByPk($id);
 		$vObject = \GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper::toVObject($event);
 		header('Content-type: text/calendar; charset=utf-8');

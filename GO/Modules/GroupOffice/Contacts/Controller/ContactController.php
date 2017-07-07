@@ -94,7 +94,7 @@ class ContactController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 't.name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new IFW\Orm\Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -115,13 +115,13 @@ class ContactController extends Controller {
 		$this->renderStore($contacts);
 	}	
 	
-	public function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		$contact = new Contact();
 		$this->renderModel($contact, $returnProperties);
 	}
 	
 	
-	public function actionReadByUser($userId, $returnProperties = "*"){
+	public function readByUser($userId, $returnProperties = "*"){
 		$contact = Contact::find(['userId' => $userId])->single();
 		
 		if(!$contact) {
@@ -146,7 +146,7 @@ class ContactController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($contactId, $returnProperties = "*"){
+	public function read($contactId, $returnProperties = "*"){
 	
 
 		$contact = Contact::findByPk($contactId);
@@ -159,7 +159,7 @@ class ContactController extends Controller {
 
 	}
 
-	public function actionVCard($contactId){
+	public function vCard($contactId){
 
 		$contact = Contact::findByPk($contactId);
 
@@ -174,7 +174,7 @@ class ContactController extends Controller {
 
 	}
 
-	public function actionImport($blobId) { // to vCard
+	public function import($blobId) { // to vCard
 
 		$blob = Blob::findByPk($blobId);
 		if (!$blob) {
@@ -211,7 +211,7 @@ class ContactController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 		
 		$contact = new Contact();		
 		$contact->setValues(GO()->getRequest()->body['data']);
@@ -236,7 +236,7 @@ class ContactController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($contactId, $returnProperties = "") {
+	public function update($contactId, $returnProperties = "") {
 
 		$contact = Contact::findByPk($contactId);
 		
@@ -256,7 +256,7 @@ class ContactController extends Controller {
 	 * @param int $contactId
 	 * @throws NotFound
 	 */
-	public function actionDelete($contactId) {
+	public function delete($contactId) {
 		$contact = Contact::findByPk($contactId);
 
 		if (!$contact) {
@@ -279,7 +279,7 @@ class ContactController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

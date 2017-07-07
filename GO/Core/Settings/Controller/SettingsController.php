@@ -6,11 +6,11 @@ use GO\Core\Email\Model\Message;
 
 class SettingsController extends Controller {
 	
-	public function actionRead(){		
+	public function read(){		
 		$this->renderModel(GO()->getSettings());
 	}
 
-	public function actionUpdate() {
+	public function update() {
 
 		$settings = GO()->getSettings();
 
@@ -20,7 +20,7 @@ class SettingsController extends Controller {
 		$this->renderModel($settings);
 	}
 	
-	public function actionTestSmtp(){
+	public function testSmtp(){
 		
 		$message = new Message(
 						GO()->getSettings()->smtpAccount, 

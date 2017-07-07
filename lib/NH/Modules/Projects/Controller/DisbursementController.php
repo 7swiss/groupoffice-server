@@ -37,7 +37,7 @@ class DisbursementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($projectId = 0, $orderColumn = 'date', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function store($projectId = 0, $orderColumn = 'date', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -61,7 +61,7 @@ class DisbursementController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	public function actionNew($projectId, $returnProperties = "") {
+	public function newInstance($projectId, $returnProperties = "") {
 
 		$disbursement = new GO_Advprojects_Model_Expense();
 		$disbursement->project_id = $projectId;
@@ -85,7 +85,7 @@ class DisbursementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($disbursementId = null, $returnProperties = "") {
+	public function read($disbursementId = null, $returnProperties = "") {
 		$disbursement = GO_Advprojects_Model_Expense::model()->findByPk($disbursementId);
 
 
@@ -109,7 +109,7 @@ class DisbursementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($projectId, $returnProperties = "") {
+	public function create($projectId, $returnProperties = "") {
 
 		$disbursement = new GO_Advprojects_Model_Expense();
 		$disbursement->project_id = $projectId;
@@ -134,7 +134,7 @@ class DisbursementController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($disbursementId, $returnProperties = "") {
+	public function update($disbursementId, $returnProperties = "") {
 
 		$disbursement = GO_Advprojects_Model_Expense::model()->findByPk($disbursementId);
 
@@ -154,7 +154,7 @@ class DisbursementController extends Controller {
 	 * @param int $disbursementId
 	 * @throws NotFound
 	 */
-	public function actionDelete($disbursementId) {
+	public function delete($disbursementId) {
 		$disbursement = GO_Advprojects_Model_Expense::model()->findByPk($disbursementId);
 
 		if (!$disbursement) {

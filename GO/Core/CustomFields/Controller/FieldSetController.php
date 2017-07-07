@@ -32,7 +32,7 @@ class FieldSetController extends Controller {
 	
 	 * @return array JSON Model data
 	 */
-	public function actionStore($modelName, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($modelName, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -70,7 +70,7 @@ class FieldSetController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($fieldSetId = null, $returnProperties = "") {
+	public function read($fieldSetId = null, $returnProperties = "") {
 
 		$fieldSet = FieldSet::findByPk($fieldSetId);
 
@@ -87,7 +87,7 @@ class FieldSetController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($modelName, $returnProperties = "") {
+	public function newInstance($modelName, $returnProperties = "") {
 
 		$fieldSet = new FieldSet();
 		$fieldSet->modelName = $modelName;
@@ -108,7 +108,7 @@ class FieldSetController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($modelName, $returnProperties = "") {
+	public function create($modelName, $returnProperties = "") {
 
 		$fieldSet = new FieldSet();
 		$fieldSet->modelName = $modelName;
@@ -133,7 +133,7 @@ class FieldSetController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($fieldSetId, $returnProperties = "") {
+	public function update($fieldSetId, $returnProperties = "") {
 
 		$fieldSet = FieldSet::findByPk($fieldSetId);
 
@@ -155,7 +155,7 @@ class FieldSetController extends Controller {
 	 * @param int $fieldSetId
 	 * @throws NotFound
 	 */
-	public function actionDelete($fieldSetId) {
+	public function delete($fieldSetId) {
 		$fieldSet = FieldSet::findByPk($fieldSetId);
 
 		if (!$fieldSet) {
@@ -169,7 +169,7 @@ class FieldSetController extends Controller {
 
 
 
-	public function actionTest(){
+	public function test(){
 		
 		$fieldSet = FieldSet::find(['name' => 'Tennis'])->single();
 		if($fieldSet){
@@ -291,7 +291,7 @@ class FieldSetController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

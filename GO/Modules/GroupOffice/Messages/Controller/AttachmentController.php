@@ -10,7 +10,7 @@ class AttachmentController extends Controller {
 		return true;
 	}
 
-	public function actionRead($messageId, $attachmentId) {
+	public function read($messageId, $attachmentId) {
 		
 		//cache for a month
 //		$this->cacheHeaders(null, "attachment-".$attachmentId, new \DateTime('@'.(time()+86400*30)));

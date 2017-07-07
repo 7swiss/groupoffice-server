@@ -32,7 +32,7 @@ use ReflectionClass;
  *		
  *		$router->addRoutesFor(BandController::class)
  *				->get('bands', 'store')
- *				->get('bands/0','new')
+ *				->get('bands/0','newInstance')
  *				->get('bands/:bandId','read')
  *				->put('bands/:bandId', 'update')
  *				->post('bands', 'create')

@@ -17,7 +17,7 @@ class Module extends InstallableModule {
 
 		
 		$router->addRoutesFor(Controller\AutoDetectController::class)
-						->get('imap/autodetect', 'new')
+						->get('imap/autodetect', 'newInstance')
 						->post('imap/autodetect', 'detect');
 
 	}

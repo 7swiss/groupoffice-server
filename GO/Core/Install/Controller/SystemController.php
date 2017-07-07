@@ -30,7 +30,7 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionInstall() {
+	public function install() {
 		
 		$this->lock();
 
@@ -44,7 +44,7 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionCheck() {
+	public function check() {
 
 		$systemCheck = new SystemCheck();
 
@@ -54,7 +54,7 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionUpgrade() {
+	public function upgrade() {
 		
 		\IFW\Util\Lock::create(self::class.'-upgrade');
 

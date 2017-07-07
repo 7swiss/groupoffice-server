@@ -32,7 +32,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($type='incoming', $orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($type='incoming', $orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -109,7 +109,7 @@ class ThreadController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$user = new Thread();
 
@@ -130,7 +130,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($threadId = null, $returnProperties = "") {
+	public function read($threadId = null, $returnProperties = "") {
 		$thread = Thread::findByPk($threadId);
 
 
@@ -154,7 +154,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$thread = new Thread();
 		$thread->setValues(GO()->getRequest()->body['data']);
@@ -178,7 +178,7 @@ class ThreadController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($threadId, $returnProperties = "") {
+	public function update($threadId, $returnProperties = "") {
 
 		$thread = Thread::findByPk($threadId);
 
@@ -198,7 +198,7 @@ class ThreadController extends Controller {
 	 * @param int $threadId
 	 * @throws NotFound
 	 */
-	public function actionDelete($threadId) {
+	public function delete($threadId) {
 		$thread = Thread::findByPk($threadId);
 
 		if (!$thread) {
@@ -220,7 +220,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionMessages($threadId, $limit = 10, $offset = 0, $returnProperties = "*") {
+	public function messages($threadId, $limit = 10, $offset = 0, $returnProperties = "*") {
 
 		$accounts = Message::find((new Query())
 														->orderBy(['sentAt' => 'DESC'])
@@ -238,7 +238,7 @@ class ThreadController extends Controller {
 		$this->renderStore($accounts);
 	}
 	
-	public function actionEmptyTrash($accountId) {
+	public function emptyTrash($accountId) {
 		
 		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_TRASH]));
 		foreach($messages as $message) {
@@ -250,7 +250,7 @@ class ThreadController extends Controller {
 		$this->render();
 	}
 	
-	public function actionEmptyJunk($accountId) {
+	public function emptyJunk($accountId) {
 		
 		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_JUNK]));
 		foreach($messages as $message) {
@@ -274,7 +274,7 @@ class ThreadController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

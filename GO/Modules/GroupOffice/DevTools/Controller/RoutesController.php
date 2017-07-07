@@ -11,7 +11,7 @@ class RoutesController extends Controller {
 		return true;
 	}
 
-	public function actionMarkdown() {
+	public function markdown() {
 		//{@link http://intermesh.nl description}		
 		
 		header('Content-Type: text/plain');

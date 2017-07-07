@@ -31,7 +31,7 @@ class NotificationController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($returnProperties = "") {
+	public function store($returnProperties = "") {
 
 		$notifications = $this->getAllNotifications();
 		
@@ -55,7 +55,7 @@ class NotificationController extends Controller {
 	}
 	
 	
-	public function actionDismiss($notificationId, $userId) {
+	public function dismiss($notificationId, $userId) {
 		$notification = Notification::findByPk($notificationId);
 		
 		if(!$notification) {
@@ -67,7 +67,7 @@ class NotificationController extends Controller {
 		$this->render(['success' => $success]);
 	}
 	
-	public function actionDismissAll($userId) {
+	public function dismissAll($userId) {
 		$notifications = $this->getAllNotifications();
 		
 		foreach($notifications as $notification)
@@ -81,7 +81,7 @@ class NotificationController extends Controller {
 	}
 	
 	
-	public function actionIsWatched($recordClassName, $recordId, $userId) {
+	public function isWatched($recordClassName, $recordId, $userId) {
 		$recordType = RecordType::find(['name' => $recordClassName])->single();
 		
 		if(!$recordType) {
@@ -95,7 +95,7 @@ class NotificationController extends Controller {
 		return $this->render(['isWatched'=>$watch != false]);
 	}
 	
-	public function actionWatch($recordClassName, $recordId, $userId) {
+	public function watch($recordClassName, $recordId, $userId) {
 		$recordType = RecordType::find(['name' => $recordClassName])->single();
 		
 		if(!$recordType) {
@@ -116,7 +116,7 @@ class NotificationController extends Controller {
 		return $this->renderModel($watch);
 	}
 	
-	public function actionUnwatch($recordClassName, $recordId, $userId) {
+	public function unwatch($recordClassName, $recordId, $userId) {
 		$recordType = RecordType::find(['name' => $recordClassName])->single();
 		
 		if(!$recordType) {

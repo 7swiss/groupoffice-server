@@ -19,7 +19,7 @@ use IFW\Orm\Query;
  */
 class AccountController extends Controller {
 
-	public function actionStore($q=null) {
+	public function store($q=null) {
 		
 		
 		$query = new Query();
@@ -36,7 +36,7 @@ class AccountController extends Controller {
 		$this->renderStore($accounts);		
 	}
 	
-	public function actionTags($accountIds) {
+	public function tags($accountIds) {
 		
 		$ids = json_decode($accountIds);	
 		

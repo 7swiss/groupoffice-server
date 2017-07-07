@@ -184,8 +184,6 @@ class Router extends IFW\Router {
 			}
 			$cur = &$cur['children'][$part];
 		}
-		
-		$action = "action" . $action;
 
 		$cur['methods'][$method] = [
 				'controller' => $controller,

@@ -64,7 +64,7 @@ class Module extends BaseModule {
 
 		$router->addRoutesFor(TagController::class)
 						->get('tags', 'store')
-						->get('tags/0', 'new')
+						->get('tags/0', 'newInstance')
 						->get('tags/:tagId', 'read')
 						->put('tags/:tagId', 'update')
 						->post('tags', 'create')
@@ -98,7 +98,7 @@ class Module extends BaseModule {
 
 		$router->addRoutesFor(FieldSetController::class)
 						->get('customfields/fieldsets/:modelName', 'store')
-						->get('customfields/fieldsets/:modelName/0', 'new')
+						->get('customfields/fieldsets/:modelName/0', 'newInstance')
 						->get('customfields/fieldsets/:modelName/:fieldSetId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId', 'update')
 						->post('customfields/fieldsets/:modelName', 'create')
@@ -107,7 +107,7 @@ class Module extends BaseModule {
 
 		$router->addRoutesFor(FieldController::class)
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields', 'store')
-						->get('customfields/fieldsets/:modelName/:fieldSetId/fields/0', 'new')
+						->get('customfields/fieldsets/:modelName/:fieldSetId/fields/0', 'newInstance')
 						->get('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'read')
 						->put('customfields/fieldsets/:modelName/:fieldSetId/fields/:fieldId', 'update')
 						->post('customfields/fieldsets/:modelName/:fieldSetId/fields', 'create')

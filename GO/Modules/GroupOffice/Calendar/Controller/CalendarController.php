@@ -30,7 +30,7 @@ class CalendarController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.id', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,defaultAlarms", $where = null) {
+	public function store($orderColumn = 't.id', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,defaultAlarms", $where = null) {
 
 		$query = (new Query)
 				->orderBy([$orderColumn => $orderDirection])
@@ -58,7 +58,7 @@ class CalendarController extends Controller {
 		$this->renderStore($calendars);
 	}
 
-	public function actionRead($id, $returnProperties = "*,defaultAlarms") {
+	public function read($id, $returnProperties = "*,defaultAlarms") {
 
 		$calendar = Calendar::findByPk($id);
 
@@ -69,7 +69,7 @@ class CalendarController extends Controller {
 		$this->renderModel($calendar, $returnProperties);
 	}
 
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 		$event = new Calendar();
 		$this->renderModel($event, $returnProperties);
 	}
@@ -79,7 +79,7 @@ class CalendarController extends Controller {
 	 *
 	 * @param array|JSON $returnProperties The attributes to return to the client.
 	 */
-	public function actionCreate($returnProperties = "*,defaultAlarms") {
+	public function create($returnProperties = "*,defaultAlarms") {
 
 		$calendar = new Calendar();
 		$calendar->setValues(IFW::app()->getRequest()->body['data']);
@@ -97,7 +97,7 @@ class CalendarController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($id, $returnProperties = "*,defaultAlarms") {
+	public function update($id, $returnProperties = "*,defaultAlarms") {
 
 		$calendar = Calendar::findByPk($id);
 
@@ -117,7 +117,7 @@ class CalendarController extends Controller {
 	 * @param int $id
 	 * @throws NotFound
 	 */
-	public function actionDelete($id) {
+	public function delete($id) {
 		$calendar = Calendar::findByPk($id);
 
 		if (!$calendar) {

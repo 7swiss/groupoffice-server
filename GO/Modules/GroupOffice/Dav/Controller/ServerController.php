@@ -21,7 +21,7 @@ class ServerController extends Controller {
 		return true;
 	}
 
-	public function actionDav() {
+	public function dav() {
 		// Backends
 		$authBackend = new BasicAuth();
 		$principalBackend = new Principal();

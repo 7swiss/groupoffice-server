@@ -118,8 +118,6 @@ class Router extends IFW\Router{
 				$totalRouteParams++;
 			}
 		}	
-		
-		$action = 'action' . $action;
 		$cur['actions'][$totalRouteParams] = [$controller,  $action, $moduleName,$this->getActionParams($controller, $action)];		
 	}
 	

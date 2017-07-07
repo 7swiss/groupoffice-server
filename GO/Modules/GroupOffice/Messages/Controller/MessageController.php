@@ -30,7 +30,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'sentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($orderColumn = 'sentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -52,7 +52,7 @@ class MessageController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($accountId, $returnProperties = "*,message[subject,body,priority,to,cc,bcc]") {
+	public function newInstance($accountId, $returnProperties = "*,message[subject,body,priority,to,cc,bcc]") {
 
 		$message = Message::create($accountId);
 		
@@ -75,7 +75,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($messageId = null, $returnProperties = "") {
+	public function read($messageId = null, $returnProperties = "") {
 		$message = Message::findByPk($messageId);
 
 
@@ -99,7 +99,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($accountId, $returnProperties = "") {
+	public function create($accountId, $returnProperties = "") {
 
 		$message = Message::create($accountId);
 		$message->setValues(GO()->getRequest()->body['data']);
@@ -124,7 +124,7 @@ class MessageController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($messageId, $returnProperties = "") {
+	public function update($messageId, $returnProperties = "") {
 
 		$message = Message::findByPk($messageId);
 
@@ -144,7 +144,7 @@ class MessageController extends Controller {
 	 * @param int $messageId
 	 * @throws NotFound
 	 */
-	public function actionDelete($messageId) {
+	public function delete($messageId) {
 		$message = Message::findByPk($messageId);
 
 		if (!$message) {

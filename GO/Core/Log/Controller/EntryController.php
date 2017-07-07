@@ -17,7 +17,7 @@ use IFW\Orm\Query;
  */
 class EntryController extends Controller {
 
-	public function actionFilters() {
+	public function filters() {
 		$this->render($this->getFilterCollection()->toArray());
 	}
 
@@ -39,7 +39,7 @@ class EntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -68,7 +68,7 @@ class EntryController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$user = new Entry();
 
@@ -89,7 +89,7 @@ class EntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($entryId = null, $returnProperties = "") {
+	public function read($entryId = null, $returnProperties = "") {
 		$entry = Entry::findByPk($entryId);
 
 
@@ -113,7 +113,7 @@ class EntryController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$entry = new Entry();
 		$entry->setValues(GO()->getRequest()->body['data']);
@@ -137,7 +137,7 @@ class EntryController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($entryId, $returnProperties = "") {
+	public function update($entryId, $returnProperties = "") {
 
 		$entry = Entry::findByPk($entryId);
 
@@ -157,7 +157,7 @@ class EntryController extends Controller {
 	 * @param int $entryId
 	 * @throws NotFound
 	 */
-	public function actionDelete($entryId) {
+	public function delete($entryId) {
 		$entry = Entry::findByPk($entryId);
 
 		if (!$entry) {

@@ -97,8 +97,10 @@ class Apcu implements CacheInterface {
 		
 		IFW::app()->debug("Flush cache");
 		$this->cache = [];
-	
+//	var_dump(apcu_cache_info());
 		apcu_clear_cache();
+		
+		
 	}
 
 	public function __destruct() {

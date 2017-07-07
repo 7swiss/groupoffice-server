@@ -22,7 +22,7 @@ use IFW\Orm\Query;
  */
 class ModuleController extends Controller {
 
-	public function actionFilters() {
+	public function filters() {
 		$this->render($this->getFilterCollection()->toArray());		
 	}
 	
@@ -45,7 +45,7 @@ class ModuleController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'id', $orderDirection = 'ASC',$searchQuery = "") {
+	public function store($orderColumn = 'id', $orderDirection = 'ASC',$searchQuery = "") {
 
 		$query = (new Query())					
 						->orderBy([$orderColumn => $orderDirection])
@@ -60,7 +60,7 @@ class ModuleController extends Controller {
 		$this->renderStore($modules);
 	}
 
-	public function actionAllModules($returnProperties='*', $searchQuery = null) {
+	public function allModules($returnProperties='*', $searchQuery = null) {
 		
 		$records = [];
 		
@@ -117,7 +117,7 @@ class ModuleController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		//Check edit permission
 		$module = new Module();
@@ -141,7 +141,7 @@ class ModuleController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		//Check edit permission
 		$module = new Module();
@@ -162,7 +162,7 @@ class ModuleController extends Controller {
 	 * @param type $returnProperties
 	 * @throws NotFound
 	 */
-	public function actionRead($moduleName, $returnProperties = "") {
+	public function read($moduleName, $returnProperties = "") {
 
 		$module = Module::find(['name' => $moduleName])->single();
 
@@ -192,7 +192,7 @@ class ModuleController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($moduleName, $returnProperties = "") {
+	public function update($moduleName, $returnProperties = "") {
 
 		$module = Module::find((new IFW\Orm\Query)->where(['name' => $moduleName])->withDeleted())->single();
 
@@ -216,7 +216,7 @@ class ModuleController extends Controller {
 	 * @param int $moduleName
 	 * @throws NotFound
 	 */
-	public function actionDelete($moduleName) {
+	public function delete($moduleName) {
 		$module = Module::find(['name' => $moduleName])->single();
 
 		if (!$module) {

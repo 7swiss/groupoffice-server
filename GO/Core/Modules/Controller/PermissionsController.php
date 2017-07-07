@@ -44,7 +44,7 @@ class PermissionsController extends Controller {
 	 * @param type $searchQuery
 	 * @return type
 	 */
-	public function actionStore($moduleName, $searchQuery = "") {
+	public function store($moduleName, $searchQuery = "") {
 
 		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
 		
@@ -75,7 +75,7 @@ class PermissionsController extends Controller {
 		return $return;
 	}
 
-	public function actionCreate($moduleName, $groupId, $action) {	
+	public function create($moduleName, $groupId, $action) {	
 		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
 		
 		$pk = ['moduleId' => $module->id, 'groupId' => $groupId, 'action' => $action];
@@ -91,7 +91,7 @@ class PermissionsController extends Controller {
 		$this->render(['success'=>$success]);
 	}
 	
-	public function actionDelete($moduleName, $groupId, $action) {	
+	public function delete($moduleName, $groupId, $action) {	
 		
 		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
 	
@@ -105,7 +105,7 @@ class PermissionsController extends Controller {
 		$this->render(['success'=>$model->delete()]);
 	}
 	
-	public function actionDeleteGroup($moduleName, $groupId) {	
+	public function deleteGroup($moduleName, $groupId) {	
 
 		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
 		

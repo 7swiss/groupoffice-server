@@ -32,7 +32,7 @@ class SettingsController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead() {	
+	public function read() {	
 		$settings = Settings::getInstance();		
 
 		$this->renderModel($settings);
@@ -55,7 +55,7 @@ class SettingsController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate() {
+	public function update() {
 
 		$settings = Settings::getInstance();
 	

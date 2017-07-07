@@ -28,7 +28,7 @@ class GroupController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -55,7 +55,7 @@ class GroupController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new Group();
 
@@ -76,7 +76,7 @@ class GroupController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($groupId = null, $returnProperties = "") {	
+	public function read($groupId = null, $returnProperties = "") {	
 		$group = Group::findByPk($groupId);
 
 
@@ -101,7 +101,7 @@ class GroupController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$group = new Group();
 		$group->setValues(GO()->getRequest()->body['data']);
@@ -125,7 +125,7 @@ class GroupController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($groupId, $returnProperties = "") {
+	public function update($groupId, $returnProperties = "") {
 
 		$group = Group::findByPk($groupId);
 
@@ -145,7 +145,7 @@ class GroupController extends Controller {
 	 * @param int $groupId
 	 * @throws NotFound
 	 */
-	public function actionDelete($groupId) {
+	public function delete($groupId) {
 		$group = Group::findByPk($groupId);
 
 		if (!$group) {

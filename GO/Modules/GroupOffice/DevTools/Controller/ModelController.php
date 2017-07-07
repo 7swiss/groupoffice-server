@@ -12,7 +12,7 @@ class ModelController extends Controller {
 		return true;
 	}
 	
-	public function actionList(){
+	public function listRecords(){
 		
 		\GO()->getAuth()->sudo(function() {
 			$router = new \IFW\Web\Router();
@@ -33,7 +33,7 @@ class ModelController extends Controller {
 	/**
 	 * @param string $modelName
 	 */
-	public function actionProps($modelName) {
+	public function props($modelName) {
 
 		\GO()->getResponse()->setContentType('text/plain');
 		\GO()->getResponse()->send();
@@ -104,7 +104,7 @@ class ModelController extends Controller {
 	}
 	
 	
-	public function actionTest() {
+	public function test() {
 		
 		
 //		var_dump(GO()->getAuth()->user()->contact->emailAddresses->all());
@@ -127,11 +127,11 @@ class ModelController extends Controller {
 	}
 	
 	
-//	public function actionColumns(){
+//	public function columns(){
 //		var_dump(\IPE\Modules\Notes\Model\Note::getColumns());
 //	}
 //
-//	public function actionTest() {
+//	public function test() {
 //
 //		/* @var $finder Finder */
 //		
@@ -195,7 +195,7 @@ class ModelController extends Controller {
 //	}
 //	
 //	
-//	public function actionImap(){
+//	public function imap(){
 //		
 //		$account = Account::find()->single();
 //		

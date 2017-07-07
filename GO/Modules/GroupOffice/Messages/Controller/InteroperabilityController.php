@@ -15,7 +15,7 @@ class InteroperabilityController extends Controller {
 	 * @param int $attachmentId containing an ICS file
 	 * @param string $status The participation status update of the invitee
 	 */
-	public function actionRsvp($accountId, $attachmentId, $status) {
+	public function rsvp($accountId, $attachmentId, $status) {
 
 		if(!in_array($status, ['ACCEPTED', 'DECLINED', 'TENTIATIVE'])) {
 			throw new \Exception ('Incorrect response: '.$status);

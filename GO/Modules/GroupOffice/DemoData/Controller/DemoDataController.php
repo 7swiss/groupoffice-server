@@ -17,7 +17,7 @@ class DemoDataController extends Controller {
 		return true;
 	}
 
-	public function actionCreate() {
+	public function create() {
 
 		GO()->getAuth()->sudo(function() {
 

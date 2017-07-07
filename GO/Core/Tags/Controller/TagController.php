@@ -30,7 +30,7 @@ class TagController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($recordClassName=null,$orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($recordClassName=null,$orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
@@ -63,7 +63,7 @@ class TagController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$tag = new Tag();
 
@@ -83,7 +83,7 @@ class TagController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$tag = new Tag();
 
@@ -93,7 +93,7 @@ class TagController extends Controller {
 		$this->renderModel($tag, $returnProperties);
 	}
 	
-	public function actionRead($tagId, $returnProperties = ""){
+	public function read($tagId, $returnProperties = ""){
 		$tag = Tag::findByPk($tagId);
 
 		if (!$tag) {
@@ -118,7 +118,7 @@ class TagController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($tagId, $returnProperties = "") {
+	public function update($tagId, $returnProperties = "") {
 
 		$tag = Tag::findByPk($tagId);
 
@@ -138,7 +138,7 @@ class TagController extends Controller {
 	 * @param int $tagId
 	 * @throws NotFound
 	 */
-	public function actionDelete($tagId) {
+	public function delete($tagId) {
 		$tag = Tag::findByPk($tagId);
 
 		if (!$tag) {

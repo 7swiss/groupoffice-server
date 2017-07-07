@@ -19,7 +19,7 @@ use IFW\Orm\Query;
  */
 class DriveController extends Controller {
 
-	public function actionStore($orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name]", $q = null) {
+	public function store($orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name]", $q = null) {
 		$query = (new Query)
 				  ->select("t.*, CASE WHEN m.userId IS NULL THEN 0 ELSE 1 END as isMounted")
 				  ->joinRelation('owner', 'name')
@@ -43,7 +43,7 @@ class DriveController extends Controller {
 
 	}
 
-	public function actionRead($id, $returnProperties = "*,groups") {
+	public function read($id, $returnProperties = "*,groups") {
 
 		if($id === 'home')
 			$drive = Drive::home();
@@ -57,7 +57,7 @@ class DriveController extends Controller {
 		$this->renderModel($drive, $returnProperties);
 	}
 
-	public function actionCreate($returnProperties = "*") {
+	public function create($returnProperties = "*") {
 
 		$data = IFW::app()->getRequest()->body['data'];
 		$drive = new Drive();
@@ -67,7 +67,7 @@ class DriveController extends Controller {
 		$this->renderModel($drive, $returnProperties);
 	}
 
-	public function actionUpdate($id, $returnProperties = "*,groups") {
+	public function update($id, $returnProperties = "*,groups") {
 
 		$drive = Drive::findByPk($id);
 
@@ -81,7 +81,7 @@ class DriveController extends Controller {
 		$this->renderModel($drive, $returnProperties);
 	}
 
-	public function actionMount($id, $mount = true) {
+	public function mount($id, $mount = true) {
 		$drive = Drive::findByPk($id);
 		if(empty($drive)) {
 			throw new \IFW\Exception\NotFound();
@@ -90,7 +90,7 @@ class DriveController extends Controller {
 		$this->render(['success'=>$success]);
 	}
 
-	public function actionMountStore() {
+	public function mountStore() {
 		$query = (new Query())
 				  ->join(Mount::tableName(),'m','t.id = m.driveId AND m.userId = '.GO()->getAuth()->user()->id)
 				  ->joinRelation('root')

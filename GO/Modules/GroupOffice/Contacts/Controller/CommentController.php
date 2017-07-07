@@ -28,7 +28,7 @@ class CommentController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	public function actionStore($contactId, $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($contactId, $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 
@@ -59,7 +59,7 @@ class CommentController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new Comment();
 
@@ -80,7 +80,7 @@ class CommentController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($commentId = null, $returnProperties = "") {	
+	public function read($commentId = null, $returnProperties = "") {	
 		$comment = Comment::findByPk($commentId);
 
 
@@ -105,7 +105,7 @@ class CommentController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($contactId, $returnProperties = "") {
+	public function create($contactId, $returnProperties = "") {
 
 		$comment = new Comment();
 		$comment->setValues(GO()->getRequest()->body['data']);
@@ -130,7 +130,7 @@ class CommentController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($commentId, $returnProperties = "") {
+	public function update($commentId, $returnProperties = "") {
 
 		$comment = Comment::findByPk($commentId);
 
@@ -150,7 +150,7 @@ class CommentController extends Controller {
 	 * @param int $commentId
 	 * @throws NotFound
 	 */
-	public function actionDelete($commentId) {
+	public function delete($commentId) {
 		$comment = Comment::findByPk($commentId);
 
 		if (!$comment) {
@@ -173,7 +173,7 @@ class CommentController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

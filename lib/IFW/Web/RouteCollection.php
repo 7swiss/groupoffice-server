@@ -146,7 +146,7 @@ class RouteCollection {
 	 */
 	public function crud($route, $paramName){
 		$this->get($route, 'store')
-				->get($route.'/0','new')
+				->get($route.'/0','newInstance')
 				->get($route.'/:'.$paramName,'read')
 				->put($route.'/:'.$paramName, 'update')
 				->post($route, 'create')				

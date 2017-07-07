@@ -30,7 +30,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -53,7 +53,7 @@ class AccountController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	public function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$user = new Account();
 
@@ -74,7 +74,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionRead($accountId = null, $returnProperties = "") {
+	public function read($accountId = null, $returnProperties = "") {
 		$account = Account::findByPk($accountId);
 
 
@@ -98,7 +98,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$account = new Account();
 		$account->setValues(GO()->getRequest()->body['data']);
@@ -122,7 +122,7 @@ class AccountController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($accountId, $returnProperties = "") {
+	public function update($accountId, $returnProperties = "") {
 
 		$account = Account::findByPk($accountId);
 
@@ -142,7 +142,7 @@ class AccountController extends Controller {
 	 * @param int $accountId
 	 * @throws NotFound
 	 */
-	public function actionDelete($accountId) {
+	public function delete($accountId) {
 		$account = Account::findByPk($accountId);
 
 		if (!$account) {
@@ -154,7 +154,7 @@ class AccountController extends Controller {
 		$this->renderModel($account);
 	}
 
-	public function actionSync() {
+	public function sync() {
 
 		$accounts = Account::find();
 						
