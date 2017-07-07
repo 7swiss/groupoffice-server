@@ -26,9 +26,9 @@ abstract class Controller extends IFWController {
 	 * @return boolean
 	 * @throws LoginRequired
 	 */
-	protected function checkAccess() {
+	public function checkAccess() {
 		
-		if(!GO()->getAuth()->isLoggedIn())
+		if(!\IFW::app()->getAuth()->isLoggedIn())
 		{
 			throw new LoginRequired();
 		}

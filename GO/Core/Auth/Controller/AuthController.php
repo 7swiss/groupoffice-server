@@ -21,7 +21,7 @@ use IFW\Web\Response;
  */
 class AuthController extends Controller {
 
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 	
@@ -29,6 +29,7 @@ class AuthController extends Controller {
 		//Allow all origins		
 		
 
+		$this->render();
 		
 //		echo $route;
 	}

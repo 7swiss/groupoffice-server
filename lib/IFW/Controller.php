@@ -22,6 +22,7 @@ use ReflectionMethod;
 
 abstract class Controller extends Object {
 	
+	
 	const VIEW_DEFAULT = 'Api';
 	
 	
@@ -74,29 +75,29 @@ abstract class Controller extends Object {
 		return $view;
 	}
 	
-//	/**
-//	 * Authenticate
-//	 * 
-//	 * Checks if there's a logged in user and if the user has access to the module
-//	 * this controller belong too if applicable.
-//	 * 
-//	 * Override this for special use cases. By default it checks the presence
-//	 * of {@see \IFW::app()->auth()->user()}.
-//	 * 
-//	 * @return boolean
-//	 */
-//	protected function checkAccess(){		
-//		
-//		$this->checkXSRF();
-//		
-//		return true;
-//	}
-//	
-//	protected function checkXSRF() {
-//		if(!IFW::app()->getAuth()->checkXSRF()) {
-//			throw new \Exception("Cross Site Request Forgery check failed");
-//		}
-//	}
+	/**
+	 * Authenticate
+	 * 
+	 * Checks if there's a logged in user and if the user has access to the module
+	 * this controller belong too if applicable.
+	 * 
+	 * Override this for special use cases. By default it checks the presence
+	 * of {@see \IFW::app()->auth()->user()}.
+	 * 
+	 * @return boolean
+	 */
+	public function checkAccess(){		
+		
+		$this->checkXSRF();
+		
+		return true;
+	}
+	
+	protected function checkXSRF() {
+		if(!IFW::app()->getAuth()->checkXSRF()) {
+			throw new \Exception("Cross Site Request Forgery check failed");
+		}
+	}
 //
 //	/**
 //	 * Runs the controller action

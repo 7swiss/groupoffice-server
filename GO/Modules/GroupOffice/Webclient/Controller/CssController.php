@@ -15,7 +15,7 @@ use IFW\Exception\NotFound;
  */
 class CssController extends Controller {
 
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 	

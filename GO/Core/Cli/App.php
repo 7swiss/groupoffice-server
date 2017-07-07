@@ -12,9 +12,9 @@ class App extends BaseApp {
 	use AppTrait;
 	
 	protected function init() {
-		parent::init();
-		
 		require(dirname(__DIR__).'/AppFunction.php');
+		
+		parent::init();		
 	}
 	
 	/**

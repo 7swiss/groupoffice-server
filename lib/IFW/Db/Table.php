@@ -262,5 +262,37 @@ class Table {
 	public function getColumns() {
 		return $this->columns;
 	}
+	
+	/**
+	 * The primary key columns
+	 * 
+	 * This value is auto detected from the database. 
+	 *
+	 * @return string[] eg. ['id']
+	 */
+	public function getPrimaryKey() {
+		
+		$cacheKey = $this->tableName.'::pk';
+		
+		$pk = IFW::app()->getCache()->get($cacheKey);
+		
+		if(!$pk) {
+			$pk = [];
+			foreach($this->getColumns() as $column) {
+				
+				if($column->primary) {				
+					$pk[] = $column->name;
+				}
+			}
+			
+			if(empty($pk)) {
+				IFW::app()->debug("WARNING: No primary key defined for ".self::getClassName()." database table: ".self::tableName());
+			}
+			
+			IFW::app()->getCache()->set($cacheKey, $pk);
+		}
+		
+		return $pk;
+	}
 
 }

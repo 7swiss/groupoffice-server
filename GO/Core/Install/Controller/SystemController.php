@@ -23,7 +23,7 @@ class SystemController extends Controller {
 	 *
 	 * @return boolean
 	 */
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 
@@ -32,7 +32,7 @@ class SystemController extends Controller {
 	 */
 	public function install() {
 		
-		$this->lock();
+		IFW\Util\Lock::create(self::class.'-install');
 
 		$system = new System();
 

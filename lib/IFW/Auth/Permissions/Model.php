@@ -98,6 +98,7 @@ abstract class Model extends DataModel {
 	public function setRecord(DataModel $record) {
 		$this->record = $record;
 		$this->setRecordClassName($record->getClassName());
+		$this->can = [];
 	}
 	/**
 	 * The record class name that this permissions object is instantiated from
@@ -185,6 +186,8 @@ abstract class Model extends DataModel {
 		return self:: $isCheckingPermissions;
 	}
 	
+	private $can = [];
+	
 	/**
 	 * Checks if a the current user can do an action.
 	 * 
@@ -199,48 +202,45 @@ abstract class Model extends DataModel {
 				return true;
 		}
 		
+		
+		
 		if($user == null) {
 			$user = IFW::app()->getAuth()->user();
 			if(!$user) {
 				return false;
 			}
 		}
+		
+		if(isset($this->can[$user->id()][$permissionType])) {
+			return $this->can[$user->id()][$permissionType];
+		}
 
 		$oldIsChecking = self::$isCheckingPermissions;
 		self::$isCheckingPermissions = true;
 		
 		try {
-			
-			$cacheKey = $this->record->objectId().'-'.$permissionType.'-'.$user->id();
-			
-			$cached = \IFW::app()->getCache()->get($cacheKey);
-			
-			if(!isset($cached)) {
 				if($user->isAdmin()){
-					 \IFW::app()->getCache()->set($cacheKey, true, false);
+					 $this->can[$user->id()][$permissionType] = true;
 				}else
 				{					
 					if(in_array($permissionType, $this->record->allowedPermissionTypes()) || in_array('*', $this->record->allowedPermissionTypes())) {
-						$can = true;
+						$this->can[$user->id()][$permissionType] = true;
 					}else
 					{					
-						$can = $this->internalCan($permissionType, $user);
+						$this->can[$user->id()][$permissionType] = $this->internalCan($permissionType, $user);
 					}
 					
 //					if(!$can) {
 //						IFW::app()->debug("User ".$user->id." has no permission for ".$this->record->getClassName().' permissionType:'.var_export($permissionType, true).' '.var_export($this->record->pk(), true));
 //					}
 					
-					\IFW::app()->getCache()->set($cacheKey, $can, false);
-				}
 			}
 		} finally {
 //			IFW::app()->debug($this->record->getClassName().'::finally can('.$permissionType.': '.var_export($oldIsChecking, true).')');
 			self::$isCheckingPermissions = $oldIsChecking;
 		}		
 		
-
-		return \IFW::app()->getCache()->get($cacheKey);
+		return $this->can[$user->id()][$permissionType];
 	}
 	
 	public final function applyToQuery($query = null) {

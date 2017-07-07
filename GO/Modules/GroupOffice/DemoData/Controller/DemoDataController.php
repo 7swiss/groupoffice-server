@@ -13,7 +13,7 @@ use function GO;
 
 class DemoDataController extends Controller {
 
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 

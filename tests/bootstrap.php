@@ -23,8 +23,8 @@ try{
 	GO()->getDbConnection()->disconnect();
 	$app->reinit();
 
-	$controller = new SystemController();
-	$response = $controller->actionInstall();
+	$system = new \GO\Core\Install\Model\System();
+	$system->install();
 
 
 	$internalGroup = Group::findInternalGroup();

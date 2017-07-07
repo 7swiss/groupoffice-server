@@ -7,7 +7,7 @@ use GO\Core\Controller;
 
 class RoutesController extends Controller {
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 

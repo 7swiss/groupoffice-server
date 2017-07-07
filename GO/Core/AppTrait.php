@@ -48,6 +48,8 @@ trait AppTrait {
 		}
 		return $this->moduleCollection;
 	}
+	
+	private $settings;
 
 	/**
 	 * Get the system wide settings record
@@ -55,12 +57,15 @@ trait AppTrait {
 	 * @return Settings
 	 */
 	public function getSettings() {
-		$record = Settings::find()->single();
-		if (!$record) {
-			$record = new Settings();
+		
+		if(!isset($this->settings)) {
+			$this->settings = Settings::find()->single();
+			if (!$this->settings) {
+				$this->settings = new Settings();
+			}
 		}
 
-		return $record;
+		return $this->settings;
 	}
 	
 	

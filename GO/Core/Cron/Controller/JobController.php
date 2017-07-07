@@ -18,7 +18,7 @@ use IFW\Exception\NotFound;
  */
 class JobController extends Controller {
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		
 		if(!GO()->getAuth()->user()->isAdmin()) {
 			return false;

@@ -133,6 +133,8 @@ abstract class Router extends Object implements RouterInterface{
 		
 		IFW::app()->getDebugger()->setSection(Debugger::SECTION_CONTROLLER);
 		
+		$controller->checkAccess();
+		
 		call_user_func_array([$controller, $methodName], $methodArgs);
 	}
 }

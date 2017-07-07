@@ -8,7 +8,7 @@ use IFW\Db\Column;
 class ModelController extends Controller {
 	
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 	

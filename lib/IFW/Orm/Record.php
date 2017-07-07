@@ -279,7 +279,7 @@ abstract class Record extends DataModel {
 	 * 
 	 * @var PermissionsModel 
 	 */
-	private $permissions;	
+	private static $permissions;	
 	
 	/**
 	 * When saving relational this is set on the children of the parent object 
@@ -507,6 +507,8 @@ abstract class Record extends DataModel {
 		return $tableName;
 	}
 	
+	static private $table;
+	
 
 	/**
 	 * Get the database columns
@@ -519,7 +521,12 @@ abstract class Record extends DataModel {
 	 * @return Table
 	 */
 	public static function getTable() {		
-		return Table::getInstance(static::tableName());		
+		$cls = static::class;
+		if(!isset(self::$table[$cls])) {
+			self::$table[$cls] = Table::getInstance(static::tableName());		
+		}
+		
+		return self::$table[$cls];
 	}
 
 	/**
@@ -555,29 +562,8 @@ abstract class Record extends DataModel {
 	 *
 	 * @return string[] eg. ['id']
 	 */
-	public static function getPrimaryKey() {
-		
-		$cacheKey = static::class.'::pk';
-		
-		$pk = IFW::app()->getCache()->get($cacheKey);
-		
-		if(!$pk) {
-			$pk = [];
-			foreach(self::getTable()->getColumns() as $column) {
-				
-				if($column->primary) {				
-					$pk[] = $column->name;
-				}
-			}
-			
-			if(empty($pk)) {
-				IFW::app()->debug("WARNING: No primary key defined for ".self::getClassName()." database table: ".self::tableName());
-			}
-			
-			IFW::app()->getCache()->set($cacheKey, $pk);
-		}
-		
-		return $pk;
+	public static function getPrimaryKey() {		
+		return static::getTable()->getPrimaryKey();
 	}
 	
 	/**
@@ -1269,13 +1255,18 @@ abstract class Record extends DataModel {
 		IFW::app()->getCache()->set('initRelations', true);
 	}
 	
+	
+	private $objectId;
 	/**
 	 * Get an ID of the object for debugging
 	 * 
 	 * @return string
 	 */
 	public function objectId() {
-		return $this->getClassName().', pk:' . implode('-',$this->pk());// . ', #'.md5(spl_object_hash($this));
+		if(!isset($this->objectId)) {
+			$this->objectId = $this->getClassName().', pk:' . implode('-',$this->pk());// . ', #'.md5(spl_object_hash($this));
+		}
+		return $this->objectId;
 	}
 
 	/**
@@ -2558,12 +2549,12 @@ abstract class Record extends DataModel {
 	 * @return PermissionsModel
 	 */
 	public final function getPermissions() {		
-		if(!isset($this->permissions)) {
-			$this->permissions = $this->internalGetPermissions();
+		if(!isset(self::$permissions[static::class])) {
+			self::$permissions[static::class] = static::internalGetPermissions();
 		}
 		
-		$this->permissions->setRecord($this);
+		self::$permissions[static::class]->setRecord($this);
 		
-		return $this->permissions;
+		return self::$permissions[static::class];
 	}
 }
