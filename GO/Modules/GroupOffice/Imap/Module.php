@@ -21,11 +21,7 @@ class Module extends InstallableModule {
 						->post('imap/autodetect', 'detect');
 
 	}
-	
-	public static function defineCliRoutes(Router2 $router) {
-		$router->addRoutesFor(AccountController::class)
-						->set('imap/sync/:accountId', 'sync');
-	}
+
 	
 	public function depends() {
 		return [

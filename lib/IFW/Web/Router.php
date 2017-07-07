@@ -3,7 +3,6 @@ namespace IFW\Web;
 
 use IFW;
 use IFW\Exception\HttpException;
-use ReflectionMethod;
 
 /**
  * The router routes requests to their controller actions
@@ -196,30 +195,7 @@ class Router extends IFW\Router {
 				];
 	}
 	
-	private function getActionParams($controllerCls, $methodName) {
-		
-		if(!class_exists($controllerCls)){
-			throw new \Exception('Class  '.$controllerCls." defined in router but it doesn't exist");
-		}
-		
-		$controller = new $controllerCls;
-		
-		if(!method_exists($controller, $methodName)){
-			throw new \Exception('Method  '.$methodName." defined in router  but doesn't exist in controller ".$controllerCls);
-		}
-		
-		$method = new ReflectionMethod($controller, $methodName);
-		$rParams = $method->getParameters();		
-
-		$methodArgs = [];	
-		
-		foreach ($rParams as $param) {			
-			$arg = ['isOptional' => $param->isOptional(), 'default' => $param->isOptional() ? $param->getDefaultValue() : null];			
-			$methodArgs[$param->getName()] = $arg;			
-		}
-		
-		return $methodArgs;
-	}
+	
 
 	public function getInterfaceType() {
 		return 'Web';
@@ -305,31 +281,7 @@ class Router extends IFW\Router {
 	}
 	
 	
-	/**
-	 * Runs controller method with URL query and route params.
-	 * 
-	 * For an explanation about route params {@see Router::routeParams}
-	 * 
-	 * @param string $methodName
-	 * @params array $routerParams A merge of route and query params
-	 * @throws HttpException
-	 */
-	protected function callAction(\IFW\Controller $controller, $methodName, array $methodParams,  array $requestParams){
 	
-		//call method with all parameters from the $_REQUEST object.
-		$methodArgs = [];
-		foreach ($methodParams as $paramName => $paramMeta) {
-			if (!isset($requestParams[$paramName]) && !$paramMeta['isOptional']) {
-				throw new HttpException(400, "Bad request. Missing argument '" . $paramName . "' for action method '" . get_class($controller) . "->" . $methodName . "'");
-			}
-
-			$methodArgs[] = isset($requestParams[$paramName]) ? $requestParams[$paramName] : $paramMeta['default'];
-		}
-		
-		\IFW::app()->getDebugger()->setSection(IFW\Debugger::SECTION_CONTROLLER);
-		
-		call_user_func_array([$controller, $methodName], $methodArgs);
-	}
 
 	/**
 	 * 

@@ -118,7 +118,9 @@ class Router extends IFW\Router{
 				$totalRouteParams++;
 			}
 		}	
-		$cur['actions'][$totalRouteParams] = [$controller, $action, $moduleName];		
+		
+		$action = 'action' . $action;
+		$cur['actions'][$totalRouteParams] = [$controller,  $action, $moduleName,$this->getActionParams($controller, $action)];		
 	}
 	
 	
@@ -162,12 +164,13 @@ class Router extends IFW\Router{
 			$action = $this->getAction($config);
 			
 			//send router parameters and GET parameters together
-			$params = array_merge($this->routeParams, IFW::app()->getCommand()->getArguments());
+			$requestParams = array_merge($this->routeParams, IFW::app()->getCommand()->getArguments());
 
 			$this->currentModuleName = $action[2];
 			
 			$controller = new $action[0]();
-			$controller->run(strtolower($action[1]), $params);
+			
+			$this->callAction($controller, $action[1], $action[3], $requestParams);
 		}
 		
 	}
