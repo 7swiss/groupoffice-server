@@ -8,12 +8,12 @@ use IFW\Web\Router;
 
 class Module extends InstallableModule {
 	public static function defineWebRoutes(Router $router) {
-		$router->addRoutesFor(AccountController::class)
-						->crud('imap/accounts', 'accountId')
-						->get('imap/resyncmessage/:messageId', 'resyncmessage');
-
-		$router->addRoutesFor(AccountController::class)
-						->get('imap/sync/:accountId', 'sync');
+//		$router->addRoutesFor(AccountController::class)
+//						->crud('imap/accounts', 'accountId')
+//						->get('imap/resyncmessage/:messageId', 'resyncmessage');
+//
+//		$router->addRoutesFor(AccountController::class)
+//						->get('imap/sync/:accountId', 'sync');
 
 		
 		$router->addRoutesFor(Controller\AutoDetectController::class)

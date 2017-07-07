@@ -24,16 +24,7 @@ abstract class Controller extends Object {
 	
 	const VIEW_DEFAULT = 'Api';
 	
-	private $action;	
-
-	/**
-	 * Get the action in lower case that is currently being executed
-	 * 
-	 * @param string
-	 */
-	protected function getAction() {
-		return $this->action;
-	}	
+	
 	
 	/**
 	 * Finds a view by name
@@ -53,19 +44,19 @@ abstract class Controller extends Object {
 		
 		$router = IFW::app()->getRouter();
 		$interfaceType = $router->getInterfaceType(); //Cli or Web		
-		$module = $router->getModuleName();
+//		$module = $router->getModuleName();
 		
 		//GO\Modules\Contacts\Web\View\Api
-		$view = $moduleView = $module.'\\View\\'.$interfaceType.'\\'.$name;
-		
-		if(class_exists($view)) {
-			return new $view;
-		}
+//		$view = $moduleView = $module.'\\View\\'.$interfaceType.'\\'.$name;
+//		
+//		if(class_exists($view)) {
+//			return new $view;
+//		}
 		
 		$view =  $this->getDefaultView($interfaceType, $name);				
-		if(!class_exists($view)) {
-			throw new \Exception("Can't find view '".$name."' in '".$moduleView."' and ".$view);
-		}
+//		if(!class_exists($view)) {
+//			throw new \Exception("Can't find view '".$name."' in '".$moduleView."' and ".$view);
+//		}
 		
 		return new $view;
 	}
@@ -83,83 +74,54 @@ abstract class Controller extends Object {
 		return $view;
 	}
 	
-	/**
-	 * Authenticate
-	 * 
-	 * Checks if there's a logged in user and if the user has access to the module
-	 * this controller belong too if applicable.
-	 * 
-	 * Override this for special use cases. By default it checks the presence
-	 * of {@see \IFW::app()->auth()->user()}.
-	 * 
-	 * @return boolean
-	 */
-	protected function checkAccess(){		
-		
-		$this->checkXSRF();
-		
-		return true;
-	}
+//	/**
+//	 * Authenticate
+//	 * 
+//	 * Checks if there's a logged in user and if the user has access to the module
+//	 * this controller belong too if applicable.
+//	 * 
+//	 * Override this for special use cases. By default it checks the presence
+//	 * of {@see \IFW::app()->auth()->user()}.
+//	 * 
+//	 * @return boolean
+//	 */
+//	protected function checkAccess(){		
+//		
+//		$this->checkXSRF();
+//		
+//		return true;
+//	}
+//	
+//	protected function checkXSRF() {
+//		if(!IFW::app()->getAuth()->checkXSRF()) {
+//			throw new \Exception("Cross Site Request Forgery check failed");
+//		}
+//	}
+//
+//	/**
+//	 * Runs the controller action
+//	 * 
+//	 * @param string $action The action name in lower case
+//	 * @param string[] $routerParams A merge of route and query params
+//	 */
+//	public function run($action, array $routerParams) {	
+//		
+//		$this->action = strtolower($action);
+//
+//		if(!$this->checkAccess()){
+//			throw new Forbidden();
+//		}
+//		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
+//		
+//		\IFW::app()->debug("Running controller action: ".static::class.'::action' . $this->action);
+//		
+//
+//		//Should we remove action prefix? Please consider reserved name like "print"
+//		$this->callMethodWithParams("action" . $this->action, $routerParams);
+//	}
+//	
+
 	
-	protected function checkXSRF() {
-		if(!IFW::app()->getAuth()->checkXSRF()) {
-			throw new \Exception("Cross Site Request Forgery check failed");
-		}
-	}
-
-	/**
-	 * Runs the controller action
-	 * 
-	 * @param string $action The action name in lower case
-	 * @param string[] $routerParams A merge of route and query params
-	 */
-	public function run($action, array $routerParams) {	
-		
-		$this->action = strtolower($action);
-
-		if(!$this->checkAccess()){
-			throw new Forbidden();
-		}
-		\IFW::app()->getDebugger()->setSection(\IFW\Debugger::SECTION_CONTROLLER);
-		
-		\IFW::app()->debug("Running controller action: ".static::class.'::action' . $this->action);
-		
-
-		//Should we remove action prefix? Please consider reserved name like "print"
-		$this->callMethodWithParams("action" . $this->action, $routerParams);
-	}
-	
-
-	/**
-	 * Runs controller method with URL query and route params.
-	 * 
-	 * For an explanation about route params {@see Router::routeParams}
-	 * 
-	 * @param string $methodName
-	 * @params array $routerParams A merge of route and query params
-	 * @throws HttpException
-	 */
-	protected function callMethodWithParams($methodName, array $routerParams){
-		
-		if(!method_exists($this, $methodName)){
-			throw new HttpException(501, $methodName." defined but doesn't exist in controller ".static::class);
-		}
-		
-		$method = new ReflectionMethod($this, $methodName);
-		$rParams = $method->getParameters();		
-
-		//call method with all parameters from the $_REQUEST object.
-		$methodArgs = array();
-		foreach ($rParams as $param) {
-			if (!isset($routerParams[$param->getName()]) && !$param->isOptional()) {
-				throw new HttpException(400, "Bad request. Missing argument '" . $param->getName() . "' for action method '" . get_class($this) . "->" . $methodName . "'");
-			}
-
-			$methodArgs[] = isset($routerParams[$param->getName()]) ? $routerParams[$param->getName()] : $param->getDefaultValue();
-		}
-		
-		call_user_func_array([$this, $methodName], $methodArgs);
-	}
 	
 	/**
 	 * The file pinter for the lock method

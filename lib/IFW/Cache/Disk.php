@@ -138,7 +138,7 @@ class Disk implements CacheInterface {
 		$folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
 		
 		if(!$folder->isWritable()) {
-			return false;
+			throw new \Exception("diskcache folder is not writable!");
 		}
 		
 		if(!$folder->exists()) {

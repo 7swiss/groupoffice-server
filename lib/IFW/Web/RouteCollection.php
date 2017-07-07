@@ -145,13 +145,15 @@ class RouteCollection {
 	 * @return self
 	 */
 	public function crud($route, $paramName){
-		return $this->get($route, 'store')
+		$this->get($route, 'store')
 				->get($route.'/0','new')
 				->get($route.'/:'.$paramName,'read')
 				->put($route.'/:'.$paramName, 'update')
-				->post($route, 'create')
-				->put($route, 'multiple')
-				->delete($route.'/:'.$paramName,'delete');
+				->post($route, 'create')				
+//				->put($route, 'multiple')
+				->delete($route.'/:'.$paramName,'delete');	
+		
+		return $this;
 	}
 	
 	/**
