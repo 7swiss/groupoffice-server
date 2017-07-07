@@ -37,7 +37,7 @@ class CommentController extends Controller {
 	}
 	
 	
-	protected function actionNew($taskId, $returnProperties = ""){
+	public function actionNew($taskId, $returnProperties = ""){
 		$comment = new TaskComment();
 		$comment->taskId = $taskId;
 		$this->renderModel($comment, $returnProperties);
@@ -45,7 +45,7 @@ class CommentController extends Controller {
 	
 	
 
-	protected function actionRead($commentId, $returnProperties = "*"){
+	public function actionRead($commentId, $returnProperties = "*"){
 		
 		$comment = TaskComment::findByPk($commentId);
 		

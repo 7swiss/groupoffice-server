@@ -37,7 +37,7 @@ class BudgetController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($projectId = 0, $orderColumn = 'ctime', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function actionStore($projectId = 0, $orderColumn = 'ctime', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -62,7 +62,7 @@ class BudgetController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($projectId, $returnProperties = "") {
+	public function actionNew($projectId, $returnProperties = "") {
 
 		$budget = new GO_Advprojects_Model_ExpenseBudget();
 		$budget->project_id = $projectId;
@@ -86,7 +86,7 @@ class BudgetController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($budgetId = null, $returnProperties = "") {
+	public function actionRead($budgetId = null, $returnProperties = "") {
 		$budget = GO_Advprojects_Model_ExpenseBudget::model()->findByPk($budgetId);
 
 

@@ -58,7 +58,7 @@ class CalendarController extends Controller {
 		$this->renderStore($calendars);
 	}
 
-	protected function actionRead($id, $returnProperties = "*,defaultAlarms") {
+	public function actionRead($id, $returnProperties = "*,defaultAlarms") {
 
 		$calendar = Calendar::findByPk($id);
 
@@ -69,7 +69,7 @@ class CalendarController extends Controller {
 		$this->renderModel($calendar, $returnProperties);
 	}
 
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 		$event = new Calendar();
 		$this->renderModel($event, $returnProperties);
 	}

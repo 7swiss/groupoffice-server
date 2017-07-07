@@ -28,7 +28,7 @@ class CommentController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($limit = 10, $offset = 0, $returnProperties = "", $q = null) {
+	public function actionStore($limit = 10, $offset = 0, $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->limit($limit)
@@ -53,7 +53,7 @@ class CommentController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function actionNew($returnProperties = ""){
 		
 		$user = new Comment();
 
@@ -74,7 +74,7 @@ class CommentController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($commentId = null, $returnProperties = "") {	
+	public function actionRead($commentId = null, $returnProperties = "") {	
 		$comment = Comment::findByPk($commentId);
 
 

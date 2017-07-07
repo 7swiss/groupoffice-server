@@ -43,7 +43,7 @@ class UserController extends Controller {
 	 * @param string $where {@see \IFW\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -73,7 +73,7 @@ class UserController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($userId = null, $returnProperties = "") {
+	public function actionRead($userId = null, $returnProperties = "") {
 
 		if ($userId === "current") {
 			$user = \GO()->getAuth()->user();
@@ -96,7 +96,7 @@ class UserController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 
 		$user = new User();
 

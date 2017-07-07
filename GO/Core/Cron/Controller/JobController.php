@@ -28,7 +28,7 @@ class JobController extends Controller {
 	}
 	
 	
-	protected function actionRun() {
+	public function actionRun() {
 		
 		//Will run all jobs sequentially. Maybe it should spawn a new cron process to run simultanuously?
 		while(Job::runNext()){
@@ -50,7 +50,7 @@ class JobController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -74,7 +74,7 @@ class JobController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 
 		$user = new Job();
 
@@ -96,7 +96,7 @@ class JobController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($jobId = null, $returnProperties = "") {
+	public function actionRead($jobId = null, $returnProperties = "") {
 		$job = Job::findByPk($jobId);
 
 

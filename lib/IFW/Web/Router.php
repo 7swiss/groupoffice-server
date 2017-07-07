@@ -326,6 +326,8 @@ class Router extends IFW\Router {
 			$methodArgs[] = isset($requestParams[$paramName]) ? $requestParams[$paramName] : $paramMeta['default'];
 		}
 		
+		\IFW::app()->getDebugger()->setSection(IFW\Debugger::SECTION_CONTROLLER);
+		
 		call_user_func_array([$controller, $methodName], $methodArgs);
 	}
 

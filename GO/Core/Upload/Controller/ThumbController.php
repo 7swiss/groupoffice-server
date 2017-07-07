@@ -70,7 +70,7 @@ abstract class ThumbController extends Controller {
 	 * @param bool $zoomCrop
 	 * @param bool $fitBox
 	 */
-	protected function actionDownload($w = 0, $h = 0, $zoomCrop = false, $fitBox = false) {
+	public function actionDownload($w = 0, $h = 0, $zoomCrop = false, $fitBox = false) {
 
 		try{
 			$file = $this->thumbGetFile();

@@ -43,7 +43,7 @@ class DriveController extends Controller {
 
 	}
 
-	protected function actionRead($id, $returnProperties = "*,groups") {
+	public function actionRead($id, $returnProperties = "*,groups") {
 
 		if($id === 'home')
 			$drive = Drive::home();

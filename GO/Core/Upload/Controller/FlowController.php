@@ -16,7 +16,7 @@ use GO\Core\Controller;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class FlowController extends Controller {	
-	protected function actionUpload(){
+	public function actionUpload(){
 		
 		if(isset($_POST['flowFilename'])){
 			return $this->_flowUpload();

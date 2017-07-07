@@ -45,7 +45,7 @@ class ModuleController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'id', $orderDirection = 'ASC',$searchQuery = "") {
+	public function actionStore($orderColumn = 'id', $orderDirection = 'ASC',$searchQuery = "") {
 
 		$query = (new Query())					
 						->orderBy([$orderColumn => $orderDirection])
@@ -60,7 +60,7 @@ class ModuleController extends Controller {
 		$this->renderStore($modules);
 	}
 
-	protected function actionAllModules($returnProperties='*', $searchQuery = null) {
+	public function actionAllModules($returnProperties='*', $searchQuery = null) {
 		
 		$records = [];
 		

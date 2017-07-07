@@ -115,13 +115,13 @@ class ContactController extends Controller {
 		$this->renderStore($contacts);
 	}	
 	
-	protected function actionNew($returnProperties = ""){
+	public function actionNew($returnProperties = ""){
 		$contact = new Contact();
 		$this->renderModel($contact, $returnProperties);
 	}
 	
 	
-	protected function actionReadByUser($userId, $returnProperties = "*"){
+	public function actionReadByUser($userId, $returnProperties = "*"){
 		$contact = Contact::find(['userId' => $userId])->single();
 		
 		if(!$contact) {
@@ -146,7 +146,7 @@ class ContactController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($contactId, $returnProperties = "*"){
+	public function actionRead($contactId, $returnProperties = "*"){
 	
 
 		$contact = Contact::findByPk($contactId);
@@ -159,7 +159,7 @@ class ContactController extends Controller {
 
 	}
 
-	protected function actionVCard($contactId){
+	public function actionVCard($contactId){
 
 		$contact = Contact::findByPk($contactId);
 
@@ -174,7 +174,7 @@ class ContactController extends Controller {
 
 	}
 
-	protected function actionImport($blobId) { // to vCard
+	public function actionImport($blobId) { // to vCard
 
 		$blob = Blob::findByPk($blobId);
 		if (!$blob) {

@@ -32,7 +32,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($type='incoming', $orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function actionStore($type='incoming', $orderColumn = 'lastMessageSentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -109,7 +109,7 @@ class ThreadController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 
 		$user = new Thread();
 
@@ -130,7 +130,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($threadId = null, $returnProperties = "") {
+	public function actionRead($threadId = null, $returnProperties = "") {
 		$thread = Thread::findByPk($threadId);
 
 
@@ -220,7 +220,7 @@ class ThreadController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionMessages($threadId, $limit = 10, $offset = 0, $returnProperties = "*") {
+	public function actionMessages($threadId, $limit = 10, $offset = 0, $returnProperties = "*") {
 
 		$accounts = Message::find((new Query())
 														->orderBy(['sentAt' => 'DESC'])
@@ -238,7 +238,7 @@ class ThreadController extends Controller {
 		$this->renderStore($accounts);
 	}
 	
-	protected function actionEmptyTrash($accountId) {
+	public function actionEmptyTrash($accountId) {
 		
 		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_TRASH]));
 		foreach($messages as $message) {
@@ -250,7 +250,7 @@ class ThreadController extends Controller {
 		$this->render();
 	}
 	
-	protected function actionEmptyJunk($accountId) {
+	public function actionEmptyJunk($accountId) {
 		
 		$messages = Message::find((new Query())->andWhere(['accountId' => json_decode($accountId)])->andWhere(['type' => Message::TYPE_JUNK]));
 		foreach($messages as $message) {

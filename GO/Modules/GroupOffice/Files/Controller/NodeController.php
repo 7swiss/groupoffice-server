@@ -86,7 +86,7 @@ class NodeController extends Controller {
 
 	}
 
-	protected function actionRead($id, $returnProperties = "*") {
+	public function actionRead($id, $returnProperties = "*") {
 
 		$node = Node::findByPk($id);
 
@@ -97,7 +97,7 @@ class NodeController extends Controller {
 		$this->renderModel($node, $returnProperties);
 	}
 
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 		$event = new Node();
 		$this->renderModel($event, $returnProperties);
 	}

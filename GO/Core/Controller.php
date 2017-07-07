@@ -57,7 +57,12 @@ abstract class Controller extends IFWController {
 		
 		$this->rendered = $view;
 		
-		return $view;
+		if(GO()->getEnvironment()->isCli()) {
+			echo $this->rendered;
+		}else
+		{
+			GO()->getResponse()->send($this->rendered);
+		}
 	}	
 
 	/**
@@ -108,14 +113,5 @@ abstract class Controller extends IFWController {
 		return $output;
 	}
 	
-	protected function callMethodWithParams($methodName, array $routerParams) {
-		parent::callMethodWithParams($methodName, $routerParams);
-		
-		if(GO() instanceof \IFW\Cli\App) {
-			echo $this->rendered;
-		}else
-		{
-			GO()->getResponse()->send($this->rendered);
-		}
-	}
+	
 }

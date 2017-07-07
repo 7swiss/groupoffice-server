@@ -16,7 +16,7 @@ use IFW\Orm\Query;
  */
 class AccountController extends Controller {
 ////
-////	protected function actionSync($accountId, $resync = false) {
+////	public function actionSync($accountId, $resync = false) {
 ////
 ////		$account = Account::findByPk($accountId);
 ////		if (!empty($resync)) {
@@ -31,7 +31,7 @@ class AccountController extends Controller {
 ////	}
 ////	
 //	
-//	protected function actionResyncMessage($messageId) {
+//	public function actionResyncMessage($messageId) {
 //		$message = \GO\Modules\GroupOffice\Imap\Model\Message::find(['messageId'=>$messageId])->single();
 //		$message->message->message->delete();
 ////		$message->message->delete();
@@ -51,7 +51,7 @@ class AccountController extends Controller {
 ////	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 ////	 * @return array JSON Model data
 ////	 */
-////	protected function actionStore($orderColumn = 'hostname', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $mine = false) {
+////	public function actionStore($orderColumn = 'hostname', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $mine = false) {
 ////
 ////		$query = (new Query())
 ////														->orderBy([$orderColumn => $orderDirection])
@@ -75,7 +75,7 @@ class AccountController extends Controller {
 //	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 //	 * @return JSON Model data
 //	 */
-//	protected function actionRead($accountId = null, $returnProperties = "") {
+//	public function actionRead($accountId = null, $returnProperties = "") {
 //
 //		$account = Account::findByPk($accountId);
 //
@@ -94,7 +94,7 @@ class AccountController extends Controller {
 //	 * @param $returnProperties
 //	 * @return array
 //	 */
-//	protected function actionNew($returnProperties = "") {
+//	public function actionNew($returnProperties = "") {
 //
 //		$account = new Account();
 //

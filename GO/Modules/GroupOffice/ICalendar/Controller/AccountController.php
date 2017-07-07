@@ -30,7 +30,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -53,7 +53,7 @@ class AccountController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 
 		$user = new Account();
 
@@ -74,7 +74,7 @@ class AccountController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountId = null, $returnProperties = "") {
+	public function actionRead($accountId = null, $returnProperties = "") {
 		$account = Account::findByPk($accountId);
 
 

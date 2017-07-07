@@ -32,7 +32,7 @@ class FieldSetController extends Controller {
 	
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($modelName, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function actionStore($modelName, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -70,7 +70,7 @@ class FieldSetController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($fieldSetId = null, $returnProperties = "") {
+	public function actionRead($fieldSetId = null, $returnProperties = "") {
 
 		$fieldSet = FieldSet::findByPk($fieldSetId);
 
@@ -87,7 +87,7 @@ class FieldSetController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($modelName, $returnProperties = "") {
+	public function actionNew($modelName, $returnProperties = "") {
 
 		$fieldSet = new FieldSet();
 		$fieldSet->modelName = $modelName;

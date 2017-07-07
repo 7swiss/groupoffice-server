@@ -30,7 +30,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'sentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function actionStore($orderColumn = 'sentAt', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -52,7 +52,7 @@ class MessageController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($accountId, $returnProperties = "*,message[subject,body,priority,to,cc,bcc]") {
+	public function actionNew($accountId, $returnProperties = "*,message[subject,body,priority,to,cc,bcc]") {
 
 		$message = Message::create($accountId);
 		
@@ -75,7 +75,7 @@ class MessageController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($messageId = null, $returnProperties = "") {
+	public function actionRead($messageId = null, $returnProperties = "") {
 		$message = Message::findByPk($messageId);
 
 

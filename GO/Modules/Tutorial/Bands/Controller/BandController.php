@@ -35,7 +35,7 @@ class BandController extends Controller {
 	 * @param StringUtil $where {@see \IFW\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where = null) {
+	public function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -77,7 +77,7 @@ class BandController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($bandId = null, $returnProperties = '*,albums') {
+	public function actionRead($bandId = null, $returnProperties = '*,albums') {
 
 		$store = Band::find(['id' => $bandId]);
 		$store->setReturnProperties($returnProperties);
@@ -96,7 +96,7 @@ class BandController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = '*,albums') {
+	public function actionNew($returnProperties = '*,albums') {
 
 		//Check edit permission		
 		$band = new Band();

@@ -29,7 +29,7 @@ class AnnouncementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function actionStore($limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 				->orderBy(['id' => 'DESC'])
@@ -51,7 +51,7 @@ class AnnouncementController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function actionNew($returnProperties = ""){
 		
 		$user = new Announcement();
 
@@ -72,7 +72,7 @@ class AnnouncementController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($announcementId = null, $returnProperties = "") {	
+	public function actionRead($announcementId = null, $returnProperties = "") {	
 		$announcement = Announcement::findByPk($announcementId);
 
 

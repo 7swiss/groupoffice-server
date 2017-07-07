@@ -28,7 +28,7 @@ class RelationRecordController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -55,7 +55,7 @@ class RelationRecordController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function actionNew($returnProperties = ""){
 		
 		$user = new RelationRecord();
 
@@ -76,7 +76,7 @@ class RelationRecordController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($relationRecordId = null, $returnProperties = "") {	
+	public function actionRead($relationRecordId = null, $returnProperties = "") {	
 		$relationRecord = RelationRecord::findByPk($relationRecordId);
 
 

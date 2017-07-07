@@ -15,13 +15,13 @@ use IFW\Imap\IMAPDetector;
  */
 class AutoDetectController extends Controller {
 
-	protected function actionNew() {
+	public function actionNew() {
 		
 		$detector = new IMAPDetector();
 		$this->renderModel($detector);
 	}
 	
-	protected function actionDetect() {
+	public function actionDetect() {
 		
 		$data = GO()->getRequest()->body['data'];
 		unset($data['validationErrors'], $data['smtpAccount']);

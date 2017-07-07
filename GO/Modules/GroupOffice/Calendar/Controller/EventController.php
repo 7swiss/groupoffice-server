@@ -71,7 +71,7 @@ class EventController extends Controller {
 		$this->renderStore(array_merge($events->toArray(), $recurringEvents->toArray()));
 	}
 
-	protected function actionRead($calendarId, $eventId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
+	public function actionRead($calendarId, $eventId, $recurrenceId = null, $returnProperties = "calendarId,groupId,alarms,event[*,attendees,recurrenceRule,attachments]") {
 
 		$calEvent = CalendarEvent::findByPk(['calendarId'=>$calendarId,'eventId'=>$eventId]);
 
@@ -85,7 +85,7 @@ class EventController extends Controller {
 		$this->renderModel($calEvent, $returnProperties);
 	}
 
-	protected function actionNew($calendarId, $returnProperties = "*,alarms,event[*,attendees]") {
+	public function actionNew($calendarId, $returnProperties = "*,alarms,event[*,attendees]") {
 
 		$calendar = Calendar::findByPk($calendarId);
 		if(empty($calendar)) {
@@ -174,7 +174,7 @@ class EventController extends Controller {
 
 	}
 
-	protected function actionDownload($id) {
+	public function actionDownload($id) {
 		$event = Event::findByPk($id);
 		$vObject = \GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper::toVObject($event);
 		header('Content-type: text/calendar; charset=utf-8');

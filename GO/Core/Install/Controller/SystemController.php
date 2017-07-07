@@ -56,7 +56,7 @@ class SystemController extends Controller {
 	 */
 	public function actionUpgrade() {
 		
-		$this->lock();
+		\IFW\Util\Lock::create(self::class.'-upgrade');
 
 		//run as admin
 		GO()->getCache()->flush(); // Sudo cant fetch user with old cache

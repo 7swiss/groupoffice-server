@@ -25,7 +25,7 @@ class AuthController extends Controller {
 		return true;
 	}
 	
-	protected function actionOptions($route) {
+	public function actionOptions($route) {
 		//Allow all origins		
 		
 
@@ -38,7 +38,7 @@ class AuthController extends Controller {
 	 * 
 	 * @return Response {@see actionLogin()}
 	 */
-	protected function actionLogout() {
+	public function actionLogout() {
 
 		
 		$token = Token::findByRequest();
@@ -60,7 +60,7 @@ class AuthController extends Controller {
 	 * @return Response {@see actionLogin()}
 	 * @throws Forbidden
 	 */
-	protected function actionSwitchTo($userId) {
+	public function actionSwitchTo($userId) {
 		if (!GO()->getAuth()->isAdmin()) {
 			throw new Forbidden();
 		}

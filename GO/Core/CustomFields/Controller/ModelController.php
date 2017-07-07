@@ -7,7 +7,7 @@ use IFW\Orm\Record;
 use IFW\Util\ClassFinder;
 
 class ModelController extends Controller{	
-	protected function actionGet() {
+	public function actionGet() {
 		
 		$customFieldModels = [];
 		foreach(\GO()->getModules() as $module) {
@@ -34,7 +34,7 @@ class ModelController extends Controller{
 		$this->render(['data' => $customFieldModels, 'success' => true]);
 	}
 	
-	protected function actionRead($modelName = null, $returnProperties = "") {
+	public function actionRead($modelName = null, $returnProperties = "") {
 		$currentModule = false;
 		
 		

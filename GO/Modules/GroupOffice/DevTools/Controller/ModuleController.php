@@ -83,7 +83,7 @@ EOD;
 	 * 
 	 * @param type $tablePrefix
 	 */
-	protected function actionInit($tablePrefix) {
+	public function actionInit($tablePrefix) {
 
 //		$className = \GO\Modules\GroupOffice\DevTools\Model\RecordTest::class;
 //		$className = \GO\Core\Users\Model\User::class;

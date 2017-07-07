@@ -27,7 +27,7 @@ class FieldController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($fieldId = null, $returnProperties = "") {
+	public function actionRead($fieldId = null, $returnProperties = "") {
 
 		$field = Field::findByPk($fieldId);
 
@@ -44,7 +44,7 @@ class FieldController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($fieldSetId, $returnProperties = "") {
+	public function actionNew($fieldSetId, $returnProperties = "") {
 
 		$field = new Field();
 		$field->fieldSetId = $fieldSetId;
@@ -63,7 +63,7 @@ class FieldController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where=null) {
+	public function actionStore($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where=null) {
 
 
 		$query = (new Query())

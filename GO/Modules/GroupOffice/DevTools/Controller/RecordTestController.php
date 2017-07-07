@@ -11,7 +11,7 @@ use GO\Modules\GroupOffice\DevTools\Model\Record;
  * RecordTest: 
  */
 class RecordTestController extends Controller {
-	protected function actionBenchmark() {
+	public function actionBenchmark() {
 //		
 		GO()->getDbConnection()->query('TRUNCATE TABLE dev_tools_record_test');
 		GO()->getDbConnection()->query('TRUNCATE TABLE dev_tools_record');
@@ -103,7 +103,7 @@ class RecordTestController extends Controller {
 		return " = ".var_export($column->default, true);
 	}
 	
-	protected function actionConvert() {
+	public function actionConvert() {
 		
 //		$className = \GO\Modules\GroupOffice\DevTools\Model\RecordTest::class;
 //		$className = \GO\Core\Users\Model\User::class;

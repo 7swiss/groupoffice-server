@@ -37,7 +37,7 @@ class ProjectController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($parent_project_id = 0, $orderColumn = 'path', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function actionStore($parent_project_id = 0, $orderColumn = 'path', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -63,7 +63,7 @@ class ProjectController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function actionNew($returnProperties = "") {
 
 		$project = new GO_Advprojects_Model_Project();
 		
@@ -86,7 +86,7 @@ class ProjectController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($projectId = null, $returnProperties = "") {
+	public function actionRead($projectId = null, $returnProperties = "") {
 		$project = GO_Advprojects_Model_Project::model()->findByPk($projectId);
 
 
