@@ -177,5 +177,7 @@ class AccountController extends Controller {
 	
 	public function syncAll() {
 		Account::syncAll();
+		
+		$this->render();
 	}
 }
