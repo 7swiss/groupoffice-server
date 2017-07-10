@@ -27,7 +27,6 @@ class AuthController extends Controller {
 	
 	public function options($route) {
 		//Allow all origins		
-		
 
 		$this->render();
 		
