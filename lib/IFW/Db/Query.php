@@ -19,7 +19,7 @@ class Query extends Criteria {
 
 	private $distinct;
 	
-	private $select;
+	private $select = [];
 	
 	private $orderBy;	
 	
@@ -254,8 +254,13 @@ class Query extends Criteria {
 	 * @param string|array $select
 	 * @return static
 	 */
-	public function select($select = '*') {
-		$this->select = $select;
+	public function select($select = '*', $append = true) {
+		if(!is_array($select)) {
+			$select = [$select];
+		}
+		
+		$this->select = $append ? array_merge($this->select, $select) : $select;
+		
 		return $this;
 	}
 	

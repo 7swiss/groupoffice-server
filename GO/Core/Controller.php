@@ -103,7 +103,8 @@ abstract class Controller extends IFWController {
 		}
 		
 		$output = $this->render([
-				'data' => $store->toArray()
+				'data' => $store->toArray(),
+				'count' => count($store)
 						]);
 		
 		//generate an ETag for HTTP Caching
@@ -112,6 +113,8 @@ abstract class Controller extends IFWController {
 		
 		return $output;
 	}
+	
+	
 	
 	
 }

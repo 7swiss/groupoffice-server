@@ -335,24 +335,13 @@ class QueryBuilder {
 	protected function buildSelectFields() {
 		$select = "SELECT ";		
 
-		//		if ($this->_query->calcFoundRows && $this->_query->limit > 0) {
-		//			$select .= "SQL_CALC_FOUND_ROWS ";
-		//		}
-
 		if ($this->query->getDistinct()) {
 			$select .= "DISTINCT ";
 		}
 
 		$s = $this->query->getSelect();
-		if (!empty($s)) {
-			if (is_array($s)) {
-				foreach ($s as $attr) {
-					$select .= $this->quoteTableAndColumnName($attr) . ', ';
-				}
-				$select = trim($select, ', ');
-			} else {
-				$select .= $s;
-			}
+		if (!empty($s)) {			
+			$select .= implode(', ', $s);
 		} else {
 			$select .= $this->query->getTableAlias() . '.*';
 		}

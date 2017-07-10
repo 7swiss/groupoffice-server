@@ -89,6 +89,21 @@ class Query extends DbQuery {
 		return false;
 	}
 	
+	/**
+	 * Used for count queries where we need a copy of the query object but only do "select count(*) ..."
+	 * 
+	 * return self
+	 */
+	public function rejoinRelationsWithoutSelect() {
+		for($i = 0, $c = count($this->joins);$i < $c; $i++) {
+			if($this->joins[$i][0]=='relation') {
+				$this->joins[$i][1]['selectAttributes'] = false;
+			}
+		}
+		
+		return $this;
+	}
+	
 	private $recordClassName;
 	
 	
@@ -98,13 +113,18 @@ class Query extends DbQuery {
 	 * Do not use this directly. This will be applied automatically by {@see Record::find()}
 	 * 
 	 * @param type $recordClassName
-	 * @return type
+	 * @return self
 	 */
 	public function setRecordClassName($recordClassName) {
 		$this->recordClassName = $recordClassName;
 		return $this->from($recordClassName::tableName());
 	}
 	
+	/**
+	 * The record class to fetch
+	 * 
+	 * @return string
+	 */
 	public function getRecordClassName() {
 		return $this->recordClassName;
 	}
@@ -120,7 +140,7 @@ class Query extends DbQuery {
 			//set fetch mode to fetch Record objects
 			if(is_a($this->recordClassName, PropertyRecord::class, true)) {
 				if($this->getRelationFromRecord() == null) {
-					throw new \Exception($this->recordClassName.' is a propery and can\'t be queried directly');
+					throw new \Exception($this->recordClassName.' is a property and can\'t be queried directly');
 				}
 			}
 				
@@ -137,7 +157,7 @@ class Query extends DbQuery {
 	 * Set values to be passed to the Record constructor
 	 * 
 	 * @param array $values
-	 * @return $this
+	 * @return self
 	 */
 	public function setValues(array $values) {
 		$this->recordConstructorArgs[2] = $values;
@@ -183,7 +203,7 @@ class Query extends DbQuery {
 	 * 
 	 * 
 	 * @param string[] $allowedPermissionTypes An array of permission types defined in the constants.
-	 * @return static
+	 * @return self
 	 */
 	public function allowPermissionTypes(array $allowedPermissionTypes) {
 		$this->recordConstructorArgs[1] = $allowedPermissionTypes;		
