@@ -54,6 +54,12 @@ class Field extends Record {
 	public $type;
 
 	/**
+	 * Hint text for the customfield
+	 * @var string
+	 */
+	public $hintText;
+
+	/**
 	 * The name presented to the user.
 	 * @var string
 	 */							
