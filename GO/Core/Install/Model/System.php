@@ -21,17 +21,8 @@ class System extends Model {
 	 * @return boolean
 	 */
 	public static function isDatabaseInstalled() {
-
-		if(\IFW::app()->getCache()->get('System::isDatabaseInstalled')) {
-			return true;
-		}
-
 		try {
 			$isDbInstalled = IFW::app()->getDbConnection()->getPDO() && Utils::tableExists('modules_module');
-			
-			if($isDbInstalled) {
-				\IFW::app()->getCache()->set('System::isDatabaseInstalled', true);
-			}
 		} catch (PDOException $e) {
 			$isDbInstalled = false;
 		}
@@ -59,7 +50,7 @@ class System extends Model {
 		$admin = User::findByPk(1);
 		\GO()->getAuth()->setCurrentUser($admin);
 
-		$this->installCronJob();
+		
 
 
 		//Install all modules that should auto install
@@ -81,6 +72,8 @@ class System extends Model {
 
 		
 		IFW::app()->reinit();
+		
+		$this->installCronJob();
 
 		return true;
 	}
