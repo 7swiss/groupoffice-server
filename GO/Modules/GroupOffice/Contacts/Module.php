@@ -28,6 +28,11 @@ class Module extends InstallableModule{
 	}
 	
 	
+	public function autoInstall() {
+		return true;
+	}
+	
+	
 	public function depends() {
 		return [
 //			\GO\Modules\GroupOffice\Email\Module::class, //for activity view

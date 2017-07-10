@@ -20,7 +20,7 @@ class Module extends InstallableModule {
 	}
 
 	public function autoInstall() {
-		return false;
+		return true;
 	}
 
 	public static function defineWebRoutes(Router $router) {
@@ -43,5 +43,7 @@ class Module extends InstallableModule {
 			->post('drives', 'create')
 			->post('drives/:id/mount', 'mount');
 	}
+	
+	
 
 }

@@ -75,4 +75,8 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 			->get('account', 'store');
 	}
 	
+	public function autoInstall() {
+		return true;
+	}
+	
 }
