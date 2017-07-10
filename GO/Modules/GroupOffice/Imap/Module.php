@@ -28,5 +28,9 @@ class Module extends InstallableModule {
 		\GO\Modules\GroupOffice\Messages\Module::class
 		];
 	}
+	
+	public function autoInstall() {
+		return true;
+	}
 }
 

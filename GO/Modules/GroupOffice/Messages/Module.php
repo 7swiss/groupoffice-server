@@ -29,4 +29,8 @@ class Module extends InstallableModule {
 						->get('messages/tags', 'tags');
 		
 	}
+	
+	public function autoInstall() {
+		return true;
+	}
 }
