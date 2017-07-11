@@ -188,8 +188,12 @@ class Router extends IFW\Router {
 		$cur['methods'][$method] = [
 				'controller' => $controller,
 				'action' => $action,
-				'moduleName' => $moduleName];
+				'moduleName' => $moduleName,
+				'params' => $this->getActionParams($controller, $action)
+				];
 	}
+	
+	
 
 	public function getInterfaceType() {
 		return 'Web';
@@ -266,13 +270,16 @@ class Router extends IFW\Router {
 
 		$this->routeParams = $routeParams;
 
-		$params = array_merge($this->routeParams, $_GET);
+		$requestParams = array_merge($this->routeParams, $_GET);
 
 		$controller = new $action['controller'];
-		$controller->run(strtolower($action['action']), $params);
+		$this->callAction($controller, $action['action'], $action['params'], $requestParams);
 
 		return true;
 	}
+	
+	
+	
 
 	/**
 	 * 

@@ -53,8 +53,24 @@ class Store extends \IFW\Data\Store {
 	}
 
 	/**
-	 * Counts the records in the result.
+	 * Counts the records in the store.
 	 * 
+	 * When a limit is used it will count the records without the limit by doing a count(*) query based on the orginal query object.
+	 * 
+	 * @return int
+	 */
+	public function count() {
+		if($this->getQuery()->getLimit() == 0) {
+			return $this->getIterator()->rowCount();
+		} else
+		{	
+			$countQuery = clone $this->query;
+			return $countQuery->limit(0)->offset(0)->orderBy([])->rejoinRelationsWithoutSelect()->fetchSingleValue('count(*)')->createCommand()->execute()->fetch();
+		}
+	}
+	
+	/**
+	 * Count the records fetched by PDO
 	 * @return int
 	 */
 	public function getRowCount() {
@@ -291,4 +307,5 @@ class Store extends \IFW\Data\Store {
 	public function __clone() {
 		$this->query = clone $this->query;
 	}
+	
 }

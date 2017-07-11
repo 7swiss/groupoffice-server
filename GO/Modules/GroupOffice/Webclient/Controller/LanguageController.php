@@ -16,7 +16,7 @@ class LanguageController extends Controller {
 	 * @param type $lang
 	 * @param type $root
 	 */
-	public function actionUpdateAll($root, $lang) {
+	public function updateAll($root, $lang) {
 		$this->lang = $lang;
 
 		$this->webclientRoot = realpath($root);
@@ -107,7 +107,7 @@ class LanguageController extends Controller {
 			return array_map('stripslashes', $keys);
 	}
 	
-	public function actionUpdateFile($langFile) {
+	public function updateFile($langFile) {
 
 //		chdir($this->webclientRoot.'/app/'.dirname(dirname($langFile)));
 
@@ -153,7 +153,7 @@ class LanguageController extends Controller {
 	 * @param type $root
 	 * @param type $output
 	 */
-	public function actionExportCsv($lang, $root, $output) {
+	public function exportCsv($lang, $root, $output) {
 		$cmd = 'find '. escapeshellarg($root).' -type f -name '.$lang.'.js';
 		
 		exec($cmd, $langFiles, $return_var);
@@ -180,7 +180,7 @@ class LanguageController extends Controller {
 	 * @param type $root
 	 * @param type $input
 	 */
-	public function actionImportCsv($root, $input) {
+	public function importCsv($root, $input) {
 		$fp = fopen($input, 'r');
 		
 		while($record = fgetcsv($fp)) {

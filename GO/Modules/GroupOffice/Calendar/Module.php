@@ -54,7 +54,7 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 		
 		$router->addRoutesFor(EventController::class)
 			->get('event', 'store') // filterable by calendars
-			->get('event/:calendarId/0', 'new')
+			->get('event/:calendarId/0', 'newInstance')
 			->get('event/:calendarId/:eventId/download', 'download')
 			->get('event/:calendarId/:eventId', 'read')
 			->put('event/:calendarId/:eventId', 'update')
@@ -65,7 +65,7 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 
 		$router->addRoutesFor(CalendarController::class)
 			->get('calendar', 'store')
-			->get('calendar/0','new')
+			->get('calendar/0','newInstance')
 			->get('calendar/:id','read')
 			->put('calendar/:id', 'update')
 			->post('calendar', 'create')
@@ -73,6 +73,10 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 
 		$router->addRoutesFor(UserController::class)
 			->get('account', 'store');
+	}
+	
+	public function autoInstall() {
+		return true;
 	}
 	
 }

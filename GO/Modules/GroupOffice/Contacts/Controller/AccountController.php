@@ -14,7 +14,7 @@ namespace GO\Modules\GroupOffice\Contacts\Controller;
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
 class AccountController extends \GO\Core\Controller {
-	public function actionStore() {
+	public function store() {
 		$query = (new Query())
 						->orderBy(['t.name' => 'ASC']);
 						

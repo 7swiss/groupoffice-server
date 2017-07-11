@@ -13,7 +13,7 @@ class Module extends InstallableModule {
 		
 		Controller\AnnouncementController::routes()
 				->get('announcements', 'store')
-				->get('announcements/0','new')
+				->get('announcements/0','newInstance')
 				->get('announcements/:announcementId','read')
 				->put('announcements/:announcementId', 'update')
 				->post('announcements', 'create')

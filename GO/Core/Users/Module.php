@@ -25,7 +25,7 @@ class Module extends InstallableModule {
 	
 		$router->addRoutesFor(UserController::class)
 						->get('auth/users', 'store')
-						->get('auth/users/0', 'new')
+						->get('auth/users/0', 'newInstance')
 						->get('auth/users/:userId', 'read')
 						->put('auth/users/:userId', 'update')
 						->post('auth/users', 'create')
@@ -40,7 +40,7 @@ class Module extends InstallableModule {
 		
 		$router->addRoutesFor(GroupController::class)
 						->get('auth/groups', 'store')
-						->get('auth/groups/0', 'new')
+						->get('auth/groups/0', 'newInstance')
 						->get('auth/groups/:groupId', 'read')
 						->put('auth/groups/:groupId', 'update')
 						->post('auth/groups', 'create')

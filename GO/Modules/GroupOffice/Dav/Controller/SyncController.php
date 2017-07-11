@@ -12,7 +12,7 @@ class SyncController extends Controller {
 		return true;
 	}
 
-	protected function actionTest() {
+	public function test() {
 		
 		$account = \GO\Modules\GroupOffice\Dav\Model\Account::find(['username' => 'test'])->single();
 		

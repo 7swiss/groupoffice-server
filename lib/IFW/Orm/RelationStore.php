@@ -309,26 +309,26 @@ class RelationStore extends Store implements ArrayAccess {
 		$this->reset();
 	}
 	
-//	/**
-//	 * Add a new modified record
-//	 * 
-//	 * Normally you'd just push a new record or record attributes to the array:
-//	 * ```````````````````````````````````````````````````````````````````````````
-//	 * $model->relation[] = $new;
-//	 * ```````````````````````````````````````````````````````````````````````````
-//	 * 
-//	 * But this function returns the normalized model for further operation.
-//	 * 
-//	 * See {@see Relation::setQuery} for example code.
-//	 * 
-//	 * @param mixed $value
-//	 * @return Record
-//	 */
-//	public function add($value) {
-//		$value = $this->normalize($value);		
-//		$this->modified[] = $value;		
-//		return $value;
-//	}
+	/**
+	 * Add a new modified record
+	 * 
+	 * Normally you'd just push a new record or record attributes to the array:
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * $model->relation[] = $new;
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * 
+	 * But this function returns the normalized model for further operation.
+	 * 
+	 * See {@see Relation::setQuery} for example code.
+	 * 
+	 * @param mixed $value
+	 * @return Record
+	 */
+	public function add($value) {
+		$value = $this->normalize($value);		
+		$this->modified[] = $value;		
+		return $value;
+	}
 	
 	private function applyKeys(Record $newToRecord) {		
 		

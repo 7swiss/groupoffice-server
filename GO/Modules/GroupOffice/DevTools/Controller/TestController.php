@@ -6,7 +6,7 @@ use GO\Modules\GroupOffice\Contacts\Model\Contact;
 use GO\Modules\GroupOffice\Contacts\Model\EmailAddress;
 
 class TestController extends Controller {
-	public function actionTest() {
+	public function test() {
 		$contact = new Contact();
 		
 		$contact->name = 'test';

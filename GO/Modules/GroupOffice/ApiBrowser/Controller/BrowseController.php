@@ -36,7 +36,7 @@ class BrowseController extends Controller{
 		return $controllers;
 	}
 	
-	public function actionControllers(){
+	public function controllers(){
 		
 		$classes = $this->_getControllerClasses();
 		

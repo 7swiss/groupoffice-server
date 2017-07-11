@@ -83,14 +83,14 @@ EOD;
 	 * 
 	 * @param type $tablePrefix
 	 */
-	protected function actionInit($tablePrefix) {
+	public function init($tablePrefix) {
 
 //		$className = \GO\Modules\GroupOffice\DevTools\Model\RecordTest::class;
 //		$className = \GO\Core\Users\Model\User::class;
 //		$this->convertClass($className);
 //		
 //		exit();
-
+	
 		$folder = new Folder(getcwd());
 		$folder->getFolder('Model')->create();
 		$folder->getFolder('Controller')->create();

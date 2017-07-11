@@ -18,15 +18,18 @@ class Module extends InstallableModule{
 		$router->addRoutesFor(ContactController::class)
 				->crud('contacts','contactId')
 				->get('contacts/:contactId/vcard','vcard')
-				->get('contacts/import/:blobId','import')
-				->get('contacts/filters', 'filters')
+				->get('contacts/import/:blobId','import')				
 				->get('contacts/byuser/:userId','readByUser');
 		
 		$router->addRoutesFor(Controller\CommentController::class)
 						->crud('contacts/:contactId/comments', 'commentId');
 		
-		$router->addRoutesFor(Controller\AddressBookController::class)
-						->crud('contacts/address-books', 'addressBookId');
+
+	}
+	
+	
+	public function autoInstall() {
+		return true;
 	}
 	
 	

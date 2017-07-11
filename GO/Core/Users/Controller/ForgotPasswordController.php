@@ -37,7 +37,7 @@ class ForgotPasswordController extends Controller {
 	 * @param string $email
 	 * @throws NotFound
 	 */
-	public function actionSend($email) {
+	public function send($email) {
 		
 		$user = \GO()->getAuth()->sudo(function() use ($email) {
 			return User::find(['OR','LIKE', ['email'=>$email, 'emailSecondary'=>$email]])->single();
@@ -69,7 +69,7 @@ class ForgotPasswordController extends Controller {
 	}
 	
 	
-	public function actionResetPassword($userId, $token) {
+	public function resetPassword($userId, $token) {
 		$user = \GO()->getAuth()->sudo(function() use ($userId, $token) {
 			$user = User::findByPk($userId);
 			

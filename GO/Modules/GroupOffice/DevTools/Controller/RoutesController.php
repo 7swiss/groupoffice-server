@@ -7,11 +7,11 @@ use GO\Core\Controller;
 
 class RoutesController extends Controller {
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 
-	public function actionMarkdown() {
+	public function markdown() {
 		//{@link http://intermesh.nl description}		
 		
 		header('Content-Type: text/plain');

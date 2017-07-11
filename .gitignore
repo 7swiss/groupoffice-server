@@ -1,6 +1,7 @@
 build
 vendor
 /config.php
+/config.php.bak
 data
 nbproject/private
 /docs/apigen/

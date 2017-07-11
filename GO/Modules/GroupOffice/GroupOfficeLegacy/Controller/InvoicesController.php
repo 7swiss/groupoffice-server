@@ -35,7 +35,7 @@ class InvoicesController extends Controller {
 	
 	protected $contactsAccountId;
 	
-	public function actionSync() {
+	public function sync() {
 		
 		GO()->logSuspend();
 		Notification::suspend();

@@ -18,7 +18,7 @@ use IFW\Exception\NotFound;
  */
 class JobController extends Controller {
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		
 		if(!GO()->getAuth()->user()->isAdmin()) {
 			return false;
@@ -28,7 +28,7 @@ class JobController extends Controller {
 	}
 	
 	
-	protected function actionRun() {
+	public function run() {
 		
 		//Will run all jobs sequentially. Maybe it should spawn a new cron process to run simultanuously?
 		while(Job::runNext()){
@@ -50,7 +50,7 @@ class JobController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
+	public function store($orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -74,7 +74,7 @@ class JobController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$user = new Job();
 
@@ -96,7 +96,7 @@ class JobController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($jobId = null, $returnProperties = "") {
+	public function read($jobId = null, $returnProperties = "") {
 		$job = Job::findByPk($jobId);
 
 
@@ -120,7 +120,7 @@ class JobController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$job = new Job();
 		$job->setValues(GO()->getRequest()->body['data']);
@@ -144,7 +144,7 @@ class JobController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($jobId, $returnProperties = "") {
+	public function update($jobId, $returnProperties = "") {
 
 		$job = Job::findByPk($jobId);
 
@@ -164,7 +164,7 @@ class JobController extends Controller {
 	 * @param int $jobId
 	 * @throws NotFound
 	 */
-	public function actionDelete($jobId) {
+	public function delete($jobId) {
 		$job = Job::findByPk($jobId);
 
 		if (!$job) {

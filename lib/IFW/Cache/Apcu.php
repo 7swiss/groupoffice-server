@@ -4,7 +4,7 @@ namespace IFW\Cache;
 
 use IFW;
 use IFW\Cache\CacheInterface;
-use IFW\Fs\File;
+
 
 /**
  * Cache implementation that uses serialized objects in files on disk.
@@ -14,20 +14,12 @@ use IFW\Fs\File;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Disk implements CacheInterface {
+class Apcu implements CacheInterface {
 
 
-	private $folder;
-	
+
 	private $cache;
 
-	public function __construct() {
-		$this->folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
-//		if(!$this->folder->exists()) {
-//			$this->folder->create();
-//			$this->folder->chmod(0777);
-//		}
-	}
 
 	
 
@@ -44,10 +36,9 @@ class Disk implements CacheInterface {
 		if ($key === false)
 			return true;
 
-		$key = File::stripInvalidChars($key, '-');		
+		
 		if($persist) {
-			$file = $this->folder->getFile($key);
-			$file->putContents(serialize($value));
+			apcu_store($key, $value);
 		}
 		
 		$this->cache[$key] = $value;
@@ -59,31 +50,20 @@ class Disk implements CacheInterface {
 	 * @param string $key 
 	 * @return mixed null if it doesn't exist
 	 */
-	public function get($key) {
-
-		$key = File::stripInvalidChars($key, '-');
-		
+	public function get($key) {		
 		if(isset($this->cache[$key])) {
 			return $this->cache[$key];
 		}
+		$success = false;
 		
-		$file = $this->folder->getFile($key);
-
-		if (!$file->exists()) {
-			return null;
-		} 
+		$value = apcu_fetch($key, $success);
 		
-		$serialized = $file->getContents();
-
-		$this->cache[$key] = unserialize($serialized);
-
-		if ($this->cache[$key] === false) {
-			trigger_error("Could not unserialize cache from file " . $key.' data: '.var_export($serialized, true));
-			$this->delete($key);
+		if(!$success) {
 			return null;
-		} else {
-			return $this->cache[$key];
-		}		
+		}
+		
+		$this->cache[$key] = $value;
+		return $this->cache[$key];		
 	}
 
 	/**
@@ -91,13 +71,9 @@ class Disk implements CacheInterface {
 	 * 
 	 * @param string $key 
 	 */
-	public function delete($key) {
-		$key = File::stripInvalidChars($key, '-');
-		
+	public function delete($key) {		
 		unset($this->cache[$key]);
-
-		$file = $this->folder->getFile($key);
-		$file->delete();
+		apcu_delete($key);
 	}
 
 	private $flushOnDestruct = false;
@@ -119,13 +95,12 @@ class Disk implements CacheInterface {
 			return true;
 		}
 		
-		\IFW::app()->debug("Flush cache");
+		IFW::app()->debug("Flush cache");
 		$this->cache = [];
-	
-		$this->folder->delete();
-		$this->folder->create(0777);
+//	var_dump(apcu_cache_info());
+		apcu_clear_cache();
 		
-		return true;
+		
 	}
 
 	public function __destruct() {
@@ -135,18 +110,7 @@ class Disk implements CacheInterface {
 	}
 
 	public function isSupported() {
-		$folder = IFW::app()->getConfig()->getDataFolder()->getFolder('diskcache');
-		
-		if(!$folder->isWritable()) {
-			throw new \Exception("diskcache folder is not writable!");
-		}
-		
-		if(!$folder->exists()) {
-			$folder->create();
-			$folder->chmod(0777);
-		}
-		
-		return true;
+		return extension_loaded('apcu');
 	}
 
 }

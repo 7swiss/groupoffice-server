@@ -27,7 +27,7 @@ class UserController extends Controller {
 		return $fc;
 	}
 
-	public function actionFilters() {
+	public function filters() {
 		$this->render($this->getFilterCollection()->toArray());
 	}
 
@@ -43,7 +43,7 @@ class UserController extends Controller {
 	 * @param string $where {@see \IFW\Db\Criteria::whereSafe()}
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'username', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -73,7 +73,7 @@ class UserController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($userId = null, $returnProperties = "") {
+	public function read($userId = null, $returnProperties = "") {
 
 		if ($userId === "current") {
 			$user = \GO()->getAuth()->user();
@@ -96,7 +96,7 @@ class UserController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$user = new User();
 
@@ -116,7 +116,7 @@ class UserController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$user = new User();
 		$user->setValues(GO()->getRequest()->body['data']);
@@ -140,7 +140,7 @@ class UserController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($userId, $returnProperties = "") {
+	public function update($userId, $returnProperties = "") {
 
 		if ($userId === "current") {
 			$user = \GO()->getAuth()->user();
@@ -173,7 +173,7 @@ class UserController extends Controller {
 	 * @param int $userId
 	 * @throws NotFound
 	 */
-	public function actionDelete($userId) {
+	public function delete($userId) {
 		$user = User::findByPk($userId);
 
 		if (!$user) {
@@ -190,7 +190,7 @@ class UserController extends Controller {
 	 * @param int $userId
 	 * @throws NotFound
 	 */
-	public function actionChangePassword($userId) {
+	public function changePassword($userId) {
 		$user = User::findByPk($userId);
 		if (!$user) {
 			throw new NotFound();
@@ -207,7 +207,7 @@ class UserController extends Controller {
 //	 * @param string $email
 //	 * @throws NotFound
 //	 */
-//	public function actionForgotPassword($email) {
+//	public function forgotPassword($email) {
 //		$user = User::find(['OR','LIKE', ['email'=>$email, 'emailSecondary'=>$email]])->single();
 //		
 //		if (!$user) {

@@ -22,13 +22,13 @@ use IFW\Orm\Query;
  *		  return new \GO\Core\Auth\Permissions\Model\GroupPermissions(ContactGroup::class);
  *	  }	
  * 		``````````````````````````````````````````````````````````````````````````
- * 4. Define a 'groups' relation to the new GroupAccess record in the record you 
+ * 4. Define a 'groups' relation to the record in the record you 
  *		want to secure in function defineRelations():
  *		``````````````````````````````````````````````````````````````````````````
  *		self::hasMany('groups', ContactGroup::class, ['id' => 'contactId']);
  *		``````````````````````````````````````````````````````````````````````````
- * 5. By default there are the properties write and delete. If you don't add them
- *		to your database they will always be false.
+ * 5. By default there is a 'write' property. If you don't add this
+ *		field to your database 'write' access will always be false.
  * 
  */
 class GroupPermissions extends Model {	

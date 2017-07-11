@@ -15,7 +15,7 @@ use IFW\Exception\NotFound;
  */
 class CssController extends Controller {
 
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 	
@@ -37,7 +37,7 @@ class CssController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionDownload() {			
+	public function download() {			
 		
 		GO()->getResponse()->setContentType('text/css');
 		

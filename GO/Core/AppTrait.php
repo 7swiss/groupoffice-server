@@ -48,6 +48,8 @@ trait AppTrait {
 		}
 		return $this->moduleCollection;
 	}
+	
+	private $settings;
 
 	/**
 	 * Get the system wide settings record
@@ -55,12 +57,15 @@ trait AppTrait {
 	 * @return Settings
 	 */
 	public function getSettings() {
-		$record = Settings::find()->single();
-		if (!$record) {
-			$record = new Settings();
+		
+		if(!isset($this->settings)) {
+			$this->settings = Settings::find()->single();
+			if (!$this->settings) {
+				$this->settings = new Settings();
+			}
 		}
 
-		return $record;
+		return $this->settings;
 	}
 	
 	
@@ -102,11 +107,6 @@ trait AppTrait {
 		
 		$log->type = $type;
 		$log->description = $description;
-		$log->moduleName = $record->findModuleName();
-//		var_dump($log->moduleName);
-		if(!$log->moduleName) {
-			throw new Exception("Module not found for ".$record->getClassName());
-		}
 
 		if (!$log->save()) {
 			throw new Exception("Could not save log entry: " . var_export($log->getValidationErrors(), true));

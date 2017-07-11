@@ -28,7 +28,7 @@ class AccountCollectionsController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -55,7 +55,7 @@ class AccountCollectionsController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new AccountCollections();
 
@@ -76,7 +76,7 @@ class AccountCollectionsController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($accountCollectionsId = null, $returnProperties = "") {	
+	public function read($accountCollectionsId = null, $returnProperties = "") {	
 		$accountCollections = AccountCollections::findByPk($accountCollectionsId);
 
 
@@ -101,7 +101,7 @@ class AccountCollectionsController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$accountCollections = new AccountCollections();
 		$accountCollections->setValues(GO()->getRequest()->body['data']);
@@ -125,7 +125,7 @@ class AccountCollectionsController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($accountCollectionsId, $returnProperties = "") {
+	public function update($accountCollectionsId, $returnProperties = "") {
 
 		$accountCollections = AccountCollections::findByPk($accountCollectionsId);
 
@@ -145,7 +145,7 @@ class AccountCollectionsController extends Controller {
 	 * @param int $accountCollectionsId
 	 * @throws NotFound
 	 */
-	public function actionDelete($accountCollectionsId) {
+	public function delete($accountCollectionsId) {
 		$accountCollections = AccountCollections::findByPk($accountCollectionsId);
 
 		if (!$accountCollections) {
@@ -168,7 +168,7 @@ class AccountCollectionsController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

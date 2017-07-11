@@ -12,7 +12,6 @@ class Module extends InstallableModule {
 		
 		$router->addRoutesFor(ThreadController::class)
 						->crud('messages/threads', 'threadId')
-						->delete('messages/threads', 'multiDelete')
 						->get('messages/threads/:threadId/messages', 'messages')
 						->delete('messages/trash', 'emptyTrash')
 						->delete('messages/junk', 'emptyJunk');
@@ -29,5 +28,9 @@ class Module extends InstallableModule {
 						->get('messages/accounts', 'store')
 						->get('messages/tags', 'tags');
 		
+	}
+	
+	public function autoInstall() {
+		return true;
 	}
 }

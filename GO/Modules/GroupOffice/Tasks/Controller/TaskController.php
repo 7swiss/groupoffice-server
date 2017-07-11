@@ -33,7 +33,7 @@ class TaskController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($orderColumn = 't.dueAt', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 't.dueAt', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 		
 		$query = (new Query)
 				->limit($limit)
@@ -63,7 +63,7 @@ class TaskController extends Controller {
 	}
 	
 	
-	protected function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		$task = new Task();
 		$this->renderModel($task, $returnProperties);
 	}
@@ -83,7 +83,7 @@ class TaskController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($taskId, $returnProperties = "*"){
+	public function read($taskId, $returnProperties = "*"){
 		
 		$task = Task::findByPk($taskId);
 		
@@ -108,7 +108,7 @@ class TaskController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 		
 		$task = new Task();		
 		$task->setValues(GO()->getRequest()->body['data']);
@@ -132,7 +132,7 @@ class TaskController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($taskId, $returnProperties = "") {
+	public function update($taskId, $returnProperties = "") {
 
 		$task = Task::findByPk($taskId);
 
@@ -152,7 +152,7 @@ class TaskController extends Controller {
 	 * @param int $taskId
 	 * @throws NotFound
 	 */
-	public function actionDelete($taskId) {
+	public function delete($taskId) {
 		$task = Task::findByPk($taskId);
 
 		if (!$task) {
@@ -176,7 +176,7 @@ class TaskController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		
@@ -203,7 +203,7 @@ class TaskController extends Controller {
 	}
 	
 	
-	public function actionAssignees () {
+	public function assignees () {
 		
 		$groups = Group::find(
 						(new Query())

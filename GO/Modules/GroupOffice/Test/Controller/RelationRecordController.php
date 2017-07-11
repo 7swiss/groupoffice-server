@@ -28,7 +28,7 @@ class RelationRecordController extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -55,7 +55,7 @@ class RelationRecordController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new RelationRecord();
 
@@ -76,7 +76,7 @@ class RelationRecordController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($relationRecordId = null, $returnProperties = "") {	
+	public function read($relationRecordId = null, $returnProperties = "") {	
 		$relationRecord = RelationRecord::findByPk($relationRecordId);
 
 
@@ -101,7 +101,7 @@ class RelationRecordController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$relationRecord = new RelationRecord();
 		$relationRecord->setValues(GO()->getRequest()->body['data']);
@@ -125,7 +125,7 @@ class RelationRecordController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($relationRecordId, $returnProperties = "") {
+	public function update($relationRecordId, $returnProperties = "") {
 
 		$relationRecord = RelationRecord::findByPk($relationRecordId);
 
@@ -145,7 +145,7 @@ class RelationRecordController extends Controller {
 	 * @param int $relationRecordId
 	 * @throws NotFound
 	 */
-	public function actionDelete($relationRecordId) {
+	public function delete($relationRecordId) {
 		$relationRecord = RelationRecord::findByPk($relationRecordId);
 
 		if (!$relationRecord) {
@@ -168,7 +168,7 @@ class RelationRecordController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

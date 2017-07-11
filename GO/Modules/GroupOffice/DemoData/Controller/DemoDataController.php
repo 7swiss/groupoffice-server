@@ -13,11 +13,11 @@ use function GO;
 
 class DemoDataController extends Controller {
 
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 
-	public function actionCreate() {
+	public function create() {
 
 		GO()->getAuth()->sudo(function() {
 

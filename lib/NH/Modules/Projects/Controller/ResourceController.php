@@ -37,7 +37,7 @@ class ResourceController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($projectId = 0, $orderColumn = 'user_id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function store($projectId = 0, $orderColumn = 'user_id', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -63,7 +63,7 @@ class ResourceController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($projectId, $returnProperties = "") {
+	public function newInstance($projectId, $returnProperties = "") {
 
 		$resource = new GO_Advprojects_Model_Resource();
 		$resource->project_id = $projectId;
@@ -87,7 +87,7 @@ class ResourceController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($resourceId = null, $returnProperties = "") {
+	public function read($resourceId = null, $returnProperties = "") {
 		$resource = GO_Advprojects_Model_Resource::model()->findByPk($resourceId);
 
 
@@ -111,7 +111,7 @@ class ResourceController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($projectId, $returnProperties = "") {
+	public function create($projectId, $returnProperties = "") {
 
 		$resource = new GO_Advprojects_Model_Resource();
 		$resource->project_id = $projectId;
@@ -136,7 +136,7 @@ class ResourceController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($resourceId, $returnProperties = "") {
+	public function update($resourceId, $returnProperties = "") {
 
 		$resource = GO_Advprojects_Model_Resource::model()->findByPk($resourceId);
 
@@ -156,7 +156,7 @@ class ResourceController extends Controller {
 	 * @param int $resourceId
 	 * @throws NotFound
 	 */
-	public function actionDelete($resourceId) {
+	public function delete($resourceId) {
 		$resource = GO_Advprojects_Model_Resource::model()->findByPk($resourceId);
 
 		if (!$resource) {

@@ -30,7 +30,7 @@ class NodeController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	public function actionStore($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name],nodeUser", $q = null) {
+	public function store($directory = null, $filter = null, $orderColumn = 't.name', $orderDirection = 'ASC', $limit = 20, $offset = 0, $searchQuery = "", $returnProperties = "*,owner[name],nodeUser", $q = null) {
 		$filter = json_decode($filter, true);
 		$query = (new Query)
 				  ->joinRelation('blob', false, 'LEFT') // folder has no size
@@ -86,7 +86,7 @@ class NodeController extends Controller {
 
 	}
 
-	protected function actionRead($id, $returnProperties = "*") {
+	public function read($id, $returnProperties = "*") {
 
 		$node = Node::findByPk($id);
 
@@ -97,7 +97,7 @@ class NodeController extends Controller {
 		$this->renderModel($node, $returnProperties);
 	}
 
-	protected function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 		$event = new Node();
 		$this->renderModel($event, $returnProperties);
 	}
@@ -108,7 +108,7 @@ class NodeController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client.
 	 * @param string[] $overwrites The uploaded filenames that should be overwritten
 	 */
-	public function actionCreate($returnProperties = "*") {
+	public function create($returnProperties = "*") {
 		$overwrites = [];
 		if(isset(IFW::app()->getRequest()->body['overwrites'])) {
 			$overwrites = array_flip(IFW::app()->getRequest()->body['overwrites']);
@@ -138,7 +138,7 @@ class NodeController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($id, $returnProperties = "*") {
+	public function update($id, $returnProperties = "*") {
 
 		$node = Node::findByPk($id);
 
@@ -154,7 +154,7 @@ class NodeController extends Controller {
 		$this->renderModel($node, $returnProperties);
 	}
 
-	public function actionMove($dirId, $copy = true) {
+	public function move($dirId, $copy = true) {
 		$nodes = Node::find(['id'=>IFW::app()->getRequest()->body['ids']]);
 		$success = true;
 		foreach($nodes as $node) {
@@ -176,7 +176,7 @@ class NodeController extends Controller {
 	 * @param int $id
 	 * @throws NotFound
 	 */
-	public function actionDelete($id, $returnProperties = "*") {
+	public function delete($id, $returnProperties = "*") {
 		$node = Node::findByPk($id);
 
 		if (!$node) {

@@ -11,7 +11,7 @@ use function GO;
 class CommentController extends Controller {
 
 
-	public function actionStore($taskId, $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($taskId, $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 		
 		$query = (new Query())
 				->limit($limit)
@@ -37,7 +37,7 @@ class CommentController extends Controller {
 	}
 	
 	
-	protected function actionNew($taskId, $returnProperties = ""){
+	public function newInstance($taskId, $returnProperties = ""){
 		$comment = new TaskComment();
 		$comment->taskId = $taskId;
 		$this->renderModel($comment, $returnProperties);
@@ -45,7 +45,7 @@ class CommentController extends Controller {
 	
 	
 
-	protected function actionRead($commentId, $returnProperties = "*"){
+	public function read($commentId, $returnProperties = "*"){
 		
 		$comment = TaskComment::findByPk($commentId);
 		
@@ -56,7 +56,7 @@ class CommentController extends Controller {
 		$this->renderModel($comment, $returnProperties);
 	}
 
-	public function actionCreate($taskId, $returnProperties = "") {
+	public function create($taskId, $returnProperties = "") {
 		
 		$comment = new TaskComment();		
 		$comment->setValues(GO()->getRequest()->body['data']);
@@ -66,7 +66,7 @@ class CommentController extends Controller {
 		$this->renderModel($comment, $returnProperties);
 	}
 
-	public function actionUpdate($commentId, $returnProperties = "") {
+	public function update($commentId, $returnProperties = "") {
 
 		$comment = TaskComment::findByPk($commentId);
 
@@ -80,7 +80,7 @@ class CommentController extends Controller {
 		$this->renderModel($comment, $returnProperties);
 	}
 
-	public function actionDelete($commentId) {
+	public function delete($commentId) {
 		$comment = TaskComment::findByPk($commentId);
 
 		if (!$comment) {

@@ -388,6 +388,10 @@ class Message extends \GO\Core\Orm\Record {
 	}
 	
 	
+	private $_body;
+//	private $_bodyWithoutQuote;
+//	private $_quote;
+	
 	
 	/**
 	 * Gets the body in HTML. Quoted replies are stripped.
@@ -403,11 +407,20 @@ class Message extends \GO\Core\Orm\Record {
 	public function getBody($replaceImages = true){		
 		
 		//cast to string as db value is null with text fields
-		$html = $this->body;		
+		if(!isset($this->_body)) {			
+			if(!isset($this->body)) {				
+				$this->_body = $this->account->getBody($this);			
+			}else
+			{
+				$this->_body = $this->body;
+			}
+			
+//			$quoteStripper = new \GO\Modules\GroupOffice\Messages\Util\QuoteStripper($this->_body);
+//			$this->_bodyWithoutQuote = $quoteStripper->getBodyWithoutQuote();
+//			$this->_quote = $quoteStripper->getQuote();
+		}
 		
-		if(!isset($html)) {				
-			$html = $this->account->getBody($this);			
-		}	
+		$html = $this->_body;
 		
 		if($replaceImages) {
 			foreach($this->attachments as $attachment){
@@ -423,6 +436,22 @@ class Message extends \GO\Core\Orm\Record {
 	public function setBody($body) {
 		$this->body = $body;
 	}
+//	
+//	public function getQuote() {
+//		if(!isset($this->_quote)) {
+//			$this->getBody();
+//		}
+//		
+//		return $this->_quote;
+//	}
+//	
+//	public function getBodyWithoutQuote() {
+//		if(!isset($this->_bodyWithoutQuote)) {
+//			$this->getBody();
+//		}
+//		
+//		return $this->_bodyWithoutQuote;
+//	}
 //	
 //	/**
 //	 * Get's the quoted text if found

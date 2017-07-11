@@ -26,4 +26,8 @@ class Module extends InstallableModule {
 						->set('webclient/language/export-csv', 'exportCsv')
 						->set('webclient/language/import-csv', 'importCsv');
 	}
+	
+	public function autoInstall() {
+		return true;
+	}
 }

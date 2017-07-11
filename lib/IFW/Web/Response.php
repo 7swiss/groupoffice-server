@@ -168,7 +168,7 @@ class Response {
 	}
 
 	public function setExpires(DateTime $expires = null) {
-		$this->setHeader("Expires", $this->expires->format('D, d M Y H:i:s'));
+		$this->setHeader("Expires", $expires->format('D, d M Y H:i:s'));
 	}
 
 	/**
@@ -219,7 +219,7 @@ class Response {
 		GO()->getResponse()->setHeader('Access-Control-Allow-Origin', '*');
 		GO()->getResponse()->setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
 		GO()->getResponse()->setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization');
-		
+		GO()->getResponse()->setHeader('Access-Control-Max-Age', "1728000");
 
 		if (isset($body)) {
 			echo $body;

@@ -10,7 +10,7 @@ class Module extends InstallableModule {
 
 	public static function defineWebRoutes(\IFW\Web\Router $router) {
 		$router->addRoutesFor(ModelController::class)
-						->get('devtools/models', 'list')
+						->get('devtools/models', 'listRecords')
 						->get('devtools/models/:modelName/props', 'props')
 						
 						->addRoute('*', 'devtools/test2', 'test', true);

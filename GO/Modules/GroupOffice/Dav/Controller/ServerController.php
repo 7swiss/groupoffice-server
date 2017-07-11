@@ -17,11 +17,11 @@ use Sabre\DAVACL\PrincipalCollection;
 
 class ServerController extends Controller {
 	
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 
-	public function actionDav() {
+	public function dav() {
 		// Backends
 		$authBackend = new BasicAuth();
 		$principalBackend = new Principal();

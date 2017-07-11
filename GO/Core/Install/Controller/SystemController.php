@@ -23,16 +23,16 @@ class SystemController extends Controller {
 	 *
 	 * @return boolean
 	 */
-	protected function checkAccess() {
+	public function checkAccess() {
 		return true;
 	}
 
 	/**
 	 * Run system tests
 	 */
-	public function actionInstall() {
+	public function install() {
 		
-		$this->lock();
+		IFW\Util\Lock::create(self::class.'-install');
 
 		$system = new System();
 
@@ -44,7 +44,7 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionCheck() {
+	public function check() {
 
 		$systemCheck = new SystemCheck();
 
@@ -54,9 +54,9 @@ class SystemController extends Controller {
 	/**
 	 * Run system tests
 	 */
-	public function actionUpgrade() {
+	public function upgrade() {
 		
-		$this->lock();
+		\IFW\Util\Lock::create(self::class.'-upgrade');
 
 		//run as admin
 		GO()->getCache()->flush(); // Sudo cant fetch user with old cache

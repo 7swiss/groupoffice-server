@@ -39,7 +39,7 @@ use Traversable;
   }
  * ```````````````````````````````````````````````````````````````````````````
  */
-class Store extends Object implements IteratorAggregate, ArrayableInterface  {
+class Store extends Object implements IteratorAggregate, ArrayableInterface, \Countable  {
 
 	/**
 	 * The traversable object in the store.
@@ -186,11 +186,11 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface  {
 		$this->getIterator()->next();
 		return $this->getIterator()->current();
 	}
-	
 
-//	
-//	public function getRecordCount() {
-////		return isset($this->_recordCount) ? $this->_recordCount : iterator_count($this->traversable);
-//	}
+	public function count() {
+		return iterator_count($this->traversable);
+	}
+
+
 
 }

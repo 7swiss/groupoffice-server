@@ -37,7 +37,7 @@ class ProjectController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($parent_project_id = 0, $orderColumn = 'path', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
+	public function store($parent_project_id = 0, $orderColumn = 'path', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "") {
 
 		$findParams = GO_Base_Db_FindParams::newInstance()
 						->order($orderColumn, $orderDirection)
@@ -63,7 +63,7 @@ class ProjectController extends Controller {
 	 * @param array $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = "") {
+	public function newInstance($returnProperties = "") {
 
 		$project = new GO_Advprojects_Model_Project();
 		
@@ -86,7 +86,7 @@ class ProjectController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($projectId = null, $returnProperties = "") {
+	public function read($projectId = null, $returnProperties = "") {
 		$project = GO_Advprojects_Model_Project::model()->findByPk($projectId);
 
 
@@ -110,7 +110,7 @@ class ProjectController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		$project = new GO_Advprojects_Model_Project();
 		$project->setValues(IFW::app()->getRequest()->body['data']);
@@ -134,7 +134,7 @@ class ProjectController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($projectId, $returnProperties = "") {
+	public function update($projectId, $returnProperties = "") {
 
 		$project = GO_Advprojects_Model_Project::model()->findByPk($projectId);
 
@@ -154,7 +154,7 @@ class ProjectController extends Controller {
 	 * @param int $projectId
 	 * @throws NotFound
 	 */
-	public function actionDelete($projectId) {
+	public function delete($projectId) {
 		$project = GO_Advprojects_Model_Project::model()->findByPk($projectId);
 
 		if (!$project) {

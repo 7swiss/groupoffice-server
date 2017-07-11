@@ -27,7 +27,7 @@ class FieldController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead($fieldId = null, $returnProperties = "") {
+	public function read($fieldId = null, $returnProperties = "") {
 
 		$field = Field::findByPk($fieldId);
 
@@ -44,7 +44,7 @@ class FieldController extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($fieldSetId, $returnProperties = "") {
+	public function newInstance($fieldSetId, $returnProperties = "") {
 
 		$field = new Field();
 		$field->fieldSetId = $fieldSetId;
@@ -63,7 +63,7 @@ class FieldController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return array JSON Model data
 	 */
-	protected function actionStore($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where=null) {
+	public function store($fieldSetId, $orderColumn = 'sortOrder', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $where=null) {
 
 
 		$query = (new Query())
@@ -97,7 +97,7 @@ class FieldController extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($fieldSetId, $returnProperties = "") {
+	public function create($fieldSetId, $returnProperties = "") {
 
 		$field = new Field();
 		$field->fieldSetId = $fieldSetId;
@@ -125,7 +125,7 @@ class FieldController extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate($fieldId, $returnProperties = "") {
+	public function update($fieldId, $returnProperties = "") {
 
 		$field = Field::findByPk($fieldId);
 
@@ -145,7 +145,7 @@ class FieldController extends Controller {
 	 * @param int $fieldId
 	 * @throws NotFound
 	 */
-	public function actionDelete($fieldId) {
+	public function delete($fieldId) {
 		$field = Field::findByPk($fieldId);
 
 		if (!$field) {
@@ -168,7 +168,7 @@ class FieldController extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

@@ -26,9 +26,9 @@ abstract class Controller extends IFWController {
 	 * @return boolean
 	 * @throws LoginRequired
 	 */
-	protected function checkAccess() {
+	public function checkAccess() {
 		
-		if(!GO()->getAuth()->isLoggedIn())
+		if(!\IFW::app()->getAuth()->isLoggedIn())
 		{
 			throw new LoginRequired();
 		}
@@ -57,7 +57,12 @@ abstract class Controller extends IFWController {
 		
 		$this->rendered = $view;
 		
-		return $view;
+		if(GO()->getEnvironment()->isCli()) {
+			echo $this->rendered;
+		}else
+		{
+			GO()->getResponse()->send($this->rendered);
+		}
 	}	
 
 	/**
@@ -75,13 +80,12 @@ abstract class Controller extends IFWController {
 		}
 
 		$response = ['data' => $model->toArray($returnProperties)];
-
+		$response['success'] = true;
+		
 		//add validation errors even when not requested		
-		if(method_exists($model, 'hasValidationErrors')){			
-			$response['success'] = !$model->hasValidationErrors();
-		}else
-		{		
-			$response['success'] = true;
+		if(method_exists($model, 'hasValidationErrors') && $model->hasValidationErrors()){			
+			$response['success'] = false;
+			GO()->getResponse()->setStatus(422, 'Record validation failed');
 		}
 		return $this->render($response);
 		
@@ -99,7 +103,8 @@ abstract class Controller extends IFWController {
 		}
 		
 		$output = $this->render([
-				'data' => $store->toArray()
+				'data' => $store->toArray(),
+				'count' => count($store)
 						]);
 		
 		//generate an ETag for HTTP Caching
@@ -109,14 +114,7 @@ abstract class Controller extends IFWController {
 		return $output;
 	}
 	
-	protected function callMethodWithParams($methodName, array $routerParams) {
-		parent::callMethodWithParams($methodName, $routerParams);
-		
-		if(GO() instanceof \IFW\Cli\App) {
-			echo $this->rendered;
-		}else
-		{
-			GO()->getResponse()->send($this->rendered);
-		}
-	}
+	
+	
+	
 }

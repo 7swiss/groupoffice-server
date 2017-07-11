@@ -47,7 +47,7 @@ class RecipientController extends Controller {
 		return $models;
 	}
 
-	public function actionStore($searchQuery = "") {
+	public function store($searchQuery = "") {
 
 		$limit = 10;
 		$alreadyFoundEmails = [];
