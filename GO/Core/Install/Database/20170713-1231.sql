@@ -1,0 +1,1 @@
+ALTER TABLE `cron_job` CHANGE `cronExpression` `cronExpression` VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'CRON Scheduling expression. See http://en.wikipedia.org/wiki/Cron';
