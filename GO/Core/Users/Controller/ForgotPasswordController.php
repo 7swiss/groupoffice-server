@@ -1,13 +1,13 @@
 <?php
 namespace GO\Core\Users\Controller;
 
-use GO\Core\Users\Model\GroupFilter;
-use GO\Core\Users\Model\User;
 use GO\Core\Controller;
 use GO\Core\Email\Model\Message;
-use IFW\Data\Filter\FilterCollection;
+use GO\Core\Users\Model\User;
+use IFW\Exception\Forbidden;
 use IFW\Exception\NotFound;
-use IFW\Orm\Query;
+use IFW\Template\VariableParser;
+use function GO;
 
 
 
@@ -22,15 +22,6 @@ use IFW\Orm\Query;
  */
 class ForgotPasswordController extends Controller {
 
-
-	public function run($action, array $routerParams) {
-		GO()->getAuth()->sudo(function() use ($action, $routerParams) {
-			parent::run($action, $routerParams);
-		});
-	}
-	
-	
-	
 	
 	/**
 	 * 
@@ -39,30 +30,32 @@ class ForgotPasswordController extends Controller {
 	 */
 	public function send($email) {
 		
-		$user = \GO()->getAuth()->sudo(function() use ($email) {
-			return User::find(['OR','LIKE', ['email'=>$email, 'emailSecondary'=>$email]])->single();
+		$numberOfRecipients = GO()->getAuth()->sudo(function() use ($email) {
+			
+			$user = User::find(['OR','LIKE', ['email'=>$email, 'emailSecondary'=>$email]])->single();		
+
+			if (!$user) {
+				throw new NotFound();
+			}
+
+			$token = $user->generateToken();
+
+			//example: "Hello {user.username}, Your token is {token}."
+			$templateParser = new VariableParser();
+			$templateParser->addModel('token', $token)
+							->addModel('user', $user);
+
+			$message = new Message(
+							GO()->getSettings()->smtpAccount, 
+							GO()->getRequest()->getBody()['subject'], 
+							$templateParser->parse(GO()->getRequest()->getBody()['body']),
+							'text/plain');
+
+			$message->setTo($email);
+
+			return $message->send();
+		
 		});
-		
-		if (!$user) {
-			throw new NotFound();
-		}
-		
-		$token = $user->generateToken();
-		
-		//example: "Hello {user.username}, Your token is {token}."
-		$templateParser = new \IFW\Template\VariableParser();
-		$templateParser->addModel('token', $token)
-						->addModel('user', $user);
-		
-		$message = new Message(
- 						GO()->getSettings()->smtpAccount, 
- 						GO()->getRequest()->getBody()['subject'], 
- 						$templateParser->parse(GO()->getRequest()->getBody()['body']),
-						'text/plain');
- 		
- 		$message->setTo($email);
- 		
- 		$numberOfRecipients = $message->send();
 
 		$this->render(['success' => $numberOfRecipients === 1]);
 		
@@ -70,7 +63,7 @@ class ForgotPasswordController extends Controller {
 	
 	
 	public function resetPassword($userId, $token) {
-		$user = \GO()->getAuth()->sudo(function() use ($userId, $token) {
+		$user = GO()->getAuth()->sudo(function() use ($userId, $token) {
 			$user = User::findByPk($userId);
 			
 			if(!$user) {
@@ -80,7 +73,7 @@ class ForgotPasswordController extends Controller {
 			
 			$correctToken = $user->generateToken();
 			if($token != $correctToken) {
-				throw new \IFW\Exception\Forbidden("Token incorrect");
+				throw new Forbidden("Token incorrect");
 			}
 			
 			$user->setValues(GO()->getRequest()->getBody()['data']);

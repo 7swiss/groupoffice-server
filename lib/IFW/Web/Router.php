@@ -274,6 +274,7 @@ class Router extends IFW\Router {
 
 		$controller = new $action['controller'];
 		$this->callAction($controller, $action['action'], $action['params'], $requestParams);
+		unset($controller);
 
 		return true;
 	}
