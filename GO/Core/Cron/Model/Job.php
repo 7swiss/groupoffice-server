@@ -3,7 +3,6 @@
 namespace GO\Core\Cron\Model;
 
 use Cron\CronExpression;
-use DateTime;
 use DateTimeZone;
 use Exception;
 use GO\Core\Modules\Model\Module;
@@ -11,7 +10,6 @@ use GO\Core\Notifications\Model\Notification;
 use GO\Core\Orm\Record;
 use GO\Core\Users\Model\User;
 use IFW\ErrorHandler;
-use IFW\Exception\NotFound;
 use IFW\Orm\Query;
 use IFW\Util\DateTime;
 use IFW\Validate\ErrorCode;
