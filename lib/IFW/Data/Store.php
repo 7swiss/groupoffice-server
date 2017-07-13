@@ -188,7 +188,7 @@ class Store extends Object implements IteratorAggregate, ArrayableInterface, \Co
 	}
 
 	public function count() {
-		return iterator_count($this->traversable);
+		return is_array($this->traversable) ? count($this->traversable) : iterator_count($this->traversable);
 	}
 
 

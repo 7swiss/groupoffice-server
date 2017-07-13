@@ -3,10 +3,11 @@
 namespace GO\Core\Accounts\Controller;
 
 use GO\Core\Accounts\Model\Account;
+use GO\Core\Accounts\Model\Capability;
 use GO\Core\Controller;
-use IFW;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use function GO;
 
 /**
  * The controller for the account model
@@ -41,7 +42,7 @@ class AccountController extends Controller {
 		}
 		
 		if($capability) {
-			$capabilities = \GO\Core\Accounts\Model\Capability::find(
+			$capabilities = Capability::find(
 							(new Query)->tableAlias('capabilities')->where('capabilities.accountId = t.id')->andWhere(['modelName' => $capability]));
 			
 			$query->andWhere(['EXISTS', $capabilities]);
@@ -179,5 +180,43 @@ class AccountController extends Controller {
 		Account::syncAll();
 		
 		$this->render();
+	}
+	
+	
+	/**
+	 * Update multiple records at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$record = Account::findByPk($values['id']);
+
+				if (!$record) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$record = new Account();
+			}
+			
+			$record->setValues($values);
+			$record->save();
+			
+			$response['data'][] = $record->toArray();
+		}
+		
+		$this->render($response);
 	}
 }

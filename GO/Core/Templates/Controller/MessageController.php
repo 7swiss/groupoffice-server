@@ -3,9 +3,12 @@
 namespace GO\Core\Templates\Controller;
 
 use GO\Core\Controller;
+use GO\Core\Modules\Model\Module;
 use GO\Core\Templates\Model\Message;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use IFW\Orm\Utils;
+use function GO;
 
 /**
  * The controller for the message model
@@ -29,7 +32,7 @@ class MessageController extends Controller {
 	 */
 	public function store($moduleClassName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 
-		$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleClassName])->single();
+		$module = Module::find(['name' => $moduleClassName])->single();
 
 		$query = (new Query())
 						->orderBy([$orderColumn => $orderDirection])
@@ -162,10 +165,46 @@ class MessageController extends Controller {
 			throw new NotFound();
 		}
 
-		$name = \IFW\Orm\Utils::findUniqueValue($message->tableName(), 'name', $message->name);
-		$duplicate = \IFW\Orm\Utils::duplicate($message, ['name' => $name]);
+		$name = Utils::findUniqueValue($message->tableName(), 'name', $message->name);
+		$duplicate = Utils::duplicate($message, ['name' => $name]);
 	
 		$this->renderModel($duplicate);
 	}
 
+		/**
+	 * Update multiple records at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$record = Message::findByPk($values['id']);
+
+				if (!$record) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$record = new Message();
+			}
+			
+			$record->setValues($values);
+			$record->save();
+			
+			$response['data'][] = $record->toArray();
+		}
+		
+		$this->render($response);
+	}
 }

@@ -2,9 +2,13 @@
 namespace GO\Core\Templates\Controller;
 
 use GO\Core\Controller;
+use GO\Core\Modules\Model\Module;
 use GO\Core\Templates\Model\Pdf;
+use GO\Core\Templates\Model\PdfRenderer;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use IFW\Orm\Utils;
+use function GO;
 
 /**
  * The controller for the pdftemplate model
@@ -29,7 +33,7 @@ class PdfController extends Controller {
 	 */
 	public function store($moduleClassName, $orderColumn = 'name', $orderDirection = 'ASC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "") {
 		
-		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
+		$module = Module::find(['name'=>$moduleClassName])->single();
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -101,7 +105,7 @@ class PdfController extends Controller {
 	 */
 	public function create($moduleClassName, $returnProperties = "") {
 
-		$module = \GO\Core\Modules\Model\Module::find(['name'=>$moduleClassName])->single();
+		$module = Module::find(['name'=>$moduleClassName])->single();
 
 		
 		$pdftemplate = new Pdf();
@@ -167,7 +171,7 @@ class PdfController extends Controller {
 			throw new NotFound();
 		}
 
-		$pdfRenderer = new \GO\Core\Templates\Model\PdfRenderer($pdftemplate);
+		$pdfRenderer = new PdfRenderer($pdftemplate);
 		$pdfRenderer->previewMode = true;
 		
 		GO()->getResponse()->setHeader('Content-Type', 'application/pdf');
@@ -185,12 +189,49 @@ class PdfController extends Controller {
 			throw new NotFound();
 		}
 
-		$name = \IFW\Orm\Utils::findUniqueValue($pdf->tableName(), 'name', $pdf->name);
-		$duplicate = \IFW\Orm\Utils::duplicate($pdf, ['name' => $name]);
+		$name = Utils::findUniqueValue($pdf->tableName(), 'name', $pdf->name);
+		$duplicate = Utils::duplicate($pdf, ['name' => $name]);
 		foreach($pdf->blocks as $block) {
-			\IFW\Orm\Utils::duplicate($block, ['pdfTemplateId' => $duplicate->id]);
+			Utils::duplicate($block, ['pdfTemplateId' => $duplicate->id]);
 		}						
 
 		$this->renderModel($duplicate);
+	}
+	
+		/**
+	 * Update multiple records at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$record = Pdf::findByPk($values['id']);
+
+				if (!$record) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$record = new Pdf();
+			}
+			
+			$record->setValues($values);
+			$record->save();
+			
+			$response['data'][] = $record->toArray();
+		}
+		
+		$this->render($response);
 	}
 }

@@ -104,7 +104,7 @@ abstract class Controller extends IFWController {
 		
 		$output = $this->render([
 				'data' => $store->toArray(),
-				'count' => count($store)
+//				'count' => count($store) //Not needed by our webclient now but might be useful for other implementations. Perhaps by supplying a param returnCount=1 ?
 						]);
 		
 		//generate an ETag for HTTP Caching

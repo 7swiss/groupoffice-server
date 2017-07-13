@@ -94,7 +94,7 @@ abstract class Router extends Object implements RouterInterface{
 		$controller = new $controllerCls;
 		
 		if(!method_exists($controller, $methodName)){
-			throw new Exception('Method  '.$methodName." defined in router  but doesn't exist in controller ".$controllerCls);
+			throw new Exception("Method '".$methodName."' defined in router but doesn't exist in controller '".$controllerCls."'");
 		}
 		
 		$method = new ReflectionMethod($controller, $methodName);

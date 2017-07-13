@@ -3,9 +3,9 @@ namespace GO\Core\Smtp\Controller;
 
 use GO\Core\Controller;
 use GO\Core\Smtp\Model\Account;
-use IFW;
 use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use function GO;
 
 /**
  * The controller for the account model
@@ -151,6 +151,44 @@ class AccountController extends Controller {
 		$account->delete();
 
 		$this->renderModel($account);
+	}
+	
+	
+	/**
+	 * Update multiple records at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$record = Account::findByPk($values['id']);
+
+				if (!$record) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$record = new Account();
+			}
+			
+			$record->setValues($values);
+			$record->save();
+			
+			$response['data'][] = $record->toArray();
+		}
+		
+		$this->render($response);
 	}
 }
 

@@ -4,16 +4,24 @@ namespace GO\Core\Cron\Model;
 
 use Cron\CronExpression;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use GO\Core\Modules\Model\Module;
+use GO\Core\Notifications\Model\Notification;
 use GO\Core\Orm\Record;
+use GO\Core\Users\Model\User;
+use IFW\ErrorHandler;
+use IFW\Exception\NotFound;
 use IFW\Orm\Query;
+use IFW\Util\DateTime;
+use IFW\Validate\ErrorCode;
+use function GO;
 
 /**
  * The Job model
  *
  * @property Module $module
- * @property \GO\Core\Users\Model\User $runUser
+ * @property User $runUser
  *
  * @copyright (c) 2015, Intermesh BV http://www.intermesh.nl
  * @author Merijn Schering <mschering@intermesh.nl>
@@ -82,7 +90,7 @@ class Job extends Record {
 
 	/**
 	 * Calculated time this cron will run
-	 * @var \IFW\Util\DateTime
+	 * @var DateTime
 	 */
 	public $nextRun;
 
@@ -116,7 +124,7 @@ class Job extends Record {
 
 	protected static function defineRelations() {
 		self::hasOne('module', Module::class, ['moduleId' => 'id']);
-		self::hasOne('runUser', \GO\Core\Users\Model\User::class, ['runUserId' => 'id']);
+		self::hasOne('runUser', User::class, ['runUserId' => 'id']);
 
 		parent::defineRelations();
 	}
@@ -161,11 +169,11 @@ class Job extends Record {
 	public function internalValidate() {
 
 		if (isset($this->cronExpression) && !CronExpression::isValidExpression($this->cronExpression)) {
-			$this->setValidationError('cronExpression', \IFW\Validate\ErrorCode::MALFORMED);
+			$this->setValidationError('cronExpression', ErrorCode::MALFORMED);
 		}
 
 		if (!class_exists($this->cronClassName)) {
-			$this->setValidationError('cronClassName', \IFW\Validate\ErrorCode::NOT_FOUND);
+			$this->setValidationError('cronClassName', ErrorCode::NOT_FOUND);
 		}
 
 		if (!method_exists($this->cronClassName, 'findModuleName')) {
@@ -178,9 +186,9 @@ class Job extends Record {
 
 		if ($this->isModified('timezone')) {
 			try {
-				$tz = new \DateTimeZone($this->timezone);
+				$tz = new DateTimeZone($this->timezone);
 			} catch (\Exception $e) {
-				$this->setValidationError('timezone', \IFW\Validate\ErrorCode::TIMEZONE_INVALID);
+				$this->setValidationError('timezone', ErrorCode::TIMEZONE_INVALID);
 			}
 		}
 
@@ -191,7 +199,7 @@ class Job extends Record {
 
 			if ($moduleName) {
 				//			var_dump($moduleName);
-				$module = \GO\Core\Modules\Model\Module::find(['name' => $moduleName])->single();
+				$module = Module::find(['name' => $moduleName])->single();
 				if ($module) {
 					$this->module = $module;
 				}
@@ -227,10 +235,10 @@ class Job extends Record {
 
 		//Convert to local time zone stored in job
 		$now = new \DateTime();
-		$now->setTimezone(new \DateTimeZone($this->timezone));
+		$now->setTimezone(new DateTimeZone($this->timezone));
 		$cronExpression = CronExpression::factory($this->cronExpression);
 		$localDate = $cronExpression->getNextRunDate($now);
-		$localDate->setTimezone(new \DateTimeZone('UTC'));
+		$localDate->setTimezone(new DateTimeZone('UTC'));
 
 		return $localDate;
 	}
@@ -261,16 +269,16 @@ class Job extends Record {
 
 			GO()->getAuth()->sudo($callable, $this->runUser, $this->getParams());
 			
-			\GO\Core\Notifications\Model\Notification::resume();
+			Notification::resume();
 			GO()->logResume();
 
 //			GO()->log("info", "Finished CRON method: " . $this->cronClassName . "::" . $this->method, $this);
 		} catch (Exception $ex) {
 			
-			\GO\Core\Notifications\Model\Notification::resume();
+			Notification::resume();
 			GO()->logResume();
 			
-			$errorString = \IFW\ErrorHandler::logException($ex);
+			$errorString = ErrorHandler::logException($ex);
 			GO()->error($errorString, $this);		
 
 			$this->lastError = $errorString;
@@ -287,5 +295,7 @@ class Job extends Record {
 			throw new \Exception("Could not save CRON job");
 		}
 	}
+	
+
 
 }

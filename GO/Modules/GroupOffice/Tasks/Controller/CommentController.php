@@ -92,4 +92,41 @@ class CommentController extends Controller {
 		$this->renderModel($comment);
 	}
 	
+	/**
+	 * Update multiple records at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$record = Comment::findByPk($values['id']);
+
+				if (!$record) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$record = new Comment();
+			}
+			
+			$record->setValues($values);
+			$record->save();
+			
+			$response['data'][] = $record->toArray();
+		}
+		
+		$this->render($response);
+	}
+	
 }
