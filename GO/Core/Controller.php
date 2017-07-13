@@ -52,10 +52,7 @@ abstract class Controller extends IFWController {
 	 */
 	protected function render(array $data = [], $viewName = null) {
 		
-		$view = $this->getView($viewName);
-		$view->render(array_merge($this->responseData, $data));	
-		
-		$this->rendered = $view;
+		$this->dataToString($data, $viewName);
 		
 		if(GO()->getEnvironment()->isCli()) {
 			echo $this->rendered;
@@ -64,6 +61,13 @@ abstract class Controller extends IFWController {
 			GO()->getResponse()->send($this->rendered);
 		}
 	}	
+	
+	private function dataToString(array $data, $viewName = null) {
+		$view = $this->getView($viewName);
+		$view->render(array_merge($this->responseData, $data));	
+		
+		$this->rendered = $view;
+	}
 
 	/**
 	 * Used for rendering a model response
@@ -101,17 +105,23 @@ abstract class Controller extends IFWController {
 		if(is_array($store)) {
 			$store = new \IFW\Data\Store($store);
 		}
+		$data = $store->toArray();
 		
-		$output = $this->render([
-				'data' => $store->toArray(),
+		$this->dataToString([
+				'data' => $data,
 //				'count' => count($store) //Not needed by our webclient now but might be useful for other implementations. Perhaps by supplying a param returnCount=1 ?
 						]);
-		
 		//generate an ETag for HTTP Caching
-		GO()->getResponse()->setETag(md5($output));
+		GO()->getResponse()->setETag(md5($this->rendered));
 		GO()->getResponse()->abortIfCached();
 		
-		return $output;
+		
+		if(GO()->getEnvironment()->isCli()) {
+			echo $this->rendered;
+		}else
+		{
+			GO()->getResponse()->send($this->rendered);
+		}
 	}
 	
 	
