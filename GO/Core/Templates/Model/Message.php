@@ -58,6 +58,12 @@ class Message extends Record {
 	public $moduleId;
 
 	/**
+	 * used to determine different template types within a module.
+	 * @var int (use constants)
+	 */
+	public $type;
+
+	/**
 	 * 
 	 * @var string
 	 */

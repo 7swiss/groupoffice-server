@@ -108,7 +108,7 @@ class VariableParser {
 		return $str;
 	}
 
-	private static $tokens = ['==','!=','>','<', '(', ')', '&&', '||'];
+	private static $tokens = ['==','!=','>','<', '(', ')', '&&', '||', '*', '/', '%', '-', '+'];
 
 	private function replaceIf($matches) {
 		$expression = trim($matches[1]);
@@ -206,10 +206,21 @@ class VariableParser {
 		$model = $this;
 
 		foreach ($pathParts as $pathPart) {
-			if(!$model->hasReadableProperty($pathPart)) {
-				return false;
+			if(is_array($model)) {
+				if(!array_key_exists($pathPart, $model)) {
+					return false;
+				}
+
+				$model = $model[$pathPart];
+			}else
+			{
+				if(!$model->hasReadableProperty($pathPart)) {
+					return false;
+				}
+
+				$model = $model->$pathPart;
 			}
-			$model = $model->$pathPart;
+			
 		}
 
 		return true;
