@@ -534,4 +534,17 @@ END;
 		return $str;		
 	}
 	
+	/**
+	 * Remove BOM character
+	 * 
+	 * @param string $str
+	 * @return string
+	 */
+	public static function removeBOMCharacter($str) {
+		if (substr($str, 0, 3) == chr(hexdec('EF')) . chr(hexdec('BB')) . chr(hexdec('BF'))) {
+			return substr($str, 3);
+		} else {
+			return $str;
+		}
+	}
 }

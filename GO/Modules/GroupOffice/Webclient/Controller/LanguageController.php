@@ -146,6 +146,8 @@ class LanguageController extends Controller {
 		$moduleLangFile->save();
 	}
 	
+	private $delimiter = ';';
+	
 	/**
 	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/export-csv --lang=nl --root=./app --output=/tmp/nl.csv
 
@@ -166,7 +168,7 @@ class LanguageController extends Controller {
 			$langFile = new LanguageFile($langFilePath);
 			
 			foreach($langFile->getVars() as $key => $translation) {
-				fputcsv($fp,[$key, $translation, str_replace($root, '', $langFilePath)]);
+				fputcsv($fp,[$key, $translation, str_replace($root, '', $langFilePath)], $this->delimiter);
 			}
 		}
 		fclose($fp);
@@ -174,6 +176,8 @@ class LanguageController extends Controller {
 	
 	/**
 	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=./app --input=/tmp/nl.csv
+	 * 
+	 *  /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=fr --root=/var/www/html/groupoffice-webclient/app --input=FR_Backend.csv
 	 * 
 	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=/var/www/html/elearning-webclient/app --input=Teksten\ NL-Frontend\ EntrancePortal\ FC\ bewerkt\ jva\ 7-4-17.csv
 	 * 
@@ -183,13 +187,17 @@ class LanguageController extends Controller {
 	public function importCsv($root, $input) {
 		$fp = fopen($input, 'r');
 		
-		while($record = fgetcsv($fp)) {
+		while($record = fgetcsv($fp,0, $this->delimiter)) {
 			$langFile = new LanguageFile($root.$record[2]);
 			$langFile->{$record[0]} = $record[1];
 			$langFile->save();
+			
+			echo "Importing '".$record[0]."' in file '".$root.$record[2]."'\n";
 		}
 		
 		fclose($fp);
+		
+		echo "Import done!\n";
 	}
 
 }
