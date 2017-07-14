@@ -154,10 +154,8 @@ class System extends Model {
 							"\nIf you're a developer, you might need to skip this file because"
 							. " you already applied the changes to your database. "
 							. "Empty the file temporarily and rerun the upgrade.\n\n"
-							. "PDO ERROR: \n\n" . $e->getMessage();
-			throw new \Exception($msg);
-			
-			
+							. "Exception: \n\n" . IFW\ErrorHandler::logException($e);
+			throw new \Exception($msg);			
 		}
 	}
 
