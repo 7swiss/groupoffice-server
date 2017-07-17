@@ -33,7 +33,10 @@ trait EventEmitterTrait {
 	
 	
 	/**
-	 * Add an event listener
+	 * Add a persistent static event listener
+	 * 
+	 * This listener will be stored and will be used on every request. If you don't
+	 * need that then use {@see attach()}
 	 * 
 	 * @param int $event Defined in constants prefixed by EVENT_
 	 * @param callable $fn 
@@ -110,7 +113,16 @@ trait EventEmitterTrait {
 	
 	
 	/**
-	 * Add an event listener
+	 * Add an event listener to an object
+	 * 
+	 * It will only be subscribed during the current script run.
+	 * If you want a persistent subscription use the static method on {@see on()}
+	 * 
+	 * ```
+	 * $this->attach(self::EVENT_COMMIT, function() use($logAction) {
+	 * 			GO()->log($logAction, $this->blockLang()->name, $this);
+	 * 		});
+	 * ```
 	 * 
 	 * @param int $event Defined in constants prefixed by EVENT_
 	 * @param callable $fn 

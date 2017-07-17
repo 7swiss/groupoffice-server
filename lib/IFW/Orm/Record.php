@@ -167,10 +167,10 @@ abstract class Record extends DataModel {
 	/**
 	 * Fired after save
 	 * 
+	 * Also look at EVENT_COMMIT
+	 * 
 	 * @param self $record
 	 * @param boolean $success
-	 * @param boolean $isNew $this->isNew() always returns false after save.
-	 * @param array $modifiedAttributes Key value array of attributes before save. $this->isModified('attr') always returns false after save.
 	 */
 	const EVENT_AFTER_SAVE = 2;	
 	
@@ -222,6 +222,18 @@ abstract class Record extends DataModel {
 	 * Fires when this record is converted into an array for the API
 	 */
 	const EVENT_TO_ARRAY = 10;
+	
+	
+	/**
+	 * Fired after commit
+	 * 
+	 * Commit is fired after the entire entity with relations has been saved.
+	 * Unlike EVENT_SAVE the record is completely in it's new state so you don't 
+	 * have access to the modified properties anymore.
+	 * 
+	 * @param self $record
+	 */
+	const EVENT_COMMIT = 11;	
 	
 
 	/**
@@ -1428,6 +1440,9 @@ abstract class Record extends DataModel {
 		}
 		$this->relations = [];
 		$this->savedRelations = [];		
+		
+		
+		$this->fireEvent(self::EVENT_COMMIT, $this);
 	}	
 	
 	/**
