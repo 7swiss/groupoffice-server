@@ -227,14 +227,20 @@ class QueryBuilder {
 		$this->tableAlias = $this->query->getTableAlias();
 		$this->aliasMap[$this->tableAlias] = Table::getInstance($this->tableName);
 		
-		foreach($data as $colName => $value) {
-			$paramTag = $this->getParamTag();
-			$updates[] = '`'.$colName.'` = '.$paramTag;
-			
-			$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+		if(is_array($data)) {
+			foreach($data as $colName => $value) {
+				$paramTag = $this->getParamTag();
+				$updates[] = '`'.$colName.'` = '.$paramTag;
+
+				$this->addBuildBindParameter($paramTag, $value, $this->tableName, $colName);
+			}
+			$set = implode(",\n\t", $updates);
+		}else if($data instanceof Expression)
+		{
+			$set = (string) $data;
 		}
 		
-		$sql = "UPDATE `{$this->tableName}` `" . $this->tableAlias . "` SET\n\t". implode(",\n\t", $updates);
+		$sql = "UPDATE `{$this->tableName}` `" . $this->tableAlias . "` SET\n\t". $set;
 		
 		$where = $this->buildWhere();
 		

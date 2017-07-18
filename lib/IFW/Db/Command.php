@@ -67,6 +67,7 @@ class Command {
 	 * {@see Connection::createCommand()}
 	 * 
 	 * @param string $tableName
+	 * @param array|Expression
 	 * @param Query $query
 	 * @return $this
 	 */

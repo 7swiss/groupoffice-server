@@ -817,23 +817,25 @@ abstract class Record extends DataModel {
 			return false;
 		}
 		
-		$propPathParts = explode('@', $name);		
-		$propName = array_pop($propPathParts);
-		
-		$currentRecord = &$this;				
-		foreach ($propPathParts as $part) {		
-			$relation = $currentRecord::getRelation($part);
-			if($relation && !$currentRecord->relationIsFetched($part)) {
-				$cls = $relation->getToRecordName();
-				$record = new $cls(false, ['*']);
-				$currentRecord->setRelated($part, $record);
-			}
+		if(isset($value)) {
+			$propPathParts = explode('@', $name);		
+			$propName = array_pop($propPathParts);
 
-			$currentRecord = $currentRecord->getRelated($part);			
-			
+			$currentRecord = &$this;				
+			foreach ($propPathParts as $part) {		
+				$relation = $currentRecord::getRelation($part);
+				if($relation && !$currentRecord->relationIsFetched($part)) {
+					$cls = $relation->getToRecordName();
+					$record = new $cls(false, ['*']);
+					$currentRecord->setRelated($part, $record);
+				}
+
+				$currentRecord = $currentRecord->getRelated($part);			
+
+			}
+			$currentRecord->loadingFromDatabase = true; //swichted back in castDatabaseAttributes()
+			$currentRecord->$propName = $value;			
 		}
-		$currentRecord->loadingFromDatabase = true; //swichted back in castDatabaseAttributes()
-		$currentRecord->$propName = $value;			
 	
 		return true;
 	}
@@ -1045,7 +1047,7 @@ abstract class Record extends DataModel {
 	 * @param string $attributeName
 	 * @return mixed
 	 */
-	protected function getOldAttributeValue($attributeName) {
+	public function getOldAttributeValue($attributeName) {
 		
 //		if(!$this->isModified($attributeName)) {
 //			throw new \Exception("Can't get old attribute value because '$attributeName' is not modified");
