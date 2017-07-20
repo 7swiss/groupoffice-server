@@ -33,7 +33,7 @@ class MainTest extends \GO\Utils\ModuleCase {
 						);
 		
 		foreach($mains as $main) {
-			$this->assertEquals(null, $main->hasOne->id);
+			$this->assertEquals(null, $main->hasOne);
 		}
 		
 		$main->hasOne = $hasOne;
@@ -59,7 +59,7 @@ class MainTest extends \GO\Utils\ModuleCase {
 						);
 		
 		foreach($mains as $main) {
-			$this->assertEquals(null, $main->hasOne->id);
+			$this->assertEquals(null, $main->hasOne);
 		}
 		
 		$this->changeUser('admin');
