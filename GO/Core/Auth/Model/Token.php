@@ -260,7 +260,7 @@ class Token extends Record implements GarbageCollectionInterface {
 	
 	private static $current;
 	
-	private static function getFromRequest() {
+	private static function getFromHeader() {
 		
 		$auth = GO()->getRequest()->getHeader('Authorization');
 		if(!$auth) {
@@ -294,7 +294,7 @@ class Token extends Record implements GarbageCollectionInterface {
 			if(isset($_COOKIE['accessToken'])) {
 				$tokenStr = $_COOKIE['accessToken'];
 			} else {
-				$tokenStr = self::getFromRequest();
+				$tokenStr = self::getFromHeader();
 			}
 
 			if(!$tokenStr) {
