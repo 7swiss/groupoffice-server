@@ -425,7 +425,7 @@ class RelationStore extends Store implements ArrayAccess {
 		//try to find an existing record.
 		$pk = $this->buildPk($propArray);		
 		$query = new Query();		
-		$query->where($pk)->setRelation($this->relation, $this->record)->allowPermissionTypes($this->relation->getAllowedPermissionTypes()); //for propery record
+		$query->where($pk)->setRelation($this->relation, $this->record)->allowPermissionTypes($this->relation->getAllowedPermissionTypes())->withDeleted(); //for propery record
 
 		$newToRecord = $pk ? $toRecordName::find($query)->single() : false;
 		if (!$newToRecord) {
