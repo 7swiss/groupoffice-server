@@ -286,7 +286,7 @@ class Table {
 			}
 			
 			if(empty($pk)) {
-				IFW::app()->debug("WARNING: No primary key defined for ".self::getClassName()." database table: ".self::tableName());
+				IFW::app()->debug("WARNING: No primary key defined for database table: ".self::tableName());
 			}
 			
 			IFW::app()->getCache()->set($cacheKey, $pk);
