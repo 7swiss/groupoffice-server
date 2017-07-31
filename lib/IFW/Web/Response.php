@@ -218,17 +218,17 @@ class Response {
 		
 		//Allow ng serve -o origin
 		//Male this configurable
-		GO()->getResponse()->setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-//                GO()->getResponse()->setHeader('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN']);
+		GO()->getResponse()->setHeader('Access-Control-Allow-Origin', '*');
 		GO()->getResponse()->setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
 		GO()->getResponse()->setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, X-XSRFToken');
 		GO()->getResponse()->setHeader('Access-Control-Max-Age', "1728000");
-		GO()->getResponse()->setHeader('Access-Control-Allow-Credentials', "true");
+//		GO()->getResponse()->setHeader('Access-Control-Allow-Credentials', "true");
 		
 
 		if (isset($body)) {
 			echo $body;
 		}
 	}
+	
 
 }
