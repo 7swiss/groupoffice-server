@@ -26,6 +26,12 @@ class AccountGroup extends GroupAccess {
 	 * @var int
 	 */
 	public $accountId;
+	
+	/**
+	 *
+	 * @var bool 
+	 */
+	public $write = false;
 
 
 	protected static function groupsFor() {

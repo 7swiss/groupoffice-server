@@ -18,6 +18,12 @@ use IFW\Util\Image;
  */
 class BlobController extends Controller {
 	
+	public function __construct() {
+		\GO\Core\Auth\Model\Token::$allowCookie = true;
+		
+		parent::__construct();
+	}
+	
 	public function checkAccess() {
 		
 		if(!GO()->getAuth()->isLoggedIn())
