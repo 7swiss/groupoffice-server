@@ -65,35 +65,6 @@ class UserProvider implements UserProviderInterface {
 	public function setCurrentUser(UserInterface $user = null) {
 		$this->currentUser = $user;
 	}
-
-	/**
-	 * Verify the XSRF token
-	 * 
-	 * For image resources you might want to disable this check
-	 * 
-	 * @return boolean
-	 */
-	public function checkXSRF() {
-
-		$accessToken = Token::findByRequest();
-
-		if (!$accessToken) {
-			return true;
-		}
-
-		return $accessToken->checkXSRF();
-	}
-
-	public function XSRFToken() {
-		$accessToken = Token::findByRequest();
-
-		if (!$accessToken) {
-			return null;
-		}
-
-		return $accessToken->XSRFToken;
-	}
-	
 	
 
 	/**

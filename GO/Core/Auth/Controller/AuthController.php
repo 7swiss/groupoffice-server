@@ -44,7 +44,6 @@ class AuthController extends Controller {
 		$token = Token::findByRequest();
 		if ($token) {
 			GO()->log(User::LOG_ACTION_LOGOUT, $token->user->username, $token->user);
-			$token->unsetCookies();
 			$token->delete();
 		}
 		
@@ -179,9 +178,6 @@ class AuthController extends Controller {
 		$token->user = $user;
 		$token->save();
 
-		$token->setCookies();
-
-
 		$this->renderModel($token, $returnProperties);
 	}
 
@@ -220,7 +216,6 @@ class AuthController extends Controller {
 
 		if ($token) {
 			$token->refresh();
-			$token->setCookies();
 			$this->renderModel($token, $returnProperties);
 		} else {
 			throw new \IFW\Exception\NotFound();

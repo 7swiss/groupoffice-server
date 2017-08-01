@@ -39,11 +39,10 @@ use IFW\Util\StringUtil;
  */
 abstract class ThumbController extends Controller {
 	
-	
-	protected function checkXSRF() {
-		return true;
+public function __construct() {
+		\GO\Core\Auth\Model\Token::$allowCookie = true;
+		parent::__construct();
 	}
-
 	/**
 	 * Get the relative folder the image should be fetched from.
 	 * Be careful, images in this folder are available to anyone that can access this controller.

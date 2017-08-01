@@ -8,9 +8,6 @@ use XMLReader;
 
 class SyncController extends Controller {
 	
-	protected function checkXSRF() {
-		return true;
-	}
 
 	public function test() {
 		

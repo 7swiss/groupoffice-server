@@ -34,22 +34,6 @@ interface UserProviderInterface {
 	public function isLoggedIn();
 	
 	
-	/**
-	 * Verify the XSRF token
-	 * 
-	 * For image resources you might want to disable this check
-	 * 
-	 * @return boolean
-	 */
-	public function checkXSRF();
-	
-	/**
-	 * Get the XSRF token
-	 * 
-	 * @return string
-	 */
-	public function XSRFToken();
-	
 	
 	/**
 	 * Check if the logged in user is admin

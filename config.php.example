@@ -23,11 +23,6 @@ return [
 			'enabled' => true
 		],
 		
-		
-		
-		//"GO\Core\Auth\Model\Token" => [
-		//	'checkXSRFToken' => false	
-		//],
 
 		// Will make sure all mail will be sent to this address for debugging
 		//"GO\Core\Email\Model\Mailer" => [

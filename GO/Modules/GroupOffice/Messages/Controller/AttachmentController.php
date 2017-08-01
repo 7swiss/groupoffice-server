@@ -6,10 +6,10 @@ use GO\Modules\GroupOffice\Messages\Model\Attachment;
 
 class AttachmentController extends Controller {
 
-	protected function checkXSRF() {
-		return true;
+	public function __construct() {
+		\GO\Core\Auth\Model\Token::$allowCookie = true;
+		parent::__construct();
 	}
-
 	public function read($messageId, $attachmentId) {
 		
 		//cache for a month

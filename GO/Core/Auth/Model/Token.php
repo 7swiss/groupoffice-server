@@ -85,12 +85,6 @@ class Token extends Record implements GarbageCollectionInterface {
 	public $accessToken;
 
 	/**
-	 * The extra token that must be set as a header "X-XSRFToken" or GET parameter "XSRFToken" to prevent XSRF attacks.
-	 * @var string
-	 */							
-	public $XSRFToken;
-
-	/**
 	 * 
 	 * @var int
 	 */							
@@ -101,14 +95,7 @@ class Token extends Record implements GarbageCollectionInterface {
 	 * @var \DateTime
 	 */							
 	public $expiresAt;
-
-	/**
-	 * You can disable this in development environments where you want to be able
-	 * to easily test requests.
-	 * 
-	 * @var boolean 
-	 */
-	public $checkXSRFToken = true;
+	
 	/**
 	 * The remote IP address of the client connecting to the server
 	 * 
@@ -222,20 +209,9 @@ class Token extends Record implements GarbageCollectionInterface {
 		return parent::internalDelete($hard);
 	}
 	
-	/**
-	 * Set's the token cookies
-	 */
-	public function setCookies() {				
-		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', $this->accessToken, $this->expiresAt->format('U'), "/", null, false, true);
-		
-		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', $this->XSRFToken, $this->expiresAt->format('U'), "/", null, false, false);		
-	}
 	
 	private function internalRefresh() {
 		$this->accessToken = $this->generateToken();
-		$this->XSRFToken = $this->generateToken();			
 		
 		$this->setExpiryDate();
 	}
@@ -257,29 +233,7 @@ class Token extends Record implements GarbageCollectionInterface {
 		$this->expiresAt = $expireDate;		
 	}
 	
-	/**
-	 * Unsets the token cookies
-	 */
-	public function unsetCookies(){
-		
-		//Should be httpOnly so XSS exploits can't access this token
-		setcookie('accessToken', NULL, 0, "/", null, false, true);
-		
-		//XSRF is NOT httpOnly because it has to be added by the browser as a header
-		setcookie('XSRFToken', NULL, 0, "/", null, false, false);
-	}
 	
-	
-	private static function requestXSRFToken(){
-		if(isset($_GET['XSRFToken'])) {
-			return $_GET['XSRFToken'];
-		}
-		if(isset(GO()->getRequest()->headers['x-xsrftoken'])) {
-			return GO()->getRequest()->headers['x-xsrftoken'];
-		}
-		
-		return false;
-	}
 	
 	private static $current;
 	
@@ -335,24 +289,9 @@ class Token extends Record implements GarbageCollectionInterface {
 			self::$current = $token;
 		}
 		
-		//remove cookie as header has been set.
-		//Small security improvement as this token will not be accessible trough document.cookies anymore.
-		//It's still somewhere in javascript but a little bit harder to get.
-//		if(isset($_COOKIE['XSRFToken'])) {
-//			setcookie('XSRFToken', null, 0, '/', $_SERVER['HTTP_HOST'], false, false);
-//		}
-		
 		return self::$current;
 	}
 	
-	/**
-	 * Verify the XSRF token
-	 * 
-	 * @return boolean
-	 */
-	public function checkXSRF() {
-		return !$this->checkXSRFToken || self::requestXSRFToken() === $this->XSRFToken;
-	}
 	
 	public static function getDefaultReturnProperties() {
 		//filter out temp folder. We don't want to expose it and also we don't want it to be auto created on every token fetch
@@ -383,9 +322,7 @@ class Token extends Record implements GarbageCollectionInterface {
 			if (!$token) {
 				throw new BadLogin();
 			}
-
 			
-			$token->setCookies();
 			$token->setClient();
 			$token->save();
 			
