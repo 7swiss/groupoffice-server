@@ -50,27 +50,6 @@ use function GO;
 class Token extends Record implements GarbageCollectionInterface {	
 	
 	
-	/**
-	 * By default only the header Authorization: Token <AccessToken> is accepted for authorization.
-	 * But to make browsers show images it can be useful to use a cookie for those requests.
-	 * 
-	 * Set this to true in the constructor of the controller:
-	 * 
-	 * @example
-	 * ```
-	 * class BlobController extends Controller {
-	 * 	
-	 * 	public function __construct() {
-	 * 		\GO\Core\Auth\Model\Token::$allowCookie = true;
-	 * 		
-	 * 		parent::__construct();
-	 * 	}
-	 * }
-	 * ```
-	 * 
-	 * @var boolean 
-	 */
-	public static $allowCookie = false;
 	
 	/**
 	 * 
@@ -263,12 +242,10 @@ class Token extends Record implements GarbageCollectionInterface {
 		}		
 		
 		if(!isset(self::$current)) {
-			
-			$tokenStr = false;
-			if(self::$allowCookie && isset($_COOKIE['accessToken'])) {
+						
+			$tokenStr = self::getFromHeader();
+			if(!$tokenStr && GO()->getRequest()->getMethod() == 'GET' && isset($_COOKIE['accessToken'])) {
 				$tokenStr = $_COOKIE['accessToken'];
-			} else {
-				$tokenStr = self::getFromHeader();
 			}
 
 			if(!$tokenStr) {
