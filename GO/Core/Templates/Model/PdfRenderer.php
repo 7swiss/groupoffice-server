@@ -48,7 +48,9 @@ class PdfRenderer extends PdfModel {
 	 * @param array $templateModels Key value array that will be used to parse templates. eg. ['invoice' => $invoice] {@see VariableParser::addModel()}
 	 */
 	public function __construct(Pdf $template, $templateModels = []) {	
-	
+
+		\GO\Core\Auth\Model\Token::$allowCookie = true;
+
 		$this->template = $template;		
 		
 		$orientation = $this->template->landscape ? 'L' : 'P';		
