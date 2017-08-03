@@ -128,7 +128,9 @@ class PdfRenderer extends PdfModel {
 				$block->width = $this->w-$this->lMargin - $this->rMargin;
 			}
 			
-
+			if($this->previewMode) {
+				$block->type = 'text';
+			}
 			$method = 'renderBlock'.$block->type;
 			
 			if(!method_exists($this, $method)) {
@@ -177,7 +179,7 @@ class PdfRenderer extends PdfModel {
 						$block->width, 
 						$block->height, 
 						$data, 
-						0, //border 
+						$this->previewMode ? 1 : 0, //border
 						$block->align, 
 						false, //fill
 						1,  //Line break
