@@ -19,9 +19,6 @@ use function GO;
  */
 class PdfController extends Controller {
 
-	public function __construct() {
-		\GO\Core\Auth\Model\Token::$allowCookie = true;
-	}
 
 	/**
 	 * Fetch PDF templates
