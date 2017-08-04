@@ -28,7 +28,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param string $q See {@see \IFW\Orm\Query::setFromClient()}
 	 * @return array JSON Record data
 	 */
-	protected function actionStore($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
+	public function store($orderColumn = 'id', $orderDirection = 'DESC', $limit = 10, $offset = 0, $searchQuery = "", $returnProperties = "", $q = null) {
 
 		$query = (new Query())
 				->orderBy([$orderColumn => $orderDirection])
@@ -55,7 +55,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param $returnProperties
 	 * @return array
 	 */
-	protected function actionNew($returnProperties = ""){
+	public function newInstance($returnProperties = ""){
 		
 		$user = new {modelUcfirst}();
 
@@ -76,7 +76,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	protected function actionRead(${modelLowerCase}Id = null, $returnProperties = "") {	
+	public function read(${modelLowerCase}Id = null, $returnProperties = "") {	
 		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
 
 
@@ -101,7 +101,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param array|JSON $returnProperties The attributes to return to the client. eg. ['\*','emailAddresses.\*']. See {@see IFW\Db\ActiveRecord::getAttributes()} for more information.
 	 * @return JSON Model data
 	 */
-	public function actionCreate($returnProperties = "") {
+	public function create($returnProperties = "") {
 
 		${modelLowerCase} = new {modelUcfirst}();
 		${modelLowerCase}->setValues(GO()->getRequest()->body['data']);
@@ -125,7 +125,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @return JSON Model data
 	 * @throws NotFound
 	 */
-	public function actionUpdate(${modelLowerCase}Id, $returnProperties = "") {
+	public function update(${modelLowerCase}Id, $returnProperties = "") {
 
 		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
 
@@ -145,7 +145,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * @param int ${modelLowerCase}Id
 	 * @throws NotFound
 	 */
-	public function actionDelete(${modelLowerCase}Id) {
+	public function delete(${modelLowerCase}Id) {
 		${modelLowerCase} = {modelUcfirst}::findByPk(${modelLowerCase}Id);
 
 		if (!${modelLowerCase}) {
@@ -168,7 +168,7 @@ class {modelUcfirst}Controller extends Controller {
 	 * ```````````````````````````````````````````````````````````````````````````
 	 * @throws NotFound
 	 */
-	public function actionMultiple() {
+	public function multiple() {
 		
 		$response = ['data' => []];
 		

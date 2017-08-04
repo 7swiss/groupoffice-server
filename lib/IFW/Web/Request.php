@@ -205,7 +205,7 @@ class Request extends Object{
 	}
 
 	/**
-	 * Get the request method
+	 * Get the request method in upper case
 	 * 
 	 * @param string PUT, POST, DELETE, GET, PATCH, HEAD
 	 */

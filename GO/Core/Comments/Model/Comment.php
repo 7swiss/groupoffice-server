@@ -26,7 +26,7 @@ use IFW\Orm\Query;
  * @author Merijn Schering <mschering@intermesh.nl>
  * @license http://www.gnu.org/licenses/agpl-3.0.html AGPLv3
  */
-class Comment extends Record {
+class Comment extends \IFW\Orm\PropertyRecord {
 
 	/**
 	 * 

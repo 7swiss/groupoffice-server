@@ -19,11 +19,6 @@ class CssController extends Controller {
 		return true;
 	}
 	
-	public function __construct() {
-		\GO\Core\Auth\Model\Token::$allowCookie = true;
-		parent::__construct();
-	}
-	
 	/**
 	 * GET a list of settingss or fetch a single settings
 	 *
