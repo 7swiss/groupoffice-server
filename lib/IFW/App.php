@@ -308,4 +308,30 @@ abstract class App {
 	public function run() {
 		$this->getRouter()->run();
 	}
+	
+	
+	/**
+	 * Find the config file in /etc/groupoffice-server/$HOST/config.php or next 
+	 * to the entry script or in any dir above.
+	 * 
+	 * @param string $host The host Group-Office is running on. Equals $_SERVER['SERVER_NAME'].
+	 * @param string $entryScriptDir The entry script should pass __DIR__ to this var
+	 * @return string Full path to config.php
+	 * @throws \Exception
+	 */
+	public static function findConfigFile($host, $entryScriptDir) {
+		$configFile = '/etc/groupoffice-server/' . $host . '/config.php';
+			
+		while(!file_exists($configFile)) {			
+			$configFile = $entryScriptDir.'/config.php';
+			$lastEntryScriptDir = $entryScriptDir;
+			$entryScriptDir = dirname($entryScriptDir);
+			
+			//dirname('/') returns '/' so compare if the last dir is the same
+			if($lastEntryScriptDir == $entryScriptDir) {
+				throw new \Exception("No config file found!");
+			}
+		}
+		return $configFile;		
+	}
 }

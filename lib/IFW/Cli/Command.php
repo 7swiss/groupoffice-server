@@ -13,47 +13,70 @@ class Command extends Object {
 	public function __construct() {
 		parent::__construct();
 		
-		$this->parseArgs();
+		$args = $this->parseArgs();
+		$this->route = $args[0];
+		$this->arguments = $args;
 	}
 
-	private function parseArgs() {
+	/**
+	 * Parses command line arguments into an array
+	 * eg. groupoffice route/path -h=localhost --longParam=foo
+	 * 
+	 * will return:
+	 * 
+	 * ```
+	 * ['h' => 'localhost', 'longParam' => 'foo']
+	 * ```
+	 * 
+	 * @global string[] $argv
+	 * @return string[]
+	 */
+	public static function parseArgs() {
 		global $argv;
 
+		$args = [];
 		//array_shift($argv);
 		$count = count($argv);
-
-		if($count > 1){
-			$this->route = $argv[1];
+		
+		if($count == 0) {
+			return $args;
 		}
-				
-		if ($count > 2) {
-			for ($i = 2; $i < $count; $i++) {
+
+		
+//		if($count > 1){
+//			$this->route = $argv[1];
+//		}
+//				
+//		if ($count > 2) {
+			for ($i = 1; $i < $count; $i++) {
 				$arg = $argv[$i];
 				if (substr($arg, 0, 2) == '--') {
 					$eqPos = strpos($arg, '=');
 					if ($eqPos === false) {
 						$key = substr($arg, 2);
-						$this->arguments[$key] = isset($this->arguments[$key]) ? $this->arguments[$key] : true;
+						$args[$key] = isset($args[$key]) ? $args[$key] : true;
 					} else {
 						$key = substr($arg, 2, $eqPos - 2);
-						$this->arguments[$key] = substr($arg, $eqPos + 1);
+						$args[$key] = substr($arg, $eqPos + 1);
 					}
 				} else if (substr($arg, 0, 1) == '-') {
 					if (substr($arg, 2, 1) == '=') {
 						$key = substr($arg, 1, 1);
-						$this->arguments[$key] = substr($arg, 3);
+						$args[$key] = substr($arg, 3);
 					} else {
 						$chars = str_split(substr($arg, 1));
 						foreach ($chars as $char) {
 							$key = $char;
-							$this->arguments[$key] = isset($this->arguments[$key]) ? $this->arguments[$key] : true;
+							$args[$key] = isset($args[$key]) ? $args[$key] : true;
 						}
 					}
 				} else {
-					$this->arguments[] = $arg;
+					$args[] = $arg;
 				}
-			}
+//			}
 		}
+		
+		return $args;
 	}
 
 	/**

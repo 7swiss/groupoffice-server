@@ -14,6 +14,14 @@ $classLoader = require(dirname(__DIR__)."/vendor/autoload.php");
 
 use GO\Core\Cli\App;
 
+$args = \IFW\Cli\Command::parseArgs();
+
+if(!isset($args['h'])) {
+	exit("Please specify host. eg. -h=localhost\n");
+}
+
+$configFile = App::findConfigFile($args['h'], __DIR__);
+
 //Create the app with the config.php file
-$app = new App($classLoader, require(dirname(__DIR__).'/config.php'));
+$app = new App($classLoader, require($configFile));
 $app->run();
