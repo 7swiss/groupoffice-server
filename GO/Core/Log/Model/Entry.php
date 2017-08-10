@@ -88,7 +88,11 @@ class Entry extends Record {
 		parent::init();
 		
 		if($this->isNew()) {
-			$this->createdBy = GO()->getAuth()->user()->username;
+			if(GO()->getAuth()->user()){ //@todo: create guest identity
+				$this->createdBy = GO()->getAuth()->user()->username;
+			} else {
+				$this->createdBy = "Guest";
+			}
 			$this->moduleName = GO()->getRouter()->getModuleName();
 
 			if(isset($_SERVER['REMOTE_ADDR'])) {
