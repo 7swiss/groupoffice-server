@@ -55,11 +55,13 @@ class FieldSetController extends Controller {
 //						->whereSafe($where);
 //			}
 //		}
+		GO()->getAuth()->sudo(function() use($query, $returnProperties) {
+			$fieldSets = FieldSet::find($query);
+			$fieldSets->setReturnProperties($returnProperties);
 
-		$fieldSets = FieldSet::find($query);
-		$fieldSets->setReturnProperties($returnProperties);
-
-		$this->renderStore($fieldSets);
+			$this->renderStore($fieldSets);
+		});
+		
 	}
 
 	/**

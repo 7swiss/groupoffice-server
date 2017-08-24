@@ -303,7 +303,7 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 	}
 
 	public function setPassword($password) {
-		if (GO()->getAuth()->user()->isAdmin() || $this->passwordVerified) {
+		if ($this->isNew || GO()->getAuth()->user()->isAdmin() || $this->passwordVerified) {
 			$this->password = $password;
 		} else {
 			throw new IFW\Exception\Forbidden();
