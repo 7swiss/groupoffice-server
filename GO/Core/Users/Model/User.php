@@ -150,7 +150,8 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 		return [
 //				new ValidatePassword('password'),
 				new \IFW\Validate\ValidateEmail('email'),
-				new \IFW\Validate\ValidateEmail('emailSecondary')
+				new \IFW\Validate\ValidateEmail('emailSecondary'),
+				new \IFW\Validate\ValidateUnique('username'),
 		];
 	}
 
