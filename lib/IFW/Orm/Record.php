@@ -1988,6 +1988,7 @@ abstract class Record extends DataModel {
 				$this->setValidationError(
 								$validator->getId(), 
 								$validator->getErrorCode(), 
+								$validator->getErrorDescription(),
 								$validator->getErrorData()
 								);
 			}
