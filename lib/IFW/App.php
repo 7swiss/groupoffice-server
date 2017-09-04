@@ -321,7 +321,7 @@ abstract class App {
 	 */
 	public static function findConfigFile($host, $entryScriptDir) {
 		$configFile = '/etc/groupoffice-server/' . $host . '/config.php';
-			
+		
 		while(!file_exists($configFile)) {			
 			$configFile = $entryScriptDir.'/config.php';
 			$lastEntryScriptDir = $entryScriptDir;

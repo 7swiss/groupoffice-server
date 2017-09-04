@@ -2,7 +2,7 @@
 return [
 		'IFW\Config' => [
 				'productName' => 'Group-Office 7.0',
-				'dataFolder'=>dirname(__FILE__).'/data'
+				'dataFolder' => '/home/groupoffice-server/foo.example.com'
 				//'cacheClass' => "\\IFW\\Cache\\None" //set to none for development
 				//'cacheClass' => \IFW\Cache\Apcu::class //Enable if you have apcu support in php
 		],
