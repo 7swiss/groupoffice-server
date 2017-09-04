@@ -470,12 +470,7 @@ abstract class Record extends DataModel {
 		}
 	}
 
-	/**
-	 * Define events is called by {@see \IFW\Event\EventEmitterTrait}
-	 */
-	public static function defineEvents () {		
-	
-	}
+
 
 	/**
 	 * Return the table name to store these records in.

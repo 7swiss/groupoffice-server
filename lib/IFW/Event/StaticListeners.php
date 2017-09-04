@@ -59,13 +59,13 @@ class StaticListeners {
 	 * 
 	 */
 	public function initListeners() {
-		if (isset($this->listeners)) {
+		if (isset($this->listeners)) {			
 			return;
 		}
 
 		$this->listeners = IFW::app()->getCache()->get('listeners');
 
-		if ($this->listeners !== false) {
+		if (is_array($this->listeners)) {
 			return;
 		}
 
@@ -99,7 +99,6 @@ class StaticListeners {
 
 		//disable events to prevent recursion
 		EventEmitterTrait::$disableEvents = false;
-
 
 		IFW::app()->getCache()->set('listeners', $this->listeners);
 	}

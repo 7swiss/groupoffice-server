@@ -176,7 +176,7 @@ class AuthController extends Controller {
 
 		$token = new Token();
 		$token->user = $user;
-		$token->save();
+		$token->save();		
 
 		$this->renderModel($token, $returnProperties);
 	}
