@@ -6,6 +6,9 @@ use GO\Core\Controller;
 use GO\Modules\GroupOffice\Webclient\Model\LanguageFile;
 
 class LanguageController extends Controller {
+	
+	
+	const LANGUAGES = ['nl','de','fr','gr','hu','pl','ro'];
 
 	private $lang;
 	private $webclientRoot;
@@ -16,24 +19,27 @@ class LanguageController extends Controller {
 	 * @param type $lang
 	 * @param type $root
 	 */
-	public function updateAll($root, $lang) {
-		$this->lang = $lang;
+	public function updateAll($root) {
+		
+		foreach(self::LANGUAGES as $lang) {
+			$this->lang = $lang;
 
-		$this->webclientRoot = realpath($root);
+			$this->webclientRoot = realpath($root);
 
-		$this->createMissing();
+			$this->createMissing();
 
 
-		$langFiles = [];
+			$langFiles = [];
 
-		$cmd = 'find '. escapeshellarg($root).' -type f -name ' . $this->lang . '.js';
-		exec($cmd, $langFiles, $retVar);
+			$cmd = 'find '. escapeshellarg($root).' -type f -name ' . $this->lang . '.js';
+			exec($cmd, $langFiles, $retVar);
 
-		foreach ($langFiles as $langFile) {
+			foreach ($langFiles as $langFile) {
 
-			echo "Updating " . $langFile . "\n\n";
+				echo "Updating " . $langFile . "\n\n";
 
-			$this->actionUpdateFile($langFile);
+				$this->updateFile($langFile);
+			}
 		}
 	}
 
@@ -149,37 +155,42 @@ class LanguageController extends Controller {
 	private $delimiter = ';';
 	
 	/**
-	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/export-csv --lang=nl --root=./app --output=/tmp/nl.csv
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/export-csv -h=localhost --root=./app --output=/tmp/languages.csv
 
 	 * @param type $lang
 	 * @param type $root
 	 * @param type $output
 	 */
-	public function exportCsv($lang, $root, $output) {
-		$cmd = 'find '. escapeshellarg($root).' -type f -name '.$lang.'.js';
+	public function exportCsv($root, $output) {
 		
-		exec($cmd, $langFiles, $return_var);
-
+		$this->updateAll($root);
+		
 		$fp = fopen($output, 'w+');
 
+		
+		foreach (self::LANGUAGES as $lang) {
+			$cmd = 'find '. escapeshellarg($root).' -type f -name '.$lang.'.js';		
+			exec($cmd, $langFiles, $return_var);
 
-		foreach($langFiles as $langFilePath) {	
-			
-			$langFile = new LanguageFile($langFilePath);
-			
-			foreach($langFile->getVars() as $key => $translation) {
-				fputcsv($fp,[$key, $translation, str_replace($root, '', $langFilePath)], $this->delimiter);
+
+			foreach($langFiles as $langFilePath) {	
+
+				$langFile = new LanguageFile($langFilePath);
+
+				foreach($langFile->getVars() as $key => $translation) {
+					fputcsv($fp,[$key, $translation, str_replace($root, '', $langFilePath)], $this->delimiter);
+				}
 			}
 		}
 		fclose($fp);
 	}
 	
 	/**
-	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=./app --input=/tmp/nl.csv
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv  -h=localhost --root=./app --input=/tmp/languages.csv
 	 * 
-	 *  /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=fr --root=/var/www/html/groupoffice-webclient/app --input=FR_Backend.csv
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv -h=localhost --root=/var/www/html/groupoffice-webclient/app --input=languages.csv
 	 * 
-	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv --lang=nl --root=/var/www/html/elearning-webclient/app --input=Teksten\ NL-Frontend\ EntrancePortal\ FC\ bewerkt\ jva\ 7-4-17.csv
+	 * /var/www/groupoffice-server/bin/groupoffice webclient/language/import-csv -h=localhost --root=/var/www/html/elearning-webclient/app --input=languages.csv
 	 * 
 	 * @param type $root
 	 * @param type $input
