@@ -76,7 +76,7 @@ class Module extends InstallableModule implements \IFW\Event\EventListenerInterf
 	}
 	
 	public function autoInstall() {
-		return true;
+		return false;
 	}
 	
 }

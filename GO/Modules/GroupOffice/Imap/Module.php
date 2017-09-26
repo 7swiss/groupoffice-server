@@ -30,7 +30,7 @@ class Module extends InstallableModule {
 	}
 	
 	public function autoInstall() {
-		return true;
+		return false;
 	}
 }
 

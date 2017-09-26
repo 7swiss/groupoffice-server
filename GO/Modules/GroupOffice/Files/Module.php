@@ -20,7 +20,7 @@ class Module extends InstallableModule {
 	}
 
 	public function autoInstall() {
-		return true;
+		return false;
 	}
 
 	public static function defineWebRoutes(Router $router) {
