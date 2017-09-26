@@ -34,7 +34,8 @@ class GroupController extends Controller {
 				->orderBy([$orderColumn => $orderDirection])
 				->limit($limit)
 				->offset($offset)
-				->search($searchQuery, array('t.name'));
+				->search($searchQuery, array('t.name'))
+				->where(['userId' => null]);
 		
 		if(isset($q)) {
 			$query->setFromClient($q);
