@@ -77,12 +77,12 @@ abstract class Controller extends IFWController {
 	protected function renderModel(Model $model, $returnProperties = null) {
 		
 		//For HTTP Caching
-		if (GO()->getRequest()->getMethod() == 'GET' && isset($model->modifiedAt)) {
-			GO()->getResponse()->setModifiedAt($model->modifiedAt);
-			GO()->getResponse()->setEtag($model->modifiedAt->format(\IFW\Util\DateTime::FORMAT_API));
-			GO()->getResponse()->abortIfCached();
-		}
-
+//		if (!GO()->getRequest()->getMethod() == 'GET' && isset($model->modifiedAt)) {
+//			GO()->getResponse()->setModifiedAt($model->modifiedAt);
+//			GO()->getResponse()->setEtag($model->modifiedAt->format(\IFW\Util\DateTime::FORMAT_API));
+//			GO()->getResponse()->abortIfCached();
+//		}
+//
 		$response = ['data' => $model->toArray($returnProperties)];
 		$response['success'] = true;
 		
@@ -112,8 +112,8 @@ abstract class Controller extends IFWController {
 //				'count' => count($store) //Not needed by our webclient now but might be useful for other implementations. Perhaps by supplying a param returnCount=1 ?
 						]);
 		//generate an ETag for HTTP Caching
-		GO()->getResponse()->setETag(md5($this->rendered));
-		GO()->getResponse()->abortIfCached();
+//		GO()->getResponse()->setETag(md5($this->rendered));
+//		GO()->getResponse()->abortIfCached();
 		
 		
 		if(GO()->getEnvironment()->isCli()) {
