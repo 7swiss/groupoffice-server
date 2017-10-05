@@ -57,7 +57,7 @@ class VariableParser {
 	
 	public function __construct() {
 		$this->filters['date'] = function(\IFW\Util\DateTime $date = null, $format = null) {
-			return isset($date) ? $date->toLocaleFormat() : "";
+			return isset($date) ? $date->format($format) : "";
 		};
 		
 		$this->filters['number'] = function($number,$decimals=2, $decimalSeparator='.', $thousandsSeparator=',') {
@@ -187,7 +187,7 @@ class VariableParser {
 		
 		foreach($filters as $filter) {
 			
-			$args = array_map('trim', explode(':', $filter));				
+			$args = array_map('trim', str_getcsv($filter, ':', "'"));
 			$filterName = array_shift($args);
 			array_unshift($args, $value);
 			
