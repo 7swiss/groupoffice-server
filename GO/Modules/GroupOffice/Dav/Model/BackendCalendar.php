@@ -10,7 +10,7 @@ use Sabre\DAV;
 use GO;
 use IFW\Orm\Query;
 use GO\Core\Users\Model\User;
-use GO\Modules\GroupOffice\Calendar\Model\Event;
+use GO\Modules\GroupOffice\Calendar\Model\Event As CalendarEvent;
 use GO\Modules\GroupOffice\Calendar\Model\Calendar;
 use GO\Modules\GroupOffice\Calendar\Model\ICalendarHelper;
 
