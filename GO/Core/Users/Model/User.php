@@ -56,6 +56,12 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 	public $username;
 
 	/**
+	 *
+	 * @var string
+	 */
+	public $displayName;
+
+	/**
 	 * If the password hash is set to null it's impossible to login.
 	 * @var string
 	 */
