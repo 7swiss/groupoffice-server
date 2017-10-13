@@ -277,7 +277,7 @@ class RelationStore extends Store implements ArrayAccess {
 //		\IFW::app()->debug("setParentRelation ".$this->getRelation()->getName().' '.$value->objectId().' '.$this->record->objectId().' '.var_export($relation, true));
 		//check if it hasn't been fetched or set already to prevent loops
 		if($relation && !$value->relationIsFetched($relation->getName())) {			
-//			\IFW::app()->debug("Parent relation '".$relation->getName()."' set on ".$value->objectId().' by '.$this->record->objectId());
+//			\IFW::app()->debug("############## Parent relation '".$relation->getName()."' set on ".$value->objectId().' by '.$this->record->objectId());
 			$value->{$relation->getName()} = $this->record;			
 		}		
 	}
@@ -306,7 +306,7 @@ class RelationStore extends Store implements ArrayAccess {
 			}
 		}
 		
-		$this->reset();
+		$this->modified = [];
 	}
 	
 	/**
