@@ -442,5 +442,9 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 		
 		return \GO\Core\Users\Model\User::find($query)->all();		
 	}
+	
+	public function getTimezone() {
+		return new \DateTimeZone("europe/amsterdam");
+	}
 
 }

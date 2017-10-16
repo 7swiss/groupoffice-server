@@ -57,6 +57,9 @@ class VariableParser {
 	
 	public function __construct() {
 		$this->filters['date'] = function(\IFW\Util\DateTime $date = null, $format = "d-m-Y") {
+			
+			$date->setTimezone(\IFW::app()->getAuth()->user()->getTimezone());
+			
 			return isset($date) ? $date->format($format) : "";
 		};
 		
