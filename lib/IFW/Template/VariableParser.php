@@ -56,7 +56,7 @@ class VariableParser {
 	private $models = [];
 	
 	public function __construct() {
-		$this->filters['date'] = function(\IFW\Util\DateTime $date = null, $format = null) {
+		$this->filters['date'] = function(\IFW\Util\DateTime $date = null, $format = "d-m-Y") {
 			return isset($date) ? $date->format($format) : "";
 		};
 		
@@ -66,63 +66,192 @@ class VariableParser {
 		
 		$this->models['now'] = new \IFW\Util\DateTime();
 	}
-
-
+	
+	
+	private function findBlocks($str) {
+			
+		preg_match_all('/\n?{{#(each|if)([^}]+)}}\n?/s', $str, $openMatches, PREG_OFFSET_CAPTURE|PREG_SET_ORDER);
+		preg_match_all('/{{\/(each|if)}}\n?/s', $str, $closeMatches, PREG_OFFSET_CAPTURE|PREG_SET_ORDER);
+		
+		$count = count($openMatches);
+		if($count != count($closeMatches)) {
+			
+//			var_dump($str);
+			
+			throw new \Exception("Open and close tags don't match");
+		}
+		
+//		var_dump($closeMatches);
+		
+		$tags = [];
+		
+		
+		for($i = 0; $i < $count; $i++) {			
+			$offset = $openMatches[$i][0][1];
+			$tags[$offset] = ['tagName' => $openMatches[$i][1][0], 'type' => 'open', 'offset' => $offset, 'expression' => trim($openMatches[$i][2][0]), 'tagLength' => strlen($openMatches[$i][0][0])];			
+		}
+		
+		
+		for($i = 0; $i < $count; $i++) {			
+			$offset = $closeMatches[$i][0][1];
+			$tags[$offset] = ['tagName' => $closeMatches[$i][1][0], 'type' => 'close', 'offset' => $offset, 'tagLength' => strlen($closeMatches[$i][0][0])];			
+		}
+		
+		//close and open 
+		ksort($tags);
+		$tags = array_values($tags);		
+		
+		
+		$tags = $this->findCloseTags($tags);
+				
+		
+		$tags = array_values(array_filter($tags, function($tag) {
+			return $tag['type'] == 'open' && isset($tag['close']);
+		}));
+		
+		for($i = 0, $c = count($tags); $i < $c; $i++) {
+			$tags[$i]['tpl'] = substr($str, $tags[$i]['offset'] + $tags[$i]['tagLength'], $tags[$i]['close']['offset'] - $tags[$i]['offset'] - $tags[$i]['tagLength']); 
+		}
+		return $tags;
+	}
+	
+	private function findCloseTags($tags) {
+		
+		$open = 0;
+		$current = null;
+		$tagName = null;
+		
+		for($i = 0, $count = count($tags); $i < $count; $i++) {	
+			
+			if($open > 0 && $tags[$i]['tagName'] != $tagName) {
+				continue;
+			}
+			
+			if($tags[$i]['type'] == 'open') {
+				$open++;
+				if($open == 1) {
+					$tagName = $tags[$i]['tagName'];
+					$current = $i;
+				}												
+			} else {
+				$open--;				
+				if($open == 0) {
+					$tags[$current]['close'] = $tags[$i];					
+				}
+			}
+		}
+		
+		return $tags;
+	}
+/*
+<br>&nbsp; - {{license.course.name}} {{#if license.expiresAt != null}}verloopt op {{license.expiresAt | date}}{{/if}}{{#if !license.expiresAt}}Nog niet behaald{{/if}}&nbsp;<br>
+  */
 	public function parse($str) {		
 		
-		$str = preg_replace_callback('/\n?{{#each([^}]+)}}(.*){{\/each}}\n?/s', [$this, 'replaceEach'], $str);		
+//		echo "\n--- Input:\n";
+//		var_dump($str);
 		
-		$str = preg_replace_callback('/\n?{{#if([^}]+)}}(.*){{\/if}}\n?/s', [$this, 'replaceIf'], $str);		
+		$tags = $this->findBlocks($str);
 		
-		$str = preg_replace_callback('/{{[^}]*}}/', [$this, 'replaceVar'], $str);
 		
-		return $str;
+		for($i = 0;$i < count($tags); $i++) {
+			if($tags[$i]['tagName'] == 'if') {
+				$tags[$i] = $this->replaceIf($tags[$i], $str);
+			} else
+			{
+				$tags[$i] = $this->replaceEach($tags[$i], $str);
+			}
+		}
+		
+//		var_dump($tags);
+		$replaced = "";
+		$offset = 0;
+		foreach($tags as $tag) {
+			
+//			var_dump($tag);
+			
+			if($tag['offset'] > 0) {
+				$cut = substr($str, $offset, $tag['offset'] - $offset);
+//				echo "\n--- Cut:\n";
+//				var_dump($cut);
+//				var_dump($offset);
+//				var_dump($tag['offset']);
+				$replaced .= $cut;
+			}
+			
+//			echo "\n--- Replace:\n";
+//			var_dump(substr($str, $tag['offset'], $tag['close']['offset'] + $tag['close']['tagLength'] - $tag['offset']));
+//			echo "\n--- With:\n";
+//			var_dump($tag['replacement']);
+//			var_dump('------');
+//			
+			$replaced .=  $tag['replacement'];
+			$offset = $tag['close']['offset'] + $tag['close']['tagLength'];
+		}
+		
+		$replaced .= substr($str, $offset);
+				
+		$replaced = preg_replace_callback('/{{[^}]*}}/', [$this, 'replaceVar'], $replaced);
+		
+//		echo "\n--- Result:\n";
+//		var_dump($replaced);
+		
+		return $replaced;
 	}
 	
 	
-	private function replaceEach($matches) {
+	private function replaceEach($tag, $str) {
 		
-		$expression = trim($matches[1]);
 		
 		//example emailAddress in contact.emailAddresses
-		$expressionParts = array_map('trim', explode(' in ', $expression));
+		$expressionParts = array_map('trim', explode(' in ', $tag['expression']));
 //		var_dump($expressionParts);
 		$array = $this->getVar(trim($expressionParts[1]));	
 		
 		if(!is_array($array) && !($array instanceof \Traversable)) {
-			return '';
+			$tag['replacement'] = "";
+			return $tag;
 //			throw new \Exception('Invalid '.$matches[1].' '.$expressionParts[1].' = '.var_export($array, true));
 		}
 		
 		$varName = trim($expressionParts[0]);
 		
-		$tpl = $matches[2];
 		
-		$str = '';
+		
+		$replacement = '';
 		foreach($array as $model) {
 			
 			$this->addModel($varName, $model);		
-			$str .= $this->parse($tpl);
+			
+			$add = $this->parse($tag['tpl']);
+			$replacement .= $add;
 		}
 		
-		return $str;
+		$tag['replacement'] = $replacement;
+		
+		return $tag;
+//		return substr($str, 0, $block['offset']) . $replacement . substr($str, $block['close']['offset'] + $block['close']['tagLength']);
+		
 	}
 
 	private static $tokens = ['==','!=','>','<', '(', ')', '&&', '||', '*', '/', '%', '-', '+'];
 
-	private function replaceIf($matches) {
-		$expression = trim($matches[1]);
+	private function replaceIf($tag, $str) {
 		
-		$expression = $this->validateExpression($expression);
+		$expression = $this->validateExpression($tag['expression']);
 		
-		$ret = eval($expression);
-		
+		$ret = eval($expression);	
 		if($ret){
-			return $this->parse($matches[2]);
+			$tag['replacement'] = $this->parse($tag['tpl']);
 		}else
 		{
-			return '';
+			$tag['replacement'] = '';
 		}
+		
+		return $tag;
+
+		
+//		return substr($str, 0, $block['offset']) . $replacement . substr($str, $block['close']['offset'] + $block['close']['tagLength']);
 	}
 	
 	private function validateExpression($expression) {
@@ -151,13 +280,17 @@ class VariableParser {
 							is_numeric($part) ||
 							$part == 'true' ||
 							$part == 'false' ||
+							$part == 'null' ||
 							in_array($part, self::$tokens) ||
 							$this->isString($part)											
 				) {
 				$str .= $part.' ';
-			}elseif($this->isVar($part))
+			}elseif($this->isVar(ltrim($part, "!")))
 			{
-				$str .= var_export($this->getVar($part), true).' ';
+				if($part[0] == "!") {
+					$str .= "!";
+				}
+				$str .= var_export($this->getVar(ltrim($part, "!")), true).' ';
 			} else
 			{			
 				throw new \Exception("Invalid token: ".var_export($part, true));
