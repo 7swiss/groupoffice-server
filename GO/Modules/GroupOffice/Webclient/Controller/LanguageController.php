@@ -5,6 +5,13 @@ namespace GO\Modules\GroupOffice\Webclient\Controller;
 use GO\Core\Controller;
 use GO\Modules\GroupOffice\Webclient\Model\LanguageFile;
 
+/**
+ * 
+root@debian9:/media/sf_Projects/elearning-webclient/app# ../../groupoffice-server/bin/groupoffice webclient/language/import-csv -h=localhost --root=./ --input=/media/sf_Downloads/frontend.cs
+
+root@debian9:/media/sf_Projects/elearning-webclient/app# ../../groupoffice-server/bin/groupoffice webclient/language/export-csv -h=localhost --root=./ --output=/media/sf_Downloads/frontend-17-10-2017.csv
+ * 
+ */
 class LanguageController extends Controller {
 	
 	
@@ -169,6 +176,8 @@ class LanguageController extends Controller {
 
 		
 		foreach (self::LANGUAGES as $lang) {
+			$langFiles = [];
+			$return_var = false;
 			$cmd = 'find '. escapeshellarg($root).' -type f -name '.$lang.'.js';		
 			exec($cmd, $langFiles, $return_var);
 
