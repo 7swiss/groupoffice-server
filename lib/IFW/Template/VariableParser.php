@@ -62,7 +62,7 @@ class VariableParser {
 				$date->setTimezone(\IFW::app()->getAuth()->user()->getTimezone());
 			}else
 			{
-				$date->setTimezone("europe/amsterdam");
+				$date->setTimezone(new \DateTimeZone("europe/amsterdam"));
 			}
 			
 			return isset($date) ? $date->format($format) : "";
