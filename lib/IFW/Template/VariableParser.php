@@ -58,6 +58,10 @@ class VariableParser {
 	public function __construct() {
 		$this->filters['date'] = function(\IFW\Util\DateTime $date = null, $format = "d-m-Y") {
 			
+			if(!isset($date)) {
+				return "";
+			}
+			
 			if(\IFW::app()->getAuth()->user()) {
 				$date->setTimezone(\IFW::app()->getAuth()->user()->getTimezone());
 			}else
@@ -65,7 +69,7 @@ class VariableParser {
 				$date->setTimezone(new \DateTimeZone("europe/amsterdam"));
 			}
 			
-			return isset($date) ? $date->format($format) : "";
+			return $date->format($format);
 		};
 		
 		$this->filters['number'] = function($number,$decimals=2, $decimalSeparator='.', $thousandsSeparator=',') {
