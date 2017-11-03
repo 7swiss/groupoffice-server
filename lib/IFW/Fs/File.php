@@ -201,28 +201,23 @@ class File extends FileSystemObject {
 	 * @param boolean $useCache
 	 */
 	public function output($sendHeaders = true, $useCache = true) {
-//		@ob_end_clean();
-//		@ob_end_flush();
 
-		//readfile somehow caused a memory exhausted error. This stopped when I added
-		//ob_clean and flush above, but the browser hung with presenting the download
-		//dialog until the entire download was completed.
-		//The code below seems to work better.
-		//
-//		readfile($this->getPath());
-	
 		if($sendHeaders) {
 			IFW::app()->getResponse()->setHeader('Content-Type', $this->getContentType());
 			IFW::app()->getResponse()->setHeader('Content-Disposition', 'inline; filename="' . $this->getName() . '"');
 			IFW::app()->getResponse()->setHeader('Content-Transfer-Encoding', 'binary');
-
 			if ($useCache) {			
 				IFW::app()->getResponse()->setModifiedAt(new DateTime('@'.$this->getModifiedAt()));
 				IFW::app()->getResponse()->setETag($this->getMd5Hash());
 				IFW::app()->getResponse()->abortIfCached();
 			}		
-		}		
+		}	
 		
+		if (isset($_SERVER['HTTP_RANGE'])){
+			$this->rangeDownload($this->getPath());
+			return;
+		}
+
 		if(ob_get_contents() != '') {			
 			throw new \Exception("Could not output file because output has already been sent. Turn off output buffering to find out where output has been started.");
 		}
@@ -238,6 +233,92 @@ class File extends FileSystemObject {
 			flush();
 		}
 	}
+	
+	private function rangeDownload($file) {
+ 
+		$fp = @fopen($file, 'rb');
+
+		$size   = filesize($file); // File size
+		$length = $size;           // Content length
+		$start  = 0;               // Start byte
+		$end    = $size - 1;       // End byte
+		IFW::app()->getResponse()->setHeader("Accept-Ranges", "0-$length");
+		// header('Accept-Ranges: bytes');
+		// multipart/byteranges
+		// http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2
+		if (isset($_SERVER['HTTP_RANGE'])) {
+
+			$c_start = $start;
+			$c_end   = $end;
+			// Extract the range string
+			list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+			// Make sure the client hasn't sent us a multibyte range
+			if (strpos($range, ',') !== false) {
+
+				// (?) Shoud this be issued here, or should the first
+				// range be used? Or should the header be ignored and
+				// we output the whole content?
+				header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				IFW::app()->getResponse()->setHeader("Content-Range", "bytes $start-$end/$size");
+				// (?) Echo some info to the client?
+				exit;
+			}
+			// If the range starts with an '-' we start from the beginning
+			// If not, we forward the file pointer
+			// And make sure to get the end byte if spesified
+			if ($range{0} == '-') {
+
+				// The n-number of the last bytes is requested
+				$c_start = $size - substr($range, 1);
+			}
+			else {
+
+				$range  = explode('-', $range);
+				$c_start = $range[0];
+				$c_end   = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $size;
+			}
+			/* Check the range and make sure it's treated according to the specs.
+			 * http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+			 */
+			// End bytes can not be larger than $end.
+			$c_end = ($c_end > $end) ? $end : $c_end;
+			// Validate the requested range and return an error if it's not correct.
+			if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
+
+				header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				IFW::app()->getResponse()->setHeader("Content-Range,", "bytes $start-$end/$size");
+				// (?) Echo some info to the client?
+				exit;
+			}
+			$start  = $c_start;
+			$end    = $c_end;
+			$length = $end - $start + 1; // Calculate new content length
+			fseek($fp, $start);
+			header('HTTP/1.1 206 Partial Content');
+		}
+		// Notify the client the byte range we'll be outputting
+		IFW::app()->getResponse()->setHeader("Content-Range", "bytes $start-$end/$size");
+		IFW::app()->getResponse()->setHeader("Content-Length", "$length");
+
+		// Start buffered download
+		$buffer = 1024 * 8;
+		while(!feof($fp) && ($p = ftell($fp)) <= $end) {
+
+			if ($p + $buffer > $end) {
+
+				// In case we're only outputtin a chunk, make sure we don't
+				// read past the length
+				$buffer = $end - $p + 1;
+			}
+			set_time_limit(0); // Reset time limit for big files
+			echo fread($fp, $buffer);
+			flush(); // Free up memory. Otherwise large files will trigger PHP's memory limit.
+		}
+
+		fclose($fp);
+
+	}
+	
 	
 	/**
 	 * Open file pointer
