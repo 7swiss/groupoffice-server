@@ -207,11 +207,13 @@ class LanguageController extends Controller {
 		$fp = fopen($input, 'r');
 		
 		while($record = fgetcsv($fp,0, $this->delimiter)) {
-			$langFile = new LanguageFile($root.$record[2]);
+			$path = $root.'/'.trim($record[2], '/');
+			
+			$langFile = new LanguageFile($path);
 			$langFile->{$record[0]} = $record[1];
 			$langFile->save();
 			
-			echo "Importing '".$record[0]."' in file '".$root.$record[2]."'\n";
+			echo "Importing '".$record[0]."' in file '".$path."'\n";
 		}
 		
 		fclose($fp);

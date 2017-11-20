@@ -138,7 +138,7 @@ class Message extends \GO\Core\Orm\Record {
 	 * See TYPE_* constants
 	 * @var int
 	 */							
-	public $type = 2;
+	public $type = self::TYPE_DRAFT;
 
 	/**
 	 * 
