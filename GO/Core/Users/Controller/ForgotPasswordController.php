@@ -22,7 +22,9 @@ use function GO;
  */
 class ForgotPasswordController extends Controller {
 
-	
+	public function checkAccess() {
+		return true;
+	}
 	/**
 	 * 
 	 * @param string $email
