@@ -1,1 +1,1 @@
-update auth_group set userId = null where userId = 1
+update auth_group set userId = null where userId = 1;
