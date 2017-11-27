@@ -8,7 +8,7 @@ use GO\Modules\GroupOffice\Webclient\Model\LanguageFile;
 /**
  * 
 root@debian9:~# /media/sf_Projects/groupoffice-server/bin/groupoffice webclient/language/import-csv -h=localhost --root=/media/sf_Projects/elearning-webclient/app --input=/media/sf_Downloads/frontend.csv
-root@debian9: /media/sf_Projects/elearning-webclient/app/groupoffice-server/bin/groupoffice webclient/language/export-csv -h=localhost --root=./ --output=/media/sf_Downloads/frontend-17-10-2017.csv
+root@debian9: /media/sf_Projects/groupoffice-server/bin/groupoffice webclient/language/export-csv -h=localhost --root=./ --output=/media/sf_Downloads/frontend-17-10-2017.csv
  * 
  */
 class LanguageController extends Controller {
