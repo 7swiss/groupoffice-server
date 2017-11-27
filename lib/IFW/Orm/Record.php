@@ -2092,7 +2092,7 @@ abstract class Record extends DataModel {
 
 		foreach ($r as $name => $relation) {
 			if($relation->deleteAction === Relation::DELETE_RESTRICT) {
-				if ($relation->isA(Relation::TYPE_HAS_ONE) || $relation->isA(Relation::TYPE_BELONGS_TO)){
+				if (!$relation->hasMany()){
 					$result = $this->$name;
 				}else{
 					$result = $this->$name->single();

@@ -44,7 +44,7 @@ class Module extends InstallableModule {
 						->get('auth/groups/:groupId', 'read')
 						->put('auth/groups/:groupId', 'update')
 						->post('auth/groups', 'create')
-						->delete('auth/groups', 'delete');
+						->delete('auth/groups/:groupId', 'delete');
 		
 	}
 	
