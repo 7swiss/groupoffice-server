@@ -106,7 +106,7 @@ trait AppTrait {
 		}
 		
 		$log->type = $type;
-		$log->description = $description;
+		$log->description = \IFW\Util\StringUtil::cutString($description, 190);
 
 		if (!$log->save()) {
 			throw new Exception("Could not save log entry: " . var_export($log->getValidationErrors(), true));
