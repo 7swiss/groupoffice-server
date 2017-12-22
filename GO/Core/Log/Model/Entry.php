@@ -100,7 +100,7 @@ class Entry extends Record {
 			}
 
 			if(isset($_SERVER['HTTP_USER_AGENT'])) {
-				$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+				$this->userAgent = \IFW\Util\StringUtil::cutString($_SERVER['HTTP_USER_AGENT'], 190);
 			}else if(GO()->getEnvironment()->isCli()) {
 				$this->userAgent = 'cli';
 			}
@@ -146,6 +146,13 @@ class Entry extends Record {
 		
 		return $module;
  	}
+	
+	 protected function internalValidate() {
+		 
+		 
+		 
+		 return parent::internalValidate();
+	 }
 	
 	
 	
