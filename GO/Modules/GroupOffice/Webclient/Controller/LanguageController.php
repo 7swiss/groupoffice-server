@@ -206,7 +206,14 @@ class LanguageController extends Controller {
 	public function importCsv($root, $input) {
 		$fp = fopen($input, 'r');
 		
+		$count = 0;
 		while($record = fgetcsv($fp,0, $this->delimiter)) {
+			
+			if(empty($record[0])) {
+				echo "Skipping empty record\n";
+				continue;
+			}
+			
 			$path = $root.'/'.trim($record[2], '/');
 			
 			$langFile = new LanguageFile($path);
@@ -214,11 +221,12 @@ class LanguageController extends Controller {
 			$langFile->save();
 			
 			echo "Importing '".$record[0]."' in file '".$path."'\n";
+			$count++;
 		}
 		
 		fclose($fp);
 		
-		echo "Import done!\n";
+		echo "Imported $count records\n";
 	}
 
 }
