@@ -29,6 +29,7 @@ class Module extends InstallableModule {
 						->get('auth/users/:userId', 'read')
 						->put('auth/users/:userId', 'update')
 						->post('auth/users', 'create')
+						->put('auth/users', 'multiple')
 						->delete('auth/users/:userId', 'delete')
 						->get('auth/users/filters', 'filters')
 						->put('auth/users/:userId/change-password', 'changePassword');

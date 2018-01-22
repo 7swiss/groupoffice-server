@@ -201,6 +201,43 @@ class UserController extends Controller {
 		$user->save();
 		$this->renderModel($user);
 	}
+	
+		/**
+	 * Update multiple contacts at once with a PUT request.
+	 * 
+	 * @example multi delete
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * {
+	 *	"data" : [{"id" : 1, "markDeleted" : true}, {"id" : 2, "markDeleted" : true}]
+	 * }
+	 * ```````````````````````````````````````````````````````````````````````````
+	 * @throws NotFound
+	 */
+	public function multiple() {
+		
+		$response = ['data' => []];
+		
+		foreach(GO()->getRequest()->getBody()['data'] as $values) {
+			
+			if(!empty($values['id'])) {
+				$user = User::findByPk($values['id']);
+
+				if (!$user) {
+					throw new NotFound();
+				}
+			}else
+			{
+				$user = new User();
+			}
+			
+			$user->setValues($values);
+			$user->save();
+			
+			$response['data'][] = $user->toArray('id');
+		}
+		
+		$this->render($response);
+	}
 
 //	/**
 //	 * 
