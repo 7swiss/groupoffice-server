@@ -197,6 +197,7 @@ class UserController extends Controller {
 		}
 		if ($user->checkPassword(GO()->getRequest()->body['currentPassword'])) {
 			$user->password = GO()->getRequest()->body['password'];
+			$user->forcePasswordChange = false; // Set to false if password is changed
 		}
 		$user->save();
 		$this->renderModel($user);
