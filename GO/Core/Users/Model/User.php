@@ -66,6 +66,12 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 	 * @var string
 	 */
 	protected $password;
+	
+	/**
+	 * If the password needs to be reset in the next login.
+	 * @var bool
+	 */
+	public $forcePasswordReset = false;
 
 	/**
 	 * Digest of the password used for digest auth. (Deprecated?)
