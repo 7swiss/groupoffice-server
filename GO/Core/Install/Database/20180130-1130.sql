@@ -1,1 +1,1 @@
-ALTER TABLE `auth_user` ADD `forcePasswordReset` BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE `auth_user` ADD `forcePasswordChange` BOOLEAN NOT NULL DEFAULT FALSE;
