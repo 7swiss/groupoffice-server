@@ -262,6 +262,9 @@ class User extends Record implements UserInterface, \GO\Core\Email\Model\Recipie
 	public function internalValidate() {
 
 		if (!empty($this->password) && $this->isModified('password')) {
+			if(strlen($this->password) < 6){
+				$this->setValidationError('password', \IFW\Validate\ErrorCode::INVALID_INPUT);
+			}
 			$this->digest = md5($this->username . ":" . GO()->getConfig()->productName . ":" . $this->password);
 			$this->password = password_hash($this->password, PASSWORD_DEFAULT);
 		}
