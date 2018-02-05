@@ -10,15 +10,6 @@
 	],
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.6.0",
-		"ext-pcre": "*",
-		"ext-mbstring": "*",
-		"ext-ctype": "*",
-		"ext-date": "*",
-		"ext-iconv": "*",
-		"ext-curl": "*",
-		"ext-pdo": "*",
-		"ext-zip": "*",
 
 		"flowjs/flow-php-server": "@stable",
 		"sabre/dav": "@stable",
